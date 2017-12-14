@@ -1,0 +1,1 @@
+${name} ansible_user='ubuntu' ansible_host=${public_ip} public_ip=${public_ip} private_ip=${private_ip}

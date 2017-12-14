@@ -1,0 +1,14 @@
+---
+
+- name: update hostname
+  hostname:
+    name: '{{ inventory_hostname }}'
+
+- name: ensure hostname is in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.0\.1'
+    line: '127.0.0.1 localhost {{ inventory_hostname }}'
+    owner: root
+    group: root
+    mode: 0644

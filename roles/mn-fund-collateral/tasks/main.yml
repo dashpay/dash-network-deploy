@@ -1,0 +1,71 @@
+---
+
+
+- name: import masternode funding address key
+  command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].address_key }}'
+  with_items: '{{ groups["masternodes"] }}'
+
+# check
+
+- name: resetting collateral_ok_count
+  set_fact:
+    collateral_ok_count: 0
+
+- include_role:
+    name: mn-find-collateral
+  vars:
+    masternode: "{{ masternodes[item] }}"
+    masternode_name: "{{ item }}"
+  with_items: '{{ groups["masternodes"] }}'
+
+- name: updating collateral_all_ok
+  set_fact:
+    collateral_all_ok: "{{ collateral_ok_count|int == groups['masternodes']|length }}"
+
+- debug: msg="collateral_ok_count={{ collateral_ok_count }}"
+
+# ensure faucet balance
+
+- name: generate enough blocks to fund collaterals
+  include_role:
+    name: generate-blocks
+  vars:
+    num_blocks: 0
+    balance_needed: "{{ (groups['masternodes']|length - collateral_ok_count) * 1000 }}"
+  when: not collateral_all_ok
+
+# fund
+
+- include: fund_collateral.yml
+  vars:
+    masternode: "{{ masternodes[item] }}"
+    masternode_name: "{{ item }}"
+  when: not vars["collateral_ok_" + item|replace("-","_")]
+  with_items: '{{ groups["masternodes"] }}'
+
+# verify
+
+- name: resetting collateral_ok_count
+  set_fact:
+    collateral_ok_count: 0
+  when: not collateral_all_ok
+
+- include_role:
+    name: mn-find-collateral
+  vars:
+    masternode: "{{ masternodes[item] }}"
+    masternode_name: "{{ item }}"
+  when: not collateral_all_ok
+  with_items: '{{ groups["masternodes"] }}'
+
+- fail:
+    msg: funding was not successful
+  when: not collateral_all_ok and collateral_ok_count|int != groups['masternodes']|length
+
+- name: generate at least one block to confirm funding transactions
+  include_role:
+    name: generate-blocks
+  vars:
+    num_blocks: 1
+    balance_needed: 0
+  when: not collateral_all_ok

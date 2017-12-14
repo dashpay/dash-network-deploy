@@ -1,0 +1,41 @@
+---
+
+# Requires masternode and masternode_name to be set
+
+- name: copy script
+  copy:
+    src: scripts/find-collateral.py
+    dest: /usr/local/bin/find-collateral.py
+    owner: root
+    group: root
+    mode: 0755
+
+- name: find-collateral for {{ masternode_name }}/{{ masternode.address }}
+  shell: find-collateral.py "{{ masternode_wallet_rpc_args }}" "{{ masternode.address }}"
+  register: r
+  failed_when: False
+
+- name: update collateral_ok
+  set_fact:
+    collateral_ok: '{{ r.rc == 0 }}'
+    collateral_txid: ''
+    collateral_vout: -1
+
+- name: update txid/vout
+  set_fact:
+    collateral_txid: '{{ r.stdout_lines[0] }}'
+    collateral_vout: '{{ r.stdout_lines[1]|int }}'
+  when: collateral_ok
+
+- name: setting global masternode facts
+  set_fact:
+    collateral_ok_{{masternode_name|replace("-","_")}}: "{{ collateral_ok }}"
+    collateral_txid_{{masternode_name|replace("-","_")}}: "{{ collateral_txid }}"
+    collateral_vout_{{masternode_name|replace("-","_")}}: "{{ collateral_vout }}"
+
+- debug: msg="mn={{ masternode_name }} address={{ masternode.address }} collateral_ok={{collateral_ok}}, collateral_txid={{collateral_txid}}, collateral_vout={{collateral_vout}}"
+
+- name: updating collateral_ok_count
+  set_fact:
+    collateral_ok_count: "{{ collateral_ok_count|int + 1 }}"
+  when: collateral_ok

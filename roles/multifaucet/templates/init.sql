@@ -1,0 +1,14 @@
+CREATE TABLE `faucet_payouts` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ip_address` VARCHAR(45) NOT NULL DEFAULT '',
+  `payout_amount` FLOAT NOT NULL,
+  `payout_address` VARCHAR(34) NOT NULL DEFAULT '',
+  `promo_code` VARCHAR(80) NOT NULL DEFAULT '',
+  `promo_payout_amount` FLOAT NOT NULL,
+  `txid` VARCHAR(80) NULL DEFAULT NULL,
+  `timestamp` DATETIME NOT NULL,
+  `lastupdate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=MyISAM;

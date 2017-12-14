@@ -1,0 +1,11 @@
+---
+
+- name: create cpuminer container
+  docker_container:
+    name: dash-cpuminer
+    state: started
+    #cpu_quota: "{{ miner_cpu_quota }}"
+    image: '{{ cpuminer_image }}'
+    pull: true
+    restart_policy: always
+    command: '-r 1 -a x11 --no-getwork --no-stratum -o http://{{ miner_rpc_host }}:{{ miner_rpc_port }} -u {{ miner_rpc_user }} -p {{ miner_rpc_password }} --coinbase-addr={{ miner_payment_address }}'

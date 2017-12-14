@@ -1,0 +1,18 @@
+---
+
+- name: generate fixed amount of blocks
+  shell: dash-cli {{ faucet_rpc_args }} generate {{ num_blocks }} > /dev/null
+  when: num_blocks > 0
+
+# TODO avoid first call if not needed
+- name: generate enough blocks to have {{ balance_needed|default(0) }} coins
+  shell: dash-cli {{ faucet_rpc_args }} generate 10 > /dev/null && dash-cli {{ faucet_rpc_args }} getbalance
+  when: balance_needed|float > 0
+  register: balance_result
+  until: balance_result.stdout|float >= balance_needed|float
+  retries: 200
+  delay: 0
+
+- set_fact:
+    new_balance: "{{ balance_result.stdout|float }}"
+  when: balance_needed|float > 0

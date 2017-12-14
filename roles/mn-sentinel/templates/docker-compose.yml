@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  sentinel:
+    image: ablock/sentinel
+    restart: always
+    environment:
+      - DEBUG=false
+      - RPCUSER={{ dashd_rpcuser }}
+      - RPCPASSWORD={{ dashd_rpcpassword }}
+      - RPCHOST={{ private_ip }}
+      - RPCPORT={{ dashd_rpcport }}
+      - NETWORK={{ dash_network }}

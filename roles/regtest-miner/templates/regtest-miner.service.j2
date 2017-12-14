@@ -1,0 +1,10 @@
+[Unit]
+After=network.target
+
+[Service]
+User={{ dashd_user }}
+Group={{ dashd_group }}
+ExecStart=/usr/local/bin/regtest-miner.sh
+
+[Install]
+WantedBy=default.target

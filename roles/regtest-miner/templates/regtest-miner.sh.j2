@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+while true; do
+  dash-cli generate 1
+
+  {% if inventory_hostname != "faucet" %}
+  # Only needed when not run on same node as the faucet
+  BALANCE=$(dash-cli getbalance | awk '{print int($1)}')
+  if [ $BALANCE -gt 1 ]; then
+    echo "Total Balance: $BALANCE"
+    BALANCE=$(($BALANCE - 1)) # make sure we have enough for fee
+    echo "Send Balance: $BALANCE"
+    if [ $BALANCE -gt 0 ]; then
+      dash-cli sendtoaddress {{ miner_payment_address }} $BALANCE
+    fi
+  fi
+  {% endif %}
+
+  sleep 2.5m
+done

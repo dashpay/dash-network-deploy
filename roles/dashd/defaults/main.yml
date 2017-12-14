@@ -1,0 +1,16 @@
+---
+
+dashd_debug: 1
+
+dashd_indexes: false
+dashd_zmq: false
+
+dashd_listen: false
+dashd_externalip: '{{ public_ip }}'
+dashd_isseednode: '{{ dashd_externalip == dashd_seednode }}'
+
+dashd_private_net_prefix: 16
+dashd_private_cidr: '{{ private_ip|ipsubnet(dashd_private_net_prefix) }}'
+
+# When running devnet/regtest in local networks, we have to allow RFC1918/private addresses
+dashd_allowprivatenet: '{% if dashd_externalip|ipaddr("private") == dashd_externalip %}1{% else %}0{% endif %}'

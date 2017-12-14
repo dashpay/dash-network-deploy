@@ -1,0 +1,20 @@
+---
+
+- name: create sentinel dirs
+  file: path='{{ item }}' state=directory recurse=true
+  with_items:
+    - /dash/sentinel/sentinel
+
+- name: sentinel config
+  template:
+    src: '{{ item }}'
+    dest: '/dash/sentinel/{{ item }}'
+  with_items:
+    - docker-compose.yml
+
+- name: sentinel service
+  docker_service:
+    project_src: /dash/sentinel
+    state: present
+    build: yes
+    pull: yes

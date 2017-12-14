@@ -1,0 +1,23 @@
+---
+
+- name: wait for mnsync to finish on masternode-wallet
+  shell: dash-cli mnsync status
+  register: status_result
+  until: status_result.rc == 0 and (status_result.stdout|from_json).IsSynced
+  retries: 100
+  delay: 30
+
+- name: wait for full mnsync to finish on masternodes
+  shell: dash-cli mnsync status
+  register: status_result
+  until: status_result.rc == 0 and (status_result.stdout|from_json).IsSynced
+  retries: 100
+  delay: 30
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["masternodes"] }}'
+
+- name: call "masternode start-{{ start_type }}"
+  command: dash-cli masternode start-{{ start_type }}
+  register: start_result
+
+- debug: var=start_result

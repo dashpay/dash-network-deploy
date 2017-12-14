@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb:10.3
+    restart: always
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      - MYSQL_ROOT_PASSWORD=multifaucet
+      - MYSQL_DATABASE=multifaucet
+      - MYSQL_USER=multifaucet
+      - MYSQL_PASSWORD=multifaucet
+    #volumes:
+    #  - /data/multifaucet/db:/var/lib/mysql
+
+  multifaucet:
+    build: multifaucet
+    restart: always
+    environment:
+      - MULTIFAUCET_PAYMENT_GW_RPC_HOST={{ faucet_rpc_host }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_PORT={{ faucet_rpc_port }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_USER={{ faucet_rpc_user }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_PASS={{ faucet_rpc_password }}
+      - MULTIFAUCET_ADDRESS_VERSION=140
+      - MULTIFAUCET_DONATION_ADDRESS={{ faucet_address }}
+    ports:
+      - 80:80

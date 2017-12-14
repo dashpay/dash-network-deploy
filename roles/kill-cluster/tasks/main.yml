@@ -1,0 +1,9 @@
+---
+
+- name: kill all docker containers
+  shell: if [ -n "$(docker ps -qa)" ]; then docker rm -fv $(docker ps -qa); fi
+
+- name: delete dash home dir
+  file:
+      state: absent
+      path: "{{ dashd_home }}/"

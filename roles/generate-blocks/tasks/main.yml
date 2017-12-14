@@ -1,0 +1,12 @@
+---
+
+- fail: msg="num_blocks and balance_needed must always be set. set one of them to a non-zero value and the other one to zero"
+  when: num_blocks is not defined or balance_needed is not defined or (num_blocks != 0 and balance_needed != 0) or (num_blocks == 0 and balance_needed == 0)
+
+- debug: msg="num_blocks={{ num_blocks }} balance_needed={{ balance_needed }}"
+
+- include: regtest_generate.yml
+  when: dash_network == "regtest"
+
+- include: wait_for_blocks.yml
+  when: dash_network != "regtest"
