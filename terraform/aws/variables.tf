@@ -28,6 +28,10 @@ variable "dashd_rpc_port" {
   description = "Port for Dash RPC interface"
 }
 
+variable "vpc_cidr" {
+  default = "10.0.0.0/16"
+}
+
 variable "private_subnet" {
   default = "10.0.0.0/16"
 }
