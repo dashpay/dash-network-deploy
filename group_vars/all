@@ -16,6 +16,10 @@ dashd_rpcuser: dashrpc
 dashd_rpcpassword: password
 dashd_rpcport: 29998
 
+# Please provide your own spork key in cluster config
+# dashd_sporkkeyid: yNPC3PMYMbCvVmKQTjUxWPdiD4mWcFWmvF
+# dashd_sporkkey: cPjtYAQDcgZdSRsZXEJrzezwJgvpTtmC7DRA5xiJX3MCasmTWiLd
+
 # You can provide your own seed node in cluster config. May be useful if you want to connect to another cluster
 dashd_seednode: '{{ hostvars[groups["seed-node"][0]]["public_ip"] }}'
 
