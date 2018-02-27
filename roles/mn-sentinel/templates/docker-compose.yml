@@ -10,4 +10,5 @@ services:
       - RPCPASSWORD={{ dashd_rpcpassword }}
       - RPCHOST={{ private_ip }}
       - RPCPORT={{ dashd_rpcport }}
-      - NETWORK={{ dash_network }}
+      # Sentinel only supports mainnet and testnet at the moment
+      - NETWORK={{ 'mainnet' if dash_network == 'mainnet' else 'testnet' }}
