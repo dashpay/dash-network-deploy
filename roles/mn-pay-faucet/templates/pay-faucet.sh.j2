@@ -2,15 +2,19 @@
 
 # Regulary pays balance-mn_collaterals to faucet
 
+RPC_ARGS="-conf=/dash/.dashcore/dash.conf"
+
 while true; do
-  BALANCE=$(dash-cli getbalance | awk '{print int($1)}')
-  if [ $BALANCE -gt 1 ]; then
-    echo "Total Balance: $BALANCE"
-    BALANCE=$(($BALANCE - 1)) # make sure we have enough for fee
-    BALANCE=$(($BALANCE - {{ groups['masternodes']|length * 1000 }})) # make sure we have enough for MN collaterals
-    echo "Send Balance: $BALANCE"
-    if [ $BALANCE -gt 0 ]; then
-      dash-cli sendtoaddress {{ faucet_address }} $BALANCE
+  BALANCE=$(dash-cli $RPC_ARGS getbalance | awk '{print int($1)}')
+  if [ "$BALANCE" != "" ]; then
+    if [ $BALANCE -gt 1 ]; then
+      echo "Total Balance: $BALANCE"
+      BALANCE=$(($BALANCE - 1)) # make sure we have enough for fee
+      BALANCE=$(($BALANCE - {{ groups['masternodes']|length * 1000 }})) # make sure we have enough for MN collaterals
+      echo "Send Balance: $BALANCE"
+      if [ $BALANCE -gt 0 ]; then
+        dash-cli $RPC_ARGS sendtoaddress {{ faucet_address }} $BALANCE
+      fi
     fi
   fi
 
