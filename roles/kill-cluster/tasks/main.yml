@@ -1,5 +1,19 @@
 ---
 
+- name: disable pay-faucet
+  systemd:
+    name: 'pay-faucet'
+    state: stopped
+    enabled: False
+  failed_when: False
+
+- name: disable dashd-generate-miner
+  systemd:
+    name: 'dashd-generate-miner'
+    state: stopped
+    enabled: False
+  failed_when: False
+
 - name: kill all docker containers
   shell: if [ -n "$(docker ps -qa)" ]; then docker rm -fv $(docker ps -qa); fi
 

@@ -1,0 +1,19 @@
+---
+
+- name: ensure /etc/docker exists
+  file: path=/etc/docker state=directory mode='0700' owner='root' group='root'
+
+- name: create daemon.json
+  template:
+    src: 'daemon.json.j2'
+    dest: '/etc/docker/daemon.json'
+    owner: 'root'
+    group: 'root'
+    mode: '0640'
+  register: daemon_json_state
+
+- name: restart docker
+  service:
+    name: docker
+    state: restarted
+  when: daemon_json_state|changed

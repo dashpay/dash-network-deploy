@@ -31,6 +31,7 @@
   roles:
     - geerlingguy.pip
     - geerlingguy.docker
+    - docker-options
     - ecr-login
     - dash-cli
 
@@ -41,6 +42,11 @@
     - role: dashd
       dashd_indexes: true
       dashd_zmq: true
+
+- hosts: miners
+  become: true
+  roles:
+    - role: dashd
 
 # public nodes
 - hosts: full-nodes, masternodes
@@ -65,10 +71,8 @@
 - hosts: miners
   become: true
   roles:
-    - role: regtest-miner
-      when: dash_network == "regtest"
-    - role: cpuminer
-      when: dash_network != "regtest"
+    - role: dashd-generate-miner
+      when: dash_network != "mainnet"
 
 - hosts: web
   become: true

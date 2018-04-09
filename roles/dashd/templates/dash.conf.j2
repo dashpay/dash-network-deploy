@@ -65,3 +65,7 @@ addnode={{ dashd_seednode }}:{{ dashd_port }}
 masternode=1
 masternodeprivkey={{ masternode.privkey }}
 {% endif %}
+
+{% if dashd_sporkaddr is defined %}
+sporkaddr={{ dashd_sporkaddr }}
+{% endif %}

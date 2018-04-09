@@ -4,7 +4,7 @@ After=network.target
 [Service]
 User={{ dashd_user }}
 Group={{ dashd_group }}
-ExecStart=/usr/local/bin/regtest-miner.sh
+ExecStart=/usr/local/bin/dashd-generate-miner.sh
 
 [Install]
 WantedBy=default.target
