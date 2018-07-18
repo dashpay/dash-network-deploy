@@ -8,6 +8,7 @@
   vars:
     masternode: '{{ masternodes[item] }}'
     masternode_name: '{{ item }}'
+    find_protx: '{{ use_protx }}'
   with_items: '{{ groups["masternodes"] }}'
 
 - name: fail if not all collaterals are ok

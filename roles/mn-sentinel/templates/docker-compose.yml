@@ -12,3 +12,5 @@ services:
       - RPCPORT={{ dashd_rpcport }}
       # Sentinel only supports mainnet and testnet at the moment
       - NETWORK={{ 'mainnet' if dash_network == 'mainnet' else 'testnet' }}
+      # Bypass scheduler
+      - SENTINEL_ARGS=-b
