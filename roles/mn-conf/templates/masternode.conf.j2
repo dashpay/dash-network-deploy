@@ -2,6 +2,6 @@
 {% if name in groups['masternodes'] %}
 {% set txid_var_name = "collateral_txid_" + name|replace("-","_") %}
 {% set vout_var_name = "collateral_vout_" + name|replace("-","_") %}
-{{ name }} {{ hostvars[name].public_ip }}:{{ dashd_port }} {{ masternode.privkey }} {{ vars[txid_var_name] }} {{ vars[vout_var_name] }}
+{{ name }} {{ hostvars[name].public_ip }}:{{ dashd_port }} {{ masternode.mn_operator_key }} {{ vars[txid_var_name] }} {{ vars[vout_var_name] }}
 {% endif %}
 {% endfor %}
