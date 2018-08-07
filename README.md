@@ -35,6 +35,9 @@ ansible-galaxy install geerlingguy.pip geerlingguy.docker
 pip install -U netaddr
 ```
 
+* Note: You may need to run the above command with "pip2" instead of "pip" if
+  your default Python installation is version 3 (e.g. OSX + Homebrew).
+
 
 Getting started
 ---------------
