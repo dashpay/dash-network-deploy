@@ -34,6 +34,12 @@ Create the inventory file for Ansible
 $ terraform output ansible_inventory > ../../clusters/aws-example.inventory
 ```
 
+Install pre-requisite Ansible roles
+
+```bash
+ansible-galaxy install geerlingguy.pip geerlingguy.docker
+```
+
 Invoke ansible-playbook
 ```bash
 $ cd ../.. # Go back to root dir of project
