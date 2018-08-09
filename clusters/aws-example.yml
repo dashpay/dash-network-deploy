@@ -1,7 +1,7 @@
 ---
 
 dash_network: devnet
-dash_devnet_name: double-ivan
+dash_devnet_name: testuniq12345
 dashd_port: 20001
 dashd_rpcport: 20002
 
