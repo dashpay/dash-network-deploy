@@ -74,7 +74,7 @@
     - role: dashd-generate-miner
       when: dash_network != "mainnet"
 
-- hosts: web
+- hosts: faucet-web
   become: true
   roles:
     - multifaucet
