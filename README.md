@@ -20,23 +20,23 @@ Install Prerequisites
 
 1. Install Ansible and Terraform per instructions provided on official websites:
 
-* [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
-* [Terraform](https://www.terraform.io/intro/getting-started/install.html)
+    * [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+    * [Terraform](https://www.terraform.io/intro/getting-started/install.html)
 
 2. Install pre-requisite Ansible roles
 
-```bash
-ansible-galaxy install geerlingguy.pip geerlingguy.docker
-```
+    ```bash
+    ansible-galaxy install geerlingguy.pip geerlingguy.docker
+    ```
 
 3. Ensure Python netaddr package installed locally
 
-```bash
-pip install -U netaddr
-```
-
-* Note: You may need to run the above command with "pip2" instead of "pip" if
-  your default Python installation is version 3 (e.g. OSX + Homebrew).
+    ```bash
+    pip install -U netaddr
+    ```
+    
+    * Note: You may need to run the above command with "pip2" instead of "pip" if
+      your default Python installation is version 3 (e.g. OSX + Homebrew).
 
 
 Getting started
@@ -46,21 +46,39 @@ Create your own cluster configuration in `clusters`. Use `aws-example.*` as a sk
 following commands will all directly use the aws-example, while you should change it to use
 your own config.
 
-Setup the AWS infrastructure with terraform:
+1. Initialize terraform w/remote AWS backend configuration:
 
-```bash
-$ cd terraform/aws
-$ terraform apply -var-file=../../clusters/aws-example.tfvars
-```
+    ```bash
+    $ cd terraform/aws
+    $ . ./.env  # source .env file with variables set
+    $ terraform init \
+        -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
+        -backend-config="key=$TERRAFORM_S3_KEY" \
+        -backend-config="region=$AWS_DEFAULT_REGION" \
+        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_LOCK_TABLE"
+    ```
 
-Create the inventory file for Ansible
+2. Select/create terraform workspace according to dash network name (testnet/regtest/mainnet/devnet-{name}):
 
-```bash
-$ terraform output ansible_inventory > ../../clusters/aws-example.inventory
-```
+    ```bash
+    $ terraform workspace new devnet-aws-example
+    ```
 
-Invoke ansible-playbook
-```bash
-$ cd ../.. # Go back to root dir of project
-$ ansible-playbook -i clusters/aws-example.inventory -e @clusters/aws-example.yml cluster.yml
-```
+3. Setup the AWS infrastructure with terraform:
+
+    ```
+    $ terraform apply -var-file=../../clusters/aws-example.tfvars
+    ```
+
+4. Create the inventory file for Ansible:
+
+    ```bash
+    $ terraform output ansible_inventory > ../../clusters/aws-example.inventory
+    ```
+
+5. Invoke ansible-playbook:
+
+    ```bash
+    $ cd ../.. # Go back to root dir of project
+    $ ansible-playbook -i clusters/aws-example.inventory -e @clusters/aws-example.yml cluster.yml
+    ```

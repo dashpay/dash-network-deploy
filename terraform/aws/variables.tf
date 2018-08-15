@@ -12,14 +12,6 @@ variable "aws_region" {
   default     = "eu-west-1"
 }
 
-variable "dash_network" {
-  description = "Dash network to create or connect to (mainnet/testnet/devnet/regtest)"
-}
-
-variable "dash_devnet_name" {
-  description = "Dash devnet name"
-}
-
 variable "dashd_port" {
   description = "Port for Dash Core nodes"
 }

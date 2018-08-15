@@ -3,6 +3,11 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
+terraform {
+  backend "s3" {
+  }
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -45,7 +50,7 @@ resource "aws_subnet" "default" {
 
 # A security group for the ELB so it is accessible via the web
 resource "aws_security_group" "elb" {
-  name        = "${var.dash_network}-${var.dash_devnet_name}-elb"
+  name        = "${terraform.workspace}-elb"
   vpc_id      = "${aws_vpc.default.id}"
 
   # HTTP access from anywhere
@@ -66,7 +71,7 @@ resource "aws_security_group" "elb" {
 }
 
 resource "aws_security_group" "default" {
-  name = "${var.dash_network}-${var.dash_devnet_name}-ssh"
+  name = "${terraform.workspace}-ssh"
   description = "dashd node"
   vpc_id = "${aws_vpc.default.id}"
 
@@ -89,7 +94,7 @@ resource "aws_security_group" "default" {
 
 # dashd nodes not accessible from the public internet
 resource "aws_security_group" "dashd_private" {
-  name        = "${var.dash_network}-${var.dash_devnet_name}-dashd-private"
+  name        = "${terraform.workspace}-dashd-private"
   description = "dashd private node"
   vpc_id      = "${aws_vpc.default.id}"
 
@@ -112,7 +117,7 @@ resource "aws_security_group" "dashd_private" {
 
 # dashd node accessible from the public internet
 resource "aws_security_group" "dashd" {
-  name        = "${var.dash_network}-${var.dash_devnet_name}-dashd"
+  name        = "${terraform.workspace}-dashd"
   description = "dashd node"
   vpc_id      = "${aws_vpc.default.id}"
 
@@ -134,7 +139,7 @@ resource "aws_security_group" "dashd" {
 }
 
 resource "aws_security_group" "http" {
-  name = "${var.dash_network}-${var.dash_devnet_name}-http"
+  name = "${terraform.workspace}-http"
   description = "dashd node"
   vpc_id = "${aws_vpc.default.id}"
 
@@ -147,7 +152,7 @@ resource "aws_security_group" "http" {
 }
 
 resource "aws_elb" "web" {
-  name = "${var.dash_network}-${var.dash_devnet_name}"
+  name = "${terraform.workspace}"
 
   subnets         = ["${aws_subnet.default.id}"]
   security_groups = ["${aws_security_group.elb.id}"]
@@ -162,7 +167,7 @@ resource "aws_elb" "web" {
 }
 
 resource "aws_key_pair" "auth" {
-  key_name   = "${var.dash_network}-${var.dash_devnet_name}-${var.key_name}"
+  key_name   = "${terraform.workspace}-${var.key_name}"
   public_key = "${file(var.public_key_path)}"
 }
 
@@ -183,7 +188,7 @@ resource "aws_instance" "web" {
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${var.dash_network}-${var.dash_devnet_name}-web"
+    Name = "${terraform.workspace}-web"
     Hostname = "web"
   }
 }
@@ -203,7 +208,7 @@ resource "aws_instance" "dashd_wallet" {
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${var.dash_network}-${var.dash_devnet_name}-dashd-wallet-${count.index + 1}"
+    Name = "${terraform.workspace}-dashd-wallet-${count.index + 1}"
     Hostname = "dashd-wallet-${count.index + 1}"
   }
 }
@@ -223,7 +228,7 @@ resource "aws_instance" "dashd_full_node" {
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${var.dash_network}-${var.dash_devnet_name}-node-${count.index + 1}"
+    Name = "${terraform.workspace}-node-${count.index + 1}"
     Hostname = "node-${count.index + 1}"
   }
 }
@@ -242,7 +247,7 @@ resource "aws_instance" "miner" {
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${var.dash_network}-${var.dash_devnet_name}-miner-${count.index + 1}"
+    Name = "${terraform.workspace}-miner-${count.index + 1}"
     Hostname = "miner-${count.index + 1}"
   }
 }
@@ -262,7 +267,7 @@ resource "aws_instance" "masternode" {
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${var.dash_network}-${var.dash_devnet_name}-masternode-${count.index + 1}"
+    Name = "${terraform.workspace}-masternode-${count.index + 1}"
     Hostname = "masternode-${count.index + 1}"
   }
 }
