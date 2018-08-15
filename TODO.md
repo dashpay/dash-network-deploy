@@ -9,3 +9,4 @@ Possible problems:
 TODO:
 - [ ] New Sentinel docker image
 - [ ] Fix mn-operator-key variable
+- [ ] Use different aws vps for different networks/workspaces
