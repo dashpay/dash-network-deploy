@@ -5,10 +5,6 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket = "dash-networks-deploy-state"
-    key = "terraform/state"
-    region = "us-west-2"
-    dynamodb_table = "dash-networks-deploy-terraform-lock"
   }
 }
 

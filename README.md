@@ -46,11 +46,16 @@ Create your own cluster configuration in `clusters`. Use `aws-example.*` as a sk
 following commands will all directly use the aws-example, while you should change it to use
 your own config.
 
-1. Initialize terraform:
+1. Initialize terraform w/remote AWS backend configuration:
 
     ```bash
     $ cd terraform/aws
-    $ terraform init
+    $ . ./.env  # source .env file with variables set
+    $ terraform init \
+        -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
+        -backend-config="key=$TERRAFORM_S3_KEY" \
+        -backend-config="region=$AWS_DEFAULT_REGION" \
+        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_LOCK_TABLE"
     ```
 
 2. Select/create terraform workspace according to dash network name (testnet/regtest/mainnet/devnet-{name}):
