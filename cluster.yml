@@ -38,24 +38,24 @@
   roles:
     - role: ecr-login
       tags: always
-    - dash-cli
+#    - dash-cli
 
 # private nodes
-- hosts: wallet-nodes
-  become: true
-  roles:
-    - role: dashd
-      tags:
-        - dashd
-      dashd_indexes: true
-      dashd_zmq: true
-
-- hosts: miners
-  become: true
-  roles:
-    - role: dashd
-      tags:
-        - dashd
+#- hosts: wallet-nodes
+#  become: true
+#  roles:
+#    - role: dashd
+#      tags:
+#        - dashd
+#      dashd_indexes: true
+#      dashd_zmq: true
+#
+#- hosts: miners
+#  become: true
+#  roles:
+#    - role: dashd
+#      tags:
+#        - dashd
 
 # public nodes
 - hosts: full-nodes, masternodes
@@ -66,37 +66,37 @@
       tags: always
       when: inventory_hostname in masternodes
   roles:
-    - role: dashd
-      tags:
-        - dashd
-      dashd_listen: true
-    - role: mn-sentinel
+#    - role: dashd
+#      tags:
+#        - dashd
+#      dashd_listen: true
+    - role: mn-services
       tags:
         - sentinel
       when: masternode is defined
 
 # generate first block on seed node so that all nodes leave IBD mode (required for mining)
-- hosts: seed-node
-  become: true
-  roles:
-    - role: generate-firstblock
-      when: dash_network == "devnet" or dash_network == "regtest"
-
-- hosts: miners
-  become: true
-  roles:
-    - role: dashd-generate-miner
-      when: dash_network != "mainnet"
-
-- hosts: faucet-web
-  become: true
-  roles:
-    - multifaucet
-
-- hosts: masternode-wallet
-  become: true
-  roles:
-    - mn-fund-collateral
-    - mn-pay-faucet
-    - {role: mn-conf, tags: mn-conf}
-    - mn-start
+#- hosts: seed-node
+#  become: true
+#  roles:
+#    - role: generate-firstblock
+#      when: dash_network == "devnet" or dash_network == "regtest"
+#
+#- hosts: miners
+#  become: true
+#  roles:
+#    - role: dashd-generate-miner
+#      when: dash_network != "mainnet"
+#
+#- hosts: faucet-web
+#  become: true
+#  roles:
+#    - multifaucet
+#
+#- hosts: masternode-wallet
+#  become: true
+#  roles:
+#    - mn-fund-collateral
+#    - mn-pay-faucet
+#    - {role: mn-conf, tags: mn-conf}
+#    - mn-start

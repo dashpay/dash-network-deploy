@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
   sentinel:
@@ -14,3 +14,17 @@ services:
       - NETWORK={{ 'mainnet' if dash_network == 'mainnet' else 'testnet' }}
       # Bypass scheduler
       - SENTINEL_ARGS=-b
+
+  ipfs:
+    image: ipfs/go-ipfs:v0.4.15
+    command: daemon --enable-gc --enable-pubsub-experiment
+    environment:
+      LIBP2P_FORCE_PNET: 1
+      SWARM_KEY: ${SWARM_KEY}
+      SWARM_PEER: ${SWARM_PEER}
+    volumes:
+      - ipfs:/data/ipfs
+      - {{ mn_services_path }}/ipfs/init.sh:/usr/local/bin/start_ipfs
+
+volumes:
+  ipfs:

@@ -1,0 +1,20 @@
+---
+
+- name: create masternode services dir
+  file: path='{{ mn_services_path }}' state=directory recurse=true
+
+- name: copy masternode services docker compose
+  template:
+    src: docker-compose.yml
+    dest: '{{ mn_services_path }}/docker-compose.yml'
+
+- include: ipfs.yml
+
+- name: start masternodes services
+  environment:
+    SWARM_KEY: '{{ ipfs_swarm_key }}'
+    SWARM_PEER: '{{ ipfs_swarm_peer }}'
+  docker_service:
+    project_src: '{{ mn_services_path }}'
+    state: present
+    pull: yes

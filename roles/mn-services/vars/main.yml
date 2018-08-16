@@ -1,0 +1,4 @@
+---
+
+mn_services_dir: mn-services
+mn_services_path: /dash/{{ mn_services_dir }}
