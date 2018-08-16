@@ -38,6 +38,11 @@ Install Prerequisites
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
 
+4. Configure env variables in `.env`
+
+    ```bash
+    cp .env.example .env
+    ```
 
 Getting started
 ---------------
@@ -50,7 +55,6 @@ your own config.
 
     ```bash
     $ cd terraform/aws
-    $ . ./.env  # source .env file with variables set
     $ terraform init \
         -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
         -backend-config="key=$TERRAFORM_S3_KEY" \
