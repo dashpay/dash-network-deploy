@@ -1,8 +1,7 @@
 ---
 
-dash_docker_repo: dashpay
-# dashd_image: '{{ dash_docker_repo }}/dashd-develop'
-dashd_image: 'nmarley/dashcore:evo'
+dash_docker_repo: ablock
+dashd_image: '{{ dash_docker_repo }}/dashcore:evo'
 
 dashd_user: dash
 dashd_group: dash
