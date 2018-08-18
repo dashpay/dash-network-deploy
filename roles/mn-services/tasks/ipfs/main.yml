@@ -12,10 +12,10 @@
   register: ipfs_swarm_key_file
   when: inventory_hostname == groups.masternodes[0]
 
-- include: read_swarm_key.yml
+- import_tasks: read_swarm_key.yml
   when: inventory_hostname == groups.masternodes[0] and ipfs_swarm_key_file.stat.exists == True
 
-- include: generate_swarm_key.yml
+- import_tasks: generate_swarm_key.yml
   when: inventory_hostname == groups.masternodes[0] and ipfs_swarm_key_file.stat.exists == False
 
 - set_fact:

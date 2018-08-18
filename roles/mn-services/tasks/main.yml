@@ -11,7 +11,7 @@
     - docker-compose.yml
     - .env
 
-- include: ipfs/main.yml
+- import_tasks: ipfs/main.yml
 
 - name: start masternodes services
   environment:
