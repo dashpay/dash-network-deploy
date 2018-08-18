@@ -10,9 +10,6 @@
     group: root
     mode: 0755
 
-# DEBUG HERE
-- debug: msg="find-collateral.py {{ masternode_wallet_rpc_args }} {{ masternode.address }} {{ find_protx }}"
-
 - name: find-collateral for {{ masternode_name }}/{{ masternode.address }}
   shell: find-collateral.py "{{ masternode_wallet_rpc_args }}" "{{ masternode.address }}" "{{ find_protx }}"
   register: r
