@@ -11,7 +11,7 @@
     mode: 0755
 
 - name: find-collateral for {{ masternode_name }}/{{ masternode.address }}
-  shell: find-collateral.py "{{ masternode_wallet_rpc_args }}" "{{ masternode.address }}"
+  shell: find-collateral.py "{{ masternode_wallet_rpc_args }}" "{{ masternode.address }}" "{{ find_protx }}"
   register: r
   failed_when: False
 

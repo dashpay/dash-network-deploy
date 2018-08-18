@@ -32,7 +32,12 @@
     - geerlingguy.pip
     - geerlingguy.docker
     - docker-options
-    - ecr-login
+
+- hosts: all
+  become: true
+  roles:
+    - role: ecr-login
+      tags: always
     - dash-cli
 
 # private nodes
@@ -40,6 +45,8 @@
   become: true
   roles:
     - role: dashd
+      tags:
+        - dashd
       dashd_indexes: true
       dashd_zmq: true
 
@@ -47,6 +54,8 @@
   become: true
   roles:
     - role: dashd
+      tags:
+        - dashd
 
 # public nodes
 - hosts: full-nodes, masternodes
@@ -54,11 +63,16 @@
   pre_tasks:
     - set_fact:
         masternode: '{{ masternodes[inventory_hostname] }}'
+      tags: always
       when: inventory_hostname in masternodes
   roles:
     - role: dashd
+      tags:
+        - dashd
       dashd_listen: true
     - role: mn-sentinel
+      tags:
+        - sentinel
       when: masternode is defined
 
 # generate first block on seed node so that all nodes leave IBD mode (required for mining)
@@ -84,5 +98,5 @@
   roles:
     - mn-fund-collateral
     - mn-pay-faucet
-    - mn-conf
+    - {role: mn-conf, tags: mn-conf}
     - mn-start
