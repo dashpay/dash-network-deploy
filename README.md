@@ -42,6 +42,7 @@ Install Prerequisites
 
     ```bash
     cp .env.example .env
+    source .env
     ```
 
 Getting started
