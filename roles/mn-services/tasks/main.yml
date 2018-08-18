@@ -7,7 +7,7 @@
   template:
     src: '{{ item }}'
     dest: '{{ mn_services_path }}/{{ item }}'
-  with_items:
+  loop:
     - docker-compose.yml
     - .env
 
