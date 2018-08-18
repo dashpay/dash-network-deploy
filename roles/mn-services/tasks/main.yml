@@ -5,17 +5,20 @@
 
 - name: copy masternode services docker compose
   template:
-    src: docker-compose.yml
-    dest: '{{ mn_services_path }}/docker-compose.yml'
+    src: '{{ item }}'
+    dest: '{{ mn_services_path }}/{{ item }}'
+  with_items:
+    - docker-compose.yml
+    - .env
 
-- include: ipfs.yml
+- include: ipfs/main.yml
 
 - name: start masternodes services
   environment:
     SWARM_KEY: '{{ ipfs_swarm_key }}'
     SWARM_PEER: '{{ ipfs_swarm_peer }}'
   docker_service:
-    project_name: mn_services
     project_src: '{{ mn_services_path }}'
     state: present
+    restarted: yes
     pull: yes

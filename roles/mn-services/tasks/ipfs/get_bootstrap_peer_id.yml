@@ -1,0 +1,31 @@
+---
+
+- name: start IPFS bootstrap node
+  environment:
+    SWARM_KEY: '{{ ipfs_swarm_key }}'
+  docker_service:
+    project_src: '{{ mn_services_path }}'
+    services:
+    - ipfs
+    state: present
+    pull: yes
+  register: output
+
+- assert:
+    that: 'ipfs.{{ compose_project_name }}_ipfs_1.state.running'
+
+- name: get IPFS bootstrap node ID
+  command: docker-compose exec -T ipfs ipfs id --format '<id>'
+  args:
+    chdir: '{{ mn_services_path }}'
+  register: ipfs_id_result
+
+- name: stop IPFS bootstrap node
+  docker_service:
+    project_src: '{{ mn_services_path }}'
+    services:
+    - ipfs
+    state: absent
+
+- set_fact:
+    ipfs_swarm_peer: '/ip4/{{ hostvars[inventory_hostname].private_ip }}/tcp/4001/ipfs/{{ ipfs_id_result.stdout }}'
