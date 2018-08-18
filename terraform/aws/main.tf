@@ -136,6 +136,14 @@ resource "aws_security_group" "dashd" {
     protocol    = "tcp"
     cidr_blocks = ["${var.private_subnet}"]
   }
+
+  # IPFS access
+  ingress {
+    from_port   = "${var.ipfs_swarm_port}"
+    to_port     = "${var.ipfs_swarm_port}"
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_security_group" "http" {
