@@ -24,7 +24,7 @@
   docker_service:
     project_src: '{{ mn_services_path }}'
     services:
-    - ipfs
+      - ipfs
     state: absent
 
 - set_fact:
