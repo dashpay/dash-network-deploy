@@ -1,7 +1,7 @@
 ---
 
-dash_docker_repo: ablock
-dashd_image: '{{ dash_docker_repo }}/dashcore:evo'
+dash_docker_repo: 103738324493.dkr.ecr.us-west-2.amazonaws.com
+dashd_image: '{{ dash_docker_repo }}/dashevo/dashcore:v13.0.0-evo.1'
 
 dashd_user: dash
 dashd_group: dash
