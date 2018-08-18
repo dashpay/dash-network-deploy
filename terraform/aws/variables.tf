@@ -20,6 +20,11 @@ variable "dashd_rpc_port" {
   description = "Port for Dash RPC interface"
 }
 
+variable "ipfs_swarm_port" {
+  description = "IPFS Swarm port"
+  default = "4001"
+}
+
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
