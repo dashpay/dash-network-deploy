@@ -1,10 +1,9 @@
-Dash Cluster Ansible
-====================
+# Dash Cluster Ansible
 
-What is this?
--------------
 
-This is an Ansible project to setup and manage devnet (and later testnet) networks. Devnets
+## What is this?
+
+This is a project to setup and manage devnet, testnet, mainnet networks. Devnets
 are like regular Dash networks (mainnet, testnet) but easier to bootstrap and easier to have
 multiple in parallel.
 
@@ -15,8 +14,7 @@ Detailed documentation on how to use this repo will come when more interest from
 arises or when Evolution is released.
 
 
-Install Prerequisites
----------------------
+## Install Prerequisites
 
 1. Install Ansible and Terraform per instructions provided on official websites:
 
@@ -45,8 +43,7 @@ Install Prerequisites
     source .env
     ```
 
-Getting started
----------------
+## Getting started
 
 Create your own cluster configuration in `clusters`. Use `aws-example.*` as a skeleton. The
 following commands will all directly use the aws-example, while you should change it to use
@@ -87,3 +84,23 @@ your own config.
     $ cd ../.. # Go back to root dir of project
     $ ansible-playbook -i clusters/aws-example.inventory -e @clusters/aws-example.yml cluster.yml
     ```
+
+## Services
+
+### DashCore
+
+### Multi faucet
+
+### Sentinel
+
+### Insight
+
+[Insight service](https://insight.dash.org/insight/) is available from internet on 3001 port of AWS ELB.
+
+Note: You can get your AWS ELB DNS name using aws cli
+
+```bash
+aws elb describe-load-balancers --load-balancer-names={workspace/network name} | grep DNSName
+```
+
+### IPFS

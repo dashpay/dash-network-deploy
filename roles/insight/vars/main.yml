@@ -1,0 +1,10 @@
+---
+
+insight_compose_project_name: insight
+
+insight_path: '{{ dashd_home }}/{{ insight_compose_project_name }}'
+
+insight_dashd_rpchost: '{{ hostvars[groups["wallet-nodes"][0]].private_ip }}'
+insight_dashd_rpcport: '{{ dashd_rpcport }}'
+insight_dashd_rpcuser: '{{ dashd_rpcuser }}'
+insight_dashd_rpcpassword: '{{ dashd_rpcpassword }}'
