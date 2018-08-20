@@ -179,6 +179,7 @@ resource "aws_instance" "web" {
 
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
+  cpu_credits = "unlimited"
   key_name = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -199,6 +200,7 @@ resource "aws_instance" "dashd_wallet" {
 
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
+  cpu_credits = "unlimited"
   key_name = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -219,6 +221,7 @@ resource "aws_instance" "dashd_full_node" {
 
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
+  cpu_credits = "unlimited"
   key_name = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -239,6 +242,7 @@ resource "aws_instance" "miner" {
 
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.small"
+  cpu_credits = "unlimited"
   key_name = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -258,6 +262,7 @@ resource "aws_instance" "masternode" {
 
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
+  cpu_credits = "unlimited"
   key_name = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
