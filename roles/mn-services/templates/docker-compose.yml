@@ -28,5 +28,17 @@ services:
       - ipfs:/data/ipfs
       - {{ mn_services_path }}/ipfs/init.sh:/usr/local/bin/start_ipfs
 
+  mongodb:
+    image: mongo:3.6
+
+  drive:
+    image: 103738324493.dkr.ecr.us-west-2.amazonaws.com/dashevo/dashdrive:latest
+    restart: always
+    depends_on:
+    - ipfs
+    - mongodb
+    ports:
+    - 6000:6000
+
 volumes:
   ipfs:
