@@ -48,7 +48,7 @@
     user: '{{ dash_user_id.stdout }}:{{ dash_group_id.stdout }}'
     working_dir: '{{ dashd_home }}'
     volumes:
-    - /dash:/dash
+    - '{{ dashd_home }}:/dash'
     network_mode: host
     command: 'dashd -conf={{ dashd_home }}/.dashcore/dash.conf -datadir={{ dashd_home }}/.dashcore'
 
