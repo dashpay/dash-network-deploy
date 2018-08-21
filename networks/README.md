@@ -1,1 +1,1 @@
-Put your cluster configurations here. See aws-example.yml for an example
+Put your cluster configurations here. See devnet-example.yml for an example
