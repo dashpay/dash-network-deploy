@@ -82,7 +82,7 @@ your own config.
 
     ```bash
     $ cd ../.. # Go back to root dir of project
-    $ ansible-playbook -i networks/devnet-example.inventory -e @networks/devnet-example.yml create-network.yml
+    $ ansible-playbook --private-key="{path-to-key}" -i networks/devnet-example.inventory -e @networks/devnet-example.yml create-network.yml
     ```
 
 ## Services
