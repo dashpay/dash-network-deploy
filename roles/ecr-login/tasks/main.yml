@@ -1,14 +1,10 @@
 ---
 
-# todo more intelligent need_login (only every few hours)
 - set_fact:
-    need_login: true
-
-- set_fact:
-    has_aws_creds: '{{ aws_ecr_access_key_id|default("") != "" }}'
+    has_aws_ansible_creds: '{{ aws_ecr_access_key_id|default("") != "" }}'
   delegate_to: localhost
 
-- name: get ecr login command
+- name: get ecr login command using ansible vars
   become: false
   local_action: command aws ecr get-login --no-include-email
   environment:
@@ -17,8 +13,18 @@
     AWS_REGION: '{{ aws_ecr_region }}'
     AWS_DEFAULT_REGION: '{{ aws_ecr_region }}'
   register: ecr_login_command
-  when: has_aws_creds and need_login
+  when: has_aws_ansible_creds
+
+- name: get ecr login command using env vars
+  become: false
+  local_action: command aws ecr get-login --no-include-email
+  register: ecr_login_command
+  when: !has_aws_ansible_creds
 
 - name: docker login
   shell: "{{ ecr_login_command.stdout }}"
-  when: has_aws_creds and need_login
+  register: login_command
+  when: ecr_login_command.rc == 0
+
+- fail: invalid AWS ECR credentials
+  when: login_command.rc != 0
