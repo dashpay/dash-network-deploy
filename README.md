@@ -68,8 +68,8 @@ your own config.
 
 3. Setup the AWS infrastructure with terraform:
 
-    ```
-    $ terraform apply -var-file=../../networks/devnet-example.tfvars
+    ```bash
+    $ terraform apply -var "public_key_path=$PRIVATE_KEY_PATH" -var-file=../../networks/devnet-example.tfvars
     ```
 
 4. Create the inventory file for Ansible:
