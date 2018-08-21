@@ -1,6 +1,6 @@
 ---
 
-mn_services_path: /dash/mn-services
-compose_project_name: mn_services
+mn_services_compose_project_name: mn_services
+mn_services_path: '{{ dashd_home }}/{{ mn_services_compose_project_name }}'
 
 ipfs_swarm_key_path: '{{ mn_services_path }}/ipfs/swarm.key'
