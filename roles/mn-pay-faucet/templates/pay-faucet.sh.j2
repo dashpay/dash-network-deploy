@@ -2,7 +2,7 @@
 
 # Regulary pays balance-mn_collaterals to faucet
 
-RPC_ARGS="-conf=/dash/.dashcore/dash.conf"
+RPC_ARGS="-conf={{ dashd_home }}/.dashcore/dash.conf"
 
 while true; do
   BALANCE=$(dash-cli $RPC_ARGS getbalance | awk '{print int($1)}')

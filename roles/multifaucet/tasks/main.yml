@@ -6,12 +6,12 @@
 - name: create multifaucet dirs
   file: path='{{ item }}' state=directory recurse=true
   with_items:
-    - /dash/multifaucet/multifaucet
+    - '{{ dashd_home }}/multifaucet/multifaucet'
 
 - name: multifaucet config
   template:
     src: '{{ item }}'
-    dest: '/dash/multifaucet/{{ item }}'
+    dest: '{{ dashd_home }}/multifaucet/{{ item }}'
   with_items:
     - docker-compose.yml
     - multifaucet/Dockerfile
@@ -23,6 +23,6 @@
 
 - name: multifaucet service
   docker_service:
-    project_src: /dash/multifaucet
+    project_src: '{{ dashd_home }}/multifaucet'
     state: present
     build: yes
