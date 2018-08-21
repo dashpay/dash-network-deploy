@@ -3,7 +3,7 @@
 
 - name: copy insight docker compose
   template:
-    src: '{{ item }}'
+    src: '{{ item }}.j2'
     dest: '{{ insight_path }}/{{ item }}'
   loop:
   - docker-compose.yml
