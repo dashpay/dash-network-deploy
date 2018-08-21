@@ -1,30 +1,9 @@
 ---
 
-- set_fact:
-    has_aws_ansible_creds: '{{ aws_ecr_access_key_id|default("") != "" }}'
-  delegate_to: localhost
-
-- name: get ecr login command using ansible vars
-  become: false
-  local_action: command aws ecr get-login --no-include-email
-  environment:
-    AWS_ACCESS_KEY_ID: '{{ aws_ecr_access_key_id }}'
-    AWS_SECRET_ACCESS_KEY: '{{ aws_ecr_secret_access_key }}'
-    AWS_REGION: '{{ aws_ecr_region }}'
-    AWS_DEFAULT_REGION: '{{ aws_ecr_region }}'
-  register: ecr_login_command
-  when: has_aws_ansible_creds
-
-- name: get ecr login command using env vars
+- name: get ecr login command using environment vars
   become: false
   local_action: command aws ecr get-login --no-include-email
   register: ecr_login_command
-  when: !has_aws_ansible_creds
 
 - name: docker login
   shell: "{{ ecr_login_command.stdout }}"
-  register: login_command
-  when: ecr_login_command.rc == 0
-
-- fail: invalid AWS ECR credentials
-  when: login_command.rc != 0

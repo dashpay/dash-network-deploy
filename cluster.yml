@@ -35,15 +35,11 @@
 
 - hosts: all
   become: true
-  when: aws_eсr_login
   roles:
     - role: ecr-login
+      when: aws_ecr_login
       tags: always
-
-- hosts: all
-  become: true
-  roles:
-  - dash-cli
+    - dash-cli
 
 # private nodes
 - hosts: wallet-nodes

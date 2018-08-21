@@ -1,9 +1,6 @@
 ---
 
 aws_ecr_login: true
-aws_ecr_access_key_id: ''
-aws_ecr_secret_access_key: ''
-aws_ecr_region: ''
 
 # TODO Should be public
 dash_docker_repo: 103738324493.dkr.ecr.us-west-2.amazonaws.com
