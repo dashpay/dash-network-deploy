@@ -10,7 +10,7 @@
 *.tfstate
 *.tfstate.backup
 .terraform
-/clusters/aws-example.inventory
+/networks/*.inventory
 
 # CLion
 cmake-build-debug
