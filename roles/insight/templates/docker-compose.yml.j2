@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  insight:
+    image: {{ dash_docker_repo }}/dashevo/insight:latest
+    restart: always
+    ports:
+      - 3001:3001
+    volumes:
+      - {{ insight_path }}/dashcore-node.json:/insight/dashcore-node.json

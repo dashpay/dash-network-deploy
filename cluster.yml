@@ -88,10 +88,13 @@
     - role: dashd-generate-miner
       when: dash_network != "mainnet"
 
-- hosts: faucet-web
+- hosts: web
   become: true
   roles:
     - multifaucet
+    - insight
+  tags:
+    - web
 
 - hosts: masternode-wallet
   become: true
