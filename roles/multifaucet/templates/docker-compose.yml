@@ -4,15 +4,14 @@ services:
   db:
     image: mariadb:10.3
     restart: always
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     environment:
       - MYSQL_ROOT_PASSWORD=multifaucet
       - MYSQL_DATABASE=multifaucet
       - MYSQL_USER=multifaucet
       - MYSQL_PASSWORD=multifaucet
-    #volumes:
-    #  - /data/multifaucet/db:/var/lib/mysql
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mysql:/var/lib/mysql
 
   multifaucet:
     build: multifaucet
@@ -26,3 +25,6 @@ services:
       - MULTIFAUCET_DONATION_ADDRESS={{ faucet_address }}
     ports:
       - 80:80
+
+volumes:
+  mysql:
