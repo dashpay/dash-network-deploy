@@ -45,7 +45,7 @@ arises or when Evolution is released.
 
 ## Getting started
 
-Create your own cluster configuration in `clusters`. Use `aws-example.*` as a skeleton. The
+Create your own network configuration in `networks`. Use `aws-example.*` as a skeleton. The
 following commands will all directly use the aws-example, while you should change it to use
 your own config.
 
@@ -69,20 +69,20 @@ your own config.
 3. Setup the AWS infrastructure with terraform:
 
     ```
-    $ terraform apply -var-file=../../clusters/aws-example.tfvars
+    $ terraform apply -var-file=../../networks/aws-example.tfvars
     ```
 
 4. Create the inventory file for Ansible:
 
     ```bash
-    $ terraform output ansible_inventory > ../../clusters/aws-example.inventory
+    $ terraform output ansible_inventory > ../../networks/aws-example.inventory
     ```
 
 5. Invoke ansible-playbook:
 
     ```bash
     $ cd ../.. # Go back to root dir of project
-    $ ansible-playbook -i clusters/aws-example.inventory -e @clusters/aws-example.yml cluster.yml
+    $ ansible-playbook -i networks/aws-example.inventory -e @networks/aws-example.yml cluster.yml
     ```
 
 ## Services
