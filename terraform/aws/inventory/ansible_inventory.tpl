@@ -1,6 +1,6 @@
 ${all_hosts}
 
-[faucet-web]
+[web]
 ${web_hosts}
 
 [wallet-nodes]

@@ -20,6 +20,11 @@ variable "dashd_rpc_port" {
   description = "Port for Dash RPC interface"
 }
 
+variable "dashd_zmq_port" {
+  description = "Port for Dash Zmq interface"
+  default = "29998"
+}
+
 variable "ipfs_swarm_port" {
   description = "IPFS Swarm port"
   default = "4001"
@@ -48,4 +53,8 @@ variable "masternode_count" {
 variable "wallet_count" {
   description = "number of wallet nodes to create. must be at least 2"
   default = 2
+}
+
+variable "web_count" {
+  default = 1
 }
