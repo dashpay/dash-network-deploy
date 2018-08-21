@@ -81,8 +81,8 @@ your own config.
 5. Invoke ansible-playbook:
 
     ```bash
-    $ cd ../.. # Go back to root dir of project
-    $ ansible-playbook -i networks/devnet-example.inventory -e @networks/devnet-example.yml create-network.yml
+    $ cd ../../ansible # Go to ansible dir of project
+    $ ansible-playbook -i ../networks/devnet-example.inventory -e @../networks/devnet-example.yml playbooks/create-network.yml
     ```
 
 ## Services
