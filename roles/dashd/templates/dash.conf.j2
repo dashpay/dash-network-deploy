@@ -23,19 +23,19 @@ spentindex=1
 
 {% if dashd_zmq %}
 # ZeroMQ notifications (required for Insight)
-zmqpubrawtx=tcp://0.0.0.0:29998
-zmqpubrawtxlock=tcp://0.0.0.0:29998
-zmqpubhashblock=tcp://0.0.0.0:29998
-#zmqpubhashtx=tcp://0.0.0.0:29998
-#zmqpubhashtxlock=tcp://0.0.0.0:29998
-#zmqpubrawblock=tcp://0.0.0.0:29998
+zmqpubrawtx=tcp://0.0.0.0:{{ dashd_zmq_port }}
+zmqpubrawtxlock=tcp://0.0.0.0:{{ dashd_zmq_port }}
+zmqpubhashblock=tcp://0.0.0.0:{{ dashd_zmq_port }}
+#zmqpubhashtx=tcp://0.0.0.0:{{ dashd_zmq_port }}
+#zmqpubhashtxlock=tcp://0.0.0.0:{{ dashd_zmq_port }}
+#zmqpubrawblock=tcp://0.0.0.0:{{ dashd_zmq_port }}
 {% endif %}
 
 # JSONRPC
 server=1
-rpcport={{ dashd_rpcport }}
-rpcuser={{ dashd_rpcuser }}
-rpcpassword={{ dashd_rpcpassword }}
+rpcport={{ dashd_rpc_port }}
+rpcuser={{ dashd_rpc_user }}
+rpcpassword={{ dashd_rpc_password }}
 rpcallowip={{ dashd_private_cidr }}
 rpcallowip=127.0.0.0
 # docker-to-docker
