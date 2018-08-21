@@ -11,11 +11,11 @@
     "dashd": {
       "connect": [{
         "rpchost": "{{ insight_dashd_rpchost }}",
-        "rpcport": "{{ insight_dashd_rpcport }}",
-        "rpcuser": "{{ insight_dashd_rpcuser }}",
-        "rpcpassword": "{{ insight_dashd_rpcpassword }}",
-        "zmqpubrawtx": "tcp://{{ insight_dashd_rpchost }}:29998",
-        "zmqpubhashblock": "tcp://{{ insight_dashd_rpchost }}:29998"
+        "rpcport": "{{ insight_dashd_rpc_port }}",
+        "rpcuser": "{{ insight_dashd_rpc_user }}",
+        "rpcpassword": "{{ insight_dashd_rpc_password }}",
+        "zmqpubrawtx": "tcp://{{ insight_dashd_rpchost }}:{{ dashd_zmq_port }}",
+        "zmqpubhashblock": "tcp://{{ insight_dashd_rpchost }}:{{ dashd_zmq_port }}"
       }]
     },
     "insight-api": {

@@ -14,10 +14,12 @@ variable "aws_region" {
 
 variable "dashd_port" {
   description = "Port for Dash Core nodes"
+  default = "20001"
 }
 
 variable "dashd_rpc_port" {
   description = "Port for Dash RPC interface"
+  default = "20002"
 }
 
 variable "dashd_zmq_port" {

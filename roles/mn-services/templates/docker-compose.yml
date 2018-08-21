@@ -6,10 +6,10 @@ services:
     restart: always
     environment:
       - DEBUG=false
-      - RPCUSER={{ dashd_rpcuser }}
-      - RPCPASSWORD={{ dashd_rpcpassword }}
+      - RPCUSER={{ dashd_rpc_user }}
+      - RPCPASSWORD={{ dashd_rpc_password }}
       - RPCHOST={{ private_ip }}
-      - RPCPORT={{ dashd_rpcport }}
+      - RPCPORT={{ dashd_rpc_port }}
       # Sentinel only supports mainnet and testnet at the moment
       - NETWORK={{ 'mainnet' if dash_network == 'mainnet' else 'testnet' }}
       # Bypass scheduler
