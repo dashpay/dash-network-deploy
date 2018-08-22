@@ -1,5 +1,8 @@
 ---
 
+aws_ecr_login: true
+
+# TODO Should be public
 dash_docker_repo: 103738324493.dkr.ecr.us-west-2.amazonaws.com
 dashd_image: '{{ dash_docker_repo }}/dashevo/dashcore:v13.0.0-evo.1'
 
