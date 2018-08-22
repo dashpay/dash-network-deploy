@@ -1,20 +1,18 @@
-# Dash Cluster Ansible
+# Dash Networks Deployment Tool
 
+## Introduction
 
-## What is this?
-
-This is a project to setup and manage devnet, testnet, mainnet networks. Devnets
+This tool allows setup and manage regtest, devnet, testnet, mainnet networks. Devnets
 are like regular Dash networks (mainnet, testnet) but easier to bootstrap and easier to have
 multiple in parallel.
 
-This project is work in progress and in its initial state only meant to be used by Dash Core
+Work in progress and in its initial state only meant to be used by Dash Core
 developers to assist in Dash Evolution development.
 
 Detailed documentation on how to use this repo will come when more interest from the public
 arises or when Evolution is released.
 
-
-## Install Prerequisites
+## Installation
 
 1. Install Ansible and Terraform per instructions provided on official websites:
 
@@ -36,7 +34,9 @@ arises or when Evolution is released.
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
 
-4. Configure env variables in `.env`
+### Configuration
+
+1. Configure env variables in `.env`
 
     ```bash
     cp .env.example .env
@@ -56,8 +56,8 @@ your own config.
     $ terraform init \
         -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
         -backend-config="key=$TERRAFORM_S3_KEY" \
-        -backend-config="region=$AWS_DEFAULT_REGION" \
-        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_LOCK_TABLE"
+        -backend-config="region=$AWS_REGION" \
+        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_TABLE"
     ```
 
 2. Select/create terraform workspace according to dash network name (testnet/regtest/mainnet/devnet-{name}):
