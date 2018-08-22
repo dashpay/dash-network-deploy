@@ -1,24 +1,9 @@
 ---
 
-# todo more intelligent need_login (only every few hours)
-- set_fact:
-    need_login: true
-
-- set_fact:
-    has_aws_creds: '{{ aws_ecr_access_key_id|default("") != "" }}'
-  delegate_to: localhost
-
-- name: get ecr login command
+- name: get ecr login command using environment vars
   become: false
   local_action: command aws ecr get-login --no-include-email
-  environment:
-    AWS_ACCESS_KEY_ID: '{{ aws_ecr_access_key_id }}'
-    AWS_SECRET_ACCESS_KEY: '{{ aws_ecr_secret_access_key }}'
-    AWS_REGION: '{{ aws_ecr_region }}'
-    AWS_DEFAULT_REGION: '{{ aws_ecr_region }}'
   register: ecr_login_command
-  when: has_aws_creds and need_login
 
 - name: docker login
   shell: "{{ ecr_login_command.stdout }}"
-  when: has_aws_creds and need_login
