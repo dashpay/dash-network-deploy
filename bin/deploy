@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+set -ea
+
+print_usage() {
+    echo "Usage: OPTION=value ./deploy <NETWORK_NAME>"
+    echo ""
+    echo "Configuration are reading from .env file or should be passed as options."
+    echo ""
+    echo "Options:"
+    echo "  PUBLIC_KEY_PATH          - Path to public key. Required."
+    echo "  PRIVATE_KEY_PATH         - Path to private key. Required."
+    echo ""
+    echo "  TERRAFORM_S3_BUCKET      - AWS S3 bucket for Terraform Remote Backend. Required."
+    echo "  TERRAFORM_S3_KEY         - AWS S3 key for Terraform Remote Backend. Required."
+    echo "  TERRAFORM_DYNAMODB_TABLE - AWS DynamoDb table for Terraform Remote Backend. Required."
+    echo "  TERRAFORM_SKIP           - Skip Terraform infrastructure deployment"
+    echo ""
+    echo "  AWS_PROFILE              - AWS credentials profile"
+    echo "  AWS_ACCESS_KEY_ID        - AWS credentials: Access Key ID"
+    echo "  AWS_SECRET_ACCESS        - AWS credentials: Secret Access"
+    echo "  AWS_REGION       - AWS default region"
+}
+
+function print_error () {
+   echo "$1"
+   echo ""
+   print_usage
+   exit 1
+}
+
+case "$1" in
+    '--help')
+        print_usage
+    ;;
+
+    '')
+        print_error "NETWORK_NAME argument is required"
+    ;;
+esac
+
+# Validate network
+
+NETWORKS=("regtest testnet devnet mainnet")
+NETWORK_NAME=$1
+
+if grep -q "devnet" <<< "$NETWORK_NAME"; then
+    NETWORK="devnet"
+    NETWORK_DEVNET_NAME="${NETWORK_NAME:7}"
+    if [ -z $NETWORK_DEVNET_NAME ]; then
+        print_error "Invalid devnet network name format. Required format is 'devnet-<name>'"
+    fi
+elif [[ " ${NETWORKS[@]} " =~ " ${NETWORK_NAME} " ]]; then
+    NETWORK="$NETWORK_NAME"
+else
+    print_error "Invalid network name '$NETWORK_NAME'. Supported networks: regtest, devnet-<name>, testnet, mainnet"
+fi
+
+INVENTORY_FILE="networks/$NETWORK_NAME.inventory"
+ANSIBLE_CONFIG_PATH="networks/$NETWORK_NAME.yml"
+TERRAFORM_CONFIG_PATH="networks/$NETWORK_NAME.tfvars"
+
+echo "Deploying $NETWORK_NAME network...";
+
+# Load configuration
+
+if [ ! -f ./.env ]; then
+    echo "Warning: Configuration .env file not found. Read from options."
+else
+    source ./.env
+fi
+
+# Setup infrastructure using Terraform
+
+if [ -z ${TERRAFORM_SKIP} ]; then
+    . ./lib/deploy/terraform.sh
+else
+    echo "Skipping Terraform infrastructure deployment"
+fi
+
+# Install software and configure dash network using Ansible
+
+. ./lib/deploy/ansible.sh
