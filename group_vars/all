@@ -3,6 +3,8 @@
 dash_docker_repo: dashpay
 dashd_image: dashd-develop
 
+aws_ecr_login: true
+
 dashd_user: dash
 dashd_group: dash
 dashd_home: /dash
