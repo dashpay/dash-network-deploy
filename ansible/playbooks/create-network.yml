@@ -37,6 +37,7 @@
   become: true
   roles:
     - role: ecr-login
+      when: aws_ecr_login
       tags: always
     - dash-cli
 
