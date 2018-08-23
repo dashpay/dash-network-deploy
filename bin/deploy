@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/utils.sh
+
+CMD_USAGE="Usage: ./deploy [options] <network_name>
+
+Options:
+  -s --skip-infrastructure - Skip Terraform infrastructure deployment
+  -a --ansible-arguments   - Pass extra arguments to ansible-playbook command
+  -h --help                - Show help"
+
+for i in "$@"
+do
+case ${i} in
+    -s|--skip-infrastructure)
+    SKIP_INFRASTRUCTURE=1
+    ;;
+    --ansible-arguments=*)
+    ANSIBLE_ARGUMENTS="${i#*=}"
+    ;;
+    -h|--help)
+        echo ${CMD_USAGE}
+        exit 0
+    ;;
+    *)
+    NETWORK_NAME="${i#*=}"
+    ;;
+esac
+done
+
+. ./lib/init.sh
+. ./lib/terraform.sh
+. ./lib/ansible.sh
+
+echo "Deploying $NETWORK_NAME network...";
+
+# Setup infrastructure using Terraform
+
+if [ -z ${SKIP_INFRASTRUCTURE} ]; then
+    run_terraform_command "apply"
+else
+    echo "Skipping Terraform infrastructure deployment"
+fi
+
+# Install software and configure dash network using Ansible
+
+run_ansible_playbook "deploy.yml"

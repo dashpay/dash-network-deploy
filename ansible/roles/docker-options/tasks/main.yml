@@ -16,4 +16,4 @@
   service:
     name: docker
     state: restarted
-  when: daemon_json_state|changed
+  when: daemon_json_state is changed

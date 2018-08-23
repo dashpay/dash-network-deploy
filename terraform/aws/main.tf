@@ -1,6 +1,7 @@
 # Specify the provider and access details
+# TODO Read from env?
 provider "aws" {
-  region = "${var.aws_region}"
+
 }
 
 terraform {
