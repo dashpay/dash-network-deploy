@@ -12,10 +12,11 @@ function run_terraform_command() {
     # Initialize terraform w/remote AWS backend configuration
 
     terraform init \
-        -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
-        -backend-config="key=$TERRAFORM_S3_KEY" \
+        -backend="$TERRAFORM_BACKEND"
+        -backend-config="bucket=$TERRAFORM_BACKEND_S3_BUCKET" \
+        -backend-config="key=$TERRAFORM_BACKEND_S3_KEY" \
         -backend-config="region=$AWS_REGION" \
-        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_TABLE"
+        -backend-config="dynamodb_table=$TERRAFORM_BACKEND_DYNAMODB_TABLE"
 
 
     # Select/create terraform workspace according to dash network name
