@@ -6,7 +6,7 @@ function print_error() {
 }
 
 function override_aws_credentials() {
-    AWS_VARS="AWS_PROFILE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS AWS_SECRET_ACCESS AWS_REGION"
+    AWS_VARS="AWS_PROFILE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_REGION"
 
     for VAR_NAME in ${AWS_VARS}; do
         FIRST_VAR_NAME="$1_$VAR_NAME"
