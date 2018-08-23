@@ -1,20 +1,23 @@
-# Dash Cluster Ansible
+# Dash Network Deployment Tool
 
+## Introduction
 
-## What is this?
+This tool allows deploy and manage Dash networks.
 
-This is a project to setup and manage devnet, testnet, mainnet networks. Devnets
-are like regular Dash networks (mainnet, testnet) but easier to bootstrap and easier to have
-multiple in parallel.
+There are two regular available networks: `testnet` and `mainnet`.
+After deployment your DashCore instances will join to those networks.
 
-This project is work in progress and in its initial state only meant to be used by Dash Core
+`regtest` and `devnet-*` are networks for testing purposes.
+Devnet are like regular Dash networks (`mainnet` and `testnet`)
+but easier to bootstrap and has own name. That's why it easier to have multiple in parallel.  
+
+Work in progress and in its initial state only meant to be used by Dash Core
 developers to assist in Dash Evolution development.
 
 Detailed documentation on how to use this repo will come when more interest from the public
 arises or when Evolution is released.
 
-
-## Install Prerequisites
+## Installation
 
 1. Install Ansible and Terraform per instructions provided on official websites:
 
@@ -36,56 +39,48 @@ arises or when Evolution is released.
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
 
-4. Configure env variables in `.env`
+## Configuration
 
-    ```bash
-    cp .env.example .env
-    source .env
-    ```
+Configure your credentials in `.env` file:
 
-## Getting started
+```bash
+cp .env.example .env
+$EDITOR .env
+```
 
-Create your own network configuration in `networks`. Use `devnet-example.*` as a skeleton. The
-following commands will all directly use the aws-example, while you should change it to use
-your own config.
+## Networks definition
 
-1. Initialize terraform w/remote AWS backend configuration:
+Use available or create your own network configuration in [networks directory](networks).
+Name of files in [networks directory](networks) are equal to Dash network names.
 
-    ```bash
-    $ cd terraform/aws
-    $ terraform init \
-        -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
-        -backend-config="key=$TERRAFORM_S3_KEY" \
-        -backend-config="region=$AWS_DEFAULT_REGION" \
-        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_LOCK_TABLE"
-    ```
+Terraform configuration defined in `*.tfvars` files.
+All available options you will find in [variables.tf](terraform/aws/variables.tf) file.
+Ansible configuration in `*.yaml` files.
+[group_vars/all](ansible/group_vars/all) file contains the majority of playbook options.
+The rest of them you will find in `roles/*/vars/main.yml` files.
 
-2. Select/create terraform workspace according to dash network name (testnet/regtest/mainnet/devnet-{name}):
+## Network deployment
 
-    ```bash
-    $ terraform workspace new devnet-example
-    ```
+To deploy Dash Network run `deploy` command with particular network name:
 
-3. Setup the AWS infrastructure with terraform:
+```bash
+./bin/deploy <network_name>
+```
 
-    ```
-    $ terraform apply -var-file=../../networks/devnet-example.tfvars
-    ```
+You may pass `--skip-infrastructure` option to avoid of running Terraform and building of infrastructure.
 
-4. Create the inventory file for Ansible:
 
-    ```bash
-    $ terraform output ansible_inventory > ../../networks/devnet-example.inventory
-    ```
+## Network destruction
 
-5. Invoke ansible-playbook:
+To destroy available Dash Network run `destroy` command with particular network name:
 
-    ```bash
-    $ cd ../../ansible # Go to ansible dir
-    $ ansible-playbook --private-key="{path-to-key}" -i ../networks/devnet-example.inventory -e @../networks/devnet-example.yml playbooks/create-network.yml
-    ```
+```bash
+./bin/destory <network_name>
+```
 
-## Services
+You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
+
+## Dash Network Services 
 
 ### DashCore
 

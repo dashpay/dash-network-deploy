@@ -7,11 +7,6 @@ variable "key_name" {
   default = "dash_cluster_key"
 }
 
-variable "aws_region" {
-  description = "AWS region to launch servers."
-  default     = "eu-west-1"
-}
-
 variable "dashd_port" {
   description = "Port for Dash Core nodes"
   default = "20001"
@@ -49,7 +44,7 @@ variable "miner_count" {
 }
 
 variable "masternode_count" {
-  default = 1
+  default = 3
 }
 
 variable "wallet_count" {

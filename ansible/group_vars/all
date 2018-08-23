@@ -9,6 +9,7 @@ dashd_user: dash
 dashd_group: dash
 dashd_home: /dash
 
+# TODO Remove default value
 dash_network: devnet
 dash_devnet_name: devnet1
 dashd_port: 20001
