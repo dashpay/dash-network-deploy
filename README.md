@@ -2,9 +2,14 @@
 
 ## Introduction
 
-This tool allows setup and manage regtest, devnet, testnet, mainnet networks. Devnets
-are like regular Dash networks (mainnet, testnet) but easier to bootstrap and easier to have
-multiple in parallel.
+This tool allows deploy and manage Dash Networks networks.
+
+There are two regular available networks: `testnet` and `mainnet`.
+After deployment your DashCore instances will join to those networks.
+
+`regtest` and `devnet-*` are networks for testing purposes.
+Devnet are like regular Dash Networks (`mainnet` and `testnet`)
+but easier to bootstrap and has own name. That's why it easier to have multiple in parallel.  
 
 Work in progress and in its initial state only meant to be used by Dash Core
 developers to assist in Dash Evolution development.
@@ -34,58 +39,48 @@ arises or when Evolution is released.
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
 
-### Configuration
+## Configuration
 
-1. Configure env variables in `.env`
+Configure your credentials in `.env` file:
 
-    ```bash
-    cp .env.example .env
-    source .env
-    ```
+```bash
+cp .env.example .env
+$EDITOR .env
+```
 
-## Getting started
+## Networks definition
 
-Create your own network configuration in `networks`. Use `devnet-example.*` as a skeleton. The
-following commands will all directly use the aws-example, while you should change it to use
-your own config.
+Use available or create your own network configuration in [networks directory](networks).
+Name of files in [networks directory](networks) are equal to dash networks names.
 
-1. Initialize terraform w/remote AWS backend configuration:
+Terraform configuration defined in `*.tfvars` files.
+All available options you will find in [variables.tf](terraform/aws/variables.tf) file.
+Ansible configuration in `*.yaml` files.
+[group_vars/all](ansible/group_vars/all) file contains the majority of playbook options.
+The rest of them you will find in `roles/*/vars/main.yml` files.
 
-    ```bash
-    $ cd terraform/aws
-    $ terraform init \
-        -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
-        -backend-config="key=$TERRAFORM_S3_KEY" \
-        -backend-config="region=$AWS_REGION" \
-        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_TABLE"
-    ```
+## Network deployment
 
-2. Select/create terraform workspace according to dash network name (testnet/regtest/mainnet/devnet-{name}):
+To deploy Dash Network run `deploy` command with particular network name:
 
-    ```bash
-    $ terraform workspace new devnet-example
-    ```
+```bash
+./bin/deploy <network_name>
+```
 
-3. Setup the AWS infrastructure with terraform:
+You may pass `--skip-infrastructure` option to avoid of running Terraform and building of infrastructure.
 
-    ```bash
-    $ terraform apply -var "public_key_path=$PUBLIC_KEY_PATH" -var-file=../../networks/devnet-example.tfvars
-    ```
 
-4. Create the inventory file for Ansible:
+## Network destruction
 
-    ```bash
-    $ terraform output ansible_inventory > ../../networks/devnet-example.inventory
-    ```
+To destroy available Dash Network run `destroy` command with particular network name:
 
-5. Invoke ansible-playbook:
+```bash
+./bin/destory <network_name>
+```
 
-    ```bash
-    $ cd ../../ansible # Go to ansible dir
-    $ ansible-playbook --private-key="{path-to-key}" -i ../networks/devnet-example.inventory -e @../networks/devnet-example.yml playbooks/create-network.yml
-    ```
+You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
 
-## Services
+## Dash Network Services 
 
 ### DashCore
 
