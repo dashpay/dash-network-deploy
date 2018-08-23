@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This tool allows deploy and manage Dash Networks networks.
+This tool allows deploy and manage Dash networks.
 
 There are two regular available networks: `testnet` and `mainnet`.
 After deployment your DashCore instances will join to those networks.
