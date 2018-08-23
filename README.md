@@ -1,4 +1,4 @@
-# Dash Networks Deployment Tool
+# Dash Network Deployment Tool
 
 ## Introduction
 
@@ -8,7 +8,7 @@ There are two regular available networks: `testnet` and `mainnet`.
 After deployment your DashCore instances will join to those networks.
 
 `regtest` and `devnet-*` are networks for testing purposes.
-Devnet are like regular Dash Networks (`mainnet` and `testnet`)
+Devnet are like regular Dash networks (`mainnet` and `testnet`)
 but easier to bootstrap and has own name. That's why it easier to have multiple in parallel.  
 
 Work in progress and in its initial state only meant to be used by Dash Core
@@ -51,7 +51,7 @@ $EDITOR .env
 ## Networks definition
 
 Use available or create your own network configuration in [networks directory](networks).
-Name of files in [networks directory](networks) are equal to dash networks names.
+Name of files in [networks directory](networks) are equal to Dash networks names.
 
 Terraform configuration defined in `*.tfvars` files.
 All available options you will find in [variables.tf](terraform/aws/variables.tf) file.
