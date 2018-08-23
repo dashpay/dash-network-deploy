@@ -1,8 +1,5 @@
 ---
 
-faucet_address: yhvXpqQjfN9S4j5mBKbxeGxiETJrrLETg5
-faucet_privkey: cR4t6evwVZoCp1JsLk4wURK4UmBCZzZotNzn9T1mhBT19SH9JtNt
-
 masternodes:
   masternode-1:
     address: yiRNTUNCS39WPu3VhT7utRWTJYzmUdf1aR
