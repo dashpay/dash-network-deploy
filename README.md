@@ -51,7 +51,7 @@ $EDITOR .env
 ## Networks definition
 
 Use available or create your own network configuration in [networks directory](networks).
-Name of files in [networks directory](networks) are equal to Dash networks names.
+Name of files in [networks directory](networks) are equal to Dash network names.
 
 Terraform configuration defined in `*.tfvars` files.
 All available options you will find in [variables.tf](terraform/aws/variables.tf) file.
