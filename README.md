@@ -75,7 +75,7 @@ You may pass `--skip-infrastructure` option to avoid of running Terraform and bu
 To destroy available Dash Network run `destroy` command with particular network name:
 
 ```bash
-./bin/destory <network_name>
+./bin/destroy <network_name>
 ```
 
 You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
