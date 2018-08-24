@@ -41,7 +41,7 @@
   docker_container:
     name: dashd
     state: started
-    restart: '{{ dash_config_state|changed }}'
+    restart: '{{ dash_config_state is changed }}'
     restart_policy: always
     image: '{{ dashd_image }}'
     pull: true
