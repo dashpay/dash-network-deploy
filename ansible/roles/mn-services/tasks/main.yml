@@ -25,12 +25,12 @@
 
 - name: check MongoDB container
   assert:
-    that: 'mongodb.{{ compose_project_name }}_mongodb_1.state.running'
+    that: 'mongodb.{{ mn_services_compose_project_name }}_mongodb_1.state.running'
 
 - name: check DashDrive sync container
   assert:
-    that: 'drive_sync.{{ compose_project_name }}_drive_sync_1.state.running'
+    that: 'drive_sync.{{ mn_services_compose_project_name }}_drive_sync_1.state.running'
 
 - name: check DashDrive API container
   assert:
-    that: 'drive_api.{{ compose_project_name }}_drive_api_1.state.running'
+    that: 'drive_api.{{ mn_services_compose_project_name }}_drive_api_1.state.running'
