@@ -1,12 +1,8 @@
 # Specify the provider and access details
-# TODO Read from env?
-provider "aws" {
-
-}
+provider "aws" {}
 
 terraform {
-  backend "s3" {
-  }
+  backend "s3" {}
 }
 
 data "aws_ami" "ubuntu" {
@@ -51,8 +47,8 @@ resource "aws_subnet" "default" {
 
 # A security group for the ELB so it is accessible via the web
 resource "aws_security_group" "elb" {
-  name        = "${terraform.workspace}-elb"
-  vpc_id      = "${aws_vpc.default.id}"
+  name   = "${terraform.workspace}-elb"
+  vpc_id = "${aws_vpc.default.id}"
 
   # HTTP access from anywhere
   ingress {
@@ -79,15 +75,15 @@ resource "aws_security_group" "elb" {
 }
 
 resource "aws_security_group" "default" {
-  name = "${terraform.workspace}-ssh"
+  name        = "${terraform.workspace}-ssh"
   description = "all nodes"
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id      = "${aws_vpc.default.id}"
 
   # SSH access from anywhere
   ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -171,9 +167,9 @@ resource "aws_security_group" "dashd" {
 }
 
 resource "aws_security_group" "http" {
-  name = "${terraform.workspace}-http"
+  name        = "${terraform.workspace}-http"
   description = "web node"
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id      = "${aws_vpc.default.id}"
 
   ingress {
     from_port   = 80
@@ -225,18 +221,19 @@ resource "aws_instance" "web" {
     user = "ubuntu"
   }
 
-  ami = "${data.aws_ami.ubuntu.id}"
+  ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
-  key_name = "${aws_key_pair.auth.id}"
+  key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
     "${aws_security_group.default.id}",
     "${aws_security_group.http.id}",
   ]
+
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${terraform.workspace}-web-${count.index + 1}"
+    Name     = "${terraform.workspace}-web-${count.index + 1}"
     Hostname = "web-${count.index + 1}"
   }
 }
@@ -245,18 +242,19 @@ resource "aws_instance" "web" {
 resource "aws_instance" "dashd_wallet" {
   count = "${var.wallet_count}"
 
-  ami = "${data.aws_ami.ubuntu.id}"
+  ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
-  key_name = "${aws_key_pair.auth.id}"
+  key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
     "${aws_security_group.default.id}",
     "${aws_security_group.dashd_private.id}",
   ]
+
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${terraform.workspace}-dashd-wallet-${count.index + 1}"
+    Name     = "${terraform.workspace}-dashd-wallet-${count.index + 1}"
     Hostname = "dashd-wallet-${count.index + 1}"
   }
 }
@@ -265,18 +263,19 @@ resource "aws_instance" "dashd_wallet" {
 resource "aws_instance" "dashd_full_node" {
   count = "${var.node_count}"
 
-  ami = "${data.aws_ami.ubuntu.id}"
+  ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
-  key_name = "${aws_key_pair.auth.id}"
+  key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
     "${aws_security_group.default.id}",
     "${aws_security_group.dashd.id}",
   ]
+
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${terraform.workspace}-node-${count.index + 1}"
+    Name     = "${terraform.workspace}-node-${count.index + 1}"
     Hostname = "node-${count.index + 1}"
   }
 }
@@ -285,17 +284,18 @@ resource "aws_instance" "dashd_full_node" {
 resource "aws_instance" "miner" {
   count = "${var.miner_count}"
 
-  ami = "${data.aws_ami.ubuntu.id}"
+  ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.small"
-  key_name = "${aws_key_pair.auth.id}"
+  key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
-    "${aws_security_group.default.id}"
+    "${aws_security_group.default.id}",
   ]
+
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${terraform.workspace}-miner-${count.index + 1}"
+    Name     = "${terraform.workspace}-miner-${count.index + 1}"
     Hostname = "miner-${count.index + 1}"
   }
 }
@@ -304,18 +304,19 @@ resource "aws_instance" "miner" {
 resource "aws_instance" "masternode" {
   count = "${var.masternode_count}"
 
-  ami = "${data.aws_ami.ubuntu.id}"
+  ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
-  key_name = "${aws_key_pair.auth.id}"
+  key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
     "${aws_security_group.default.id}",
     "${aws_security_group.dashd.id}",
   ]
+
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${terraform.workspace}-masternode-${count.index + 1}"
+    Name     = "${terraform.workspace}-masternode-${count.index + 1}"
     Hostname = "masternode-${count.index + 1}"
   }
 }

@@ -10,9 +10,9 @@ dashd_user: dash
 dashd_group: dash
 dashd_home: /dash
 
-# TODO Remove default value
-dash_network: devnet
-dash_devnet_name: devnet1
+# dash_network:
+# dash_devnet_name:
+
 dashd_port: 20001
 
 # Please provide your own credentials in network config
