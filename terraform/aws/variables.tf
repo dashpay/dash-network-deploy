@@ -2,29 +2,24 @@ variable "public_key_path" {
   default = "~/.ssh/id_rsa.pub"
 }
 
-variable "key_name" {
-  description = "Desired name of AWS key pair"
-  default = "dash_cluster_key"
-}
-
 variable "dashd_port" {
   description = "Port for Dash Core nodes"
-  default = "20001"
+  default     = "20001"
 }
 
 variable "dashd_rpc_port" {
   description = "Port for Dash RPC interface"
-  default = "20002"
+  default     = "20002"
 }
 
 variable "dashd_zmq_port" {
   description = "Port for Dash Zmq interface"
-  default = "29998"
+  default     = "29998"
 }
 
 variable "ipfs_swarm_port" {
   description = "IPFS Swarm port"
-  default = "4001"
+  default     = "4001"
 }
 
 variable "vpc_cidr" {
@@ -49,7 +44,7 @@ variable "masternode_count" {
 
 variable "wallet_count" {
   description = "number of wallet nodes to create. must be at least 2"
-  default = 2
+  default     = 2
 }
 
 variable "web_count" {
