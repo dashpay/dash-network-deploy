@@ -31,8 +31,6 @@ services:
 
   mongodb:
     image: mongo:3.6
-    ports:
-      - 27017:27017
 
   drive_sync:
     image: {{ drive_image }}
@@ -43,8 +41,9 @@ services:
       - DASHCORE_JSON_RPC_PASS={{ dashd_rpcpassword }}
       - DASHCORE_JSON_RPC_HOST={{ private_ip }}
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpcport }}
-      - STORAGE_MONGODB_URL=mongodb://{{ private_ip }}:27017
-      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/4001
+      - STORAGE_MONGODB_DB=drive_main
+      - STORAGE_MONGODB_URL=mongodb://mongodb:27017
+      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
     depends_on:
       - ipfs
       - mongodb
@@ -58,8 +57,9 @@ services:
       - DASHCORE_JSON_RPC_PASS={{ dashd_rpcpassword }}
       - DASHCORE_JSON_RPC_HOST={{ private_ip }}
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpcport }}
-      - STORAGE_MONGODB_URL=mongodb://{{ private_ip }}:27017
-      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/4001
+      - STORAGE_MONGODB_DB=drive_main
+      - STORAGE_MONGODB_URL=mongodb://mongodb:27017
+      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
     depends_on:
       - ipfs
       - mongodb
