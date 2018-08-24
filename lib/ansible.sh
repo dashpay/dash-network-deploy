@@ -9,7 +9,7 @@ function run_ansible_playbook() {
         print_error "Ansible inventory file not found. Please read README.md how to create infrastructure with Terraform"
     fi
 
-    if [ -f "../$ANSIBLE_CONFIG_PATH" ]; then
+    if [ ! -f "../$ANSIBLE_CONFIG_PATH" ]; then
         print_error "Ansible network config '$ANSIBLE_CONFIG_PATH' is not found. Please read README.md how to configure networks"
     fi
 
