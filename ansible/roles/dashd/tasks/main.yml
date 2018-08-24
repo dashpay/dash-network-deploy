@@ -1,0 +1,60 @@
+---
+
+- name: Create dashd group
+  group:
+    name: '{{ dashd_group }}'
+
+- name: Create dashd user
+  user:
+    name: '{{ dashd_user }}'
+    group: '{{ dashd_group }}'
+    append: False
+    home: '{{ dashd_home }}'
+
+- name: get uid of dash user
+  shell: id -u {{ dashd_user }}
+  register: dash_user_id
+- name: get gid of dash user
+  shell: id -g {{ dashd_user }}
+  register: dash_group_id
+
+- name: create dash home/data dir
+  file: path={{ dashd_home }} state=directory mode='0750' owner='{{ dashd_user }}' group='{{ dashd_group }}'
+- name: create .dashcore dir
+  file: path={{ dashd_home }}/.dashcore state=directory mode='0750' owner='{{ dashd_user }}' group='{{ dashd_group }}'
+- name: create .dashcore dir for root
+  file: path=/root/.dashcore state=directory mode='0750' owner='root' group='root'
+
+- name: Configure dashd
+  template:
+    src: 'dash.conf.j2'
+    dest: '{{ dashd_home }}/.dashcore/dash.conf'
+    owner: '{{ dashd_user }}'
+    group: '{{ dashd_group }}'
+    mode: '0640'
+  register: dash_config_state
+
+- name: copy configuration to root user dir to make rpc work
+  shell: cp {{ dashd_home }}/.dashcore/dash.conf /root/.dashcore/
+
+- name: create dashd container
+  docker_container:
+    name: dashd
+    state: started
+    restart: '{{ dash_config_state|changed }}'
+    restart_policy: always
+    image: '{{ dashd_image }}'
+    pull: true
+    user: '{{ dash_user_id.stdout }}:{{ dash_group_id.stdout }}'
+    working_dir: '{{ dashd_home }}'
+    volumes:
+    - '{{ dashd_home }}:/dash'
+    network_mode: host
+    command: 'dashd -conf={{ dashd_home }}/.dashcore/dash.conf -datadir={{ dashd_home }}/.dashcore'
+
+- name: wait for rpc to be available
+  shell: dash-cli getinfo
+  register: task_result
+  until: task_result.rc == 0
+  retries: 5
+  delay: 10

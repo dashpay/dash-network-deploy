@@ -1,0 +1,21 @@
+---
+
+faucet_address: yhvXpqQjfN9S4j5mBKbxeGxiETJrrLETg5
+faucet_privkey: cR4t6evwVZoCp1JsLk4wURK4UmBCZzZotNzn9T1mhBT19SH9JtNt
+
+masternodes:
+  masternode-1:
+    address: yiRNTUNCS39WPu3VhT7utRWTJYzmUdf1aR
+    address_key: cSrCXqZ1oVw3vpeuoyPKHBpGiMmf6pQerF64MYMcS11HQ4bGquDF
+    mn_operator_addr: yQkW2Np8Ezmy8yc8AvUDWTFWQHNt7oRZ1W
+    mn_operator_key: cPqKtmHUJeZ7XkhqMeiBqpr8aJkXg5yWhH4T22cWQeLcpK151Wk4
+  masternode-2:
+    address: ybpwqoZ2Q4goxrzgPx9b3cbPrvy6UbC1ct
+    address_key: cN88MoW1XEv1s4wt6zgbQ8aR9KYM4RZihSeoRUcdWmwdAyu6HaDu
+    mn_operator_addr: yV3r6GY18KjZJKVuwZjmzNgsedo2SLj1UZ
+    mn_operator_key: cPJYHUsuRfcPyRQRRHogxtmBTN1UFzZSnRSw1Uyj2akVnM4qoPhn
+  masternode-3:
+    address: yQuwR1uaci2SCQBgqcaKRzfq7upL4n513j
+    address_key: cTEGsaAqx9jUFYkNECeGKfixa6vgMiUoSwqsdncc11mS6BZerTpT
+    mn_operator_addr: yhypFUBAYtbrPEqTeH4bh23xhbLdpXb5k2
+    mn_operator_key: cRRPAZgkgq3Fh8EjHxzSeHfEWZNvL4u5AezXEeqk6VczBbtQtYj8

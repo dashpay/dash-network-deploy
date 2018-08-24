@@ -7,17 +7,19 @@ variable "key_name" {
   default = "dash_cluster_key"
 }
 
-variable "aws_region" {
-  description = "AWS region to launch servers."
-  default     = "eu-west-1"
-}
-
 variable "dashd_port" {
   description = "Port for Dash Core nodes"
+  default = "20001"
 }
 
 variable "dashd_rpc_port" {
   description = "Port for Dash RPC interface"
+  default = "20002"
+}
+
+variable "dashd_zmq_port" {
+  description = "Port for Dash Zmq interface"
+  default = "29998"
 }
 
 variable "ipfs_swarm_port" {
@@ -42,10 +44,14 @@ variable "miner_count" {
 }
 
 variable "masternode_count" {
-  default = 1
+  default = 3
 }
 
 variable "wallet_count" {
   description = "number of wallet nodes to create. must be at least 2"
   default = 2
+}
+
+variable "web_count" {
+  default = 1
 }

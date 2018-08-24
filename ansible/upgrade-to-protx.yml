@@ -1,0 +1,8 @@
+---
+
+- hosts: masternode-wallet
+  become: true
+  roles:
+    - mn-createprotx
+    - { role: mn-conf, use_protx: True }
+    - mn-start

@@ -1,22 +1,23 @@
-Dash Cluster Ansible
-====================
+# Dash Network Deployment Tool
 
-What is this?
--------------
+## Introduction
 
-This is an Ansible project to setup and manage devnet (and later testnet) networks. Devnets
-are like regular Dash networks (mainnet, testnet) but easier to bootstrap and easier to have
-multiple in parallel.
+This tool allows deploy and manage Dash networks.
 
-This project is work in progress and in its initial state only meant to be used by Dash Core
+There are two regular available networks: `testnet` and `mainnet`.
+After deployment your DashCore instances will join to those networks.
+
+`regtest` and `devnet-*` are networks for testing purposes.
+Devnet are like regular Dash networks (`mainnet` and `testnet`)
+but easier to bootstrap and has own name. That's why it easier to have multiple in parallel.  
+
+Work in progress and in its initial state only meant to be used by Dash Core
 developers to assist in Dash Evolution development.
 
 Detailed documentation on how to use this repo will come when more interest from the public
 arises or when Evolution is released.
 
-
-Install Prerequisites
----------------------
+## Installation
 
 1. Install Ansible and Terraform per instructions provided on official websites:
 
@@ -38,52 +39,63 @@ Install Prerequisites
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
 
-4. Configure env variables in `.env`
+## Configuration
 
-    ```bash
-    cp .env.example .env
-    source .env
-    ```
+Configure your credentials in `.env` file:
 
-Getting started
----------------
+```bash
+cp .env.example .env
+$EDITOR .env
+```
 
-Create your own cluster configuration in `clusters`. Use `aws-example.*` as a skeleton. The
-following commands will all directly use the aws-example, while you should change it to use
-your own config.
+## Networks definition
 
-1. Initialize terraform w/remote AWS backend configuration:
+Use available or create your own network configuration in [networks directory](networks).
+Name of files in [networks directory](networks) are equal to Dash network names.
 
-    ```bash
-    $ cd terraform/aws
-    $ terraform init \
-        -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
-        -backend-config="key=$TERRAFORM_S3_KEY" \
-        -backend-config="region=$AWS_DEFAULT_REGION" \
-        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_LOCK_TABLE"
-    ```
+Terraform configuration defined in `*.tfvars` files.
+All available options you will find in [variables.tf](terraform/aws/variables.tf) file.
+Ansible configuration in `*.yaml` files.
+[group_vars/all](ansible/group_vars/all) file contains the majority of playbook options.
+The rest of them you will find in `roles/*/vars/main.yml` files.
 
-2. Select/create terraform workspace according to dash network name (testnet/regtest/mainnet/devnet-{name}):
+## Network deployment
 
-    ```bash
-    $ terraform workspace new devnet-aws-example
-    ```
+To deploy Dash Network run `deploy` command with particular network name:
 
-3. Setup the AWS infrastructure with terraform:
+```bash
+./bin/deploy <network_name>
+```
 
-    ```
-    $ terraform apply -var-file=../../clusters/aws-example.tfvars
-    ```
+You may pass `--skip-infrastructure` option to avoid of running Terraform and building of infrastructure.
 
-4. Create the inventory file for Ansible:
 
-    ```bash
-    $ terraform output ansible_inventory > ../../clusters/aws-example.inventory
-    ```
+## Network destruction
 
-5. Invoke ansible-playbook:
+To destroy available Dash Network run `destroy` command with particular network name:
 
-    ```bash
-    $ cd ../.. # Go back to root dir of project
-    $ ansible-playbook -i clusters/aws-example.inventory -e @clusters/aws-example.yml cluster.yml
-    ```
+```bash
+./bin/destroy <network_name>
+```
+
+You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
+
+## Dash Network Services 
+
+### DashCore
+
+### Multi faucet
+
+### Sentinel
+
+### Insight
+
+[Insight service](https://insight.dash.org/insight/) is available from internet on 3001 port of AWS ELB.
+
+Note: You can get your AWS ELB DNS name using aws cli
+
+```bash
+aws elb describe-load-balancers --load-balancer-names={workspace/network name} | grep DNSName
+```
+
+### IPFS

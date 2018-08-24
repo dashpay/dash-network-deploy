@@ -1,6 +1,0 @@
----
-
-mn_services_path: /dash/mn-services
-compose_project_name: mn_services
-
-ipfs_swarm_key_path: '{{ mn_services_path }}/ipfs/swarm.key'

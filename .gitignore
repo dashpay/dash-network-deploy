@@ -1,17 +1,18 @@
+# Dotenv
 /.env
 
 # Ansible
-*.retry
+/ansible/*.retry
+/networks/*.inventory
 
 # Vagrant
 .vagrant
 
 # Terraform
-*.tfstate
-*.tfstate.backup
-.terraform
-/clusters/aws-example.inventory
+/terraform/aws/*.tfstate
+/terraform/aws/*.tfstate.backup
+/terraform/aws/.terraform
 
-# CLion
+# Jet Brains
 cmake-build-debug
 .idea

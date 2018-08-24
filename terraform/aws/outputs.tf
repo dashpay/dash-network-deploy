@@ -9,6 +9,7 @@ data "template_file" "web_hosts" {
     private_ip = "${element(aws_instance.web.*.private_ip, count.index)}"
   }
 }
+
 data "template_file" "wallet_node_hosts" {
   count = "${aws_instance.dashd_wallet.count}"
   template = "${file("${path.module}/inventory/hostname.tpl")}"

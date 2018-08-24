@@ -1,6 +1,7 @@
 # Specify the provider and access details
+# TODO Read from env?
 provider "aws" {
-  region = "${var.aws_region}"
+
 }
 
 terraform {
@@ -61,6 +62,13 @@ resource "aws_security_group" "elb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 3001
+    to_port     = 3001
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # outbound internet access
   egress {
     from_port   = 0
@@ -72,7 +80,7 @@ resource "aws_security_group" "elb" {
 
 resource "aws_security_group" "default" {
   name = "${terraform.workspace}-ssh"
-  description = "dashd node"
+  description = "all nodes"
   vpc_id = "${aws_vpc.default.id}"
 
   # SSH access from anywhere
@@ -106,10 +114,18 @@ resource "aws_security_group" "dashd_private" {
     cidr_blocks = ["${var.private_subnet}"]
   }
 
-  # RPC access
+  # DashCore RPC access
   ingress {
     from_port   = "${var.dashd_rpc_port}"
     to_port     = "${var.dashd_rpc_port}"
+    protocol    = "tcp"
+    cidr_blocks = ["${var.private_subnet}"]
+  }
+
+  # DashCore ZMQ acess
+  ingress {
+    from_port   = "${var.dashd_zmq_port}"
+    to_port     = "${var.dashd_zmq_port}"
     protocol    = "tcp"
     cidr_blocks = ["${var.private_subnet}"]
   }
@@ -118,7 +134,7 @@ resource "aws_security_group" "dashd_private" {
 # dashd node accessible from the public internet
 resource "aws_security_group" "dashd" {
   name        = "${terraform.workspace}-dashd"
-  description = "dashd node"
+  description = "dashd public network"
   vpc_id      = "${aws_vpc.default.id}"
 
   # Dash Core access
@@ -129,10 +145,18 @@ resource "aws_security_group" "dashd" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # RPC access
+  # DashCore RPC access
   ingress {
     from_port   = "${var.dashd_rpc_port}"
     to_port     = "${var.dashd_rpc_port}"
+    protocol    = "tcp"
+    cidr_blocks = ["${var.private_subnet}"]
+  }
+
+  # DashCore ZMQ acess
+  ingress {
+    from_port   = "${var.dashd_zmq_port}"
+    to_port     = "${var.dashd_zmq_port}"
     protocol    = "tcp"
     cidr_blocks = ["${var.private_subnet}"]
   }
@@ -148,12 +172,19 @@ resource "aws_security_group" "dashd" {
 
 resource "aws_security_group" "http" {
   name = "${terraform.workspace}-http"
-  description = "dashd node"
+  description = "web node"
   vpc_id = "${aws_vpc.default.id}"
 
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["${var.private_subnet}"]
+  }
+
+  ingress {
+    from_port   = 3001
+    to_port     = 3001
     protocol    = "tcp"
     cidr_blocks = ["${var.private_subnet}"]
   }
@@ -172,6 +203,13 @@ resource "aws_elb" "web" {
     lb_port           = 80
     lb_protocol       = "http"
   }
+
+  listener {
+    instance_port     = 3001
+    instance_protocol = "http"
+    lb_port           = 3001
+    lb_protocol       = "http"
+  }
 }
 
 resource "aws_key_pair" "auth" {
@@ -181,6 +219,8 @@ resource "aws_key_pair" "auth" {
 
 # web
 resource "aws_instance" "web" {
+  count = "${var.web_count}"
+
   connection {
     user = "ubuntu"
   }
@@ -196,8 +236,8 @@ resource "aws_instance" "web" {
   subnet_id = "${aws_subnet.default.id}"
 
   tags = {
-    Name = "${terraform.workspace}-web"
-    Hostname = "web"
+    Name = "${terraform.workspace}-web-${count.index + 1}"
+    Hostname = "web-${count.index + 1}"
   }
 }
 

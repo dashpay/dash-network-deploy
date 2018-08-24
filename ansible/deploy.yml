@@ -1,0 +1,106 @@
+---
+######################
+# Bootstrap
+
+- hosts: all
+  gather_facts: False
+  become: true
+  pre_tasks:
+    - name: install python 2
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+    - name: Check if inside AWS.
+      uri:
+        url: http://169.254.169.254/latest/meta-data
+        timeout: 2
+      register: aws_uri_check
+      failed_when: False
+    - set_fact:
+        is_aws_environment: "{{ aws_uri_check.status == 200 }}"
+  roles:
+    - role: aws
+      when: is_aws_environment
+
+######################
+
+- hosts: all
+  become: true
+  vars:
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+    - docker-options
+
+- hosts: all
+  become: true
+  roles:
+    - role: ecr-login
+      when: aws_ecr_login
+      tags: always
+    - dash-cli
+
+# private nodes
+- hosts: wallet-nodes
+  become: true
+  roles:
+    - role: dashd
+      tags:
+        - dashd
+      dashd_indexes: true
+      dashd_zmq: true
+
+- hosts: miners
+  become: true
+  roles:
+    - role: dashd
+      tags:
+        - dashd
+
+# public nodes
+- hosts: full-nodes, masternodes
+  become: true
+  pre_tasks:
+    - set_fact:
+        masternode: '{{ masternodes[inventory_hostname] }}'
+      tags: always
+      when: inventory_hostname in masternodes
+  roles:
+    - role: dashd
+      tags:
+        - dashd
+      dashd_listen: true
+    - role: mn-services
+      tags:
+        - mn_services
+      when: masternode is defined
+
+# generate first block on seed node so that all nodes leave IBD mode (required for mining)
+- hosts: seed-node
+  become: true
+  roles:
+    - role: generate-firstblock
+      when: dash_network == "devnet" or dash_network == "regtest"
+
+- hosts: miners
+  become: true
+  roles:
+    - role: dashd-generate-miner
+      when: dash_network != "mainnet"
+
+- hosts: web
+  become: true
+  roles:
+    - multifaucet
+    - insight
+  tags:
+    - web
+
+- hosts: masternode-wallet
+  become: true
+  roles:
+    - mn-fund-collateral
+    - mn-pay-faucet
+    - {role: mn-conf, tags: mn-conf}
+    - mn-start
