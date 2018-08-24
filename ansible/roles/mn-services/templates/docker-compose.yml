@@ -41,7 +41,6 @@ services:
       - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
       - DASHCORE_JSON_RPC_HOST={{ private_ip }}
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
-      - STORAGE_MONGODB_DB=drive_main
       - STORAGE_MONGODB_URL=mongodb://mongodb:27017
       - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
     depends_on:
@@ -57,7 +56,6 @@ services:
       - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
       - DASHCORE_JSON_RPC_HOST={{ private_ip }}
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
-      - STORAGE_MONGODB_DB=drive_main
       - STORAGE_MONGODB_URL=mongodb://mongodb:27017
       - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
     depends_on:
