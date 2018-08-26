@@ -28,7 +28,7 @@ function run_terraform_command() {
 
     set -e
 
-    if [ ${SELECT_EXIT_CODE} != "0" ]; then
+    if [ ${SELECT_EXIT_CODE} != 0 ]; then
         terraform workspace new ${NETWORK_NAME}
     fi
 
