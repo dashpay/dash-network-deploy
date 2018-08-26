@@ -10,6 +10,7 @@ evo_services: false
 sentinel_image: ablock/sentinel
 
 # Insight Docker image
+# TODO Use public image
 insight_image: 103738324493.dkr.ecr.us-west-2.amazonaws.com/dashevo/insight:latest
 
 # DashCore Docker image
