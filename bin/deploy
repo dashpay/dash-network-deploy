@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ea
+set -exa
 
 . ./lib/utils.sh
 

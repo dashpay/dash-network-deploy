@@ -2,7 +2,7 @@ version: '3'
 
 services:
   insight:
-    image: {{ dash_docker_repo }}/dashevo/insight:latest
+    image: {{ insight_image }}
     restart: always
     ports:
       - 3001:3001

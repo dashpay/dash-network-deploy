@@ -1,10 +1,19 @@
 ---
 
-aws_ecr_login: true
+# Login to AWS ECR using passed from .env AWS credentials
+aws_ecr_login: false
 
-# TODO Should be public
-dash_docker_repo: 103738324493.dkr.ecr.us-west-2.amazonaws.com
-dashd_image: '{{ dash_docker_repo }}/dashevo/dashcore:v13.0.0-evo.1'
+# Install Evolution Masternode services
+evo_services: false
+
+# Sentinel Docker image
+sentinel_image: ablock/sentinel
+
+# Insight Docker image
+insight_image: 103738324493.dkr.ecr.us-west-2.amazonaws.com/dashevo/insight:latest
+
+# DashCore Docker image
+dashd_image: dashpay/dashd-develop
 
 dashd_user: dash
 dashd_group: dash
@@ -28,6 +37,7 @@ dashd_zmq_port: 29998
 
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
 dashd_seednode: '{{ hostvars[groups["seed-node"][0]]["public_ip"] }}'
+
 
 # Faucet stuff
 
