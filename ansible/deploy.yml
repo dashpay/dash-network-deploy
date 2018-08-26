@@ -3,11 +3,6 @@
 # Bootstrap
 
 - hosts: all
-  tasks:
-    - debug:
-        var: dashd_image
-
-- hosts: all
   gather_facts: False
   become: true
   pre_tasks:
