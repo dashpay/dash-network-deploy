@@ -1,7 +1,7 @@
 ---
 
 ipfs_image: ipfs/go-ipfs:v0.4.17
-drive_image: 103738324493.dkr.ecr.us-west-2.amazonaws.com/dashevo/dashdrive:latest
+drive_image: dashpay/drive:latest
 
 mn_evo_services_compose_project_name: mn_evo_services
 mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'
