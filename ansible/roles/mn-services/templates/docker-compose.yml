@@ -24,9 +24,45 @@ services:
       SWARM_PEER: ${SWARM_PEER}
     ports:
       - 4001:4001
+      - 5001:5001
     volumes:
       - ipfs:/data/ipfs
       - {{ mn_services_path }}/ipfs/init.sh:/usr/local/bin/start_ipfs
+
+  mongodb:
+    image: mongo:3.6
+
+  drive_sync:
+    image: 103738324493.dkr.ecr.us-west-2.amazonaws.com/dashevo/dashdrive:latest
+    restart: always
+    command: npm run sync
+    environment:
+      - DASHCORE_JSON_RPC_USER={{ dashd_rpc_user }}
+      - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
+      - DASHCORE_JSON_RPC_HOST={{ private_ip }}
+      - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
+      - STORAGE_MONGODB_URL=mongodb://mongodb:27017
+      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
+    depends_on:
+      - ipfs
+      - mongodb
+
+  drive_api:
+    image: 103738324493.dkr.ecr.us-west-2.amazonaws.com/dashevo/dashdrive:latest
+    restart: always
+    command: npm run api
+    environment:
+      - DASHCORE_JSON_RPC_USER={{ dashd_rpc_user }}
+      - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
+      - DASHCORE_JSON_RPC_HOST={{ private_ip }}
+      - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
+      - STORAGE_MONGODB_URL=mongodb://mongodb:27017
+      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
+    depends_on:
+      - ipfs
+      - mongodb
+    ports:
+      - 6000:6000
 
 volumes:
   ipfs:
