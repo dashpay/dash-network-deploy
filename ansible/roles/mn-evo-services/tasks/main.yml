@@ -22,3 +22,15 @@
     state: present
     restarted: yes
     pull: yes
+
+- name: check DashDrive sync container
+  assert:
+    that: 'drive_sync.{{ mn_evo_services_compose_project_name }}_drive_sync_1.state.running'
+
+- name: check DashDrive API container
+  assert:
+    that: 'drive_api.{{ mn_evo_services_compose_project_name }}_drive_api_1.state.running'
+
+- name: check DashDrive MongoDB container
+  assert:
+    that: 'mongodb.{{ mn_evo_services_compose_project_name }}_drive_mongodb_1.state.running'
