@@ -10,7 +10,7 @@ evo_services: false
 sentinel_image: ablock/sentinel
 
 # Insight Docker image
-insight_image: dashpay/insight
+insight_image: shumkov/insight
 
 # DashCore Docker image
 dashd_image: dashpay/dashd-develop
