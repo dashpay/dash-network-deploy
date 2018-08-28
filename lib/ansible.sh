@@ -18,7 +18,7 @@ function run_ansible_playbook() {
                      -e "@../$ANSIBLE_CONFIG_PATH" \
                      -e "dash_network=$NETWORK" \
                      -e "dash_devnet_name=$NETWORK_DEVNET_NAME" \
-                     ${ANSIBLE_ARGUMENTS} \
+                     "$ANSIBLE_ARGUMENTS" \
                      ${1}
 
     cd ..

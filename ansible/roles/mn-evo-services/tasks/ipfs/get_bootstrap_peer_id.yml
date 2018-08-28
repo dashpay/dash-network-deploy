@@ -4,7 +4,7 @@
   environment:
     SWARM_KEY: '{{ ipfs_swarm_key }}'
   docker_service:
-    project_src: '{{ mn_services_path }}'
+    project_src: '{{ mn_evo_services_path }}'
     services:
     - ipfs
     state: present
@@ -12,17 +12,17 @@
   register: output
 
 - assert:
-    that: 'ipfs.{{ mn_services_compose_project_name }}_ipfs_1.state.running'
+    that: 'ipfs.{{ mn_evo_services_compose_project_name }}_ipfs_1.state.running'
 
 - name: get IPFS bootstrap node ID
   command: docker-compose exec -T ipfs ipfs id --format '<id>'
   args:
-    chdir: '{{ mn_services_path }}'
+    chdir: '{{ mn_evo_services_path }}'
   register: ipfs_id_result
 
 - name: stop IPFS bootstrap node
   docker_service:
-    project_src: '{{ mn_services_path }}'
+    project_src: '{{ mn_evo_services_path }}'
     services:
       - ipfs
     state: absent
