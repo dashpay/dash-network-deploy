@@ -59,22 +59,37 @@
         - dashd
 
 # public nodes
-- hosts: full-nodes, masternodes
+
+- hosts: full-nodes
   become: true
-  pre_tasks:
-    - set_fact:
-        masternode: '{{ masternodes[inventory_hostname] }}'
-      tags: always
-      when: inventory_hostname in masternodes
   roles:
     - role: dashd
       tags:
         - dashd
       dashd_listen: true
-    - role: mn-services
-      tags:
-        - mn_services
-      when: masternode is defined
+
+- hosts: masternodes
+  become: true
+  pre_tasks:
+  - set_fact:
+      masternode: '{{ masternodes[inventory_hostname] }}'
+    tags: always
+    when: inventory_hostname in masternodes
+  - fail:
+      msg: Masternode not defined in network config
+    when: masternode is not defined
+  roles:
+  - role: dashd
+    tags:
+    - dashd
+    dashd_listen: true
+  - role: mn-sentinel
+    tags:
+    - mn_services
+  - role: mn-evo-services
+    tags:
+    - mn_services
+    when: evo_services
 
 # generate first block on seed node so that all nodes leave IBD mode (required for mining)
 - hosts: seed-node

@@ -3,7 +3,7 @@
 - name: copy IPFS init script
   copy:
     src: ipfs/init.sh
-    dest: '{{ mn_services_path }}/ipfs/'
+    dest: '{{ mn_evo_services_path }}/ipfs/'
     mode: +rx
 
 - name: check if IPFS swarm key is alrady generated
