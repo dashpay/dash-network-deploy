@@ -53,7 +53,7 @@ services:
       - {{ mn_evo_services_path }}/ipfs/init.sh:/usr/local/bin/start_ipfs
 
   dapi:
-    image: 103738324493.dkr.ecr.us-west-2.amazonaws.com/dashevo/dapi:latest
+    image: {{ dapi_image }}
     restart: always
     depends_on:
       - ipfs
