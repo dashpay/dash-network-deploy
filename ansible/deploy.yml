@@ -83,6 +83,7 @@
     tags:
     - dashd
     dashd_listen: true
+    dashd_zmq: true
   - role: mn-sentinel
     tags:
     - mn_services
