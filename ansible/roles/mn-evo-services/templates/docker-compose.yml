@@ -10,7 +10,7 @@ services:
     - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
     - DASHCORE_JSON_RPC_HOST={{ private_ip }}
     - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
-    - STORAGE_MONGODB_URL=mongodb://mongodb:27017
+    - STORAGE_MONGODB_URL=mongodb://drive_mongodb:27017
     - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
     depends_on:
     - ipfs
@@ -25,7 +25,7 @@ services:
       - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
       - DASHCORE_JSON_RPC_HOST={{ private_ip }}
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
-      - STORAGE_MONGODB_URL=mongodb://mongodb:27017
+      - STORAGE_MONGODB_URL=mongodb://drive_mongodb:27017
       - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
     depends_on:
       - ipfs
@@ -51,6 +51,24 @@ services:
     volumes:
       - ipfs:/data/ipfs
       - {{ mn_evo_services_path }}/ipfs/init.sh:/usr/local/bin/start_ipfs
+
+  dapi:
+    image: {{ dapi_image }}
+    restart: always
+    depends_on:
+      - ipfs
+    ports:
+      - 3000:3000
+    environment:
+      - INSIGHT_URI=http://{{ private_ip }}:3001/insight-api-dash
+      - RPC_SERVER_PORT=3000
+      - DASHCORE_RPC_HOST={{ private_ip }}
+      - DASHCORE_RPC_PORT={{ dashd_rpc_port }}
+      - DASHCORE_RPC_USER={{ dashd_rpc_user }}
+      - DASHCORE_RPC_PASS={{ dashd_rpc_password }}
+      - DASHCORE_ZMQ_HOST={{ private_ip }}
+      - DASHCORE_ZMQ_PORT={{ dashd_zmq_port }}
+      - NETWORK={{ dash_devnet_name }}
 
 volumes:
   drive_mongodb:

@@ -33,4 +33,8 @@
 
 - name: check DashDrive MongoDB container
   assert:
-    that: 'mongodb.{{ mn_evo_services_compose_project_name }}_drive_mongodb_1.state.running'
+    that: 'drive_mongodb.{{ mn_evo_services_compose_project_name }}_drive_mongodb_1.state.running'
+
+- name: check DAPI container
+  assert:
+    that: 'dapi.{{ mn_evo_services_compose_project_name }}_dapi_1.state.running'
