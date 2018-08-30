@@ -48,6 +48,17 @@ cp .env.example .env
 $EDITOR .env
 ```
 
+### Evolution configuration
+Several Ansible's arguments should be specified in `.env` file to deploy Evolution's services:
+```bash
+ANSIBLE_ARGUMENTS="-e aws_ecr_login=true \
+                   -e evo_services=true \
+                   -e insight_image=<path-to-image> \
+                   -e drive_image=<path-to-image> \
+                   -e dapi_image=<path-to-image> \
+                   -e dashd_image=<path-to-image>"
+```
+
 ## Networks definition
 
 Use available or create your own network configuration in [networks directory](networks).
