@@ -7,9 +7,9 @@ set -ea
 CMD_USAGE="Usage: ./deploy [options] <network_name>
 
 Options:
-  -s --skip-infrastructure - Skip Terraform infrastructure deployment
-  -a --ansible-arguments   - Pass extra arguments to ansible-playbook command
-  -h --help                - Show help"
+  -s        --skip-infrastructure - Skip Terraform infrastructure deployment
+  -a=<args> --ansible-args=<args> - Pass extra arguments to ansible-playbook command
+  -h        --help                - Show help"
 
 for i in "$@"
 do
@@ -17,7 +17,7 @@ case ${i} in
     -s|--skip-infrastructure)
     SKIP_INFRASTRUCTURE=1
     ;;
-    --ansible-arguments=*)
+    -a=*|--ansible-args=*)
     ANSIBLE_ARGUMENTS="${i#*=}"
     ;;
     -h|--help)
