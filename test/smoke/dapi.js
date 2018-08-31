@@ -1,6 +1,10 @@
-// TODO Discuss with DAPI guys
 describe('DAPI', () => {
+  // getBlockHash height:1
   it('should respond data from chain');
-  it('should respond data from drive');
+
+  // getBestBlockHeight
   it('should respond data from insight');
+
+  // fetchDapObjects any dapiId and type
+  it('should respond data from drive');
 });
