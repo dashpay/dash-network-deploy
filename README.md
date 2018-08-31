@@ -38,6 +38,12 @@ arises or when Evolution is released.
     
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
+      
+4. Install [Node.JS](https://nodejs.org/en/download/) and dependecies:
+
+    ```bash
+    npm install
+    ```
 
 ## Configuration
 
@@ -72,7 +78,7 @@ The rest of them you will find in `roles/*/vars/main.yml` files.
 
 ## Network deployment
 
-To deploy Dash Network run `deploy` command with particular network name:
+To deploy Dash Network run `bin/deploy` command with particular network name:
 
 ```bash
 ./bin/deploy <network_name>
@@ -83,13 +89,24 @@ You may pass `--skip-infrastructure` option to avoid of running Terraform and bu
 
 ## Network destruction
 
-To destroy available Dash Network run `destroy` command with particular network name:
+To destroy available Dash Network run `bin/destroy` command with particular network name:
 
 ```bash
 ./bin/destroy <network_name>
 ```
 
 You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
+
+## Test network
+
+To test network run `bin/test` command with with particular network name:
+
+```bash
+./bin/test <network_name>
+```
+
+You may pass `--type` option to run particular type of tests (`smoke`, `e2e`). It possible to specify several types 
+using comma delimiter.
 
 ## Dash Network Services 
 
