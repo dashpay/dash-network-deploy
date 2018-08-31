@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/cli/utils.sh
+
+CMD_USAGE="Usage: ./test [options] <network_name>
+
+Options:
+  -m=<args>  --mocha-args=<args> - Mocha arguments
+  -t=<types> --types=<types>     - Test types: smoke, e2e. You may specify several using comma delimiter
+  -h         --help              - Show help"
+
+for i in "$@"
+do
+case ${i} in
+    -m=*|--mocha-args=*)
+    MOCHA_ARGUMENTS="${i#*=}"
+    ;;
+    -t=*|--types=*)
+    TEST_TYPES="${i#*=}"
+    ;;
+    -h|--help)
+        echo ${CMD_USAGE}
+        exit 0
+    ;;
+    *)
+    NETWORK_NAME="${i#*=}"
+    ;;
+esac
+done
+
+. ./lib/cli/init.sh
+. ./lib/cli/test.sh
+
+echo "Run test against $NETWORK_NAME network...";
+
+run_mocha

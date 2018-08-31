@@ -5,6 +5,9 @@
 /ansible/*.retry
 /networks/*.inventory
 
+# Node.JS
+node_modules
+
 # Vagrant
 .vagrant
 

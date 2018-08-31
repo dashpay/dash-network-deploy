@@ -1,0 +1,34 @@
+{
+  "name": "@dashevo/dash-network-deploy",
+  "version": "1.0.0",
+  "description": "Dash Network deployment tool",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "bin/test",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dashpay/dash-network-deploy.git"
+  },
+  "author": "Dash Developer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dashpay/dash-network-deploy/issues"
+  },
+  "homepage": "https://github.com/dashpay/dash-network-deploy#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "dirty-chai": "^2.0.1",
+    "eslint": "^5.4.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "js-yaml": "^3.12.0",
+    "lodash.merge": "^4.6.1",
+    "mocha": "^5.2.0"
+  }
+}
