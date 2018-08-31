@@ -2,7 +2,7 @@
 
 set -ea
 
-. ./lib/utils.sh
+. ./lib/cli/utils.sh
 
 CMD_USAGE="Usage: OPTION=value ./destroy <network_name>
 
@@ -26,9 +26,9 @@ case ${i} in
 esac
 done
 
-. ./lib/init.sh
-. ./lib/terraform.sh
-. ./lib/ansible.sh
+. ./lib/cli/init.sh
+. ./lib/cli/terraform.sh
+. ./lib/cli/ansible.sh
 
 echo "Destroying $NETWORK_NAME network...";
 
