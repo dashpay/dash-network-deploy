@@ -72,7 +72,7 @@ The rest of them you will find in `roles/*/vars/main.yml` files.
 
 ## Network deployment
 
-To deploy Dash Network run `deploy` command with particular network name:
+To deploy Dash Network run `bin/deploy` command with particular network name:
 
 ```bash
 ./bin/deploy <network_name>
@@ -83,7 +83,7 @@ You may pass `--skip-infrastructure` option to avoid of running Terraform and bu
 
 ## Network destruction
 
-To destroy available Dash Network run `destroy` command with particular network name:
+To destroy available Dash Network run `bin/destroy` command with particular network name:
 
 ```bash
 ./bin/destroy <network_name>
