@@ -4,7 +4,7 @@ insight_compose_project_name: insight
 
 insight_path: '{{ dashd_home }}/{{ insight_compose_project_name }}'
 
-insight_dashd_rpchost: '{{ hostvars[groups["wallet-nodes"][0]].private_ip }}'
+insight_dashd_rpchost: '{{ private_ip }}'
 insight_dashd_rpc_port: '{{ dashd_rpc_port }}'
 insight_dashd_rpc_user: '{{ dashd_rpc_user }}'
 insight_dashd_rpc_password: '{{ dashd_rpc_password }}'

@@ -16,3 +16,7 @@
     state: present
     restarted: yes
     pull: yes
+
+- name: check Insight container
+  assert:
+    that: 'insight.{{ insight_compose_project_name }}_insight_1.state.running'
