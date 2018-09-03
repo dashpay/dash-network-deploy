@@ -36,10 +36,16 @@ server=1
 rpcport={{ dashd_rpc_port }}
 rpcuser={{ dashd_rpc_user }}
 rpcpassword={{ dashd_rpc_password }}
-rpcallowip={{ dashd_private_cidr }}
-rpcallowip=127.0.0.0
-# docker-to-docker
-rpcallowip=172.18.0.0/16
+
+{% if dashd_rpc_allow_public %}
+    rpcallowip=::/0
+    rpcallowip=0.0.0.0/0
+{% else %}
+    rpcallowip={{ dashd_private_cidr }}
+    rpcallowip=127.0.0.0
+    rpcallowip=172.0.0.0/8
+{% endif %}
+
 rpcworkqueue=64
 rpcthreads=16
 

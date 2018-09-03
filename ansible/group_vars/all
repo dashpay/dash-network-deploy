@@ -24,7 +24,8 @@ dashd_home: /dash
 
 dashd_port: 20001
 
-# Please provide your own credentials in network config
+# DashCore RPC settings
+dashd_rpc_allow_public: false
 dashd_rpc_user: dashrpc
 dashd_rpc_password: password
 dashd_rpc_port: 20002
