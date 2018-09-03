@@ -85,10 +85,10 @@
     dashd_listen: true
     dashd_zmq: true
   - mn-sentinel
-  - insight
+  - mn-insight
   - role: mn-evo-services
     tags:
-    - evo_services
+    - evo
     when: evo_services
 
 # generate first block on seed node so that all nodes leave IBD mode (required for mining)
