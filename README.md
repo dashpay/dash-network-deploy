@@ -107,23 +107,3 @@ To test network run `bin/test` command with with particular network name:
 
 You may pass `--type` option to run particular type of tests (`smoke`, `e2e`). It possible to specify several types 
 using comma delimiter.
-
-## Dash Network Services 
-
-### DashCore
-
-### Multi faucet
-
-### Sentinel
-
-### Insight
-
-[Insight service](https://insight.dash.org/insight/) is available from internet on 3001 port of AWS ELB.
-
-Note: You can get your AWS ELB DNS name using aws cli
-
-```bash
-aws elb describe-load-balancers --load-balancer-names={workspace/network name} | grep DNSName
-```
-
-### IPFS
