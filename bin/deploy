@@ -7,15 +7,19 @@ set -ea
 CMD_USAGE="Usage: ./deploy [options] <network_name>
 
 Options:
-  -s        --skip-infrastructure - Skip Terraform infrastructure deployment
+  -i        --only-infrastructure - Only build infrastructure using Terraform
+  -p        --only-provisioning   - Only provisioning using Ansible
   -a=<args> --ansible-args=<args> - Pass extra arguments to ansible-playbook command
   -h        --help                - Show help"
 
 for i in "$@"
 do
 case ${i} in
-    -s|--skip-infrastructure)
-    SKIP_INFRASTRUCTURE=1
+    -i|--only-infrastructure)
+    ONLY_INFRASTRUCTURE=1
+    ;;
+    -p|--only-provisioning)
+    ONLY_PROVISIONING=1
     ;;
     -a=*|--ansible-args=*)
     ANSIBLE_ARGUMENTS="${i#*=}"
@@ -38,7 +42,7 @@ echo "Deploying $NETWORK_NAME network...";
 
 # Setup infrastructure using Terraform
 
-if [ -z ${SKIP_INFRASTRUCTURE} ]; then
+if [ -z ${ONLY_PROVISIONING} ]; then
     run_terraform_command "apply"
 else
     echo "Skipping Terraform infrastructure deployment"
@@ -46,4 +50,10 @@ fi
 
 # Install software and configure dash network using Ansible
 
-run_ansible_playbook "deploy.yml"
+if [ -z ${ONLY_INFRASTRUCTURE} ]; then
+    run_ansible_playbook "deploy.yml"
+else
+    echo "Skipping Ansible provisioning"
+fi
+
+

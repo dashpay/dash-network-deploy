@@ -84,7 +84,7 @@ To deploy Dash Network run `bin/deploy` command with particular network name:
 ./bin/deploy <network_name>
 ```
 
-You may pass `--skip-infrastructure` option to avoid of running Terraform and building of infrastructure.
+You may pass `--only-infrastructure` or `--only-provisioning` option to avoid to do a particular type of work.
 
 
 ## Network destruction
