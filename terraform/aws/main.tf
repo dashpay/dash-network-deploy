@@ -86,6 +86,7 @@ resource "aws_security_group" "elb" {
     ]
   }
 
+  # Insight
   ingress {
     from_port = 3001
     to_port   = 3001
@@ -170,7 +171,7 @@ resource "aws_security_group" "dashd_private" {
     protocol  = "tcp"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      "0.0.0.0/0", //"${var.private_subnet}",
     ]
   }
 
@@ -215,7 +216,7 @@ resource "aws_security_group" "dashd" {
     protocol  = "tcp"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      "0.0.0.0/0", // "${var.private_subnet}",
     ]
   }
 
@@ -230,14 +231,58 @@ resource "aws_security_group" "dashd" {
     ]
   }
 
-  # IPFS access
+  # IPFS swarm
   ingress {
     from_port = "${var.ipfs_swarm_port}"
     to_port   = "${var.ipfs_swarm_port}"
     protocol  = "tcp"
 
     cidr_blocks = [
-      "0.0.0.0/0",
+      "${var.private_subnet}",
+    ]
+  }
+
+  # IPFS API
+  ingress {
+    from_port = "${var.ipfs_api_port}"
+    to_port   = "${var.ipfs_api_port}"
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0", //"${var.private_subnet}",
+    ]
+  }
+
+  # Insight API access
+  ingress {
+    from_port = "${var.insight_port}"
+    to_port   = "${var.insight_port}"
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0", //"${var.private_subnet}",
+    ]
+  }
+
+  # Drive
+  ingress {
+    from_port = "${var.drive_port}"
+    to_port   = "${var.drive_port}"
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0", //"${var.private_subnet}",
+    ]
+  }
+
+  # DAPI
+  ingress {
+    from_port = "${var.dapi_port}"
+    to_port   = "${var.dapi_port}"
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0", //"${var.private_subnet}",
     ]
   }
 
