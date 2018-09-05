@@ -22,6 +22,26 @@ variable "ipfs_swarm_port" {
   default     = "4001"
 }
 
+variable "ipfs_api_port" {
+  description = "IPFS API port"
+  default     = "5001"
+}
+
+variable "insight_port" {
+  description = "Insight API port"
+  default     = "3001"
+}
+
+variable "drive_port" {
+  description = "Insight API port"
+  default     = "6000"
+}
+
+variable "dapi_port" {
+  description = "Insight API port"
+  default     = "3000"
+}
+
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
