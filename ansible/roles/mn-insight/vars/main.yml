@@ -1,0 +1,10 @@
+---
+
+mn_insight_compose_project_name: insight
+
+mn_insight_path: '{{ dashd_home }}/{{ mn_insight_compose_project_name }}'
+
+mn_insight_dashd_rpchost: '{{ private_ip }}'
+mn_insight_dashd_rpc_port: '{{ dashd_rpc_port }}'
+mn_insight_dashd_rpc_user: '{{ dashd_rpc_user }}'
+mn_insight_dashd_rpc_password: '{{ dashd_rpc_password }}'

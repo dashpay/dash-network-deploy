@@ -1,0 +1,13 @@
+---
+
+- name: generate IPFS swarm key
+  command: docker run --rm golang:1.9 sh -c 'go get github.com/Kubuxu/go-ipfs-swarm-key-gen/ipfs-swarm-key-gen && ipfs-swarm-key-gen'
+  register: ipfs_swarm_key_gen
+
+- set_fact:
+    ipfs_swarm_key: '{{ ipfs_swarm_key_gen.stdout }}'
+
+- name: save IPFS swarm key
+  copy:
+    content: '{{ ipfs_swarm_key }}'
+    dest: '{{ ipfs_swarm_key_path }}'

@@ -1,22 +1,23 @@
-Dash Cluster Ansible
-====================
+# Dash Network Deployment Tool
 
-What is this?
--------------
+## Introduction
 
-This is an Ansible project to setup and manage devnet (and later testnet) networks. Devnets
-are like regular Dash networks (mainnet, testnet) but easier to bootstrap and easier to have
-multiple in parallel.
+This tool allows deploy and manage Dash networks.
 
-This project is work in progress and in its initial state only meant to be used by Dash Core
+There are two regular available networks: `testnet` and `mainnet`.
+After deployment your DashCore instances will join to those networks.
+
+`regtest` and `devnet-*` are networks for testing purposes.
+Devnet are like regular Dash networks (`mainnet` and `testnet`)
+but easier to bootstrap and has own name. That's why it easier to have multiple in parallel.  
+
+Work in progress and in its initial state only meant to be used by Dash Core
 developers to assist in Dash Evolution development.
 
 Detailed documentation on how to use this repo will come when more interest from the public
 arises or when Evolution is released.
 
-
-Install Prerequisites
----------------------
+## Installation
 
 1. Install Ansible and Terraform per instructions provided on official websites:
 
@@ -37,48 +38,72 @@ Install Prerequisites
     
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
-
-
-Getting started
----------------
-
-Create your own cluster configuration in `clusters`. Use `aws-example.*` as a skeleton. The
-following commands will all directly use the aws-example, while you should change it to use
-your own config.
-
-1. Initialize terraform w/remote AWS backend configuration:
+      
+4. Install [Node.JS](https://nodejs.org/en/download/) and dependecies:
 
     ```bash
-    $ cd terraform/aws
-    $ . ./.env  # source .env file with variables set
-    $ terraform init \
-        -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
-        -backend-config="key=$TERRAFORM_S3_KEY" \
-        -backend-config="region=$AWS_DEFAULT_REGION" \
-        -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_LOCK_TABLE"
+    npm install
     ```
 
-2. Select/create terraform workspace according to dash network name (testnet/regtest/mainnet/devnet-{name}):
+## Configuration
 
-    ```bash
-    $ terraform workspace new devnet-aws-example
-    ```
+Configure your credentials in `.env` file:
 
-3. Setup the AWS infrastructure with terraform:
+```bash
+cp .env.example .env
+$EDITOR .env
+```
 
-    ```
-    $ terraform apply -var-file=../../clusters/aws-example.tfvars
-    ```
+### Evolution configuration
+Several Ansible's arguments should be specified in `.env` file to deploy Evolution's services:
+```bash
+ANSIBLE_ARGUMENTS="-e evo_services=true \
+                   -e insight_image=<path-to-image> \
+                   -e drive_image=<path-to-image> \
+                   -e dapi_image=<path-to-image> \
+                   -e dashd_image=<path-to-image>"
+```
+For Docker images stored in AWS ECR the argument `-e aws_ecr_login=true` is required.
 
-4. Create the inventory file for Ansible:
+## Networks definition
 
-    ```bash
-    $ terraform output ansible_inventory > ../../clusters/aws-example.inventory
-    ```
+Use available or create your own network configuration in [networks directory](networks).
+Name of files in [networks directory](networks) are equal to Dash network names.
 
-5. Invoke ansible-playbook:
+Terraform configuration defined in `*.tfvars` files.
+All available options you will find in [variables.tf](terraform/aws/variables.tf) file.
+Ansible configuration in `*.yaml` files.
+[group_vars/all](ansible/group_vars/all) file contains the majority of playbook options.
+The rest of them you will find in `roles/*/vars/main.yml` files.
 
-    ```bash
-    $ cd ../.. # Go back to root dir of project
-    $ ansible-playbook -i clusters/aws-example.inventory -e @clusters/aws-example.yml cluster.yml
-    ```
+## Network deployment
+
+To deploy Dash Network run `bin/deploy` command with particular network name:
+
+```bash
+./bin/deploy <network_name>
+```
+
+You may pass `--only-infrastructure` or `--only-provisioning` option to avoid to do a particular type of work.
+
+
+## Network destruction
+
+To destroy available Dash Network run `bin/destroy` command with particular network name:
+
+```bash
+./bin/destroy <network_name>
+```
+
+You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
+
+## Test network
+
+To test network run `bin/test` command with with particular network name:
+
+```bash
+./bin/test <network_name>
+```
+
+You may pass `--type` option to run particular type of tests (`smoke`, `e2e`). It possible to specify several types 
+using comma delimiter.

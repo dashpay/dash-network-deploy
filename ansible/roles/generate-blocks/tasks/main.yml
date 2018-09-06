@@ -1,0 +1,15 @@
+---
+
+- fail: msg="num_blocks and balance_needed must always be set. set one of them to a non-zero value and the other one to zero"
+  when: num_blocks is not defined or balance_needed is not defined or (num_blocks != 0 and balance_needed != 0) or (num_blocks == 0 and balance_needed == 0)
+
+- set_fact:
+    generate_networks:
+      - regtest
+      - devnet
+
+- include: regtest_generate.yml
+  when: dash_network in generate_networks
+
+- include: wait_for_blocks.yml
+  when: dash_network not in generate_networks

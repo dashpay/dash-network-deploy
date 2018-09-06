@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/cli/utils.sh
+
+CMD_USAGE="Usage: OPTION=value ./destroy <network_name>
+
+Options:
+  -k --keep-infrastructure - Destroy Dash Network and keep infrastructure
+  -h --help                - Show help"
+
+for i in "$@"
+do
+case ${i} in
+    -k|--keep-infrastructure)
+    KEEP_INFRASTRUCTURE=1
+    ;;
+    -h|--help)
+        echo ${CMD_USAGE}
+        exit 0
+    ;;
+    *)
+    NETWORK_NAME="${i#*=}"
+    ;;
+esac
+done
+
+. ./lib/cli/init.sh
+. ./lib/cli/terraform.sh
+. ./lib/cli/ansible.sh
+
+echo "Destroying $NETWORK_NAME network...";
+
+if [ -z ${KEEP_INFRASTRUCTURE} ]; then
+    run_terraform_command "destroy"
+    rm "networks/$NETWORK_NAME.inventory"
+else
+    echo "Removing software and configuration and keeping infrastructure..."
+    run_ansible_playbook "destroy.yml"
+fi

@@ -1,0 +1,22 @@
+- name: create insight dir
+  file: path='{{ mn_insight_path }}' state=directory recurse=true
+
+- name: copy insight docker compose
+  template:
+    src: '{{ item }}.j2'
+    dest: '{{ mn_insight_path }}/{{ item }}'
+  loop:
+  - docker-compose.yml
+  - bitcore-node-dash.json
+  - .env
+
+- name: start insight
+  docker_service:
+    project_src: '{{ mn_insight_path }}'
+    state: present
+    restarted: yes
+    pull: yes
+
+- name: check Insight container
+  assert:
+    that: 'insight.{{ mn_insight_compose_project_name }}_insight_1.state.running'

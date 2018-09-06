@@ -1,0 +1,77 @@
+# general
+
+{% if dash_network == 'regtest' %}
+regtest=1
+{% elif dash_network == 'testnet' %}
+testnet=1
+{% elif dash_network == 'devnet' %}
+devnet={{ dash_devnet_name }}
+{% endif %}
+
+daemon=0  # leave this set to 0 for Docker
+logtimestamps=1
+maxconnections=256
+debug={{ dashd_debug }}
+
+{% if dashd_indexes %}
+# optional indices (required for Insight)
+txindex=1
+addressindex=1
+timestampindex=1
+spentindex=1
+{% endif %}
+
+{% if dashd_zmq %}
+# ZeroMQ notifications (required for Insight)
+zmqpubrawtx=tcp://0.0.0.0:{{ dashd_zmq_port }}
+zmqpubrawtxlock=tcp://0.0.0.0:{{ dashd_zmq_port }}
+zmqpubhashblock=tcp://0.0.0.0:{{ dashd_zmq_port }}
+#zmqpubhashtx=tcp://0.0.0.0:{{ dashd_zmq_port }}
+#zmqpubhashtxlock=tcp://0.0.0.0:{{ dashd_zmq_port }}
+#zmqpubrawblock=tcp://0.0.0.0:{{ dashd_zmq_port }}
+{% endif %}
+
+# JSONRPC
+server=1
+rpcport={{ dashd_rpc_port }}
+rpcuser={{ dashd_rpc_user }}
+rpcpassword={{ dashd_rpc_password }}
+
+{% if dashd_rpc_allow_public %}
+    rpcallowip=::/0
+    rpcallowip=0.0.0.0/0
+{% else %}
+    rpcallowip={{ dashd_private_cidr }}
+    rpcallowip=127.0.0.0
+    rpcallowip=172.0.0.0/8
+{% endif %}
+
+rpcworkqueue=64
+rpcthreads=16
+
+# external network
+{% if dashd_listen %}
+listen=1
+{% else %}
+listen=0
+{% endif %}
+externalip={{ dashd_externalip }}
+bind=0.0.0.0
+port={{ dashd_port }}
+dnsseed=0
+allowprivatenet={{ dashd_allowprivatenet }}
+
+printtoconsole=1
+
+{% if dashd_seednode is not none and not dashd_isseednode %}
+addnode={{ dashd_seednode }}:{{ dashd_port }}
+{% endif %}
+
+{% if masternode is defined %}
+masternode=1
+masternodeprivkey={{ masternode.mn_operator_key }}
+{% endif %}
+
+{% if dashd_sporkaddr is defined %}
+sporkaddr={{ dashd_sporkaddr }}
+{% endif %}

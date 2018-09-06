@@ -1,0 +1,76 @@
+version: '3'
+
+services:
+  drive_sync:
+    image: {{ drive_image }}
+    restart: always
+    command: npm run sync
+    environment:
+    - DASHCORE_JSON_RPC_USER={{ dashd_rpc_user }}
+    - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
+    - DASHCORE_JSON_RPC_HOST={{ private_ip }}
+    - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
+    - STORAGE_MONGODB_URL=mongodb://drive_mongodb:27017
+    - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
+    depends_on:
+    - ipfs
+    - drive_mongodb
+
+  drive_api:
+    image: {{ drive_image }}
+    restart: always
+    command: npm run api
+    environment:
+      - DASHCORE_JSON_RPC_USER={{ dashd_rpc_user }}
+      - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
+      - DASHCORE_JSON_RPC_HOST={{ private_ip }}
+      - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
+      - STORAGE_MONGODB_URL=mongodb://drive_mongodb:27017
+      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
+    depends_on:
+      - ipfs
+      - drive_mongodb
+    ports:
+      - 6000:6000
+
+  drive_mongodb:
+    image: mongo:3.6
+    volumes:
+      - drive_mongodb:/data/db
+
+  ipfs:
+    image: {{ ipfs_image }}
+    command: daemon --enable-gc --migrate --enable-pubsub-experiment
+    environment:
+      LIBP2P_FORCE_PNET: 1
+      SWARM_KEY: ${SWARM_KEY}
+      SWARM_PEER: ${SWARM_PEER}
+    ports:
+      - 4001:4001
+      - 5001:5001
+    volumes:
+      - ipfs:/data/ipfs
+      - {{ mn_evo_services_path }}/ipfs/init.sh:/usr/local/bin/start_ipfs
+
+  dapi:
+    image: {{ dapi_image }}
+    restart: always
+    depends_on:
+      - ipfs
+    ports:
+      - 3000:3000
+    environment:
+      - INSIGHT_URI=http://{{ private_ip }}:3001/insight-api-dash
+      - RPC_SERVER_PORT=3000
+      - DASHCORE_RPC_HOST={{ private_ip }}
+      - DASHCORE_RPC_PORT={{ dashd_rpc_port }}
+      - DASHCORE_RPC_USER={{ dashd_rpc_user }}
+      - DASHCORE_RPC_PASS={{ dashd_rpc_password }}
+      - DASHCORE_ZMQ_HOST={{ private_ip }}
+      - DASHCORE_ZMQ_PORT={{ dashd_zmq_port }}
+      - NETWORK={{ dash_devnet_name }}
+
+volumes:
+  drive_mongodb:
+  ipfs:
+

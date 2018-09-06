@@ -1,0 +1,27 @@
+---
+
+- name: copy dashd-generate-miner script
+  template:
+    src: 'dashd-generate-miner.sh.j2'
+    dest: '/usr/local/bin/dashd-generate-miner.sh'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  register: service_result
+
+- name: create dashd-generate-miner service
+  template:
+    src: 'dashd-generate-miner.service.j2'
+    dest: '/etc/systemd/system/dashd-generate-miner.service'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  register: service_result
+
+- name: enable dashd-generate-miner
+  systemd:
+    name: 'dashd-generate-miner'
+    state: restarted
+    enabled: True
+    masked: False
+    daemon_reload: '{{ service_result is changed }}'

@@ -1,0 +1,40 @@
+---
+
+- name: create masternode evolution services dir
+  file: path='{{ mn_evo_services_path }}' state=directory recurse=true
+
+- name: copy masternode evolution services docker compose
+  template:
+    src: '{{ item }}'
+    dest: '{{ mn_evo_services_path }}/{{ item }}'
+  loop:
+    - docker-compose.yml
+    - .env
+
+- import_tasks: ipfs/main.yml
+
+- name: start masternodes evolution services
+  environment:
+    SWARM_KEY: '{{ ipfs_swarm_key }}'
+    SWARM_PEER: '{{ ipfs_swarm_peer }}'
+  docker_service:
+    project_src: '{{ mn_evo_services_path }}'
+    state: present
+    restarted: yes
+    pull: yes
+
+- name: check DashDrive sync container
+  assert:
+    that: 'drive_sync.{{ mn_evo_services_compose_project_name }}_drive_sync_1.state.running'
+
+- name: check DashDrive API container
+  assert:
+    that: 'drive_api.{{ mn_evo_services_compose_project_name }}_drive_api_1.state.running'
+
+- name: check DashDrive MongoDB container
+  assert:
+    that: 'drive_mongodb.{{ mn_evo_services_compose_project_name }}_drive_mongodb_1.state.running'
+
+- name: check DAPI container
+  assert:
+    that: 'dapi.{{ mn_evo_services_compose_project_name }}_dapi_1.state.running'

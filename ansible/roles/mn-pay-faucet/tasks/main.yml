@@ -1,0 +1,27 @@
+---
+
+- name: copy pay-faucet script
+  template:
+    src: 'pay-faucet.sh.j2'
+    dest: '/usr/local/bin/pay-faucet.sh'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  register: service_result
+
+- name: create pay-faucet service
+  template:
+    src: 'pay-faucet.service.j2'
+    dest: '/etc/systemd/system/pay-faucet.service'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  register: service_result
+
+- name: enable pay-faucet
+  systemd:
+    name: 'pay-faucet'
+    state: restarted
+    enabled: True
+    masked: False
+    daemon_reload: '{{ service_result is changed }}'
