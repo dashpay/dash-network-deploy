@@ -22,3 +22,11 @@
     state: present
     restarted: yes
     pull: yes
+
+- name: check MongoDB container
+  assert:
+    that: 'mongodb.{{ compose_project_name }}_mongodb_1.state.running'
+
+- name: check DashDrive container
+  assert:
+    that: 'drive.{{ compose_project_name }}_drive_1.state.running'
