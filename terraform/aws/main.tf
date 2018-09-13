@@ -459,7 +459,7 @@ resource "aws_instance" "masternode" {
   count = "${var.masternode_count}"
 
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.micro"
+  instance_type = "t2.small"
   key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
