@@ -17,6 +17,12 @@
 - name: kill all docker containers
   shell: if [ -n "$(docker ps -qa)" ]; then docker rm -fv $(docker ps -qa); fi
 
+- name: remove all docker volumes
+  shell: docker volume ls -qf dangling=true | xargs -r docker volume rm
+
+- name: remove all docker images
+  shell: docker images --no-trunc | awk '{ print $3 }' | xargs -r docker rmi
+
 - name: delete dash home dir
   file:
       state: absent
