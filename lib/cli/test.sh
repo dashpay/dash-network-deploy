@@ -29,5 +29,5 @@ function run_mocha() {
 
     # Run mocha tests
 
-    node_modules/.bin/_mocha ${MOCHA_ARGUMENTS} ${TEST_TYPES_STRING}
+    node_modules/.bin/_mocha ${MOCHA_ARGUMENTS} ${TEST_TYPES_STRING} --timeout 10000
 }
