@@ -6,6 +6,9 @@ aws_ecr_login: false
 # Install Evolution Masternode services
 evo_services: false
 
+# Install OpenVPN
+openvpn_enabled: true
+
 # Sentinel Docker image
 sentinel_image: ablock/sentinel
 
@@ -21,6 +24,7 @@ dashd_home: /dash
 
 # dash_network:
 # dash_devnet_name:
+# dash_network_name:
 
 dashd_port: 20001
 

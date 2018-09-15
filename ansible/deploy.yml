@@ -1,5 +1,5 @@
 ---
-######################
+
 # Bootstrap
 
 - hosts: all
@@ -20,7 +20,16 @@
     - role: aws
       when: is_aws_environment
 
-######################
+# Setup VPN
+
+- hosts: vpn
+  become: true
+  roles:
+    - role: openvpn
+      when: openvpn_enabled
+      tags: vpn
+
+# Setup Docker
 
 - hosts: all
   become: true
@@ -41,15 +50,16 @@
       tags: always
     - dash-cli
 
-# private nodes
+# Setup wallets, miners and full nodes
+
 - hosts: wallet-nodes
   become: true
   roles:
     - role: dashd
-      tags:
-        - dashd
       dashd_indexes: true
       dashd_zmq: true
+      tags:
+      - dashd
 
 - hosts: miners
   become: true
@@ -58,8 +68,6 @@
       tags:
         - dashd
 
-# public nodes
-
 - hosts: full-nodes
   become: true
   roles:
@@ -67,6 +75,8 @@
       dashd_listen: true
       tags:
       - dashd
+
+# Setup masternodes
 
 - hosts: masternodes
   become: true
@@ -92,7 +102,9 @@
     - evo
     when: evo_services
 
-# generate first block on seed node so that all nodes leave IBD mode (required for mining)
+# Generate first block on seed node
+# so that all nodes leave IBD mode (required for mining)
+
 - hosts: seed-node
   become: true
   roles:
@@ -111,6 +123,8 @@
     - multifaucet
   tags:
     - web
+
+# Start masternodes
 
 - hosts: masternode-wallet
   become: true
