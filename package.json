@@ -29,6 +29,7 @@
     "eslint-plugin-import": "^2.14.0",
     "js-yaml": "^3.12.0",
     "lodash.merge": "^4.6.1",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "node-openvpn": "github:shumkov/node-openvpn#patch-1"
   }
 }
