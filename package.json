@@ -33,9 +33,9 @@
     "js-yaml": "^3.12.0",
     "lodash.merge": "^4.6.1",
     "mocha": "^5.2.0",
+    "node-openvpn": "github:luigiplr/node-openvpn",
     "request": "^2.88.0",
     "simple-ssh": "^1.0.0",
-    "ipfs-api": "^24.0.1",
-    "node-openvpn": "github:shumkov/node-openvpn#patch-1"
+    "ipfs-api": "^24.0.1"
   }
 }
