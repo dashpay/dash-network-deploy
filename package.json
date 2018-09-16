@@ -34,7 +34,7 @@
     "lodash.merge": "^4.6.1",
     "mocha": "^5.2.0",
     "node-openvpn": "github:luigiplr/node-openvpn",
-    "request": "^2.88.0",
+    "node-fetch": "^2.2.0",
     "simple-ssh": "^1.0.0",
     "ipfs-api": "^24.0.1"
   }
