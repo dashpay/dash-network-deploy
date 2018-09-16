@@ -17,9 +17,8 @@ describe('Faucet', () => {
 
         const ssh = new SSH({
           host: networkConfig.inventory._meta.hostvars['dashd-wallet-1'].public_ip,
-          // pty: false,
           user: 'ubuntu',
-          key: fs.readFileSync(`${process.env.SSH_PRIVATE_KEY}`),
+          key: fs.readFileSync(`${process.env.PRIVATE_KEY_PATH}`.replace('~', `${process.env.HOME}`)),
         });
         const cli = await utils.echoP(ssh, `sudo -i dash-cli getaddressbalance '{"addresses": ["${networkConfig.variables.faucet_address}"]}'`);
         expect(Math.floor(body.balance * 100000000)).to.be.equal(JSON.parse(cli.replace(/\n$/, '')).balance);

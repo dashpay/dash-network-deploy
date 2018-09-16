@@ -13,7 +13,7 @@ describe('Sentinel', () => {
       const ssh = new SSH({
         host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
         user: 'ubuntu',
-        key: fs.readFileSync(`${process.env.SSH_PRIVATE_KEY}`),
+        key: fs.readFileSync(`${process.env.PRIVATE_KEY_PATH}`.replace('~', `${process.env.HOME}`)),
       });
 
       utils.echo(ssh, 'sudo docker logs --timestamps --since 5m `sudo docker ps -a -q --filter="name=mn_sentinel_sentinel"`', (err, data) => {

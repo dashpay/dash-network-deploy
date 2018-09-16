@@ -38,12 +38,13 @@ rpcuser={{ dashd_rpc_user }}
 rpcpassword={{ dashd_rpc_password }}
 
 {% if dashd_rpc_allow_public %}
-    rpcallowip=::/0
-    rpcallowip=0.0.0.0/0
+rpcallowip=::/0
+rpcallowip=0.0.0.0/0
 {% else %}
-    rpcallowip={{ dashd_private_cidr }}
-    rpcallowip=127.0.0.0
-    rpcallowip=172.0.0.0/8
+rpcallowip={{ dashd_private_cidr }}
+rpcallowip=127.0.0.0
+rpcallowip=172.0.0.0/8
+rpcallowip={{ hostvars['vpn'].public_ip }}/32
 {% endif %}
 
 rpcworkqueue=64

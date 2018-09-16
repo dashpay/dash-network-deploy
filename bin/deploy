@@ -43,7 +43,7 @@ echo "Deploying $NETWORK_NAME network...";
 # Setup infrastructure using Terraform
 
 if [ -z ${ONLY_PROVISIONING} ]; then
-    run_terraform_command "apply"
+    terraform_run_command "apply"
 else
     echo "Skipping Terraform infrastructure deployment"
 fi
@@ -51,7 +51,7 @@ fi
 # Install software and configure dash network using Ansible
 
 if [ -z ${ONLY_INFRASTRUCTURE} ]; then
-    run_ansible_playbook "deploy.yml"
+    ansible_run_playbook "deploy.yml"
 else
     echo "Skipping Ansible provisioning"
 fi

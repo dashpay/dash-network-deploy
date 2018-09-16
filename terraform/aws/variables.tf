@@ -70,3 +70,8 @@ variable "wallet_count" {
 variable "web_count" {
   default = 1
 }
+
+variable "vpn_enabled" {
+  default     = true
+  description = "setup instance for vpn"
+}
