@@ -44,8 +44,11 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN pip install --upgrade netaddr awscli && \
-    ansible-galaxy install -r /usr/src/app/ansible/requirements.yml
+# Install ansible playbook and Node.JS dependencies
+
+RUN pip install --upgrade netaddr awscli paramiko Crypto && \
+    ansible-galaxy install -r ansible/requirements.yml && \
+    npm install
 
 # Remove build utils
 
