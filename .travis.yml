@@ -26,4 +26,4 @@ deploy:
   provider: script
   script: docker push dashpay/dash-network-deploy
   on:
-    branch: master
+    branch: deploy
