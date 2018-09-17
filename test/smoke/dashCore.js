@@ -1,5 +1,4 @@
 const RpcClient = require('@dashevo/dashd-rpc/promise');
-const SSH = require('simple-ssh');
 const fs = require('fs');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
@@ -9,7 +8,7 @@ const networkConfig = getNetworkConfig();
 
 describe('All nodes', () => {
   networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
-    describe(`DashCore ${nodeName}`, () => {
+    describe(nodeName, () => {
       const config = {
         protocol: 'http',
         user: 'dashrpc',
@@ -64,7 +63,7 @@ describe('All nodes', () => {
 
 describe('Masternodes', () => {
   networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
-    describe(`DashCore ${nodeName}`, () => {
+    describe(nodeName, () => {
       const config = {
         protocol: 'http',
         user: 'dashrpc',

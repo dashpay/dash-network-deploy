@@ -8,7 +8,7 @@ const fetch = require('node-fetch');
 
 describe('DAPI', () => {
   networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
-    describe(`DAPI ${nodeName}`, () => {
+    describe(nodeName, () => {
       const options = {
         debug: false,
         verbose: false,
@@ -29,7 +29,6 @@ describe('DAPI', () => {
       it('should respond data from chain', async () => {
         const blockHash = await dapi.getBlockHash(1);
         const blockHashRpc = await rpc.getBlockHash(1);
-        expect(blockHash).to.be.an('string');
         expect(blockHash).to.be.equal(blockHashRpc.result);
       });
 
@@ -41,7 +40,7 @@ describe('DAPI', () => {
       });
 
       // fetchDapObjects any dapiId and type
-      it('should respond data from drive', async () => {
+      it('should respond getBalance from drive', async () => {
         const balance = await dapi.getBalance(`${networkConfig.variables.faucet_address}`);
         expect(balance).to.be.an('number');
         expect(balance % 1).to.be.equal(0);

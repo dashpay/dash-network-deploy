@@ -5,7 +5,7 @@ const networkConfig = getNetworkConfig();
 const fetch = require('node-fetch');
 
 networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
-  describe(`Insight ${nodeName}`, () => {
+  describe(nodeName, () => {
     it('should return block',
       async () => {
         const response = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/blocks?limit=1`);
