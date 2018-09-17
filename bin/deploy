@@ -25,7 +25,7 @@ case ${i} in
     ANSIBLE_ARGUMENTS="${i#*=}"
     ;;
     -h|--help)
-        echo ${CMD_USAGE}
+        echo "$CMD_USAGE"
         exit 0
     ;;
     *)

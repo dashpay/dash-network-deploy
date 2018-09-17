@@ -1,6 +1,6 @@
 # Validate network name
 
-NETWORKS=("regtest testnet devnet mainnet")
+networks=("regtest testnet devnet mainnet")
 
 if grep -q "devnet" <<< "$NETWORK_NAME"; then
     NETWORK="devnet"
@@ -8,7 +8,7 @@ if grep -q "devnet" <<< "$NETWORK_NAME"; then
     if [ -z $NETWORK_DEVNET_NAME ]; then
         print_error "Invalid devnet network name format. Required format is 'devnet-<name>'"
     fi
-elif [[ " ${NETWORKS[@]} " =~ " ${NETWORK_NAME} " ]]; then
+elif [[ " ${networks[@]} " =~ " ${NETWORK_NAME} " ]]; then
     NETWORK="$NETWORK_NAME"
 else
     print_error "Invalid network name '$NETWORK_NAME'. Supported networks: regtest, devnet-<name>, testnet, mainnet"

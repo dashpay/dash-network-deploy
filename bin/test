@@ -21,7 +21,7 @@ case ${i} in
     TEST_TYPES="${i#*=}"
     ;;
     -h|--help)
-        echo ${CMD_USAGE}
+        echo "$CMD_USAGE"
         exit 0
     ;;
     *)

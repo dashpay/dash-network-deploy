@@ -17,7 +17,7 @@ case ${i} in
     KEEP_INFRASTRUCTURE=1
     ;;
     -h|--help)
-        echo ${CMD_USAGE}
+        echo "$CMD_USAGE"
         exit 0
     ;;
     *)
