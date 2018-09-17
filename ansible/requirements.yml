@@ -1,0 +1,9 @@
+- src: geerlingguy.pip
+  version: 1.2.1
+
+- src: geerlingguy.docker
+  version: 2.5.1
+
+- src: https://github.com/kyl191/ansible-role-openvpn
+  name: kyl191.openvpn
+  version: 112f9f5
