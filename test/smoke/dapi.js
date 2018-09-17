@@ -1,4 +1,5 @@
 const DAPIClient = require('@dashevo/dapi-client');
+const RpcClient = require('@dashevo/dashd-rpc/promise');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const networkConfig = getNetworkConfig();
@@ -16,15 +17,20 @@ describe('DAPI', () => {
         seeds: [{ ip: networkConfig.inventory._meta.hostvars[nodeName].public_ip }],
       };
       const dapi = new DAPIClient(options, 3000);
+      const config = {
+        protocol: 'http',
+        user: 'dashrpc',
+        pass: 'password',
+        host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
+        port: 20002,
+      };
+      const rpc = new RpcClient(config);
       // getBlockHash height:1
       it('should respond data from chain', async () => {
         const blockHash = await dapi.getBlockHash(1);
-        // const response = await utils.requestWrapper(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/block-index/1`);
-        const resp = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/block-index/1`)
-          .then(res => res.text());
-        const blockHashInsight = JSON.parse(resp).blockHash;
+        const blockHashRpc = await rpc.getBlockHash(1);
         expect(blockHash).to.be.an('string');
-        expect(blockHash).to.be.equal(blockHashInsight);
+        expect(blockHash).to.be.equal(blockHashRpc.result);
       });
 
       // getBestBlockHeight

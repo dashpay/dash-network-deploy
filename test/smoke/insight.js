@@ -8,16 +8,14 @@ networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
   describe(`Insight ${nodeName}`, () => {
     it('should return block',
       async () => {
-        const resp = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/blocks?limit=1`)
-          .then(res => res.text());
-        const body = JSON.parse(resp);
-        expect(body.blocks.length).to.be.equal(1);
+        const response = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/blocks?limit=1`);
+        const { blocks } = await response.json();
+        expect(blocks.length).to.be.equal(1);
       });
 
     it('should return master node list', async () => {
-      const resp = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/masternodes/list`)
-        .then(res => res.text());
-      const body = JSON.parse(resp);
+      const response = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/masternodes/list`);
+      const body = await response.json();
       expect(body.length).to.be.equal(networkConfig.inventory.masternodes.hosts.length);
     });
   });

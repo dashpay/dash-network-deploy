@@ -50,15 +50,3 @@ exports.echoP = function (ssh, command) {
       .start();
   }));
 };
-
-exports.requestWrapper = function (url) {
-  return new Promise(((resolve, reject) => { // returning promise
-    request.get(url, (err, response) => {
-      if (err) {
-        reject(err); // promise reject
-      } else {
-        resolve(response); // promise resolve
-      }
-    });
-  }));
-};
