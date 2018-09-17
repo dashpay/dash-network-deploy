@@ -1,7 +1,5 @@
-function run_terraform_command() {
+function terraform_init() {
     override_aws_credentials "TERRAFORM" "ANSIBLE"
-
-    cd terraform/aws
 
     # Get AWS region from AWS profile if not present
 
@@ -16,32 +14,40 @@ function run_terraform_command() {
         -backend-config="key=$TERRAFORM_S3_KEY" \
         -backend-config="region=$AWS_REGION" \
         -backend-config="dynamodb_table=$TERRAFORM_DYNAMODB_TABLE"
+}
 
-
-    # Select/create terraform workspace according to dash network name
-
+function terraform_select_workspace() {
     set +e
 
-    terraform workspace select ${NETWORK_NAME} 2>/dev/null
+    terraform workspace select ${1} 2>/dev/null
 
-    SELECT_EXIT_CODE="$?"
+    local exit_code="$?"
 
     set -e
 
-    if [ ${SELECT_EXIT_CODE} != 0 ]; then
-        terraform workspace new ${NETWORK_NAME}
+    if [ ${exit_code} != 0 ]; then
+        terraform workspace new ${1}
     fi
+}
 
+function terraform_run_command() {
+    cd terraform/aws
+
+    terraform_init
+
+    # Select/create terraform workspace according to dash network name
+
+    terraform_select_workspace "$NETWORK_NAME"
 
     # Setup the AWS infrastructure with terraform
 
-    TERRAFORM_CONFIG_PATH_ARG=""
+    local config_path_arg=""
     if [ -f "../../$TERRAFORM_CONFIG_PATH" ]; then
-        TERRAFORM_CONFIG_PATH_ARG="-var-file=../../$TERRAFORM_CONFIG_PATH";
+        config_path_arg="-var-file=../../$TERRAFORM_CONFIG_PATH";
     fi
 
     terraform ${1} -var "public_key_path=$PUBLIC_KEY_PATH" \
-                    ${TERRAFORM_CONFIG_PATH_ARG}
+                    ${config_path_arg}
 
 
     # Create the inventory file for Ansible

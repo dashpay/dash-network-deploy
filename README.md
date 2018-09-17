@@ -27,7 +27,7 @@ arises or when Evolution is released.
 2. Install pre-requisite Ansible roles
 
     ```bash
-    ansible-galaxy install geerlingguy.pip geerlingguy.docker
+    ansible-galaxy install -r ansible/requirements.yml
     ```
 
 3. Ensure Python netaddr package installed locally
@@ -38,12 +38,6 @@ arises or when Evolution is released.
     
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
-      
-4. Install [Node.JS](https://nodejs.org/en/download/) and dependecies:
-
-    ```bash
-    npm install
-    ```
 
 ## Configuration
 
@@ -97,7 +91,35 @@ To destroy available Dash Network run `bin/destroy` command with particular netw
 
 You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
 
+## Connect to Dash Network services
+
+You can use OpenVPN config from `networks` directory to connect to private services.
+
 ## Test network
+
+For running tests you need to install several dependencies:
+
+### Requirements
+
+1. Install [Node.JS](https://nodejs.org/en/download/) and dependecies:
+
+    ```bash
+    npm install
+    ```
+    
+2. Install OpenVPN:
+
+    On Linux:
+    ```bash
+    apt-get install openvpn
+    ```
+    
+    On Mac:
+    ```bash
+    brew install openvpn
+    ```
+
+### Run tests
 
 To test network run `bin/test` command with with particular network name:
 
