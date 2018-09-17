@@ -16,8 +16,6 @@ addons:
     packages:
       - docker-ce
 
-install: true
-
 script: true
 
 before_deploy:
