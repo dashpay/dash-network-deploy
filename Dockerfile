@@ -40,9 +40,9 @@ RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraf
 
 # Copy sources
 
-COPY . /usr/src/app
+WORKDIR /usr/src/app
 
-# Install ansible playbook dependencies
+COPY . .
 
 RUN pip install --upgrade netaddr awscli && \
     ansible-galaxy install -r /usr/src/app/ansible/requirements.yml
@@ -56,8 +56,13 @@ RUN apt-get remove --purge -y \
         git \
         && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app
+# Create networks shortcut
 
-ENTRYPOINT ["/usr/src/app/docker/entrypoint.sh"]
+RUN ln -s /usr/src/app/networks /networks
+
+VOLUME ["/networks"]
+VOLUME ["/usr/src/app/terraform/aws/.terraform"]
+
+ENTRYPOINT ["docker/entrypoint.sh"]
 
 CMD ["deploy", "--help"]
