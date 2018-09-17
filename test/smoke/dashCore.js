@@ -20,12 +20,10 @@ describe('All nodes', () => {
       const rpc = new RpcClient(config);
 
       it('should have correct network type', async () => {
-        const blockHash = await rpc.getNetworkInfo();
-        const masternodelist = await rpc.masternodelist();
-        const version = masternodelist.result[Object.keys(masternodelist.result)[0]].daemonversion;
-        expect(blockHash.error).to.be.equal(null);
-        expect(blockHash.result.networkactive).to.be.equal(true);
-        expect(blockHash.result.subversion).to.be.equal(`/Dash Core:${version}(${networkConfig.network.type}=${networkConfig.network.name})/`);
+        const networkInfo = await rpc.getNetworkInfo();
+        expect(networkInfo.error).to.be.equal(null);
+        expect(networkInfo.result.networkactive).to.be.equal(true);
+        expect(networkInfo.result.subversion).to.have.string(`(${networkConfig.network.type}=${networkConfig.network.name})/`);
       });
     });
   });
