@@ -9,7 +9,7 @@
     state: present
     update_cache: yes
 
-- name: Perpare list of forwared IPs
+- name: Prepare list of forwared IPs
   vars:
     openvpn_forwarded_ips: []
   set_fact:
