@@ -8,7 +8,7 @@ const networkConfig = getNetworkConfig();
 
 describe('Faucet', () => {
   networkConfig.inventory.web.hosts.forEach((nodeName) => {
-    it('should respond positive balance via insight and cli',
+    it(`should respond positive balance via insight and cli${nodeName}`,
       async () => {
         const ssh = new SSH({
           host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
