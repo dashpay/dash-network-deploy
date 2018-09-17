@@ -3,11 +3,6 @@
 # Ansible
 /ansible/*.retry
 
-# Networks
-/networks/*.inventory
-/networks/*.ovpn
-/networks/.env
-
 # Node.JS
 node_modules
 
