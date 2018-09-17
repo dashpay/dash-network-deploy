@@ -1,5 +1,3 @@
-# Dotenv
-
 # Ansible
 /ansible/*.retry
 
@@ -10,10 +8,7 @@ node_modules
 .vagrant
 
 # Terraform
-/terraform/aws/*.tfstate
-/terraform/aws/*.tfstate.backup
 /terraform/aws/.terraform
 
 # Jet Brains
-cmake-build-debug
 .idea
