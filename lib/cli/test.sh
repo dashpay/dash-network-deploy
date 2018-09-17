@@ -49,9 +49,16 @@ function test_start_openvpn() {
     OPENVPN_MANAGMENT_HOST="127.0.0.1"
     OPENVPN_MANAGMENT_PORT=1337
 
+    local sudo_command=''
+    if [ $(whoami) != 'root' ]; then
+        sudo_command='sudo'
+    fi
+
     set +e
 
-    sudo openvpn --daemon --config "$vpn_config" --management ${OPENVPN_MANAGMENT_HOST} ${OPENVPN_MANAGMENT_PORT}
+    ${sudo_command} openvpn --daemon \
+                            --config "$vpn_config" \
+                            --management ${OPENVPN_MANAGMENT_HOST} ${OPENVPN_MANAGMENT_PORT}
 
     local exit_code="$?"
 
