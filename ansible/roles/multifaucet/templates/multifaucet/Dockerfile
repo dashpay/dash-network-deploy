@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y libpng12-0 libjpeg62-turbo libpng-dev l
   && apt-get remove -y libpng-dev libjpeg-dev libfreetype6-dev \
   && rm -fr /var/cache/apt/*
 
-ENV MULTIFAUCET_COMMIT=afc91965a29515fd8dab482814a25b2fdc463c0d
+ENV MULTIFAUCET_COMMIT=f6c1b51562db4e5337502d75967376c06f9286b3
 RUN curl -L -o /tmp/multifaucet.tar.gz https://github.com/dashevo/multifaucet/archive/$MULTIFAUCET_COMMIT.tar.gz \
   && cd /tmp \
   && tar xzf multifaucet.tar.gz \
