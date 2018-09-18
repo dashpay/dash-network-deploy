@@ -14,6 +14,18 @@ resource "aws_security_group" "default" {
     ]
   }
 
+  # Docker API
+  ingress {
+    from_port = 2375
+    to_port   = 2375
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "${var.private_subnet}",
+      "${aws_eip.vpn.public_ip}/32",
+    ]
+  }
+
   # outbound internet access
   egress {
     from_port = 0
@@ -22,6 +34,7 @@ resource "aws_security_group" "default" {
 
     cidr_blocks = [
       "0.0.0.0/0",
+      "${var.private_subnet}",
     ]
   }
 
@@ -280,6 +293,17 @@ resource "aws_security_group" "vpn" {
   description = "vpn client access"
   vpc_id      = "${aws_vpc.default.id}"
 
+  # SSH access from anywhere
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
   # VPN Client
   ingress {
     from_port = 1194
@@ -288,6 +312,18 @@ resource "aws_security_group" "vpn" {
 
     cidr_blocks = [
       "0.0.0.0/0",
+    ]
+  }
+
+  # outbound internet access
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+      "${var.private_subnet}",
     ]
   }
 
