@@ -1,0 +1,29 @@
+sudo: required
+dist: trusty
+
+env:
+  global:
+    # DOCKER_HUB_USER
+    - secure: "CwyAQBCpoQsib0ifUNVbL7gr9UQcUCxPG+N4bCU6J5hcfRzT6l5oJe2EAt+SACB1eHrZp13Biy3xHYg5zMA8D/w4ChQOWxF2W7X0Lj588tH1Cx9zKccEe5URDICzd0KW7nov/jgbrYH1DGz57BhYKSo51p3+Vd7fAjGhbqmnTd62kVrgeI5vWIoDe9BeXpX+vYV34LU6B8hZiepj07nq3jC6FZkRuvHs9+RN0yP02/8a8NiqnhTssVbLN+3wdDUo0odJO7xlCSsxm+PUKpevjJ66IPP+RPUu+fZPc6LlemH5pu1JmPtGOoC4koI1ovVBfcj7zd91J3aBiI5cuiOFB0s4/8724HSqRBlZCjChd6ny52XbF9k1KI8NgkQgNeevy98AGUtjEcjPUK8kPfLLynTMUXmg3kJdsSSIvfN5G2t6ZNSdXBqqU3zPmVvKRNIU4ig3pnJOJUwncBXLzBM9L7ONiXZ0w7Xvzp15hjR+l6292lzICOUgA8PScE5MVIKNd8CMhpJtFCQ73AXHc/06UgYMKUFcbK1uls+xCRc6TmVKief8OZwmlyUYDzVTX2eHllykXSXJYFjUcf0YCAlbCRczXMfxjLz8wsvVkTl66xSCyxX0UJiJs6O2lBnYfMzX/S7+lpGwi43YVHkKz3meQra83j03UGIWHj5O2wI2U1Y="
+    # DOCKER_HUB_PASSWORD
+    - secure: "Sib1fZ7qj0Z+1DzDOoazn42kogSPSXGc6mBU8AFZyCLJgqZnSO5O/xXAR+agisx5EOjvzkTybnoetUHUOLPMByQ7WcV25sv7GPYXStiuAAhRRm0J1kvihvpht+JBWJDyeSIU5GA1dA/zCm4ny+Pxnref3900KG/SeDFWYQ1XbwOI8J49T1vN4AZ497NNeoSdNT1E68KArCh8nQV68d7x026VBkLFgIeWWLEaCdmy1g18f8eT4fb+xFlHdB73Awat8WxcICN/6EERqevJ7/mUXGs0u8EXTheoxWLKC3sr7YSjNaI2H7n/aPjhJuYS8as4l/ZbaDSNeTd5vhAI1h5BtaVa9QZFxiyYaOwAbv6ZFZj6sqHKo4aq+YV8tKB2Abb9/Fl7GQ8diUNKRNpVz2bl4/tCry0qlDLU99vGq8KDoAdhl0pcH58SghDKexzsEfIzissQK0TNaKL6PY5Ksb/18aIbwdsrI2oGiqbLKqjUFUa6Oy0BmN2m2/LLY/hGKO7DToiXmuUzCVFoDWXIysJ4GCqX51dabm+3/5DlL9OI+aOrBy4py91qsL/HBpQilasZ/UG6ppdv5jVomhwA+VFhUqm8oAPpAqtC5c7X0sE68n11T+z/cT8j/UCLNellPxiWnS6wsKss+0UrM7ShJt/KSgIUhOsQ1DunSOVJbxCDpW0="
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+script: true
+
+before_deploy:
+  - docker build -t dashpay/dash-network-deploy . || travis_terminate 1
+  - echo "$DOCKER_HUB_USER" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+
+deploy:
+  provider: script
+  script: docker push dashpay/dash-network-deploy
+  on:
+    branch: docker
