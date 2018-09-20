@@ -29,7 +29,7 @@ function test_start_openvpn() {
     local vpn_config="networks/$NETWORK_NAME.ovpn"
 
     if [ ! -f "$vpn_config" ]; then
-        echo "OpenVPN config '$vpn_config' not found. Trying to retrive..."
+        echo "OpenVPN config '$vpn_config' not found. Trying to retrieve..."
 
         override_aws_credentials "ANSIBLE" "TERRAFORM"
 
