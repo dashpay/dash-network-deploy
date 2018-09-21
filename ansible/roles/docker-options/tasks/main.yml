@@ -12,8 +12,22 @@
     mode: '0640'
   register: daemon_json_state
 
+- name: update systemd service
+  become: true
+  copy:
+    src: docker.service
+    dest: /lib/systemd/system/
+
+- name: update upstart defaults
+  become: true
+  copy:
+    src: docker
+    dest: /etc/default/
+
+
 - name: restart docker
   service:
     name: docker
     state: restarted
+    daemon_reload: true
   when: daemon_json_state is changed
