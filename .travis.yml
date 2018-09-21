@@ -13,7 +13,7 @@ script: true
 
 before_deploy:
   - docker build -t dashpay/dash-network-deploy . || travis_terminate 1
-  - echo -n "$DOCKER_HUB_USER" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
 
 deploy:
   provider: script
