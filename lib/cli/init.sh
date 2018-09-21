@@ -24,7 +24,7 @@ if [ ! -f networks/.env ]; then
 
     dotenv_example=$(<examples/.env.example)
 
-    print_error "Warning: Configuration .env file not found
+    print_error "Configuration .env file not found
 
 Please create and configure '.env' file.
 
