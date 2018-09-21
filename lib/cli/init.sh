@@ -21,7 +21,17 @@ TERRAFORM_CONFIG_PATH="networks/$NETWORK_NAME.tfvars"
 # Load configuration
 
 if [ ! -f networks/.env ]; then
-    print_error "Warning: Configuration .env file not found"
+
+    dotenv_example=$(<examples/.env.example)
+
+    print_error "Warning: Configuration .env file not found
+
+Please create and configure '.env' file.
+
+Example:
+
+$dotenv_example"
+
 else
     source networks/.env
 fi

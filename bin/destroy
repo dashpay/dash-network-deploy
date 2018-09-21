@@ -4,7 +4,9 @@ set -ea
 
 . ./lib/cli/utils.sh
 
-CMD_USAGE="Usage: OPTION=value ./destroy <network_name>
+CMD_USAGE="Destroy Dash Network
+
+Usage: destroy [options] <network_name>
 
 Options:
   -k --keep-infrastructure - Destroy Dash Network and keep infrastructure
