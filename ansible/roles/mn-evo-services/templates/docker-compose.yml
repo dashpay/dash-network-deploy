@@ -70,9 +70,10 @@ services:
       - DASHCORE_ZMQ_PORT={{ dashd_zmq_port }}
       - DASHCORE_P2P_HOST={{ private_ip }}
       - DASHCORE_P2P_PORT={{ dashd_port }}
+      - DASHCORE_P2P_NETWORK={{ dash_network }}
       - DASHDRIVE_RPC_HOST=drive_api
       - DASHDRIVE_RPC_PORT=6000
-      - NETWORK={{ dash_devnet_name }}
+      - NETWORK={{ dash_network }}
 
 volumes:
   drive_mongodb:
