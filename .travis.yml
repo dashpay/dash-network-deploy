@@ -1,0 +1,22 @@
+sudo: required
+dist: trusty
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+script: true
+
+before_deploy:
+  - docker build -t dashpay/dash-network-deploy . || travis_terminate 1
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+
+deploy:
+  provider: script
+  script: docker push dashpay/dash-network-deploy
+  on:
+    branch: docker

@@ -4,7 +4,9 @@ set -ea
 
 . ./lib/cli/utils.sh
 
-CMD_USAGE="Usage: ./test [options] <network_name>
+CMD_USAGE="Test Dash Network
+
+Usage: test [options] <network_name>
 
 Options:
   -m=<args>  --mocha-args=<args> - Mocha arguments
@@ -21,7 +23,7 @@ case ${i} in
     TEST_TYPES="${i#*=}"
     ;;
     -h|--help)
-        echo ${CMD_USAGE}
+        echo "$CMD_USAGE"
         exit 0
     ;;
     *)
