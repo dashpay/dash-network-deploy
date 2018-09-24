@@ -19,3 +19,53 @@ masternodes:
     address_key: cTEGsaAqx9jUFYkNECeGKfixa6vgMiUoSwqsdncc11mS6BZerTpT
     mn_operator_addr: yhypFUBAYtbrPEqTeH4bh23xhbLdpXb5k2
     mn_operator_key: cRRPAZgkgq3Fh8EjHxzSeHfEWZNvL4u5AezXEeqk6VczBbtQtYj8
+  masternode-4:
+    address: yQCV7FnK99crDwmiwrLCwgaDKz5qV4my6u
+    address_key: cSMvsssFKziHctH2d2FNfeCaKuEckC9PB8aQD1E6ecYjSpDdYrLf
+    mn_operator_addr: yYJLd5xZqSLvKx1AJAunhw23D3VMh1nQKs
+    mn_operator_key: cV6tA7XHD8qz5GyMt5nK9iHhgWjj5ScF2YsXAovWBmcJp4mQNYxg
+  masternode-5:
+    address: yiS4S2aLvXf61WcJEc2mzkuLHCeBgd7wLp
+    address_key: cVMFBkeZ4X3HAz14CjQnpA9KqDSLGUbxNVx5BxXMxkBj4Us3HDpc
+    mn_operator_addr: yZSnApRPmUiqufr9hm9jFbufKUHP5mADYb
+    mn_operator_key: cRGrDu3b6wpwudeayQhHGPdRWyj3jLrjcNdYwF5xGCPx1WtjWw57
+  masternode-6:
+    address: yZrCcddoxdH16STwQpmpEPbn6urenS8yjf
+    address_key: cRNS6N2gakrSZWEz4NsxLwSzv9GYxS9wS4efLyntKo66ZiaenZyo
+    mn_operator_addr: yMy3qzPSrzrovhPCwvjDbHVb2ytKyRwcok
+    mn_operator_key: cUjzNkEPoEZ63AQmsXif3uHdXg5Pzs46BLpCMqhc3bVR7oV2rj5s
+  masternode-7:
+    address: yQSQoco2uAR4sc2AkXGNcAcBnbYY4q7a6T
+    address_key: cNj3itrDW4abS97dv6fE1dy16kDbfB8K63zws8Q65xMTEgZ8Gtqz
+    mn_operator_addr: yj4eRnvXYDvTrFWYXLM7kAyov6Yq3hEqfv
+    mn_operator_key: cW6dUZ4qEpjrJrXGxJSaC7hSJAL686dpRBvcr9a2DeRkkarXvL7w
+  masternode-8:
+    address: yXrf4MNYipnGmSQqGv1HGqmD3xxWELs9T9
+    address_key: cQy6bcyDYwHR97wa4zUnuJAp6Fw3gJHoq1nFBCXqJBs2G17siFki
+    mn_operator_addr: yf6vdKqe6tRLbzZyrzyEaLzi7vDm1snYDi
+    mn_operator_key: cPegZaH4ntdLKuCvuoMeHz6g2yZmEiEbuVuWznN6geyBb588A88A
+  masternode-9:
+    address: yTezNspASgUWeRvkVbQx7brFzJYnihkCdB
+    address_key: cQKSAVBd87j5EGtWEf2m5zip1qFmWBWzZ3yRhGeTMvB8wjLarxM2
+    mn_operator_addr: yQhFv5z7pr3ukpdC4XazNb82bVRHAn434x
+    mn_operator_key: cQNnE92iGmzQZGXU3koZkxcLG3aFhdxrCimAaLRW9umeVaPzQUDR
+  masternode-10:
+    address: yN4YJuZUUCiVTNoKwtNsNTapGvW9PbmzXk
+    address_key: cMdZCshfc8mhSTb8oauuraWKAZjfGDnx4xX9HE2D4nP74WwEk1HN
+    mn_operator_addr: yX89RR2KW7a8R4r5bRWrC63wScPyESEwM9
+    mn_operator_key: cNeCgEnjZi55jc8AzCwiWQWgqzsvcVRLoqZJEm6ArbPuvwjF8DSB
+  masternode-11:
+    address: yTWgsUVk66vV2csfYFDxvYU31BupXDD2mE
+    address_key: cPaGBsFGjvsxBqZKzSCdERACg7EPkKBJf8kP4h6f9S8ZZeCoBqHh
+    mn_operator_addr: yRAuQ7Ccr6U2TMcqqMTh895UnR48iiffQB
+    mn_operator_key: cVK1EeHj4XtpTPD4R7eoUZkXsgjAufCXfu1Y1DtszUghjdGppsuW
+  masternode-12:
+    address: yUtqnQw3DHgn6BEwjnR1hVabKDM4F8pAuP
+    address_key: cNsvfpZb3RY3k7LvcxGriGavBqznE4Cn1q1QF8bGZo5eHMu7ngW3
+    mn_operator_addr: ygySpDeUPpr7wABfRUg3eGftCpHVBsRBCn
+    mn_operator_key: cQDv8xGMegHgi6ZpW1z6xxqpE5UN6S6RBPmHxoX3M6RaYUAFkiMw
+  masternode-13:
+    address: yYzxjiTcG8HuKBXS3VW5yhjfZdMhMV1NqB
+    address_key: cPknbev5GEhHKug7QNzPRb4jpDM7PaJtfyaZgtivV86NBeCVvPFf
+    mn_operator_addr: ydFBeC4vK5EehBw2MxE5aWcfFnSSzp3utU
+    mn_operator_key: cQWW4REACA6M5wPktuAy4LqWmwftBuRmhTfLF9WzjbqmLPXrtf1H
