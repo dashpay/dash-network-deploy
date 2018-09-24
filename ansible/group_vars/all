@@ -89,3 +89,6 @@ masternode_wallet_rpc_args: '-rpcconnect={{ masternode_wallet_rpc_host }} -rpcpo
 #    address: yQuwR1uaci2SCQBgqcaKRzfq7upL4n513j
 #    address_key: cTEGsaAqx9jUFYkNECeGKfixa6vgMiUoSwqsdncc11mS6BZerTpT
 #    privkey: 93EmoMmHgTCg8yVhRtK5sxpv5k4Sq1KoHCVB43VxbbZpVPtHMnc
+
+# Ansible configuration
+ansible_python_interpreter: /usr/bin/python3
