@@ -4,7 +4,9 @@ set -ea
 
 . ./lib/cli/utils.sh
 
-CMD_USAGE="Usage: ./deploy [options] <network_name>
+CMD_USAGE="Deploy Dash Network
+
+Usage: deploy [options] <network_name>
 
 Options:
   -i        --only-infrastructure - Only build infrastructure using Terraform
@@ -25,7 +27,7 @@ case ${i} in
     ANSIBLE_ARGUMENTS="${i#*=}"
     ;;
     -h|--help)
-        echo ${CMD_USAGE}
+        echo "$CMD_USAGE"
         exit 0
     ;;
     *)

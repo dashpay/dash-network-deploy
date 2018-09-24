@@ -1,10 +1,5 @@
-# Dotenv
-/.env
-
 # Ansible
 /ansible/*.retry
-/networks/*.inventory
-/networks/*.ovpn
 
 # Node.JS
 node_modules
@@ -13,10 +8,7 @@ node_modules
 .vagrant
 
 # Terraform
-/terraform/aws/*.tfstate
-/terraform/aws/*.tfstate.backup
 /terraform/aws/.terraform
 
 # Jet Brains
-cmake-build-debug
 .idea
