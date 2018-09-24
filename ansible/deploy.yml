@@ -6,6 +6,12 @@
   gather_facts: False
   become: true
   pre_tasks:
+    - name: install python 2 for Ansible
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      register: output
+      changed_when:
+      - output.stdout != ""
+      - output.stdout != "\r\n"
     - name: Check if inside AWS.
       uri:
         url: http://169.254.169.254/latest/meta-data
