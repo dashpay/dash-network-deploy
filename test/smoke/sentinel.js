@@ -12,14 +12,8 @@ describe('Sentinel', () => {
       });
       const opts = { filters: '{"name": ["mn_sentinel_sentinel"]}' };
       const containers = await dockerode.listContainers(opts);
-      expect(containers.length)
-        .to
-        .be
-        .equal(1);
-      expect(containers[0].State)
-        .to
-        .be
-        .equal('running'); // container is running
+      expect(containers.length).to.be.equal(1);
+      expect(containers[0].State).to.be.equal('running'); // container is running
       const containerId = containers[0].Id;
       await dockerode.getContainer(containerId)
         .logs({
