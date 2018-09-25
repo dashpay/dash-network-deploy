@@ -1,6 +1,5 @@
 const SSH = require('simple-ssh');
 const fs = require('fs');
-const Promise = require('bluebird');
 
 exports.echo = function (ssh, command) {
   return new Promise(((resolve, reject) => {

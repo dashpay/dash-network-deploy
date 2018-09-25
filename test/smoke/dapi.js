@@ -39,11 +39,19 @@ describe('DAPI', () => {
         expect(blockHeight % 1).to.be.equal(0);
       });
 
-      // fetchDapObjects any dapiId and type
+      // getBalance from dapi
       it('should respond getBalance from drive', async () => {
         const balance = await dapi.getBalance(`${networkConfig.variables.faucet_address}`);
         expect(balance).to.be.an('number');
         expect(balance % 1).to.be.equal(0);
+      });
+
+      // fetchDapContract any dapiId and type
+      xit('should respond fetchDapContract', async () => {
+        // TODO fetchDapContract not implemented in dashdrve
+        const dapContract = await dapi.fetchDapContract('mystring');
+        console.log(dapContract);
+        expect(dapContract).to.be.an('json');
       });
     });
   });

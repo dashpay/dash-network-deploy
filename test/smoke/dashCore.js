@@ -1,5 +1,4 @@
 const RpcClient = require('@dashevo/dashd-rpc/promise');
-const fs = require('fs');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
@@ -7,7 +6,12 @@ const networkConfig = getNetworkConfig();
 
 
 describe('All nodes', () => {
-  networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
+  let nodeNames = networkConfig.inventory.masternodes.hosts;
+  nodeNames = nodeNames.concat(networkConfig.inventory['wallet-nodes'].hosts);
+  // TODO miner rpc call stuck. why?
+  // nodeNames = nodeNames.concat(networkConfig.inventory['miners'].hosts);
+  nodeNames = nodeNames.concat(networkConfig.inventory['full-nodes'].hosts);
+  nodeNames.forEach((nodeName) => {
     describe(nodeName, () => {
       const config = {
         protocol: 'http',
@@ -30,36 +34,33 @@ describe('All nodes', () => {
   // The number of blocks should be almost the same (-3/+3) and block hash of particular
   // block height should be the same. Using `blocks`
   // and `bestblockhash` from `GetBlockChainInfo`.
+  // Verify it on masternodes, wallet-nodes, full-nodes, miners
   it('should have correct blockhash and blocks count', async () => {
-    const hosts = networkConfig.inventory.masternodes.hosts;
-    let blockCounts = [];
-    for (let i = 0; i < hosts.length; i++) {
+    const blockCounts = [];
+    const blockhashes = {};
+    let blockchainInfo;
+    for (let i = 0; i < nodeNames.length; i++) {
       const config = {
         protocol: 'http',
         user: 'dashrpc',
         pass: 'password',
-        host: networkConfig.inventory._meta.hostvars[hosts[i]].public_ip,
+        host: networkConfig.inventory._meta.hostvars[nodeNames[i]].public_ip,
         port: 20002,
       };
       const rpc = new RpcClient(config);
-
-      const bestBlockHash = await rpc.getBestBlockHash();
       const blockCount = await rpc.getBlockCount();
-      const blockchainInfo = await  rpc.getBlockchainInfo();
-      expect(bestBlockHash.result)
-        .to
-        .be
-        .equal(blockchainInfo.result.bestblockhash);
-      expect(blockCount.result)
-        .to
-        .be
-        .equal(blockchainInfo.result.blocks);
+      blockchainInfo = await rpc.getBlockchainInfo();
       blockCounts.push(blockCount.result);
+      if (!blockhashes[blockchainInfo.result.blocks]) {
+        blockhashes[blockchainInfo.result.blocks] = blockchainInfo.result.bestblockhash;
+      }
     }
+    expect(blockhashes[blockchainInfo.result.blocks]).to.be.equal(
+      blockchainInfo.result.bestblockhash,
+    );
     expect(Math.max(...blockCounts) - Math.min(...blockCounts)).to.be.below(3);
   });
 });
-
 
 describe('Masternodes', () => {
   networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
@@ -73,8 +74,9 @@ describe('Masternodes', () => {
       };
       const rpc = new RpcClient(config);
       // masternode status
-      it('should bmasternodes be enabled', async () => {
+      it('should masternodes be enabled', async () => {
         const masternodelist = await rpc.masternodelist();
+        console.log(masternodelist);
         const idNodes = Object.keys(masternodelist.result);
         const masterIps = [];
         for (let i = 0; i < idNodes.length; i++) {
@@ -97,7 +99,8 @@ describe('Masternodes', () => {
         protocol: 'http',
         user: 'dashrpc',
         pass: 'password',
-        host: networkConfig.inventory._meta.hostvars[networkConfig.inventory.masternodes.hosts[0]].public_ip,
+        host: networkConfig.inventory._meta.hostvars[
+          networkConfig.inventory.masternodes.hosts[0]].public_ip,
         port: 20002,
       };
       const rpc = new RpcClient(config);
@@ -109,5 +112,4 @@ describe('Masternodes', () => {
       }
     });
   });
-
 });
