@@ -68,7 +68,12 @@ services:
       - DASHCORE_RPC_PASS={{ dashd_rpc_password }}
       - DASHCORE_ZMQ_HOST={{ private_ip }}
       - DASHCORE_ZMQ_PORT={{ dashd_zmq_port }}
-      - NETWORK={{ dash_devnet_name }}
+      - DASHCORE_P2P_HOST={{ private_ip }}
+      - DASHCORE_P2P_PORT={{ dashd_port }}
+      - DASHCORE_P2P_NETWORK={{ dash_network }}
+      - DASHDRIVE_RPC_HOST=drive_api
+      - DASHDRIVE_RPC_PORT=6000
+      - NETWORK={{ dash_network }}
 
 volumes:
   drive_mongodb:
