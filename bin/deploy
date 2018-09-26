@@ -4,15 +4,18 @@ set -ea
 
 . ./lib/cli/utils.sh
 
+ansible_playbook="deploy.yml"
+
 CMD_USAGE="Deploy Dash Network
 
 Usage: deploy [options] <network_name>
 
 Options:
-  -i        --only-infrastructure - Only build infrastructure using Terraform
-  -p        --only-provisioning   - Only provisioning using Ansible
-  -a=<args> --ansible-args=<args> - Pass extra arguments to ansible-playbook command
-  -h        --help                - Show help"
+  -i        --only-infrastructure         - Only build infrastructure using Terraform
+  -p        --only-provisioning           - Only provisioning using Ansible
+  -a=<args> --ansible-args=<args>         - Pass extra arguments to ansible-playbook command
+            --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
+  -h        --help                        - Show help"
 
 for i in "$@"
 do
@@ -25,6 +28,9 @@ case ${i} in
     ;;
     -a=*|--ansible-args=*)
     ANSIBLE_ARGUMENTS="${i#*=}"
+    ;;
+    --ansible-playbook=*)
+    ansible_playbook="${i#*=}.yml"
     ;;
     -h|--help)
         echo "$CMD_USAGE"
@@ -53,7 +59,7 @@ fi
 # Install software and configure dash network using Ansible
 
 if [ -z ${ONLY_INFRASTRUCTURE} ]; then
-    ansible_run_playbook "deploy.yml"
+    ansible_run_playbook "$ansible_playbook"
 else
     echo "Skipping Ansible provisioning"
 fi
