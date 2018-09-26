@@ -231,8 +231,7 @@ resource "aws_security_group" "masternode" {
     protocol  = "tcp"
 
     cidr_blocks = [
-      "${var.private_subnet}",
-      "${aws_eip.vpn.public_ip}/32",
+      "0.0.0.0/0",
     ]
   }
 
