@@ -5,9 +5,10 @@ resource "aws_security_group" "default" {
 
   # SSH access from anywhere
   ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    description = "SSH"
 
     cidr_blocks = [
       "0.0.0.0/0",
@@ -16,9 +17,10 @@ resource "aws_security_group" "default" {
 
   # Docker API
   ingress {
-    from_port = 2375
-    to_port   = 2375
-    protocol  = "tcp"
+    from_port   = 2375
+    to_port     = 2375
+    protocol    = "tcp"
+    description = "Docker API"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -52,9 +54,10 @@ resource "aws_security_group" "dashd_private" {
 
   # Dash Core access
   ingress {
-    from_port = "${var.dashd_port}"
-    to_port   = "${var.dashd_port}"
-    protocol  = "tcp"
+    from_port   = "${var.dashd_port}"
+    to_port     = "${var.dashd_port}"
+    protocol    = "tcp"
+    description = "DashCore P2P"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -63,9 +66,10 @@ resource "aws_security_group" "dashd_private" {
 
   # DashCore RPC access
   ingress {
-    from_port = "${var.dashd_rpc_port}"
-    to_port   = "${var.dashd_rpc_port}"
-    protocol  = "tcp"
+    from_port   = "${var.dashd_rpc_port}"
+    to_port     = "${var.dashd_rpc_port}"
+    protocol    = "tcp"
+    description = "DashCore RPC"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -75,9 +79,10 @@ resource "aws_security_group" "dashd_private" {
 
   # DashCore ZMQ acess
   ingress {
-    from_port = "${var.dashd_zmq_port}"
-    to_port   = "${var.dashd_zmq_port}"
-    protocol  = "tcp"
+    from_port   = "${var.dashd_zmq_port}"
+    to_port     = "${var.dashd_zmq_port}"
+    protocol    = "tcp"
+    description = "DashCore ZMQ"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -99,9 +104,10 @@ resource "aws_security_group" "dashd_public" {
 
   # Dash Core access
   ingress {
-    from_port = "${var.dashd_port}"
-    to_port   = "${var.dashd_port}"
-    protocol  = "tcp"
+    from_port   = "${var.dashd_port}"
+    to_port     = "${var.dashd_port}"
+    protocol    = "tcp"
+    description = "DashCore P2P"
 
     cidr_blocks = [
       "0.0.0.0/0",
@@ -110,9 +116,10 @@ resource "aws_security_group" "dashd_public" {
 
   # DashCore RPC access
   ingress {
-    from_port = "${var.dashd_rpc_port}"
-    to_port   = "${var.dashd_rpc_port}"
-    protocol  = "tcp"
+    from_port   = "${var.dashd_rpc_port}"
+    to_port     = "${var.dashd_rpc_port}"
+    protocol    = "tcp"
+    description = "DashCore RPC"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -122,9 +129,10 @@ resource "aws_security_group" "dashd_public" {
 
   # DashCore ZMQ acess
   ingress {
-    from_port = "${var.dashd_zmq_port}"
-    to_port   = "${var.dashd_zmq_port}"
-    protocol  = "tcp"
+    from_port   = "${var.dashd_zmq_port}"
+    to_port     = "${var.dashd_zmq_port}"
+    protocol    = "tcp"
+    description = "DashCore ZMQ"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -144,9 +152,10 @@ resource "aws_security_group" "http" {
   vpc_id      = "${aws_vpc.default.id}"
 
   ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    description = "Faucet"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -155,9 +164,10 @@ resource "aws_security_group" "http" {
   }
 
   ingress {
-    from_port = 3001
-    to_port   = 3001
-    protocol  = "tcp"
+    from_port   = 3001
+    to_port     = 3001
+    protocol    = "tcp"
+    description = "Insight Explorer"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -179,9 +189,10 @@ resource "aws_security_group" "masternode" {
 
   # IPFS swarm
   ingress {
-    from_port = "${var.ipfs_swarm_port}"
-    to_port   = "${var.ipfs_swarm_port}"
-    protocol  = "tcp"
+    from_port   = "${var.ipfs_swarm_port}"
+    to_port     = "${var.ipfs_swarm_port}"
+    protocol    = "tcp"
+    description = "IPFS swarm"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -190,9 +201,10 @@ resource "aws_security_group" "masternode" {
 
   # IPFS API
   ingress {
-    from_port = "${var.ipfs_api_port}"
-    to_port   = "${var.ipfs_api_port}"
-    protocol  = "tcp"
+    from_port   = "${var.ipfs_api_port}"
+    to_port     = "${var.ipfs_api_port}"
+    protocol    = "tcp"
+    description = "IPFS API"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -202,9 +214,10 @@ resource "aws_security_group" "masternode" {
 
   # Insight API access
   ingress {
-    from_port = "${var.insight_port}"
-    to_port   = "${var.insight_port}"
-    protocol  = "tcp"
+    from_port   = "${var.insight_port}"
+    to_port     = "${var.insight_port}"
+    protocol    = "tcp"
+    description = "Insight API"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -214,9 +227,10 @@ resource "aws_security_group" "masternode" {
 
   # Drive
   ingress {
-    from_port = "${var.drive_port}"
-    to_port   = "${var.drive_port}"
-    protocol  = "tcp"
+    from_port   = "${var.drive_port}"
+    to_port     = "${var.drive_port}"
+    protocol    = "tcp"
+    description = "Drive"
 
     cidr_blocks = [
       "${var.private_subnet}",
@@ -226,9 +240,10 @@ resource "aws_security_group" "masternode" {
 
   # DAPI
   ingress {
-    from_port = "${var.dapi_port}"
-    to_port   = "${var.dapi_port}"
-    protocol  = "tcp"
+    from_port   = "${var.dapi_port}"
+    to_port     = "${var.dapi_port}"
+    protocol    = "tcp"
+    description = "DAPI"
 
     cidr_blocks = [
       "0.0.0.0/0",
@@ -248,20 +263,22 @@ resource "aws_security_group" "elb" {
 
   # HTTP access from anywhere
   ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    description = "HTTP"
 
     cidr_blocks = [
       "0.0.0.0/0",
     ]
   }
 
-  # Insight
+  # Insight Explorer
   ingress {
-    from_port = 3001
-    to_port   = 3001
-    protocol  = "tcp"
+    from_port   = 3001
+    to_port     = 3001
+    protocol    = "tcp"
+    description = "Insight Explorer"
 
     cidr_blocks = [
       "0.0.0.0/0",
@@ -294,9 +311,10 @@ resource "aws_security_group" "vpn" {
 
   # SSH access from anywhere
   ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    description = "SSH"
 
     cidr_blocks = [
       "0.0.0.0/0",
@@ -305,9 +323,10 @@ resource "aws_security_group" "vpn" {
 
   # VPN Client
   ingress {
-    from_port = 1194
-    to_port   = 1194
-    protocol  = "udp"
+    from_port   = 1194
+    to_port     = 1194
+    protocol    = "udp"
+    description = "VPN client"
 
     cidr_blocks = [
       "0.0.0.0/0",
