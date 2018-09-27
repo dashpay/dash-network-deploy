@@ -23,10 +23,9 @@ describe('All nodes', () => {
       const rpc = new RpcClient(config);
 
       it('should have correct network type', async () => {
-        const networkInfo = await rpc.getNetworkInfo();
-        expect(networkInfo.error).to.be.equal(null);
-        expect(networkInfo.result.networkactive).to.be.equal(true);
-        expect(networkInfo.result.subversion).to.have.string(`(${networkConfig.network.type}=${networkConfig.network.name})/`);
+        const { result: { networkactive, subversion } } = await rpc.getNetworkInfo();
+        expect(networkactive).to.be.equal(true);
+        expect(subversion).to.have.string(`(${networkConfig.network.type}=${networkConfig.network.name})/`);
       });
     });
   });
@@ -36,9 +35,7 @@ describe('All nodes', () => {
   // and `bestblockhash` from `GetBlockChainInfo`.
   // Verify it on masternodes, wallet-nodes, full-nodes, miners
   it('should have correct blockhash and blocks count', async () => {
-    const blockCounts = [];
     const blockhashes = {};
-    let blockchainInfo;
     for (let i = 0; i < nodeNames.length; i++) {
       const config = {
         protocol: 'http',
@@ -48,17 +45,14 @@ describe('All nodes', () => {
         port: 20002,
       };
       const rpc = new RpcClient(config);
-      const blockCount = await rpc.getBlockCount();
-      blockchainInfo = await rpc.getBlockchainInfo();
-      blockCounts.push(blockCount.result);
-      if (!blockhashes[blockchainInfo.result.blocks]) {
-        blockhashes[blockchainInfo.result.blocks] = blockchainInfo.result.bestblockhash;
+      const { result: { blocks, bestblockhash } } = await rpc.getBlockchainInfo();
+      if (!blockhashes[blocks]) {
+        blockhashes[blocks] = bestblockhash;
       }
+      expect(blockhashes[blocks]).to.be.equal(bestblockhash);
     }
-    expect(blockhashes[blockchainInfo.result.blocks]).to.be.equal(
-      blockchainInfo.result.bestblockhash,
-    );
-    expect(Math.max(...blockCounts) - Math.min(...blockCounts)).to.be.below(3);
+    expect(Math.max(...Object.keys(blockhashes))
+      - Math.min(...Object.keys(blockhashes))).to.be.below(3);
   });
 });
 
@@ -76,7 +70,7 @@ describe('Masternodes', () => {
       // masternode status
       it('should masternodes be enabled', async () => {
         const masternodelist = await rpc.masternodelist();
-        console.log(masternodelist);
+        const masternodestatus = await rpc.masternode('status');
         const idNodes = Object.keys(masternodelist.result);
         const masterIps = [];
         for (let i = 0; i < idNodes.length; i++) {
@@ -94,7 +88,7 @@ describe('Masternodes', () => {
 
   describe('Miners', () => {
     // waitfornewblock
-    it('should mine blocks', async function () {
+    xit('should mine blocks', async function () {
       const config = {
         protocol: 'http',
         user: 'dashrpc',
@@ -106,10 +100,8 @@ describe('Masternodes', () => {
       const rpc = new RpcClient(config);
       this.timeout(160000);
       const blockCount = await rpc.getBlockCount();
-      let newBlock = -1;
-      while (newBlock.result !== (blockCount.result + 1)) {
-        newBlock = await rpc.getBlockCount();
-      }
+      const { result: { height } } = await rpc.waitForNewBlock(1);
+      expect(blockCount + 1).to.be.equal(height);
     });
   });
 });

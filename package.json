@@ -21,8 +21,7 @@
   },
   "homepage": "https://github.com/dashpay/dash-network-deploy#readme",
   "devDependencies": {
-    "@dashevo/dapi-client": "git+ssh://git@github.com/dashevo/dapi-client.git#feature/new_commands",
-    "@dashevo/dashd-rpc": "git+ssh://git@github.com/dashevo/dashd-rpc.git#develop",
+    "@dashevo/dashd-rpc": "^1.2.0",
     "jayson": "^2.0.6",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
@@ -34,7 +33,6 @@
     "lodash.merge": "^4.6.1",
     "mocha": "^5.2.0",
     "node-fetch": "^2.2.0",
-    "simple-ssh": "^1.0.0",
     "ipfs-api": "^24.0.1",
     "node-openvpn": "github:luigiplr/node-openvpn",
     "dockerode": "^2.5.7"
