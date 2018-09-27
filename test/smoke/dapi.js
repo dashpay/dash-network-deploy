@@ -13,8 +13,8 @@ describe('DAPI', () => {
       });
       const config = {
         protocol: 'http',
-        user: 'dashrpc',
-        pass: 'password',
+        user: networkConfig.variables.dashd_rpc_user,
+        pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
         port: 20002,
       };
@@ -34,7 +34,7 @@ describe('DAPI', () => {
       });
 
       // getBalance from dapi
-      it('should respond getBalance from drive', async () => {
+      it('should respond data from insight', async () => {
         const { result } = await dapiClient.request('getBalance',
           { address: `${networkConfig.variables.faucet_address}` });
         expect(result).to.be.an('number');
@@ -42,8 +42,8 @@ describe('DAPI', () => {
       });
 
       // fetchDapContract any dapiId and type
-      xit('should respond fetchDapContract', async () => {
-        // TODO fetchDapContract not implemented in dashdrve
+      xit('should respond data from drive', async () => {
+        // TODO 'Initial sync in progress' error now
         const { result } = await dapiClient.request('fetchDapContract', { dapId: "fakeDapId" });
         expect(result).to.be.an('json');
       });

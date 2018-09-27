@@ -9,14 +9,14 @@ describe('All nodes', () => {
   let nodeNames = networkConfig.inventory.masternodes.hosts;
   nodeNames = nodeNames.concat(networkConfig.inventory['wallet-nodes'].hosts);
   // TODO miner rpc call stuck. why?
-  // nodeNames = nodeNames.concat(networkConfig.inventory['miners'].hosts);
+  // nodeNames = nodeNames.concat(networkConfig.inventory["miners"].hosts);
   nodeNames = nodeNames.concat(networkConfig.inventory['full-nodes'].hosts);
   nodeNames.forEach((nodeName) => {
     describe(nodeName, () => {
       const config = {
         protocol: 'http',
-        user: 'dashrpc',
-        pass: 'password',
+        user: networkConfig.variables.dashd_rpc_user,
+        pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
         port: 20002,
       };
@@ -35,24 +35,25 @@ describe('All nodes', () => {
   // and `bestblockhash` from `GetBlockChainInfo`.
   // Verify it on masternodes, wallet-nodes, full-nodes, miners
   it('should have correct blockhash and blocks count', async () => {
-    const blockhashes = {};
+    const blockHashes = {};
     for (let i = 0; i < nodeNames.length; i++) {
       const config = {
         protocol: 'http',
-        user: 'dashrpc',
-        pass: 'password',
+        user: networkConfig.variables.dashd_rpc_user,
+        pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[nodeNames[i]].public_ip,
         port: 20002,
       };
       const rpc = new RpcClient(config);
       const { result: { blocks, bestblockhash } } = await rpc.getBlockchainInfo();
-      if (!blockhashes[blocks]) {
-        blockhashes[blocks] = bestblockhash;
+      if (!blockHashes[blocks]) {
+        blockHashes[blocks] = bestblockhash;
       }
-      expect(blockhashes[blocks]).to.be.equal(bestblockhash);
+      expect(blockHashes[blocks]).to.be.equal(bestblockhash);
     }
-    expect(Math.max(...Object.keys(blockhashes))
-      - Math.min(...Object.keys(blockhashes))).to.be.below(3);
+    const blocksCounts = Object.keys(blockHashes);
+    expect(Math.max(...blocksCounts)
+      - Math.min(...blocksCounts)).to.be.below(3);
   });
 });
 
@@ -61,8 +62,8 @@ describe('Masternodes', () => {
     describe(nodeName, () => {
       const config = {
         protocol: 'http',
-        user: 'dashrpc',
-        pass: 'password',
+        user: networkConfig.variables.dashd_rpc_user,
+        pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
         port: 20002,
       };
@@ -91,17 +92,17 @@ describe('Masternodes', () => {
     xit('should mine blocks', async function () {
       const config = {
         protocol: 'http',
-        user: 'dashrpc',
-        pass: 'password',
+        user: networkConfig.variables.dashd_rpc_user,
+        pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[
           networkConfig.inventory.masternodes.hosts[0]].public_ip,
         port: 20002,
       };
       const rpc = new RpcClient(config);
       this.timeout(160000);
-      const blockCount = await rpc.getBlockCount();
+      const { result } = await rpc.getBlockCount();
       const { result: { height } } = await rpc.waitForNewBlock(1);
-      expect(blockCount + 1).to.be.equal(height);
+      expect(result + 1).to.be.equal(height);
     });
   });
 });
