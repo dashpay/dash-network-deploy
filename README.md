@@ -60,6 +60,18 @@ ANSIBLE_ARGUMENTS="-e evo_services=true \
 
 For Docker images stored in AWS ECR, the argument `-e aws_ecr_login=true` is required.
 
+Also you need to upgrade MNs to ProTX when DIP3 is enabled
+(see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
+
+```bash
+docker run -ti --rm \
+           -v "$PWD:/networks" \
+           -v "$HOME/.aws:/root/.aws" \
+           -v "$HOME/.ssh/evo-app-deploy.rsa.pub:/root/.ssh/evo-app-deploy.rsa.pub" \
+           -v "$HOME/.ssh/evo-app-deploy.rsa:/root/.ssh/evo-app-deploy.rsa" \
+           dashpay/dash-network-deploy deploy -p --ansible-playbook=upgrade-to-protx <network_name>
+```
+
 ## Deployment
 
 To deploy Dash Network use `deploy` command with particular network name:
@@ -71,7 +83,6 @@ docker run -ti --rm \
            -v "$HOME/.ssh/evo-app-deploy.rsa.pub:/root/.ssh/evo-app-deploy.rsa.pub" \
            -v "$HOME/.ssh/evo-app-deploy.rsa:/root/.ssh/evo-app-deploy.rsa" \
            dashpay/dash-network-deploy deploy <network_name>
-
 ```
 
 You may pass `--only-infrastructure` or `--only-provisioning` option to avoid to do a particular type of work.
