@@ -10,7 +10,7 @@ describe('IPFS', () => {
     it(nodeName, async () => {
       const ipfs = ipfsAPI(networkConfig.inventory._meta.hostvars[nodeName].public_ip, '5001', { protocol: 'http' });
       const peers = await ipfs.swarm.peers();
-      expect(peers.length).to.be.equal(networkConfig.inventory.masternodes.hosts.length - 1);
+      expect(peers).to.have.lengthOf(networkConfig.inventory.masternodes.hosts.length - 1);
     });
   });
 });
