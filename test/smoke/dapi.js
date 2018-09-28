@@ -44,7 +44,7 @@ describe('DAPI', () => {
       // fetchDapContract any dapiId and type
       xit('should respond data from drive', async () => {
         // TODO 'Initial sync in progress' error now
-        const { result } = await dapiClient.request('fetchDapContract', { dapId: "fakeDapId" });
+        const { result } = await dapiClient.request('fetchDapContract', { dapId: 'fakeDapId' });
         expect(result).to.be.an('json');
       });
     });

@@ -25,7 +25,7 @@ describe('Sentinel', () => {
             timestamps: true,
           },
         );
-        expect(stream).to.be.undefined();
+        expect(stream).to.be.empty();
       });
     });
   });
