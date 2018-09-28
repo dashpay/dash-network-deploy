@@ -16,7 +16,7 @@ describe('DAPI', () => {
         user: networkConfig.variables.dashd_rpc_user,
         pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
-        port: 20002,
+        port: networkConfig.variables.dashd_rpc_port,
       };
       const rpc = new RpcClient(config);
       // getBlockHash height:1
@@ -29,14 +29,6 @@ describe('DAPI', () => {
       // getBestBlockHeight
       it('should respond data from insight', async () => {
         const { result } = await dapiClient.request('getBestBlockHeight', { blockHeight: 1 });
-        expect(result).to.be.an('number');
-        expect(result % 1).to.be.equal(0);
-      });
-
-      // getBalance from dapi
-      it('should respond data from insight', async () => {
-        const { result } = await dapiClient.request('getBalance',
-          { address: `${networkConfig.variables.faucet_address}` });
         expect(result).to.be.an('number');
         expect(result % 1).to.be.equal(0);
       });

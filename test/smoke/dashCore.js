@@ -9,7 +9,7 @@ describe('All nodes', () => {
   let nodeNames = networkConfig.inventory.masternodes.hosts;
   nodeNames = nodeNames.concat(networkConfig.inventory['wallet-nodes'].hosts);
   // TODO miner rpc call stuck. why?
-  // nodeNames = nodeNames.concat(networkConfig.inventory["miners"].hosts);
+  nodeNames = nodeNames.concat(networkConfig.inventory["miners"].hosts);
   nodeNames = nodeNames.concat(networkConfig.inventory['full-nodes'].hosts);
   nodeNames.forEach((nodeName) => {
     describe(nodeName, () => {
@@ -18,7 +18,7 @@ describe('All nodes', () => {
         user: networkConfig.variables.dashd_rpc_user,
         pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
-        port: 20002,
+        port: networkConfig.variables.dashd_rpc_port,
       };
       const rpc = new RpcClient(config);
 
@@ -42,7 +42,7 @@ describe('All nodes', () => {
         user: networkConfig.variables.dashd_rpc_user,
         pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[nodeNames[i]].public_ip,
-        port: 20002,
+        port: networkConfig.variables.dashd_rpc_port,
       };
       const rpc = new RpcClient(config);
       const { result: { blocks, bestblockhash } } = await rpc.getBlockchainInfo();
@@ -65,13 +65,12 @@ describe('Masternodes', () => {
         user: networkConfig.variables.dashd_rpc_user,
         pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
-        port: 20002,
+        port: networkConfig.variables.dashd_rpc_port,
       };
       const rpc = new RpcClient(config);
       // masternode status
       it('should masternodes be enabled', async () => {
         const masternodelist = await rpc.masternodelist();
-        const masternodestatus = await rpc.masternode('status');
         const idNodes = Object.keys(masternodelist.result);
         const masterIps = [];
         for (let i = 0; i < idNodes.length; i++) {
@@ -96,7 +95,7 @@ describe('Masternodes', () => {
         pass: networkConfig.variables.dashd_rpc_password,
         host: networkConfig.inventory._meta.hostvars[
           networkConfig.inventory.masternodes.hosts[0]].public_ip,
-        port: 20002,
+        port: networkConfig.variables.dashd_rpc_port,
       };
       const rpc = new RpcClient(config);
       this.timeout(160000);

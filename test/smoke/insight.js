@@ -13,12 +13,6 @@ describe('Insight', () => {
           const { blocks } = await response.json();
           expect(blocks).to.have.lengthOf(1);
         });
-
-      it('should return master node list', async () => {
-        const response = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/masternodes/list`);
-        const body = await response.json();
-        expect(body).to.have.lengthOf(networkConfig.inventory.masternodes.hosts.length);
-      });
     });
   });
 });
