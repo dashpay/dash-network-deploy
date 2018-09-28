@@ -46,32 +46,6 @@ Please don't forget to include in your `.gitignore`:
 *.ovpn
 ```
 
-### Evolution configuration
-
-Several Ansible's arguments should be specified in `.env` file to deploy Evolution's services:
-
-```bash
-ANSIBLE_ARGUMENTS="-e evo_services=true \
-                   -e insight_image=<path-to-image> \
-                   -e drive_image=<path-to-image> \
-                   -e dapi_image=<path-to-image> \
-                   -e dashd_image=<path-to-image>"
-```
-
-For Docker images stored in AWS ECR, the argument `-e aws_ecr_login=true` is required.
-
-Also you need to upgrade MNs to ProTX when DIP3 is enabled
-(see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
-
-```bash
-docker run -ti --rm \
-           -v "$PWD:/networks" \
-           -v "$HOME/.aws:/root/.aws" \
-           -v "$HOME/.ssh/evo-app-deploy.rsa.pub:/root/.ssh/evo-app-deploy.rsa.pub" \
-           -v "$HOME/.ssh/evo-app-deploy.rsa:/root/.ssh/evo-app-deploy.rsa" \
-           dashpay/dash-network-deploy deploy -p --ansible-playbook=upgrade-to-protx <network_name>
-```
-
 ## Deployment
 
 To deploy Dash Network use `deploy` command with particular network name:
@@ -117,6 +91,37 @@ docker run -ti --rm \
 
 You may pass `--type` option to run particular type of tests (`smoke`, `e2e`).
 It possible to specify several types using comma delimiter.
+
+## Deploy Dash Evolution
+
+1. Configure `.env`:
+    ```bash
+    ANSIBLE_ARGS="-e evo_services=true \
+                  -e insight_image=<path-to-image> \
+                  -e drive_image=<path-to-image> \
+                  -e dapi_image=<path-to-image> \
+                  -e dashd_image=<path-to-image>"
+    ```
+
+    For Docker images stored in AWS ECR, the argument `-e aws_ecr_login=true` is required.
+    
+2. Upgrade your MNs to ProTX when DIP3 is enabled
+   (see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
+
+    ```bash
+    docker run -ti --rm \
+               -v "$PWD:/networks" \
+               -v "$HOME/.aws:/root/.aws" \
+               -v "$HOME/.ssh/evo-app-deploy.rsa.pub:/root/.ssh/evo-app-deploy.rsa.pub" \
+               -v "$HOME/.ssh/evo-app-deploy.rsa:/root/.ssh/evo-app-deploy.rsa" \
+               dashpay/dash-network-deploy deploy -p --ansible-playbook=upgrade-to-protx <network_name>
+    ```
+
+3. Enable spork on `dashd-wallet-2` node:
+
+    ```bash
+    dash-cli spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_heigth+10>
+    ```
 
 ## Connect to private Dash Network services
 
