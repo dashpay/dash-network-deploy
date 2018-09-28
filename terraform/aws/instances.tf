@@ -89,6 +89,7 @@ resource "aws_instance" "miner" {
 
   vpc_security_group_ids = [
     "${aws_security_group.default.id}",
+    "${aws_security_group.dashd_private.id}",
   ]
 
   subnet_id = "${aws_subnet.default.id}"
