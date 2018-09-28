@@ -89,7 +89,7 @@ describe('Masternodes', () => {
 
   describe('Miners', () => {
     // waitfornewblock
-    xit('should mine blocks', async function () {
+    it('should mine blocks', async function () {
       const config = {
         protocol: 'http',
         user: networkConfig.variables.dashd_rpc_user,
@@ -101,7 +101,7 @@ describe('Masternodes', () => {
       const rpc = new RpcClient(config);
       this.timeout(160000);
       const { result } = await rpc.getBlockCount();
-      const { result: { height } } = await rpc.waitForNewBlock(1);
+      const { result: { height } } = await rpc.waitForNewBlock();
       expect(result + 1).to.be.equal(height);
     });
   });
