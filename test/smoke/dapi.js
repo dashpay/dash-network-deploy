@@ -19,6 +19,7 @@ describe('DAPI', () => {
         port: networkConfig.variables.dashd_rpc_port,
       };
       const rpc = new RpcClient(config);
+
       // getBlockHash height:1
       it('should respond data from chain', async () => {
         const { result } = await dapiClient.request('getBlockHash', { height: 1 });

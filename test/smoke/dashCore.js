@@ -8,8 +8,7 @@ const networkConfig = getNetworkConfig();
 describe('All nodes', () => {
   let nodeNames = networkConfig.inventory.masternodes.hosts;
   nodeNames = nodeNames.concat(networkConfig.inventory['wallet-nodes'].hosts);
-  // TODO miner rpc call stuck. why?
-  nodeNames = nodeNames.concat(networkConfig.inventory["miners"].hosts);
+  nodeNames = nodeNames.concat(networkConfig.inventory.miners.hosts);
   nodeNames = nodeNames.concat(networkConfig.inventory['full-nodes'].hosts);
   nodeNames.forEach((nodeName) => {
     describe(nodeName, () => {
@@ -89,6 +88,7 @@ describe('Masternodes', () => {
   describe('Miners', () => {
     // waitfornewblock
     it('should mine blocks', async function () {
+      this.timeout(160000);
       const config = {
         protocol: 'http',
         user: networkConfig.variables.dashd_rpc_user,
@@ -98,9 +98,8 @@ describe('Masternodes', () => {
         port: networkConfig.variables.dashd_rpc_port,
       };
       const rpc = new RpcClient(config);
-      this.timeout(160000);
       const { result } = await rpc.getBlockCount();
-      const { result: { height } } = await rpc.waitForNewBlock();
+      const { result: { height } } = await rpc.waitForNewBlock(150000);
       expect(result + 1).to.be.equal(height);
     });
   });
