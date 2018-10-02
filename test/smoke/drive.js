@@ -1,8 +1,33 @@
+const { client: jaysonClient } = require('jayson/promise');
+
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const { variables } = getNetworkConfig();
+const { variables, inventory } = getNetworkConfig();
 
 describe('Drive', () => {
-  // getSyncStatus
-  it('should respond current sync status');
+  for (const hostName of inventory.masternodes.hosts) {
+    describe(hostName, () => {
+      let driveClient;
+
+      beforeEach(() => {
+        driveClient = jaysonClient.http({
+          // eslint-disable-next-line no-underscore-dangle
+          host: inventory._meta.hostvars[hostName].public_ip,
+          port: 6000,
+        });
+      });
+
+      // getSyncStatus
+      it('should respond current sync status', async function it() {
+        if (!variables.evo_services) {
+          this.skip('Evolution services are not enabled');
+          return;
+        }
+
+        const { result } = await driveClient.request('getSyncInfo');
+
+        expect(result).to.have.property('lastSyncedBlockHeight');
+      });
+    });
+  }
 });
