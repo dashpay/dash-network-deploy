@@ -27,7 +27,7 @@ case ${i} in
     ONLY_PROVISIONING=1
     ;;
     -a=*|--ansible-args=*)
-    ANSIBLE_ARGUMENTS="${i#*=}"
+    ansible_args_opts="${i#*=}"
     ;;
     --ansible-playbook=*)
     ansible_playbook="${i#*=}.yml"
@@ -45,6 +45,8 @@ done
 . ./lib/cli/init.sh
 . ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
+
+ANSIBLE_ARGS_COMBINED="$ANSIBLE_ARGS $ansible_args_opts"
 
 echo "Deploying $NETWORK_NAME network...";
 
