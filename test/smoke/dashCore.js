@@ -31,7 +31,7 @@ describe('DashCore', () => {
     }
 
     it('should propagate blocks', async function it() {
-      this.slow(18000);
+      this.slow(20000);
       this.timeout(25000);
 
       const blockHashes = {};
@@ -61,7 +61,7 @@ describe('DashCore', () => {
           coreClient = createRpcClientFromConfig(hostName);
         });
 
-        it('should masternodes be enabled', async function it () {
+        it('should be in masternodes list', async function it () {
           this.slow(2000);
 
           const { result: masternodes } = await coreClient.masternodelist();
