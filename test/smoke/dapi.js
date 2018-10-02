@@ -35,11 +35,11 @@ describe('DAPI', () => {
       });
 
       // fetchDapContract any dapiId and type
-      xit('should respond data from drive', async () => {
+      it('should respond data from drive', async () => {
         // TODO 'Initial sync in progress' error now
         const { result: { error: { code } } } = await dapiClient.request('fetchDapContract', { dapId: 'fakeDapId' });
-        // we expect code -32602( invalid dap id)
-        expect(code).to.be.equals(-32602);
+        // we expect code -32602( invalid dap id) or 100( initial sync in progress)
+        expect([-32602, 100]).to.be.containing(code);
       });
     });
   });
