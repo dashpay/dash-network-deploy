@@ -100,8 +100,8 @@ describe('Miners', () => {
         };
         const rpc = new RpcClient(config);
         const { result } = await rpc.getBlockCount();
-        const { result: { height } } = await rpc.waitForNewBlock(160000);
-        expect(result + 1).to.be.equal(height);
+        const { result: { height } } = await rpc.waitForNewBlock(150000);
+        expect(height).to.be.above(result, 'no new blocks');
       });
     });
   });
