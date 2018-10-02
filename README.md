@@ -94,17 +94,18 @@ It possible to specify several types using comma delimiter.
 
 ## Deploy Dash Evolution
 
-1. Configure `.env` and deploy network:
-    ```bash
-    ANSIBLE_ARGS="-e evo_services=true \
-                  -e insight_image=<path-to-image> \
-                  -e drive_image=<path-to-image> \
-                  -e dapi_image=<path-to-image> \
-                  -e dashd_image=<path-to-image>"
+1. Deploy your network with additional ansible variables:
+
+    ```yaml
+    evo_services: true
+    insight_image: "<docker-image>"
+    drive_image: "<docker-image>"
+    dapi_image: "<docker-image>"
+    dashd_image: "<docker-image>"
+    # uncomment if docker images stored in AWS ECR
+    # aws_ecr_login: true
     ```
 
-    For Docker images stored in AWS ECR, the argument `-e aws_ecr_login=true` is required.
-    
 2. Upgrade your MNs to ProTX when DIP3 is enabled
    (see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
 
