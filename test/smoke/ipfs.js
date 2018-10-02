@@ -1,18 +1,28 @@
-const ipfsAPI = require('ipfs-api');
+const IpfsAPI = require('ipfs-api');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const networkConfig = getNetworkConfig();
+const { variables, inventory } = getNetworkConfig();
 
 describe('IPFS', () => {
-  networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
-    describe(nodeName, () => {
-      // swarm peers
-      it(nodeName, async () => {
-        const ipfs = ipfsAPI(networkConfig.inventory._meta.hostvars[nodeName].public_ip, '5001', { protocol: 'http' });
-        const peers = await ipfs.swarm.peers();
-        expect(peers).to.have.lengthOf(networkConfig.inventory.masternodes.hosts.length - 1);
+  if (!variables.evo_services) {
+    this.skip('Evolution services are not enabled');
+  }
+
+  for (const hostName of inventory.masternodes.hosts) {
+    describe(hostName, () => {
+      let ipfsApi;
+
+      beforeEach(() => {
+        // eslint-disable-next-line no-underscore-dangle
+        ipfsApi = new IpfsAPI(inventory._meta.hostvars[hostName].public_ip, '5001', { protocol: 'http' });
+      });
+
+      it('should be interconnected', async () => {
+        const peers = await ipfsApi.swarm.peers();
+
+        expect(peers).to.have.lengthOf(inventory.masternodes.hosts.length - 1);
       });
     });
-  });
+  }
 });

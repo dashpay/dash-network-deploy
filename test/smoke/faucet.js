@@ -2,19 +2,23 @@ const fetch = require('node-fetch');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const networkConfig = getNetworkConfig();
+const { inventory } = getNetworkConfig();
 
 describe('Faucet', () => {
-  networkConfig.inventory.web.hosts.forEach((nodeName) => {
-    describe(nodeName, () => {
-      it('should respond positive balance',
-        async () => {
-          const response = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}/`);
-          const faucetBalance = await response.text();
-          const regex = 'Faucet balance: ([0-9,.]+)';
-          const result = faucetBalance.match(regex);
-          expect(parseFloat(result[1].replace(/,/g, ''))).to.be.an('number').above(0);
-        });
+  for (const hostName of inventory.web.hosts) {
+    describe(hostName, () => {
+      it('should respond positive balance', async () => {
+        // eslint-disable-next-line no-underscore-dangle
+        const response = await fetch(`http://${inventory._meta.hostvars[hostName].public_ip}/`);
+        const faucetBalance = await response.text();
+
+        const regex = 'Faucet balance: ([0-9,.]+)';
+        const [, balanceString] = faucetBalance.match(regex);
+
+        const balance = parseFloat(balanceString.replace(/,/g, ''));
+
+        expect(balance).to.be.an('number').above(0);
+      });
     });
-  });
+  }
 });

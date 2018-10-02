@@ -1,108 +1,102 @@
-const RpcClient = require('@dashevo/dashd-rpc/promise');
-
+const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const networkConfig = getNetworkConfig();
+const { inventory, network } = getNetworkConfig();
 
+const allHosts = inventory.masternodes.hosts.concat(
+  inventory['wallet-nodes'].hosts,
+  inventory.miners.hosts,
+  inventory['full-nodes'].hosts,
+);
 
-describe('All nodes', () => {
-  let nodeNames = networkConfig.inventory.masternodes.hosts;
-  nodeNames = nodeNames.concat(networkConfig.inventory['wallet-nodes'].hosts);
-  nodeNames = nodeNames.concat(networkConfig.inventory.miners.hosts);
-  nodeNames = nodeNames.concat(networkConfig.inventory['full-nodes'].hosts);
-  nodeNames.forEach((nodeName) => {
-    describe(nodeName, () => {
-      const config = {
-        protocol: 'http',
-        user: networkConfig.variables.dashd_rpc_user,
-        pass: networkConfig.variables.dashd_rpc_password,
-        host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
-        port: networkConfig.variables.dashd_rpc_port,
-      };
-      const rpc = new RpcClient(config);
+describe('DashCore', () => {
+  describe('All nodes', () => {
+    for (const hostName of allHosts) {
+      describe(hostName, () => {
+        let dashdClient;
 
-      it('should have correct network type', async () => {
-        const { result: { networkactive, subversion } } = await rpc.getNetworkInfo();
-        expect(networkactive).to.be.equal(true);
-        expect(subversion).to.have.string(`(${networkConfig.network.type}=${networkConfig.network.name})/`);
+        beforeEach(() => {
+          dashdClient = createRpcClientFromConfig(hostName);
+        });
+
+        it('should have correct network type', async () => {
+          const { result: { networkactive, subversion } } = await dashdClient.getNetworkInfo();
+
+          expect(networkactive).to.be.equal(true);
+          expect(subversion).to.have.string(`(${network.type}=${network.name})/`);
+        });
       });
-    });
-  });
-
-  // The number of blocks should be almost the same (-3/+3) and block hash of particular
-  // block height should be the same. Using `blocks`
-  // and `bestblockhash` from `GetBlockChainInfo`.
-  // Verify it on masternodes, wallet-nodes, full-nodes, miners
-  it('should have correct blockhash and blocks count', async () => {
-    const blockHashes = {};
-    for (let i = 0; i < nodeNames.length; i++) {
-      const config = {
-        protocol: 'http',
-        user: networkConfig.variables.dashd_rpc_user,
-        pass: networkConfig.variables.dashd_rpc_password,
-        host: networkConfig.inventory._meta.hostvars[nodeNames[i]].public_ip,
-        port: networkConfig.variables.dashd_rpc_port,
-      };
-      const rpc = new RpcClient(config);
-      const { result: { blocks, bestblockhash } } = await rpc.getBlockchainInfo();
-      if (!blockHashes[blocks]) {
-        blockHashes[blocks] = bestblockhash;
-      }
-      expect(blockHashes[blocks]).to.be.equal(bestblockhash);
     }
-    const blocksCounts = Object.keys(blockHashes);
-    expect(Math.max(...blocksCounts)
-      - Math.min(...blocksCounts)).to.be.below(3);
-  });
-});
 
-describe('Masternodes', () => {
-  networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
-    describe(nodeName, () => {
-      const config = {
-        protocol: 'http',
-        user: networkConfig.variables.dashd_rpc_user,
-        pass: networkConfig.variables.dashd_rpc_password,
-        host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
-        port: networkConfig.variables.dashd_rpc_port,
-      };
-      const rpc = new RpcClient(config);
-      // masternode status
-      it('should masternodes be enabled', async () => {
-        const masternodelist = await rpc.masternodelist();
-        const idNodes = Object.keys(masternodelist.result);
-        const masterIps = [];
-        for (let i = 0; i < idNodes.length; i++) {
-          masterIps.push(masternodelist.result[idNodes[i]].address.split(':')[0]);
-          expect(masternodelist.result[idNodes[i]].status).to.be.equal('ENABLED');
+    it('should propagate blocks', async function it() {
+      this.timeout(20000);
+
+      const blockHashes = {};
+
+      for (const hostName of allHosts) {
+        const dashdClient = createRpcClientFromConfig(hostName);
+        const { result: { blocks, bestblockhash } } = await dashdClient.getBlockchainInfo();
+
+        if (!blockHashes[blocks]) {
+          blockHashes[blocks] = bestblockhash;
         }
-        const masterIpsInv = [];
-        for (const nName of networkConfig.inventory.masternodes.hosts) {
-          masterIpsInv.push(networkConfig.inventory._meta.hostvars[nName].public_ip);
-        }
-        expect(masterIps.sort()).to.deep.equal(masterIpsInv.sort());
-      });
+
+        expect(blockHashes[blocks]).to.be.equal(bestblockhash);
+      }
+
+      const blocksCounts = Object.keys(blockHashes);
+      expect(Math.max(...blocksCounts) - Math.min(...blocksCounts)).to.be.below(3);
     });
   });
-});
-describe('Miners', () => {
-  networkConfig.inventory.miners.hosts.forEach((nodeName) => {
-    describe(nodeName, () => {
-      // waitfornewblock
-      it('should mine blocks', async function () {
-        this.timeout(160000);
-        const config = {
-          protocol: 'http',
-          user: networkConfig.variables.dashd_rpc_user,
-          pass: networkConfig.variables.dashd_rpc_password,
-          host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
-          port: networkConfig.variables.dashd_rpc_port,
-        };
-        const rpc = new RpcClient(config);
-        const { result } = await rpc.getBlockCount();
-        const { result: { height } } = await rpc.waitForNewBlock(150000);
-        expect(height).to.be.above(result, 'no new blocks');
+
+  describe('Masternodes', () => {
+    for (const hostName of inventory.masternodes.hosts) {
+      describe(hostName, () => {
+        let coreClient;
+
+        beforeEach(() => {
+          coreClient = createRpcClientFromConfig(hostName);
+        });
+
+        it('should masternodes be enabled', async () => {
+          const { result: masternodes } = await coreClient.masternodelist();
+
+          const nodeIps = Object.values(masternodes).map((node) => {
+            expect(node.status).to.be.equal('ENABLED');
+            return node.address.split(':')[0];
+          });
+
+          // eslint-disable-next-line arrow-body-style
+          const nodeIdsFromInventory = inventory.masternodes.hosts.map((host) => {
+            // eslint-disable-next-line no-underscore-dangle
+            return inventory._meta.hostvars[host].public_ip;
+          });
+
+          expect(nodeIps.sort()).to.deep.equal(nodeIdsFromInventory.sort());
+        });
       });
-    });
+    }
+  });
+
+  describe('Miners', () => {
+    if (network.type === 'mainnet') {
+      this.skip('Miners are disabled for mainnet');
+    }
+
+    for (const hostName of inventory.miners.hosts) {
+      describe(hostName, () => {
+        it('should mine blocks', async function it() {
+          this.timeout(160000);
+
+          const coreClient = createRpcClientFromConfig(hostName);
+
+          const { result: previousHeight } = await coreClient.getBlockCount();
+
+          const { result: { height } } = await coreClient.waitForNewBlock(150000);
+
+          expect(height).to.be.above(previousHeight, 'no new blocks');
+        });
+      });
+    }
   });
 });

@@ -1,18 +1,23 @@
-const getNetworkConfig = require('../../lib/test/getNetworkConfig');
-
-const networkConfig = getNetworkConfig();
-
 const fetch = require('node-fetch');
 
+const getNetworkConfig = require('../../lib/test/getNetworkConfig');
+
+const { inventory } = getNetworkConfig();
+
 describe('Insight', () => {
-  networkConfig.inventory.masternodes.hosts.forEach((nodeName) => {
-    describe(nodeName, () => {
+  for (const hostName of inventory.masternodes.hosts) {
+    describe(hostName, () => {
       it('should return block',
         async () => {
-          const response = await fetch(`http://${networkConfig.inventory._meta.hostvars[nodeName].public_ip}:3001/insight-api-dash/blocks?limit=1`);
+          // eslint-disable-next-line no-underscore-dangle
+          const url = `http://${inventory._meta.hostvars[hostName].public_ip}:3001`
+                    + '/insight-api-dash/blocks?limit=1';
+
+          const response = await fetch(url);
           const { blocks } = await response.json();
+
           expect(blocks).to.have.lengthOf(1);
         });
     });
-  });
+  }
 });
