@@ -79,13 +79,14 @@ describe('DashCore', () => {
   });
 
   describe('Miners', () => {
-    if (network.type === 'mainnet') {
-      this.skip('Miners are disabled for mainnet');
-    }
-
     for (const hostName of inventory.miners.hosts) {
       describe(hostName, () => {
         it('should mine blocks', async function it() {
+          if (network.type === 'mainnet') {
+            this.skip('Miners are disabled for mainnet');
+            return;
+          }
+
           this.timeout(160000);
 
           const coreClient = createRpcClientFromConfig(hostName);
