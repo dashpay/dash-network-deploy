@@ -94,7 +94,7 @@ It possible to specify several types using comma delimiter.
 
 ## Deploy Dash Evolution
 
-1. Configure `.env`:
+1. Configure `.env` and deploy network:
     ```bash
     ANSIBLE_ARGS="-e evo_services=true \
                   -e insight_image=<path-to-image> \
