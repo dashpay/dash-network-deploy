@@ -1,4 +1,5 @@
 const { client: jaysonClient } = require('jayson/promise');
+
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 
@@ -26,10 +27,10 @@ describe('DAPI', () => {
           return;
         }
 
-        const { result } = await dapiClient.request('getBlockHash', { height: 1 });
-        const blockHashRpc = await coreClient.getBlockHash(1);
+        const { result: blockHashFromDapi } = await dapiClient.request('getBlockHash', { height: 1 });
+        const { result: blockHashFromCore } = await coreClient.getBlockHash(1);
 
-        expect(result).to.be.equal(blockHashRpc.result);
+        expect(blockHashFromDapi).to.be.equal(blockHashFromCore);
       });
 
       it('should respond data from insight', async function it() {
