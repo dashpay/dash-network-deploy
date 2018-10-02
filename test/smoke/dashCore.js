@@ -84,23 +84,25 @@ describe('Masternodes', () => {
       });
     });
   });
-
-  describe('Miners', () => {
-    // waitfornewblock
-    it('should mine blocks', async function () {
-      this.timeout(160000);
-      const config = {
-        protocol: 'http',
-        user: networkConfig.variables.dashd_rpc_user,
-        pass: networkConfig.variables.dashd_rpc_password,
-        host: networkConfig.inventory._meta.hostvars[
-          networkConfig.inventory.masternodes.hosts[0]].public_ip,
-        port: networkConfig.variables.dashd_rpc_port,
-      };
-      const rpc = new RpcClient(config);
-      const { result } = await rpc.getBlockCount();
-      const { result: { height } } = await rpc.waitForNewBlock(150000);
-      expect(result + 1).to.be.equal(height);
+});
+describe('Miners', () => {
+  networkConfig.inventory.miners.hosts.forEach((nodeName) => {
+    describe(nodeName, () => {
+      // waitfornewblock
+      it('should mine blocks', async function () {
+        this.timeout(160000);
+        const config = {
+          protocol: 'http',
+          user: networkConfig.variables.dashd_rpc_user,
+          pass: networkConfig.variables.dashd_rpc_password,
+          host: networkConfig.inventory._meta.hostvars[nodeName].public_ip,
+          port: networkConfig.variables.dashd_rpc_port,
+        };
+        const rpc = new RpcClient(config);
+        const { result } = await rpc.getBlockCount();
+        const { result: { height } } = await rpc.waitForNewBlock(160000);
+        expect(result + 1).to.be.equal(height);
+      });
     });
   });
 });
