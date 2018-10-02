@@ -27,6 +27,8 @@ describe('DAPI', () => {
           return;
         }
 
+        this.slow(3000);
+
         const { result: blockHashFromDapi } = await dapiClient.request('getBlockHash', { height: 1 });
         const { result: blockHashFromCore } = await coreClient.getBlockHash(1);
 
@@ -39,6 +41,8 @@ describe('DAPI', () => {
           return;
         }
 
+        this.slow(1500);
+
         const { result } = await dapiClient.request('getBestBlockHeight', { blockHeight: 1 });
 
         expect(result).to.be.an('number');
@@ -50,6 +54,8 @@ describe('DAPI', () => {
           this.skip('Evolution services are not enabled');
           return;
         }
+
+        this.slow(3000);
 
         const { result: { error: { code } } } = await dapiClient.request('fetchDapContract', { dapId: 'fakeDapId' });
 
