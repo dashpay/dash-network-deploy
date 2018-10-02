@@ -6,7 +6,9 @@ const { inventory } = getNetworkConfig();
 describe('Sentinel', () => {
   for (const hostName of inventory.masternodes.hosts) {
     describe(hostName, () => {
-      it('should be running without errors', async () => {
+      it('should be running without errors', async function it() {
+        this.slow(2000);
+
         const docker = new Docker({
           // eslint-disable-next-line no-underscore-dangle
           host: `http://${inventory._meta.hostvars[hostName].public_ip}`,

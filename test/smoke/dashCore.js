@@ -19,7 +19,9 @@ describe('DashCore', () => {
           dashdClient = createRpcClientFromConfig(hostName);
         });
 
-        it('should have correct network type', async () => {
+        it('should have correct network type', async function it() {
+          this.slow(2000);
+
           const { result: { networkactive, subversion } } = await dashdClient.getNetworkInfo();
 
           expect(networkactive).to.be.equal(true);
@@ -29,7 +31,8 @@ describe('DashCore', () => {
     }
 
     it('should propagate blocks', async function it() {
-      this.timeout(20000);
+      this.slow(18000);
+      this.timeout(25000);
 
       const blockHashes = {};
 
@@ -58,7 +61,9 @@ describe('DashCore', () => {
           coreClient = createRpcClientFromConfig(hostName);
         });
 
-        it('should masternodes be enabled', async () => {
+        it('should masternodes be enabled', async function it () {
+          this.slow(2000);
+
           const { result: masternodes } = await coreClient.masternodelist();
 
           const nodeIps = Object.values(masternodes).map((node) => {
@@ -88,6 +93,7 @@ describe('DashCore', () => {
           }
 
           this.timeout(160000);
+          this.slow(160000);
 
           const coreClient = createRpcClientFromConfig(hostName);
 

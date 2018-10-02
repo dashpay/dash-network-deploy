@@ -20,6 +20,8 @@ describe('IPFS', () => {
           return;
         }
 
+        this.slow(1500);
+
         const peers = await ipfsApi.swarm.peers();
 
         expect(peers).to.have.lengthOf(inventory.masternodes.hosts.length - 1);
