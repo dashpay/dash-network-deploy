@@ -29,7 +29,7 @@ describe('IPFS', () => {
 
       const peers = await ipfsApi.swarm.peers();
 
-      expect(peers.length).to.be.above(1, 'node is not connected');
+      expect(peers.length).to.be.above(1, `IPFS node ${masterNodeHost} is not connected`);
 
       for (const peer of peers) {
         const { address } = multiaddr(peer.addr).nodeAddress();
