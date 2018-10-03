@@ -61,7 +61,7 @@ describe('DashCore', () => {
           coreClient = createRpcClientFromConfig(hostName);
         });
 
-        it('should be in masternodes list', async function it () {
+        it('should be in masternodes list', async function it() {
           this.slow(2000);
 
           const { result: masternodes } = await coreClient.masternodelist();
