@@ -78,7 +78,7 @@ function test_run_mocha() {
     # Select tests
 
     if [ -z ${TEST_TYPES} ]; then
-        TEST_TYPES="smoke,e2e"
+        TEST_TYPES="smoke"
     fi
 
     local test_types_string=""

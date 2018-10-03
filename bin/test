@@ -10,8 +10,11 @@ Usage: test [options] <network_name>
 
 Options:
   -m=<args>  --mocha-args=<args> - Mocha arguments
-  -t=<types> --types=<types>     - Test types: smoke, e2e. You may specify several using comma delimiter
   -h         --help              - Show help"
+
+# Only smoke tests available at the moment.
+#
+#  -t=<types> --types=<types>     - Test types: smoke. You may specify several using comma delimiter
 
 for i in "$@"
 do
