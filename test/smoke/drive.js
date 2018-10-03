@@ -17,16 +17,17 @@ describe('Drive', () => {
         });
       });
 
-      // getSyncStatus
       it('should respond current sync status', async function it() {
         if (!variables.evo_services) {
           this.skip('Evolution services are not enabled');
           return;
         }
 
-        const { result } = await driveClient.request('getSyncInfo');
+        this.slow(1000);
 
-        expect(result).to.have.property('lastSyncedBlockHeight');
+        const { result: info } = await driveClient.request('getSyncInfo', {});
+
+        expect(info).to.have.property('lastSyncedBlockHeight');
       });
     });
   }
