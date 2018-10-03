@@ -19,7 +19,7 @@ function ansible_run_playbook() {
                      -e "dash_network_name=$NETWORK_NAME" \
                      -e "dash_network=$NETWORK" \
                      -e "dash_devnet_name=$NETWORK_DEVNET_NAME" \
-                     "$ANSIBLE_ARGS_COMBINED" \
+                     ${ANSIBLE_ARGS} \
                      "$1"
 
     cd ..
