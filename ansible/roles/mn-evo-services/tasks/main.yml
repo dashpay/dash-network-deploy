@@ -14,9 +14,6 @@
 - import_tasks: ipfs/main.yml
 
 - name: start masternodes evolution services
-  environment:
-    SWARM_KEY: '{{ ipfs_swarm_key }}'
-    SWARM_PEER: '{{ ipfs_swarm_peer }}'
   docker_service:
     project_src: '{{ mn_evo_services_path }}'
     state: present
