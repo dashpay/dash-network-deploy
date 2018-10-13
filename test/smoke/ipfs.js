@@ -18,13 +18,19 @@ describe('IPFS', () => {
     this.timeout(masterNodeHostNames.length * 2500);
 
     // eslint-disable-next-line arrow-body-style
-    const masterNodeHosts = masterNodeHostNames.map((hostName) => {
+    const masterNodePublicHosts = masterNodeHostNames.map((hostName) => {
       // eslint-disable-next-line no-underscore-dangle
       return inventory._meta.hostvars[hostName].public_ip;
     });
 
+    // eslint-disable-next-line arrow-body-style
+    const masterNodePrivateHosts = masterNodeHostNames.map((hostName) => {
+      // eslint-disable-next-line no-underscore-dangle
+      return inventory._meta.hostvars[hostName].private_ip;
+    });
+
     const allPeers = new Set();
-    for (const masterNodeHost of masterNodeHosts) {
+    for (const masterNodeHost of masterNodePublicHosts) {
       const ipfsApi = new IpfsAPI(masterNodeHost, '5001', { protocol: 'http' });
 
       const peers = await ipfsApi.swarm.peers();
@@ -37,6 +43,6 @@ describe('IPFS', () => {
       }
     }
 
-    expect(Array.from(allPeers).sort()).to.deep.equal(masterNodeHosts.sort());
+    expect(Array.from(allPeers).sort()).to.deep.equal(masterNodePrivateHosts.sort());
   });
 });

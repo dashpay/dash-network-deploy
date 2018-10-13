@@ -43,8 +43,8 @@ services:
     command: daemon --enable-gc --migrate --enable-pubsub-experiment
     environment:
       LIBP2P_FORCE_PNET: 1
-      SWARM_KEY: ${SWARM_KEY}
-      SWARM_PEER: ${SWARM_PEER}
+      SWARM_KEY: "{{ ipfs_swarm_key | default('${SWARM_KEY}') | replace('\n', '\\n') }}"
+      SWARM_PEER: "{{ ipfs_swarm_peer | default('${SWARM_PEER}') }}"
     ports:
       - 4001:4001
       - 5001:5001
