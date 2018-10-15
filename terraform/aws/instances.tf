@@ -125,6 +125,10 @@ resource "aws_instance" "masternode" {
     cpu_credits = "unlimited"
   }
 
+  root_block_device {
+    volume_size = "14"
+  }
+
   tags = {
     Name        = "dn-${terraform.workspace}-masternode-${count.index + 1}"
     Hostname    = "masternode-${count.index + 1}"

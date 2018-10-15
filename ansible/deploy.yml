@@ -137,3 +137,9 @@
     - mn-pay-faucet
     - {role: mn-conf, tags: mn-conf}
     - mn-start
+
+- hosts: all
+  become: true
+  tasks:
+    - name: prune unused docker images
+      shell: docker image prune -f
