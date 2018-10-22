@@ -32,7 +32,6 @@ describe('Drive', () => {
         for (let i = 0; i <= attempts; i++) {
           const { result: info } = await driveClient.request('getSyncInfo', {});
           if (info.status === 'synced') {
-            expect(info).to.have.property('lastSyncedBlockHeight');
             return;
           }
           await wait(timeout);
