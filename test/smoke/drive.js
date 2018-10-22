@@ -20,10 +20,10 @@ describe('Drive', () => {
       });
 
       it('should respond current sync status', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
-          return;
-        }
+        // if (!variables.evo_services) {
+        //   this.skip('Evolution services are not enabled');
+        //   return;
+        // }
 
         const timeout = 1000;
         const attempts = 90;
@@ -32,6 +32,10 @@ describe('Drive', () => {
         for (let i = 0; i <= attempts; i++) {
           const { result: info } = await driveClient.request('getSyncInfo', {});
           if (info.status === 'synced') {
+            const { _, error } = await driveClient.request('getSyncInfo', {});
+            if (error) {
+              expect.fail(error.message);
+            }
             return;
           }
           await wait(timeout);
