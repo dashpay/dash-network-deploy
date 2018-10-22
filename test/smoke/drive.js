@@ -4,7 +4,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
-const wait = require('..//wait');
+const wait = require('../wait');
 
 describe('Drive', () => {
   for (const hostName of inventory.masternodes.hosts) {
