@@ -4,6 +4,8 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
+const wait = require('..//wait');
+
 describe('Drive', () => {
   for (const hostName of inventory.masternodes.hosts) {
     describe(hostName, () => {
@@ -23,11 +25,19 @@ describe('Drive', () => {
           return;
         }
 
-        this.slow(1000);
+        this.timeout(100000);
+        this.slow(100000);
 
-        const { result: info } = await driveClient.request('getSyncInfo', {});
-
-        expect(info).to.have.property('lastSyncedBlockHeight');
+        const time = Date.now() + 90000;
+        while (time > Date.now()) {
+          const { result: info } = await driveClient.request('getSyncInfo', {});
+          if (info.status === 'synced') {
+            expect(info).to.have.property('lastSyncedBlockHeight');
+            return;
+          }
+          await wait(1000);
+        }
+        expect.fail('drive not synced');
       });
     });
   }
