@@ -25,17 +25,17 @@ describe('Drive', () => {
           return;
         }
 
-        this.timeout(100000);
-        this.slow(100000);
-
-        const time = Date.now() + 90000;
-        while (time > Date.now()) {
+        const timeout = 1000;
+        const attempts = 90;
+        this.timeout((attempts + 10) * timeout);
+        this.slow((attempts + 10) * timeout);
+        for (let i = 0; i <= attempts; i++) {
           const { result: info } = await driveClient.request('getSyncInfo', {});
           if (info.status === 'synced') {
             expect(info).to.have.property('lastSyncedBlockHeight');
             return;
           }
-          await wait(1000);
+          await wait(timeout);
         }
         expect.fail('drive not synced');
       });
