@@ -99,6 +99,14 @@ resource "aws_elb" "web" {
     lb_protocol       = "http"
   }
 
+  health_check {
+    healthy_threshold   = 2
+    interval            = 20
+    target              = "HTTP:80/"
+    timeout             = 3
+    unhealthy_threshold = 2
+  }
+
   tags = {
     Name        = "dn-${terraform.workspace}-web"
     DashNetwork = "${terraform.workspace}"
