@@ -54,8 +54,8 @@ To deploy Dash Network use `deploy` command with particular network name:
 docker run -ti --rm \
            -v "$PWD:/networks" \
            -v "$HOME/.aws:/root/.aws" \
-           -v "$HOME/.ssh/evo-app-deploy.rsa.pub:/root/.ssh/evo-app-deploy.rsa.pub" \
-           -v "$HOME/.ssh/evo-app-deploy.rsa:/root/.ssh/evo-app-deploy.rsa" \
+           -v "<your-public-key-path>:<your-public-key-path>" \
+           -v "<your-private-key-path>:<your-private-key-path>" \
            dashpay/dash-network-deploy deploy <network_name>
 ```
 
@@ -67,8 +67,8 @@ To destroy available Dash Network use `destroy` command:
 docker run -ti --rm \
            -v "$PWD:/networks" \
            -v "$HOME/.aws:/root/.aws" \
-           -v "$HOME/.ssh/evo-app-deploy.rsa.pub:/root/.ssh/evo-app-deploy.rsa.pub" \
-           -v "$HOME/.ssh/evo-app-deploy.rsa:/root/.ssh/evo-app-deploy.rsa" \
+           -v "<your-public-key-path>:<your-public-key-path>" \
+           -v "<your-private-key-path>:<your-private-key-path>" \
            dashpay/dash-network-deploy destroy <network_name>
 ```
 
@@ -84,8 +84,8 @@ docker run -ti --rm \
            --cap-add=NET_ADMIN \
            -v "$PWD:/networks" \
            -v "$HOME/.aws:/root/.aws" \
-           -v "$HOME/.ssh/evo-app-deploy.rsa.pub:/root/.ssh/evo-app-deploy.rsa.pub" \
-           -v "$HOME/.ssh/evo-app-deploy.rsa:/root/.ssh/evo-app-deploy.rsa" \
+           -v "<your-public-key-path>:<your-public-key-path>" \
+           -v "<your-private-key-path>:<your-private-key-path>" \
            dashpay/dash-network-deploy test <network_name>
 ```
 
@@ -113,15 +113,40 @@ It possible to specify several types using comma delimiter.
     docker run -ti --rm \
                -v "$PWD:/networks" \
                -v "$HOME/.aws:/root/.aws" \
-               -v "$HOME/.ssh/evo-app-deploy.rsa.pub:/root/.ssh/evo-app-deploy.rsa.pub" \
-               -v "$HOME/.ssh/evo-app-deploy.rsa:/root/.ssh/evo-app-deploy.rsa" \
+               -v "<your-public-key-path>:<your-public-key-path>" \
+               -v "<your-private-key-path>:<your-private-key-path>" \
                dashpay/dash-network-deploy deploy -p --ansible-playbook=upgrade-to-protx <network_name>
     ```
-
-3. Enable spork on `dashd-wallet-2` node:
+    
+4. Get current block height:
 
     ```bash
-    dash-cli spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_heigth+10>
+    docker run -ti --rm \
+               -v "$PWD:/networks" \
+               -v "$HOME/.aws:/root/.aws" \
+               -v "<your-public-key-path>:<your-public-key-path>" \
+               -v "<your-private-key-path>:<your-private-key-path>" \
+               -w "/usr/src/app/ansible" \
+               dashpay/dash-network-deploy ansible dashd-wallet-2 \
+               -i ../networks/<network_name>.inventory \
+               -private-key=<your-private-key-path> \
+               -b -m command -a "dash-cli getblockcount"
+    ```
+
+
+3. Enable Masternode List after ten new blocks:
+
+    ```bash
+    docker run -ti --rm \
+                   -v "$PWD:/networks" \
+                   -v "$HOME/.aws:/root/.aws" \
+                   -v "<your-public-key-path>:<your-public-key-path>" \
+                   -v "<your-private-key-path>:<your-private-key-path>" \
+                   -w "/usr/src/app/ansible" \
+                   dashpay/dash-network-deploy ansible dashd-wallet-2 \
+                   -i ../networks/<network_name>.inventory \
+                   -private-key=<your-private-key-path> \
+                   -b -m command -a "dash-cli spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_height+10>"
     ```
 
 ## Connect to private Dash Network services
