@@ -143,3 +143,4 @@
   tasks:
     - name: prune unused docker images
       shell: docker image prune -f
+      tags: always

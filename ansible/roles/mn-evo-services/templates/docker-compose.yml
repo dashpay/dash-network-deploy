@@ -13,6 +13,8 @@ services:
     - DASHCORE_ZMQ_PUB_HASHBLOCK=tcp://{{ private_ip }}:{{ dashd_zmq_port }}
     - STORAGE_MONGODB_URL=mongodb://drive_mongodb:27017
     - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
+    - STORAGE_IPFS_TIMEOUT=10
+    - SYNC_STATE_TRANSITION_SKIP_WITH_ERRORS=true
     depends_on:
     - ipfs
     - drive_mongodb
