@@ -31,8 +31,8 @@ describe('DashCore', () => {
     }
 
     it('should propagate blocks', async function it() {
-      this.slow(20000);
-      this.timeout(25000);
+      this.slow(allHosts * 2000);
+      this.timeout(allHosts * 3000);
 
       const blockHashes = {};
 
