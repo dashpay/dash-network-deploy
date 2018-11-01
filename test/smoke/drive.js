@@ -27,19 +27,25 @@ describe('Drive', () => {
 
         const timeout = 1000;
         const attempts = 90;
+ 
         this.timeout((attempts + 10) * timeout);
         this.slow((attempts + 10) * timeout);
+
         for (let i = 0; i <= attempts; i++) {
           const { result: info, error } = await driveClient.request('getSyncInfo', {});
-          if (info.status === 'synced') {
-            if (error) {
+
+          if (error) {
               expect.fail(error.message);
-            }
+          }
+
+          if (info.status === 'synced') {
             return;
           }
+
           await wait(timeout);
         }
-        expect.fail('drive not synced');
+
+        expect.fail('drive is not synced');
       });
     });
   }
