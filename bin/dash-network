@@ -5,55 +5,25 @@ set -ea
 # Load configuration
 
 if [[ ! -f ".env" ]]; then
-    dotenv_example=$(<examples/.env.example)
-
     echo "Configuration .env file not found
 
 Please create and configure '.env' file.
 
-Example:
+Example: https://github.com/dashpay/dash-network-deploy/blob/master/examples/.env.example"
 
-# Terraform remote backend configuration https://www.terraform.io/docs/backends/types/s3.html
-TERRAFORM_S3_BUCKET=\"\"
-TERRAFORM_S3_KEY=\"\"\"
-TERRAFORM_DYNAMODB_TABLE=\"\"
-
-# Private and public key for SSH access to an infrastructure
-PRIVATE_KEY_PATH=\"\"
-PUBLIC_KEY_PATH=\"\"
-
-# AWS credentials are using by Terraform for creating
-# infrastructure and by Ansible for fetching images from AWS ECR.
-#
-# You should specify credentials for the both
-# Ansible and Terraform or specify particular
-# configuration using using \`TERRAFORM_\` and \`ANSIBLE_\` prefixes
-
-# AWS_PROFILE=\"\" # You can use AWS_PROFILE instead of AWS credentials
-AWS_ACCESS_KEY_ID=\"\"
-AWS_SECRET_ACCESS_KEY=\"\"
-AWS_REGION=\"\"
-
-# TERRAFORM_AWS_PROFILE=\"\"
-# TERRAFORM_AWS_ACCESS_KEY_ID=\"\"
-# TERRAFORM_AWS_SECRET_ACCESS_KEY=\"\"
-# TERRAFORM_AWS_REGION=\"\"
-
-# ANSIBLE_AWS_PROFILE=\"\"
-# ANSIBLE_AWS_ACCESS_KEY_ID=\"\"
-# ANSIBLE_AWS_SECRET_ACCESS_KEY=\"\"
-# ANSIBLE_AWS_REGION=\"\"
-"
-exit 1;
-
+    exit 1;
 else
     source ".env"
 fi
+
+# Check Docker
 
 if ! [[ -x "$(command -v docker)" ]]; then
   echo "Docker is not installed."
   exit 1
 fi
+
+# Run container with specified command
 
 docker run -ti --rm \
            --device /dev/net/tun \
