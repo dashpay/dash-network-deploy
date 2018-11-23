@@ -24,3 +24,24 @@ function ansible_run_playbook() {
 
     cd ..
 }
+
+function ansible_download_vpn_config() {
+
+    if [ ! -f "$VPN_CONFIG_PATH" ]; then
+        echo "OpenVPN config '$VPN_CONFIG_PATH' not found. Trying to retrieve..."
+
+        override_aws_credentials "ANSIBLE" "TERRAFORM"
+
+        cd ansible
+
+        ansible vpn --private-key="$PRIVATE_KEY_PATH" \
+                    -b \
+                    -i "../$INVENTORY_FILE" \
+                    -m "fetch" \
+                    -a "src=/etc/openvpn/$NETWORK_NAME-vpn.ovpn dest=../networks/$NETWORK_NAME.ovpn flat=true"
+
+        cd ..
+
+        echo "OpenVPN config fetched successfully."
+    fi
+}

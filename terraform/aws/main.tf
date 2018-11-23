@@ -93,9 +93,9 @@ resource "aws_elb" "web" {
   }
 
   listener {
-    instance_port     = 3001
+    instance_port     = "${var.insight_port}"
     instance_protocol = "http"
-    lb_port           = 3001
+    lb_port           = "${var.insight_port}"
     lb_protocol       = "http"
   }
 

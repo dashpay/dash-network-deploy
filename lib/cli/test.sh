@@ -14,7 +14,7 @@ Please read README.md how to configure tests"
 Please read README.md how to configure networks"
     fi
 
-    test_ensure_inventory
+    terraform_output_inventory
 
     echo "Starting OpenVPN with sudo privileges..."
 
@@ -26,25 +26,7 @@ Please read README.md how to configure networks"
 }
 
 function test_start_openvpn() {
-    local vpn_config="networks/$NETWORK_NAME.ovpn"
-
-    if [ ! -f "$vpn_config" ]; then
-        echo "OpenVPN config '$vpn_config' not found. Trying to retrieve..."
-
-        override_aws_credentials "ANSIBLE" "TERRAFORM"
-
-        cd ansible
-
-        ansible vpn --private-key="$PRIVATE_KEY_PATH" \
-                    -b \
-                    -i "../$INVENTORY_FILE" \
-                    -m "fetch" \
-                    -a "src=/etc/openvpn/$NETWORK_NAME-vpn.ovpn dest=../networks/$NETWORK_NAME.ovpn flat=true"
-
-        cd ..
-
-        echo "OpenVPN config fetched successfully."
-    fi
+    ansible_download_vpn_config
 
     OPENVPN_MANAGMENT_HOST="127.0.0.1"
     OPENVPN_MANAGMENT_PORT=1337
@@ -57,7 +39,7 @@ function test_start_openvpn() {
     set +e
 
     ${sudo_command} openvpn --daemon \
-                            --config "$vpn_config" \
+                            --config "$VPN_CONFIG_PATH" \
                             --management ${OPENVPN_MANAGMENT_HOST} ${OPENVPN_MANAGMENT_PORT}
 
     local exit_code="$?"
@@ -90,22 +72,4 @@ function test_run_mocha() {
     # Run mocha tests
 
     node_modules/.bin/_mocha ${MOCHA_ARGUMENTS} ${test_types_string}
-}
-
-function test_ensure_inventory() {
-    if [ ! -f "$INVENTORY_FILE" ]; then
-        echo "Ansible inventory '$INVENTORY_FILE' file not found. Trying to retrieve..."
-
-        cd terraform/aws
-
-        terraform_init
-
-        terraform workspace select "$NETWORK_NAME"
-
-        terraform output ansible_inventory > ../../${INVENTORY_FILE}
-
-        echo "Ansible inventory file successfully created."
-
-        cd ../../
-    fi
 }

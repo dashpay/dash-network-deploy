@@ -74,6 +74,12 @@ docker run -ti --rm \
 
 You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
 
+## List network services
+
+```bash
+dash-network list <network_name>
+```
+
 ## Testing
 
 To test network run `test` command with with particular network name:

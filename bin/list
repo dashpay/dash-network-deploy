@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/cli/utils.sh
+
+CMD_USAGE="List Dash Network services
+
+Usage: list <network_name>"
+
+for i in "$@"
+do
+case ${i} in
+    -h|--help)
+        echo "$CMD_USAGE"
+        exit 0
+    ;;
+    *)
+    NETWORK_NAME="${i#*=}"
+    ;;
+esac
+done
+
+. ./lib/cli/init.sh
+. ./lib/cli/ansible.sh
+. ./lib/cli/terraform.sh
+. ./lib/cli/services.sh
+
+echo "Collecting info for $NETWORK_NAME network...";
+
+services_list
