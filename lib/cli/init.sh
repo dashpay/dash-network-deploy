@@ -17,6 +17,7 @@ fi
 INVENTORY_FILE="networks/$NETWORK_NAME.inventory"
 ANSIBLE_CONFIG_PATH="networks/$NETWORK_NAME.yml"
 TERRAFORM_CONFIG_PATH="networks/$NETWORK_NAME.tfvars"
+VPN_CONFIG_PATH="networks/$NETWORK_NAME.ovpn"
 
 # Load configuration
 

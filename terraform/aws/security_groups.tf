@@ -17,8 +17,8 @@ resource "aws_security_group" "default" {
 
   # Docker API
   ingress {
-    from_port   = 2375
-    to_port     = 2375
+    from_port   = "${var.docker_port}"
+    to_port     = "${var.docker_port}"
     protocol    = "tcp"
     description = "Docker API"
 
@@ -164,8 +164,8 @@ resource "aws_security_group" "http" {
   }
 
   ingress {
-    from_port   = 3001
-    to_port     = 3001
+    from_port   = "${var.insight_port}"
+    to_port     = "${var.insight_port}"
     protocol    = "tcp"
     description = "Insight Explorer"
 
@@ -275,8 +275,8 @@ resource "aws_security_group" "elb" {
 
   # Insight Explorer
   ingress {
-    from_port   = 3001
-    to_port     = 3001
+    from_port   = "${var.insight_port}"
+    to_port     = "${var.insight_port}"
     protocol    = "tcp"
     description = "Insight Explorer"
 
@@ -323,8 +323,8 @@ resource "aws_security_group" "vpn" {
 
   # VPN Client
   ingress {
-    from_port   = 1194
-    to_port     = 1194
+    from_port   = "${var.vpn_port}"
+    to_port     = "${var.vpn_port}"
     protocol    = "udp"
     description = "VPN client"
 

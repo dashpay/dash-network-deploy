@@ -37,6 +37,7 @@ done
 
 . ./lib/cli/init.sh
 . ./lib/cli/terraform.sh
+. ./lib/cli/ansible.sh
 . ./lib/cli/test.sh
 
 echo "Run test against $NETWORK_NAME network...";
