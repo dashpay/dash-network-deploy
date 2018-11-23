@@ -27,7 +27,7 @@ ${elb_host}/faucet
 Insight Explorer
 ================
 
-${elb_host}:${insight_port}/faucet
+${elb_host}:${insight_port}
 
 
 VPN
