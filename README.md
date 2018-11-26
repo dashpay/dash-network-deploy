@@ -133,7 +133,7 @@ It possible to specify several types using comma delimiter.
                -w "/usr/src/app/ansible" \
                dashpay/dash-network-deploy ansible dashd-wallet-2 \
                -i ../networks/<network_name>.inventory \
-               -private-key=<your-private-key-path> \
+               --private-key=<your-private-key-path> \
                -b -m command -a "dash-cli getblockcount"
     ```
 
@@ -149,7 +149,7 @@ It possible to specify several types using comma delimiter.
                    -w "/usr/src/app/ansible" \
                    dashpay/dash-network-deploy ansible dashd-wallet-2 \
                    -i ../networks/<network_name>.inventory \
-                   -private-key=<your-private-key-path> \
+                   --private-key=<your-private-key-path> \
                    -b -m command -a "dash-cli spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_height+10>"
     ```
 
