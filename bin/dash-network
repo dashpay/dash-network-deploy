@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -ea
+
+# Load configuration
+
+if [[ ! -f ".env" ]]; then
+    echo "Configuration .env file not found
+
+Please create and configure '.env' file.
+
+Example: https://github.com/dashpay/dash-network-deploy/blob/master/examples/.env.example"
+
+    exit 1;
+else
+    source ".env"
+fi
+
+# Check Docker
+
+if ! [[ -x "$(command -v docker)" ]]; then
+  echo "Docker is not installed."
+  exit 1
+fi
+
+# Run container with specified command
+
+docker run -ti --rm \
+           --device /dev/net/tun \
+           --cap-add=NET_ADMIN \
+           -v "$PWD:/networks" \
+           -v "$HOME/.aws:/root/.aws" \
+           -v "$PUBLIC_KEY_PATH:$PUBLIC_KEY_PATH" \
+           -v "$PRIVATE_KEY_PATH:$PRIVATE_KEY_PATH" \
+           dashpay/dash-network-deploy "$@"

@@ -1,6 +1,6 @@
 data "template_file" "web_hosts" {
   count    = "${aws_instance.web.count}"
-  template = "${file("${path.module}/inventory/hostname.tpl")}"
+  template = "${file("${path.module}/templates/inventory/hostname.tpl")}"
 
   vars {
     index      = "${count.index + 1}"
@@ -12,7 +12,7 @@ data "template_file" "web_hosts" {
 
 data "template_file" "wallet_node_hosts" {
   count    = "${aws_instance.dashd_wallet.count}"
-  template = "${file("${path.module}/inventory/hostname.tpl")}"
+  template = "${file("${path.module}/templates/inventory/hostname.tpl")}"
 
   vars {
     index      = "${count.index + 1}"
@@ -24,7 +24,7 @@ data "template_file" "wallet_node_hosts" {
 
 data "template_file" "full_node_hosts" {
   count    = "${aws_instance.dashd_full_node.count}"
-  template = "${file("${path.module}/inventory/hostname.tpl")}"
+  template = "${file("${path.module}/templates/inventory/hostname.tpl")}"
 
   vars {
     index      = "${count.index + 1}"
@@ -36,7 +36,7 @@ data "template_file" "full_node_hosts" {
 
 data "template_file" "miner_hosts" {
   count    = "${aws_instance.miner.count}"
-  template = "${file("${path.module}/inventory/hostname.tpl")}"
+  template = "${file("${path.module}/templates/inventory/hostname.tpl")}"
 
   vars {
     index      = "${count.index + 1}"
@@ -48,7 +48,7 @@ data "template_file" "miner_hosts" {
 
 data "template_file" "masternode_hosts" {
   count    = "${aws_instance.masternode.count}"
-  template = "${file("${path.module}/inventory/hostname.tpl")}"
+  template = "${file("${path.module}/templates/inventory/hostname.tpl")}"
 
   vars {
     index      = "${count.index + 1}"
@@ -60,7 +60,7 @@ data "template_file" "masternode_hosts" {
 
 data "template_file" "vpn" {
   count    = "${var.vpn_enabled ? 1 : 0}"
-  template = "${file("${path.module}/inventory/hostname.tpl")}"
+  template = "${file("${path.module}/templates/inventory/hostname.tpl")}"
 
   vars {
     index      = "${count.index + 1}"
@@ -71,7 +71,7 @@ data "template_file" "vpn" {
 }
 
 data "template_file" "ansible_inventory" {
-  template = "${file("${path.module}/inventory/ansible_inventory.tpl")}"
+  template = "${file("${path.module}/templates/inventory/ansible_inventory.tpl")}"
 
   vars {
     all_hosts = "${join("\n",concat(

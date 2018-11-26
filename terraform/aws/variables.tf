@@ -1,45 +1,58 @@
-variable "public_key_path" {
-  default = "~/.ssh/id_rsa.pub"
-}
+variable "public_key_path" {}
 
 variable "dashd_port" {
   description = "Port for Dash Core nodes"
-  default     = "20001"
+  default     = 20001
 }
 
 variable "dashd_rpc_port" {
   description = "Port for Dash RPC interface"
-  default     = "20002"
+  default     = 20002
 }
 
 variable "dashd_zmq_port" {
   description = "Port for Dash Zmq interface"
-  default     = "29998"
+  default     = 29998
 }
 
 variable "ipfs_swarm_port" {
   description = "IPFS Swarm port"
-  default     = "4001"
+  default     = 4001
 }
 
 variable "ipfs_api_port" {
   description = "IPFS API port"
-  default     = "5001"
+  default     = 5001
 }
 
 variable "insight_port" {
-  description = "Insight API port"
-  default     = "3001"
+  description = "Insight port"
+  default     = 3001
+}
+
+variable "ssh_port" {
+  description = "SSH port"
+  default     = 22
 }
 
 variable "drive_port" {
-  description = "Insight API port"
-  default     = "6000"
+  description = "Drive port"
+  default     = 6000
 }
 
 variable "dapi_port" {
-  description = "Insight API port"
-  default     = "3000"
+  description = "DAPI port"
+  default     = 3000
+}
+
+variable "docker_port" {
+  description = "Docker API port"
+  default     = 2375
+}
+
+variable "vpn_port" {
+  description = "VPN port"
+  default     = 1194
 }
 
 variable "vpc_cidr" {

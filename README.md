@@ -14,6 +14,26 @@ but easier to bootstrap and has own name. That's why it easier to have multiple 
 Work in progress and in its initial state only meant to be used by Dash Core
 developers to assist in Dash Evolution development.
 
+## Installation
+
+1. [Install Docker](https://docs.docker.com/install/)
+2. Download tool:
+
+    Using `wget`:
+    
+    ```bash
+    wget -P /usr/local/bin https://raw.github.com/dashpay/dash-network-deploy/master/bin/dash-network && \
+    chmod +x /usr/local/bin/dash-network
+    ```
+
+    Using `curl`:
+    
+    ```bash
+    curl -fsSL -o /usr/local/bin/dash-network https://raw.github.com/dashpay/dash-network-deploy/master/bin/dash-network && \
+    chmod +x /usr/local/bin/dash-network
+    ```
+
+
 ## Configuration
 
 ### Credentials
@@ -51,12 +71,7 @@ Please don't forget to include in your `.gitignore`:
 To deploy Dash Network use `deploy` command with particular network name:
 
 ```bash
-docker run -ti --rm \
-           -v "$PWD:/networks" \
-           -v "$HOME/.aws:/root/.aws" \
-           -v "<your-public-key-path>:<your-public-key-path>" \
-           -v "<your-private-key-path>:<your-private-key-path>" \
-           dashpay/dash-network-deploy deploy <network_name>
+dash-network deploy <network_name>
 ```
 
 You may pass `--only-infrastructure` or `--only-provisioning` option to avoid to do a particular type of work.
@@ -64,29 +79,23 @@ You may pass `--only-infrastructure` or `--only-provisioning` option to avoid to
 To destroy available Dash Network use `destroy` command:
 
 ```bash
-docker run -ti --rm \
-           -v "$PWD:/networks" \
-           -v "$HOME/.aws:/root/.aws" \
-           -v "<your-public-key-path>:<your-public-key-path>" \
-           -v "<your-private-key-path>:<your-private-key-path>" \
-           dashpay/dash-network-deploy destroy <network_name>
+dash-network destroy <network_name>
 ```
 
 You may pass `--keep-infrastructure` option to remove software and configuration and keep infrastructure.
+
+## List network services
+
+```bash
+dash-network list <network_name>
+```
 
 ## Testing
 
 To test network run `test` command with with particular network name:
 
 ```bash
-docker run -ti --rm \
-           --device /dev/net/tun \
-           --cap-add=NET_ADMIN \
-           -v "$PWD:/networks" \
-           -v "$HOME/.aws:/root/.aws" \
-           -v "<your-public-key-path>:<your-public-key-path>" \
-           -v "<your-private-key-path>:<your-private-key-path>" \
-           dashpay/dash-network-deploy test <network_name>
+dash-network test <network_name>
 ```
 
 You may pass `--type` option to run particular type of tests (`smoke`, `e2e`).
@@ -110,12 +119,7 @@ It possible to specify several types using comma delimiter.
    (see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
 
     ```bash
-    docker run -ti --rm \
-               -v "$PWD:/networks" \
-               -v "$HOME/.aws:/root/.aws" \
-               -v "<your-public-key-path>:<your-public-key-path>" \
-               -v "<your-private-key-path>:<your-private-key-path>" \
-               dashpay/dash-network-deploy deploy -p --ansible-playbook=upgrade-to-protx <network_name>
+    dash-network deploy -p --ansible-playbook=upgrade-to-protx <network_name>
     ```
     
 4. Get current block height:
