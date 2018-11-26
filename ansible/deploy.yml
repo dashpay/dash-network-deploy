@@ -41,6 +41,7 @@
     pip_install_packages:
       - name: docker
       - name: docker-compose
+        version: "1.22.0"
   roles:
     - geerlingguy.pip
     - geerlingguy.docker

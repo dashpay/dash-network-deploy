@@ -6,9 +6,9 @@
     src: '{{ item }}.j2'
     dest: '{{ mn_insight_path }}/{{ item }}'
   loop:
-  - docker-compose.yml
-  - bitcore-node-dash.json
-  - .env
+    - docker-compose.yml
+    - bitcore-node-dash.json
+    - .env
 
 - name: start insight
   docker_service:
@@ -19,4 +19,4 @@
 
 - name: check Insight container
   assert:
-    that: 'insight.{{ mn_insight_compose_project_name }}_insight_1.state.running'
+    that: 'insight.{{ mn_insight_compose_project_name }}_insight.state.running'
