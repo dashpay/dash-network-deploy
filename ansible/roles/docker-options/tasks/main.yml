@@ -15,15 +15,17 @@
 - name: update systemd service
   become: true
   copy:
-    src: docker.service
-    dest: /lib/systemd/system/
+    src: "{{ item }}"
+    dest: "/lib/systemd/system/{{ item }}"
+  loop:
+    - "docker.service"
+    - "docker.socket"
 
 - name: update upstart defaults
   become: true
   copy:
     src: docker
     dest: /etc/default/
-
 
 - name: restart docker
   service:
