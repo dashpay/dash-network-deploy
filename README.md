@@ -114,15 +114,8 @@ It possible to specify several types using comma delimiter.
     # uncomment if docker images stored in AWS ECR
     # aws_ecr_login: true
     ```
-
-2. Upgrade your MNs to ProTX when DIP3 is enabled
-   (see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
-
-    ```bash
-    dash-network deploy -p --ansible-playbook=upgrade-to-protx <network_name>
-    ```
     
-4. Get current block height:
+2. Get current block height:
 
     ```bash
     docker run -ti --rm \
@@ -152,6 +145,13 @@ It possible to specify several types using comma delimiter.
                    --private-key=<your-private-key-path> \
                    -b -m command -a "dash-cli spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_height+10>"
     ```
+    
+4. Upgrade your MNs to ProTX when DIP3 is enabled
+  (see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
+
+   ```bash
+   dash-network deploy -p --ansible-playbook=upgrade-to-protx <network_name>
+   ```
 
 ## Connect to private Dash Network services
 
