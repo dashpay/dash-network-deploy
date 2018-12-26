@@ -66,6 +66,6 @@ RUN ln -s /usr/src/app/networks /networks
 VOLUME ["/networks"]
 VOLUME ["/usr/src/app/terraform/aws/.terraform"]
 
-ENTRYPOINT ["docker/entrypoint.sh"]
+ENTRYPOINT ["/usr/src/app/docker/entrypoint.sh"]
 
 CMD ["deploy", "--help"]
