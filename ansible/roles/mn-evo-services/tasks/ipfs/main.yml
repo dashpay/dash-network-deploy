@@ -26,12 +26,12 @@
   when: inventory_hostname == groups.masternodes[0] or inventory_hostname == groups.masternodes[1]
 
 - set_fact:
-    ipfs_swarm_peer: '{{ hostvars[groups.masternodes[0]].ipfs_swarm_peer }}'
-  when: inventory_hostname != groups.masternodes[0]
+    ipfs_swarm_peer: '{{ hostvars[groups.masternodes[1]].my_ipfs_swarm_peer }}'
+  when: inventory_hostname == groups.masternodes[0]
 
 - set_fact:
-    ipfs_swarm_peer: '{{ hostvars[groups.masternodes[1]].ipfs_swarm_peer }}'
-  when: inventory_hostname == groups.masternodes[0]
+    ipfs_swarm_peer: '{{ hostvars[groups.masternodes[0]].my_ipfs_swarm_peer }}'
+  when: inventory_hostname != groups.masternodes[0]
 
 - name: persist swarm bootstrap peer and key in docker compose
   template:
