@@ -20,6 +20,7 @@
   loop:
     - "docker.service"
     - "docker.socket"
+  register: daemon_systemd_state
 
 - name: update upstart defaults
   become: true
@@ -32,4 +33,4 @@
     name: docker
     state: restarted
     daemon_reload: true
-  when: daemon_json_state is changed
+  when: daemon_json_state is changed or daemon_systemd_state is changed
