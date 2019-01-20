@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-
 user=ipfs
 repo="$IPFS_PATH"
 
@@ -15,19 +14,27 @@ fi
 # 2nd invocation with regular user
 ipfs version
 
+# Injection: Store Swarm key from env variable
 if [ ! -z "${SWARM_KEY}" ]; then echo "${SWARM_KEY}" > $repo/swarm.key; fi
+
 
 if [ -e "$repo/config" ]; then
   echo "Found IPFS fs-repo at $repo"
 else
+  case "$IPFS_PROFILE" in
+    "") INIT_ARGS="" ;;
+    *) INIT_ARGS="--profile=$IPFS_PROFILE" ;;
+  esac
   echo 'Initializing IPFS...'
-  ipfs init
+  ipfs init $INIT_ARGS
   ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001
   ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
+  # Injection: Remove bootstrap node
   echo 'Removing default bootstrap nodes...'
   ipfs bootstrap rm --all
 fi
 
+# Injection: Add bootstrap node from env variable
 if [ ! -z "$SWARM_PEER" ]; then ipfs bootstrap add "$SWARM_PEER"; fi
 
 # if the first argument is daemon

@@ -19,6 +19,10 @@
   args:
     chdir: '{{ mn_evo_services_path }}'
   register: ipfs_id_result
+  # Mitigate IPFS 0.4.18 issue:
+  # Error: cannot acquire lock: Lock FcntlFlock of /data/ipfs/repo.lock failed: resource temporarily unavailable
+  retries: 3
+  delay: 5
 
 - name: stop IPFS bootstrap node
   docker_service:
