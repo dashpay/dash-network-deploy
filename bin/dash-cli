@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -eax
+
+. ./lib/cli/utils.sh
+
+CMD_USAGE="Execute dashd RPC commands
+
+Usage: dash-cli <network_name> <host> <rpc-command> [arguments]"
+
+for i in "$@"
+do
+case ${i} in
+    -h|--help)
+        echo "$CMD_USAGE"
+        exit 0
+    ;;
+esac
+done
+
+NETWORK_NAME="$1"
+HOST_NAME="$2"
+RPC_COMMAND="${@:3}"
+
+. ./lib/cli/init.sh
+. ./lib/cli/ansible.sh
+. ./lib/cli/openvpn.sh
+
+if [[ -z ${HOST_NAME} ]]; then
+    print_error "Host name is required"
+fi
+
+if [[ -z ${RPC_COMMAND} ]]; then
+    print_error "RPC command is required"
+fi
+
+ANSIBLE_HOST=$(ansible_get_ip_by_host ${HOST_NAME})
+
+if [[ -z ${ANSIBLE_HOST} ]]; then
+    print_error "Invalid host name: ${HOST_NAME}. Please use host names from your inventory file '${INVENTORY_FILE}'"
+fi
+
+openvpn_start
+
+NETWORK_ARG=""
+case ${NETWORK} in
+    devnet)
+        NETWORK_ARG="-devnet=${NETWORK_DEVNET_NAME}"
+    ;;
+    testnet)
+        NETWORK_ARG="-testnet"
+    ;;
+    regtest)
+        NETWORK_ARG="-regtest"
+    ;;
+esac
+
+dash-cli -rpcconnect="$ANSIBLE_HOST" \
+         -rpcport=20002 \
+         -rpcuser=dashrpc \
+         -rpcpassword=password \
+         ${NETWORK_ARG} \
+         ${RPC_COMMAND}
