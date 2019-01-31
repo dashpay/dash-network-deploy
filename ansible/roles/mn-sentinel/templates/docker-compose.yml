@@ -3,7 +3,7 @@ version: '3'
 services:
   sentinel:
     image: {{ sentinel_image }}
-    container_name: {{ mn_sentinel_compose_project_name }}_sentinel
+    container_name: sentinel
     restart: always
     environment:
       - DEBUG=false

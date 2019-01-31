@@ -19,4 +19,4 @@
 
 - name: check Insight container
   assert:
-    that: 'insight.{{ mn_insight_compose_project_name }}_insight.state.running'
+    that: 'insight.insight.state.running'
