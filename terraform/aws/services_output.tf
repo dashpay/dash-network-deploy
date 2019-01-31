@@ -110,6 +110,17 @@ data "template_file" "masternodes" {
       data.template_file.service_insight.rendered,
       data.template_file.service_docker.rendered
     ))), "{{ip}}", element(aws_instance.masternode.*.public_ip, count.index))}"
+
+    service_logs = "${chomp(join("\n", list(
+      "   - dashd",
+      "   - dapi",
+      "   - drive_sync",
+      "   - drive_api",
+      "   - drive_mongodb",
+      "   - ipfs",
+      "   - sentinel",
+      "   - insight"
+    )))}"
   }
 }
 
@@ -130,6 +141,10 @@ data "template_file" "wallets" {
       data.template_file.service_core_zmq.rendered,
       data.template_file.service_docker.rendered
     ))), "{{ip}}", element(aws_instance.masternode.*.public_ip, count.index))}"
+
+    service_logs = "${chomp(join("\n", list(
+      "   - dashd"
+    )))}"
   }
 }
 
@@ -150,6 +165,10 @@ data "template_file" "full_nodes" {
       data.template_file.service_core_zmq.rendered,
       data.template_file.service_docker.rendered
     ))), "{{ip}}", element(aws_instance.masternode.*.public_ip, count.index))}"
+
+    service_logs = "${chomp(join("\n", list(
+      "   - dashd"
+    )))}"
   }
 }
 
@@ -169,6 +188,10 @@ data "template_file" "miners" {
       data.template_file.service_core_rpc.rendered,
       data.template_file.service_docker.rendered
     ))), "{{ip}}", element(aws_instance.masternode.*.public_ip, count.index))}"
+
+    service_logs = "${chomp(join("\n", list(
+      "   - dashd"
+    )))}"
   }
 }
 
