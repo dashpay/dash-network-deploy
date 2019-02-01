@@ -23,6 +23,7 @@
   # Error: cannot acquire lock: Lock FcntlFlock of /data/ipfs/repo.lock failed: resource temporarily unavailable
   retries: 3
   delay: 5
+  until: ipfs_id_result.rc == 0
 
 - name: stop IPFS bootstrap node
   docker_service:
