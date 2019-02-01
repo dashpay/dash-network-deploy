@@ -21,7 +21,7 @@ ${miners}
 Faucet
 ======
 
-${elb_host}/faucet
+${elb_host}
 
 
 Insight Explorer
