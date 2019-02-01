@@ -21,7 +21,7 @@
   shell: docker volume ls -qf dangling=true | xargs -r docker volume rm
 
 - name: remove all docker images
-  shell: docker images --no-trunc | awk '{ print $3 }' | xargs -r docker rmi
+  shell: docker image ls -q | xargs -r docker image rm
 
 - name: delete dash home dir
   file:
