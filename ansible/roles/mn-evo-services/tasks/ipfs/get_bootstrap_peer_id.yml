@@ -12,7 +12,7 @@
   register: output
 
 - assert:
-    that: 'ipfs.{{ mn_evo_services_compose_project_name }}_ipfs.state.running'
+    that: 'ipfs.ipfs.state.running'
 
 - name: get IPFS bootstrap node ID
   command: docker-compose exec -T ipfs ipfs id --format '<id>'
