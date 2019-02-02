@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/cli/utils.sh
+
+CMD_USAGE="Show Dash Network services logs
+
+Usage: logs <network_name> <host> [docker logs options] <service_name>"
+
+for i in "$@"
+do
+case ${i} in
+    -h|--help)
+        echo "$CMD_USAGE"
+        exit 0
+    ;;
+esac
+done
+
+NETWORK_NAME="$1"
+HOST_NAME="$2"
+DOCKER_LOGS_ARGS="${@:3}"
+
+. ./lib/cli/init.sh
+. ./lib/cli/ansible.sh
+. ./lib/cli/openvpn.sh
+
+if [[ -z ${HOST_NAME} ]]; then
+    print_error "Host name is required"
+fi
+
+if [[ -z ${DOCKER_LOGS_ARGS} ]]; then
+    print_error "Service name is required"
+fi
+
+ANSIBLE_HOST=$(ansible_get_ip_by_host ${HOST_NAME})
+
+if [[ -z ${ANSIBLE_HOST} ]]; then
+    print_error "Invalid host name: ${HOST_NAME}. Please use host names from your inventory file '${INVENTORY_FILE}'"
+fi
+
+openvpn_start
+
+docker --host ${ANSIBLE_HOST} logs ${DOCKER_LOGS_ARGS}

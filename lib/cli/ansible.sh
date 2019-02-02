@@ -25,8 +25,16 @@ function ansible_run_playbook() {
     cd ..
 }
 
-function ansible_download_vpn_config() {
+function ansible_get_ip_by_host() {
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+    if [[ "$line" = ${1}* ]]; then
+        echo $(expr "$line" : '.* ansible_host=\([0-9\.]*\).*')
+        break;
+    fi
+    done < "$INVENTORY_FILE"
+}
 
+function ansible_download_vpn_config() {
     if [ ! -f "$VPN_CONFIG_PATH" ]; then
         echo "OpenVPN config '$VPN_CONFIG_PATH' not found. Trying to retrieve..."
 

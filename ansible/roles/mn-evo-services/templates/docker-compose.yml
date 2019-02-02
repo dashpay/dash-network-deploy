@@ -3,7 +3,7 @@ version: '3'
 services:
   drive_sync:
     image: {{ drive_image }}
-    container_name: {{ mn_evo_services_compose_project_name }}_drive_sync
+    container_name: drive_sync
     restart: always
     command: npm run sync
     environment:
@@ -22,7 +22,7 @@ services:
 
   drive_api:
     image: {{ drive_image }}
-    container_name: {{ mn_evo_services_compose_project_name }}_drive_api
+    container_name: drive_api
     restart: always
     command: npm run api
     environment:
@@ -40,13 +40,13 @@ services:
 
   drive_mongodb:
     image: mongo:3.6
-    container_name: {{ mn_evo_services_compose_project_name }}_drive_mongodb
+    container_name: drive_mongodb
     volumes:
       - drive_mongodb:/data/db
 
   ipfs:
     image: {{ ipfs_image }}
-    container_name: {{ mn_evo_services_compose_project_name }}_ipfs
+    container_name: ipfs
     command: daemon --enable-gc --migrate --enable-pubsub-experiment
     environment:
       LIBP2P_FORCE_PNET: 1
@@ -61,7 +61,7 @@ services:
 
   dapi:
     image: {{ dapi_image }}
-    container_name: {{ mn_evo_services_compose_project_name }}_dapi
+    container_name: dapi
     restart: always
     depends_on:
       - ipfs
