@@ -118,35 +118,16 @@ It possible to specify several types using comma delimiter.
 2. Get current block height:
 
     ```bash
-    docker run -ti --rm \
-               -v "$PWD:/networks" \
-               -v "$HOME/.aws:/root/.aws" \
-               -v "<your-public-key-path>:<your-public-key-path>" \
-               -v "<your-private-key-path>:<your-private-key-path>" \
-               -w "/usr/src/app/ansible" \
-               dashpay/dash-network-deploy ansible dashd-wallet-2 \
-               -i ../networks/<network_name>.inventory \
-               --private-key=<your-private-key-path> \
-               -b -m command -a "dash-cli getblockcount"
+    dash-network dash-cli dashd-wallet-2 getblockcount
     ```
 
-
-3. Enable Masternode List after ten new blocks:
+3. Enable DML (DIP3) after ten new blocks:
 
     ```bash
-    docker run -ti --rm \
-                   -v "$PWD:/networks" \
-                   -v "$HOME/.aws:/root/.aws" \
-                   -v "<your-public-key-path>:<your-public-key-path>" \
-                   -v "<your-private-key-path>:<your-private-key-path>" \
-                   -w "/usr/src/app/ansible" \
-                   dashpay/dash-network-deploy ansible dashd-wallet-2 \
-                   -i ../networks/<network_name>.inventory \
-                   --private-key=<your-private-key-path> \
-                   -b -m command -a "dash-cli spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_height+10>"
+    dash-network dash-cli dashd-wallet-2 spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_height+10>
     ```
-    
-4. Upgrade your MNs to ProTX when DIP3 is enabled
+
+4. Upgrade your MNs to ProTX when DML is enabled
   (see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
 
    ```bash
