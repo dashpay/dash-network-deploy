@@ -55,6 +55,7 @@ case ${NETWORK} in
     ;;
 esac
 
+# TODO: Read RPC settings from network and default (group_vars/all) configurations
 dash-cli -rpcconnect="$ANSIBLE_HOST" \
          -rpcport=20002 \
          -rpcuser=dashrpc \
