@@ -103,7 +103,7 @@ It possible to specify several types using comma delimiter.
 
 ## Debugging
 
-There are too commands can be useful for debugging:
+There are two commands can be useful for debugging:
 
 - Show service logs: `dash-network logs <network_name> <hostname> <service_name>`
 - Execute Dash Core RPC command: `dash-network dash-cli <network_name> <hostname> <rpc_command>` 
