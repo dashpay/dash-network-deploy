@@ -2,6 +2,13 @@
 
 set -ea
 
+# Check Docker
+
+if ! [[ -x "$(command -v docker)" ]]; then
+  echo "Docker is not installed."
+  exit 1
+fi
+
 # Load configuration
 
 if [[ ! -f ".env" ]]; then
@@ -16,11 +23,21 @@ else
     source ".env"
 fi
 
-# Check Docker
+# Show help if command is not specified
 
-if ! [[ -x "$(command -v docker)" ]]; then
-  echo "Docker is not installed."
-  exit 1
+if [[ -z $1 ]]; then
+    echo "Dash Network Tool
+
+Usage: dash-network <command>
+
+Commands:
+  deploy    - Deploy or update new network
+  destroy   - Destroy existent network
+  test      - Run smoke test against specific network
+  list      - List network hosts and services
+  dash-cli  - Execute DashCore RPC command
+  logs      - Show specific network service logs"
+  exit 0;
 fi
 
 # Run container with specified command
