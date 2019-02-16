@@ -3,7 +3,12 @@
 scripts=("deploy destroy test list logs dash-cli")
 
 if [[ " ${scripts[@]} " =~ " ${1} " ]]; then
-    source bin/$1
+    script=$1
+
+    # Remove the first argument ("dash-network")
+    shift
+
+    source "bin/$script"
 else
     exec "$@"
 fi
