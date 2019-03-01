@@ -70,7 +70,7 @@ addnode={{ dashd_seednode }}:{{ dashd_port }}
 
 {% if masternode is defined %}
 masternode=1
-masternodeprivkey={{ masternode.mn_operator_key }}
+masternodeprivkey={{ masternode.mn_operator_secret_key }}
 {% endif %}
 
 {% if dashd_sporkaddr is defined %}
@@ -79,3 +79,10 @@ sporkaddr={{ dashd_sporkaddr }}
 {% if dashd_sporkkey is defined %}
 sporkkey={{ dashd_sporkkey }}
 {% endif %}
+
+# First 1000 blocks should be mined with lowest difficulty (like in regtest, so it's instant)
+# and first 500 blocks are mined with a block subsidity multiplied by 10
+# this allows to register MNs immediately (DIP3 activates on block 2)
+minimumdifficultyblocks=1000
+highsubsidyblocks=500
+highsubsidyfactor=10

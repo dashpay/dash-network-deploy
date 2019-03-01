@@ -1,10 +1,10 @@
 ---
 
 - name: import operator key
-  command: dash-cli {{ faucet_rpc_args }} importprivkey {{ masternode.mn_operator_key }}
+  command: dash-cli {{ faucet_rpc_args }} importprivkey {{ masternode.mn_operator_secret_key }}
 
 - name: create ProTx for {{ masternode_name }}/{{ masternode.address }}
-  command: "dash-cli {{ faucet_rpc_args }} protx register {{ masternode.address }} 1000 {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }} 0 {{ masternode.mn_operator_addr }} {{ masternode.mn_operator_addr }} {{ masternode.mn_operator_addr }} 0 {{ masternode.address }}"
+  command: "dash-cli {{ faucet_rpc_args }} protx register {{ masternode.address }} 1000 {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }} 0 {{ masternode.mn_operator_public_key }} {{ masternode.mn_operator_public_key }} {{ masternode.mn_operator_public_key }} 0 {{ masternode.address }}"
   register: protx
 
 - name: wait for ProTx {{ protx.stdout }} to appear on MN ctrl node

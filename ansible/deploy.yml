@@ -136,8 +136,11 @@
   roles:
     - mn-fund-collateral
     - mn-pay-faucet
-    - {role: mn-conf, tags: mn-conf}
+    - mn-createprotx
+    - { role: mn-conf, use_protx: True }
     - mn-start
+
+# Prune unused Docker images
 
 - hosts: all
   become: true
