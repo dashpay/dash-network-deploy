@@ -32,7 +32,7 @@ RUN apt-get update -y && \
 
 # Install terraform
 
-ARG TERRAFORM_VERSION=0.11.8
+ARG TERRAFORM_VERSION=0.11.11
 
 RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
@@ -45,6 +45,10 @@ RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${
   && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
                  -C /usr/local/bin docker/docker \
   && rm docker-${DOCKERVERSION}.tgz
+
+# Copy dash-cli form dashd image
+
+COPY --from=dashpay/dashd:latest /usr/local/bin/dash-cli /usr/local/bin
 
 # Copy sources
 
