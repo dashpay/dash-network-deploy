@@ -105,8 +105,10 @@ It is possible to specify several types using comma delimiter.
 
 There are two commands that can be useful for debugging:
 
-- Show service logs: `dash-network logs <network_name> <hostname> <service_name>`
-- Execute Dash Core RPC command: `dash-network dash-cli <network_name> <hostname> <rpc_command>` 
+- Show service logs: `dash-network logs <network_name> <host> [docker logs options] <service_name>`
+ - See [Docker log options](https://docs.docker.com/engine/reference/commandline/logs/) for details
+ - Example: `dash-network logs devnet-example node-1 --since 3h dashd`
+- Execute Dash Core RPC command: `dash-network dash-cli <network_name> <hostname> <rpc_command>`
 
 ## Deploy Dash Evolution
 
@@ -125,13 +127,13 @@ There are two commands that can be useful for debugging:
 2. Get current block height:
 
     ```bash
-    dash-network dash-cli dashd-wallet-2 getblockcount
+    dash-network dash-cli <network_name> dashd-wallet-2 getblockcount
     ```
 
 3. Enable DML (DIP3) after ten new blocks:
 
     ```bash
-    dash-network dash-cli dashd-wallet-2 spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_height+10>
+    dash-network dash-cli <network_name> dashd-wallet-2 spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_height+10>
     ```
 
 4. Upgrade your MNs to ProTX when DML is enabled
