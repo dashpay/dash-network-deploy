@@ -20,14 +20,14 @@ developers to assist in Dash Evolution development.
 2. Download tool:
 
     Using `wget`:
-    
+
     ```bash
     wget -P /usr/local/bin https://raw.github.com/dashpay/dash-network-deploy/master/bin/dash-network && \
     chmod +x /usr/local/bin/dash-network
     ```
 
     Using `curl`:
-    
+
     ```bash
     curl -fsSL -o /usr/local/bin/dash-network https://raw.github.com/dashpay/dash-network-deploy/master/bin/dash-network && \
     chmod +x /usr/local/bin/dash-network
@@ -121,7 +121,7 @@ There are two commands can be useful for debugging:
     # uncomment if docker images stored in AWS ECR
     # aws_ecr_login: true
     ```
-    
+
 2. Get current block height:
 
     ```bash
@@ -163,7 +163,7 @@ You can use generated during deployment OpenVPN config `<network_name>.ovpn` to 
     ```bash
     pip install -U netaddr
     ```
-    
+
     * Note: You may need to run the above command with "pip2" instead of "pip" if
       your default Python installation is version 3 (e.g. OSX + Homebrew).
 
@@ -172,7 +172,7 @@ You can use generated during deployment OpenVPN config `<network_name>.ovpn` to 
     ```bash
     ansible-galaxy install -r ansible/requirements.yml
     ```
-      
+
 5. Install [AWS Command Line Interface](https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
 
 
@@ -181,14 +181,14 @@ You can use generated during deployment OpenVPN config `<network_name>.ovpn` to 
     ```bash
     npm install
     ```
-    
+
 7. Install OpenVPN:
 
     On Linux:
     ```bash
     apt-get install openvpn
     ```
-    
+
     On Mac:
     ```bash
     brew install openvpn
