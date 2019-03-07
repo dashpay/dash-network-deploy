@@ -106,8 +106,8 @@ It is possible to specify several types using comma delimiter.
 There are two commands that can be useful for debugging:
 
 - Show service logs: `dash-network logs <network_name> <host> [docker logs options] <service_name>`
- - See [Docker log options](https://docs.docker.com/engine/reference/commandline/logs/) for details
- - Example: `dash-network logs devnet-example node-1 --since 3h dashd`
+  - See [Docker log options](https://docs.docker.com/engine/reference/commandline/logs/) for details
+  - Example: `dash-network logs devnet-example node-1 --since 3h dashd`
 - Execute Dash Core RPC command: `dash-network dash-cli <network_name> <hostname> <rpc_command>`
 
 ## Deploy Dash Evolution
