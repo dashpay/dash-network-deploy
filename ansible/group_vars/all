@@ -74,18 +74,3 @@ masternode_wallet_rpc_port: '{{ dashd_rpc_port }}'
 masternode_wallet_rpc_user: '{{ dashd_rpc_user }}'
 masternode_wallet_rpc_password: '{{ dashd_rpc_password }}'
 masternode_wallet_rpc_args: '-rpcconnect={{ masternode_wallet_rpc_host }} -rpcport={{ masternode_wallet_rpc_port }} -rpcuser={{ masternode_wallet_rpc_user }} -rpcpassword={{ masternode_wallet_rpc_password }}'
-
-# Example masternodes list (provide your own in network config)
-#masternodes:
-#  masternode-1:
-#    address: yiRNTUNCS39WPu3VhT7utRWTJYzmUdf1aR
-#    address_key: cSrCXqZ1oVw3vpeuoyPKHBpGiMmf6pQerF64MYMcS11HQ4bGquDF
-#    privkey: 92KdqxzX7HCnxCtwt1yHENGrXq71SAxD4vrrsFArbSU2wUKdQCM
-#  masternode-2:
-#    address: ybpwqoZ2Q4goxrzgPx9b3cbPrvy6UbC1ct
-#    address_key: cN88MoW1XEv1s4wt6zgbQ8aR9KYM4RZihSeoRUcdWmwdAyu6HaDu
-#    privkey: 93Fd7XY2zF4q9YKTZUSFxLgp4Xs7MuaMnvY9kpvH7V8oXWqsCC1
-#  masternode-3:
-#    address: yQuwR1uaci2SCQBgqcaKRzfq7upL4n513j
-#    address_key: cTEGsaAqx9jUFYkNECeGKfixa6vgMiUoSwqsdncc11mS6BZerTpT
-#    privkey: 93EmoMmHgTCg8yVhRtK5sxpv5k4Sq1KoHCVB43VxbbZpVPtHMnc

@@ -70,7 +70,7 @@ addnode={{ dashd_seednode }}:{{ dashd_port }}
 
 {% if masternode is defined %}
 masternode=1
-masternodeprivkey={{ masternode.mn_operator_secret_key }}
+masternodeblsprivkey={{ masternode.operator.private_key }}
 {% endif %}
 
 {% if dashd_sporkaddr is defined %}

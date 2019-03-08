@@ -5,67 +5,132 @@ faucet_privkey: cR4t6evwVZoCp1JsLk4wURK4UmBCZzZotNzn9T1mhBT19SH9JtNt
 
 masternodes:
   masternode-1:
-    address: yiRNTUNCS39WPu3VhT7utRWTJYzmUdf1aR
-    address_key: cSrCXqZ1oVw3vpeuoyPKHBpGiMmf6pQerF64MYMcS11HQ4bGquDF
-    mn_operator_public_key: 0e4e7658cb226ab4a8e467f355d17f81f0df53d29292e5fc9b327c09f5e6635a5246c366b352c6ccb5969b5ae312fa3d
-    mn_operator_secret_key: 2bb21800d45e8d352e3d60fd7c35f958ae28aafbe5343ee417b3857e25af4ef9
+    owner:
+      address: yiRNTUNCS39WPu3VhT7utRWTJYzmUdf1aR
+      private_key: cSrCXqZ1oVw3vpeuoyPKHBpGiMmf6pQerF64MYMcS11HQ4bGquDF
+    collateral:
+      address: yj9vNWwW4bMjqmapg6MGTjbsEAkbvMJ5i8
+      private_key: cQ8ma9sjDyppwtMxoq5iDeh2j6jkRNYo4DyCYSCc4KY57Zz4z2me
+    operator:
+      public_key: 0e4e7658cb226ab4a8e467f355d17f81f0df53d29292e5fc9b327c09f5e6635a5246c366b352c6ccb5969b5ae312fa3d
+      private_key: 2bb21800d45e8d352e3d60fd7c35f958ae28aafbe5343ee417b3857e25af4ef9
   masternode-2:
-    address: ybpwqoZ2Q4goxrzgPx9b3cbPrvy6UbC1ct
-    address_key: cN88MoW1XEv1s4wt6zgbQ8aR9KYM4RZihSeoRUcdWmwdAyu6HaDu
-    mn_operator_public_key: 87db624c671335cc062449c54bc96e977e14de2bcf4d5ae28f6fdf0aa07912f23574ade80c793d57bbbf0071f8fc3928
-    mn_operator_secret_key: 500b99e06ffbb05dd06fc454797ed95dcf7ae0b5ee7ccd898606bdc4b42ff2f2
+    owner:
+      address: ybpwqoZ2Q4goxrzgPx9b3cbPrvy6UbC1ct
+      private_key: cN88MoW1XEv1s4wt6zgbQ8aR9KYM4RZihSeoRUcdWmwdAyu6HaDu
+    collateral:
+      address: ycZjDS78m6J9C6BY1PPUuMha5sopUMETWn
+      private_key: cUE1EC7WUWJPu8SrGtbdy53gD9K2eSsfK9wojXonQ2kXopsomSJV
+    operator:
+      public_key: 87db624c671335cc062449c54bc96e977e14de2bcf4d5ae28f6fdf0aa07912f23574ade80c793d57bbbf0071f8fc3928
+      private_key: 500b99e06ffbb05dd06fc454797ed95dcf7ae0b5ee7ccd898606bdc4b42ff2f2
   masternode-3:
-    address: yQuwR1uaci2SCQBgqcaKRzfq7upL4n513j
-    address_key: cTEGsaAqx9jUFYkNECeGKfixa6vgMiUoSwqsdncc11mS6BZerTpT
-    mn_operator_public_key: 8d8c57a7fd40cbc276ca4f2137c80b28bc2824a4994efca8c7d1cc0a2cc2e00789c9309ef88c9d804d4a34c2b97b48d7
-    mn_operator_secret_key: 261e8dcfbb427caa86cf68ff3a5296c98a27c3a4b2211ca0c5c93b28d78d9657
+    owner:
+      address: yQuwR1uaci2SCQBgqcaKRzfq7upL4n513j
+      private_key: cTEGsaAqx9jUFYkNECeGKfixa6vgMiUoSwqsdncc11mS6BZerTpT
+    collateral:
+      address: yRULjuY651J3Uz91VDWd7iFELK16UQ95wM
+      private_key: cMjxPJuW6MjV8A3ekJtpxPjGgMZj9gDSYY5dbgvoGBzS9VknCHzD
+    operator:
+      public_key: 8d8c57a7fd40cbc276ca4f2137c80b28bc2824a4994efca8c7d1cc0a2cc2e00789c9309ef88c9d804d4a34c2b97b48d7
+      private_key: 261e8dcfbb427caa86cf68ff3a5296c98a27c3a4b2211ca0c5c93b28d78d9657
   masternode-4:
-    address: yQCV7FnK99crDwmiwrLCwgaDKz5qV4my6u
-    address_key: cSMvsssFKziHctH2d2FNfeCaKuEckC9PB8aQD1E6ecYjSpDdYrLf
-    mn_operator_public_key: 93ba5fd3e8210a365a2adb287c1811f6568d962d2ac156d4b8703e5a6178f62d72eb53e8de3f504b1b0e44a468c11ee7
-    mn_operator_secret_key: 14ef751109ee2d7e9f3b46ef5c11d5ccc4da1b3331e3c198cba4b8a67785f6dc
+    owner:
+      address: yQCV7FnK99crDwmiwrLCwgaDKz5qV4my6u
+      private_key: cSMvsssFKziHctH2d2FNfeCaKuEckC9PB8aQD1E6ecYjSpDdYrLf
+    collateral:
+      address: yXsYWdrz7DPyafuXwSuNaFtLzwwzyNvogt
+      private_key: cUKiYp6m7hZ525qP4XQBQg3ghDy2Y1EUpvdJ2zwZLYCMtH7J68VX
+    operator:
+      public_key: 93ba5fd3e8210a365a2adb287c1811f6568d962d2ac156d4b8703e5a6178f62d72eb53e8de3f504b1b0e44a468c11ee7
+      private_key: 14ef751109ee2d7e9f3b46ef5c11d5ccc4da1b3331e3c198cba4b8a67785f6dc
   masternode-5:
-    address: yiS4S2aLvXf61WcJEc2mzkuLHCeBgd7wLp
-    address_key: cVMFBkeZ4X3HAz14CjQnpA9KqDSLGUbxNVx5BxXMxkBj4Us3HDpc
-    mn_operator_public_key: 0b7f090173eab3bef88ffaf1e86a4803d758dabcd58ef5f5d6d83064bf58c72b164b78488da7ad3aad07309f0365ce2b
-    mn_operator_secret_key: 2f9a07265ab5307a012c91c5ec6e7fe0d343809ebb82368f5373a06a42c87a76
+    owner:
+      address: yiS4S2aLvXf61WcJEc2mzkuLHCeBgd7wLp
+      private_key: cVMFBkeZ4X3HAz14CjQnpA9KqDSLGUbxNVx5BxXMxkBj4Us3HDpc
+    collateral:
+      address: yRTEoXXm2epT8CY1P15hjECrN314nf3TRf
+      private_key: cP2PWbMESoo3UFiKwi2F6ePAmUVqUgxFHV175HDY2WzzpEFNBiZ7
+    operator:
+      public_key: 0b7f090173eab3bef88ffaf1e86a4803d758dabcd58ef5f5d6d83064bf58c72b164b78488da7ad3aad07309f0365ce2b
+      private_key: 2f9a07265ab5307a012c91c5ec6e7fe0d343809ebb82368f5373a06a42c87a76
   masternode-6:
-    address: yZrCcddoxdH16STwQpmpEPbn6urenS8yjf
-    address_key: cRNS6N2gakrSZWEz4NsxLwSzv9GYxS9wS4efLyntKo66ZiaenZyo
-    mn_operator_public_key: 019af0088f1e2b052b46b362d683076bf041d30828e95e6089989525131ed02ac2012b611860914b003a93bf5b71deb3
-    mn_operator_secret_key: 00a314ef9d0598587f97e1a68c15f11ad31c6d1691e1f32550b72031d633bc91
+    owner:
+      address: yZrCcddoxdH16STwQpmpEPbn6urenS8yjf
+      private_key: cRNS6N2gakrSZWEz4NsxLwSzv9GYxS9wS4efLyntKo66ZiaenZyo
+    collateral:
+      address: yLZHLyNECkyhe7foT1UQptN1Z3P8daMakr
+      private_key: cNtj4pywwFPQ56hbKZ8Vmuab8abrXwbWUEcrwgVL7a9SvD69oBNw
+    operator:
+      public_key: 019af0088f1e2b052b46b362d683076bf041d30828e95e6089989525131ed02ac2012b611860914b003a93bf5b71deb3
+      private_key: 00a314ef9d0598587f97e1a68c15f11ad31c6d1691e1f32550b72031d633bc91
   masternode-7:
-    address: yQSQoco2uAR4sc2AkXGNcAcBnbYY4q7a6T
-    address_key: cNj3itrDW4abS97dv6fE1dy16kDbfB8K63zws8Q65xMTEgZ8Gtqz
-    mn_operator_public_key: 11e548fff2b65dfd79c9e43ef87e2d5f26cf53b08c83ea016d81050e06a7ff373c693877893c1a7de29f15d7d4be20ea
-    mn_operator_secret_key: 699d32b6c62476ad2e8e8c6fa20ebac40ab03e2f160ca25ec0f999237fe1d1f8
+    owner:
+      address: yQSQoco2uAR4sc2AkXGNcAcBnbYY4q7a6T
+      private_key: cNj3itrDW4abS97dv6fE1dy16kDbfB8K63zws8Q65xMTEgZ8Gtqz
+    collateral:
+      address: yWYintYDyExMTx57TSsWxfUNarp5VpNg3F
+      private_key: cMvGBNHqbXy3hB1REA7JgZUrZZvgJrHfw6bG2TdKVvZQpg3z3hrf
+    operator:
+      public_key: 11e548fff2b65dfd79c9e43ef87e2d5f26cf53b08c83ea016d81050e06a7ff373c693877893c1a7de29f15d7d4be20ea
+      private_key: 699d32b6c62476ad2e8e8c6fa20ebac40ab03e2f160ca25ec0f999237fe1d1f8
   masternode-8:
-    address: yXrf4MNYipnGmSQqGv1HGqmD3xxWELs9T9
-    address_key: cQy6bcyDYwHR97wa4zUnuJAp6Fw3gJHoq1nFBCXqJBs2G17siFki
-    mn_operator_public_key: 18b150874d754a91503149b02e997edaca1793a0a7ccc74c1ead9ab646831a0a162c76f333b6acb6ed86313b58e28e38
-    mn_operator_secret_key: 5c7841e5a6b9e413d9b6ad08c53be440c1f968c2595c392ed1ba0277d00a7b91
+    owner:
+      address: yXrf4MNYipnGmSQqGv1HGqmD3xxWELs9T9
+      private_key: cQy6bcyDYwHR97wa4zUnuJAp6Fw3gJHoq1nFBCXqJBs2G17siFki
+    collateral:
+      address: ySgG6XwK6r1HZzaSEUEogcYj3tKUYkiK1w
+      private_key: cTePU9TYba9MkT9mdWQv8hExJtgegnrGSYq4DjM1CS6amoUFc5tr
+    operator:
+      public_key: 18b150874d754a91503149b02e997edaca1793a0a7ccc74c1ead9ab646831a0a162c76f333b6acb6ed86313b58e28e38
+      private_key: 5c7841e5a6b9e413d9b6ad08c53be440c1f968c2595c392ed1ba0277d00a7b91
   masternode-9:
-    address: yTezNspASgUWeRvkVbQx7brFzJYnihkCdB
-    address_key: cQKSAVBd87j5EGtWEf2m5zip1qFmWBWzZ3yRhGeTMvB8wjLarxM2
-    mn_operator_public_key: 95d329261b02bb3acf3799fe33a83a899c617aa7cb308166c150b6a0d4e537762b0ce5577cc03ad4c03ac51d5415968f
-    mn_operator_secret_key: 1971db580010eecdc177e60692e1e50c40af51b72a83f2803722667a117c319a
+    owner:
+      address: yTezNspASgUWeRvkVbQx7brFzJYnihkCdB
+      private_key: cQKSAVBd87j5EGtWEf2m5zip1qFmWBWzZ3yRhGeTMvB8wjLarxM2
+    collateral:
+      address: yQWk8pXmCkNPgHiX3N2GjoDbTZvzCCMNb6
+      private_key: cTdXCJtv61CeRnNjhzUZagomCNjusZo5Rew26dtgvw7R87L9bTAA
+    operator:
+      public_key: 95d329261b02bb3acf3799fe33a83a899c617aa7cb308166c150b6a0d4e537762b0ce5577cc03ad4c03ac51d5415968f
+      private_key: 1971db580010eecdc177e60692e1e50c40af51b72a83f2803722667a117c319a
   masternode-10:
-    address: yN4YJuZUUCiVTNoKwtNsNTapGvW9PbmzXk
-    address_key: cMdZCshfc8mhSTb8oauuraWKAZjfGDnx4xX9HE2D4nP74WwEk1HN
-    mn_operator_public_key: 0a9fb2fd4fda49491630e8874ab5f85c1b65db535bcb99d9449324ba09d23db923d09a7276bb142a9446e824a9749beb
-    mn_operator_secret_key: 31830bd3a53d9b4543ca1e736fbfe068e62738ef4830edcacdbe0ff35424f371
+    owner:
+      address: yN4YJuZUUCiVTNoKwtNsNTapGvW9PbmzXk
+      private_key: cMdZCshfc8mhSTb8oauuraWKAZjfGDnx4xX9HE2D4nP74WwEk1HN
+    collateral:
+      address: yZYckuCvCtPzH5tCjQEcVAXBofZGRnKUGk
+      private_key: cRehjJUU4jAyAXbwAwUKevG9wXXt3Q3t5wqAMuz9MysUjkVj22Cp
+    operator:
+      public_key: 0a9fb2fd4fda49491630e8874ab5f85c1b65db535bcb99d9449324ba09d23db923d09a7276bb142a9446e824a9749beb
+      private_key: 31830bd3a53d9b4543ca1e736fbfe068e62738ef4830edcacdbe0ff35424f371
   masternode-11:
-    address: yTWgsUVk66vV2csfYFDxvYU31BupXDD2mE
-    address_key: cPaGBsFGjvsxBqZKzSCdERACg7EPkKBJf8kP4h6f9S8ZZeCoBqHh
-    mn_operator_public_key: 019589ada7b959fa08fa5e2214ce262a0f40ce21c6b3057dde172ea4de261f9d0267ddc498bdd3ed51891e2ad7dfbeee
-    mn_operator_secret_key: 52cfc37d015fecf76d44383fafc5ee812304b5a2756c3038b391873fa3f512b7
+    owner:
+      address: yTWgsUVk66vV2csfYFDxvYU31BupXDD2mE
+      private_key: cPaGBsFGjvsxBqZKzSCdERACg7EPkKBJf8kP4h6f9S8ZZeCoBqHh
+    collateral:
+      address: yPjPjt9ANZpDbPV2mBmhsxcsw4SFhQPyRg
+      private_key: cPndsLvDPYUScUYDWH6hnX6NrC1CrgVYVK6M3fxjf4gdjnCCmDh2
+    operator:
+      public_key: 019589ada7b959fa08fa5e2214ce262a0f40ce21c6b3057dde172ea4de261f9d0267ddc498bdd3ed51891e2ad7dfbeee
+      private_key: 52cfc37d015fecf76d44383fafc5ee812304b5a2756c3038b391873fa3f512b7
   masternode-12:
-    address: yUtqnQw3DHgn6BEwjnR1hVabKDM4F8pAuP
-    address_key: cNsvfpZb3RY3k7LvcxGriGavBqznE4Cn1q1QF8bGZo5eHMu7ngW3
-    mn_operator_public_key: 0f3941399e93d060a2d84cfb8830e031eb9c8d918f132ccab47b7d22dc662e7ed2e70fae874fe49adb1ff2beb6e06505
-    mn_operator_secret_key: 01476907548093c64212e2c3510d070a844630c6ee4d6672644ec2ad3e91fac0
+    owner:
+      address: yUtqnQw3DHgn6BEwjnR1hVabKDM4F8pAuP
+      private_key: cNsvfpZb3RY3k7LvcxGriGavBqznE4Cn1q1QF8bGZo5eHMu7ngW3
+    collateral:
+      address: yPKXsVF6LPZjGCYDPPGRGxm9wG7MFwFMTv
+      private_key: cQM7dBF1Jtd5HY9sTwQP8EdxXDzgiyrvfWhrDMW4Mw5c4sMsNRYs
+    operator:
+      public_key: 0f3941399e93d060a2d84cfb8830e031eb9c8d918f132ccab47b7d22dc662e7ed2e70fae874fe49adb1ff2beb6e06505
+      private_key: 01476907548093c64212e2c3510d070a844630c6ee4d6672644ec2ad3e91fac0
   masternode-13:
-    address: yYzxjiTcG8HuKBXS3VW5yhjfZdMhMV1NqB
-    address_key: cPknbev5GEhHKug7QNzPRb4jpDM7PaJtfyaZgtivV86NBeCVvPFf
-    mn_operator_public_key: 0f7cf52e38c2a0fed35bc2cb8ff8901c56a6e097f1de5ce40befc63a541c4bc928ee42bbf1f3dd66effbaba834bfe347
-    mn_operator_secret_key: 11492aa4d46ffd2f3fb3027d6693bc63a0a9d42b6d74309eb6d1820cc8bad6ba
+    owner:
+      address: yYzxjiTcG8HuKBXS3VW5yhjfZdMhMV1NqB
+      private_key: cPknbev5GEhHKug7QNzPRb4jpDM7PaJtfyaZgtivV86NBeCVvPFf
+    collateral:
+      address: ydxsBkXH2BLRvBSPf9qYaiivSLL7YYEbG5
+      private_key: cVBLGUfUpKy7ygvqiusa4sxsBxf6eknHq1bBBkcBjA16UmVxhn6x
+    operator:
+      public_key: 0f7cf52e38c2a0fed35bc2cb8ff8901c56a6e097f1de5ce40befc63a541c4bc928ee42bbf1f3dd66effbaba834bfe347
+      private_key: 11492aa4d46ffd2f3fb3027d6693bc63a0a9d42b6d74309eb6d1820cc8bad6ba
