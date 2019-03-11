@@ -1,7 +1,9 @@
 ---
 
-- name: fund collateral for {{ masternode_name }}/{{ masternode.address }}
-  command: "dash-cli {{ faucet_rpc_args }} sendtoaddress {{ masternode.address }} 1000"
+# Requires "masternode_name", "masternode" and "amount" variables
+
+- name: "fund collateral {{ amount }} coin(s) for {{ masternode_name }}/{{ masternode.collateral.address }}"
+  command: "dash-cli {{ faucet_rpc_args }} sendtoaddress {{ masternode.collateral.address }} {{ amount }}"
   register: fund_result
 
 - name: wait for funding TX {{ fund_result.stdout }} to appear on MN ctrl node

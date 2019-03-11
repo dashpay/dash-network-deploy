@@ -1,6 +1,6 @@
 ---
 
-# Requires masternode and masternode_name to be set
+# Requires "masternode" and "masternode_name" variables
 
 - name: copy script
   copy:
@@ -10,8 +10,8 @@
     group: root
     mode: 0755
 
-- name: find-collateral for {{ masternode_name }}/{{ masternode.address }}
-  shell: find-collateral.py "{{ masternode_wallet_rpc_args }}" "{{ masternode.address }}" "{{ find_protx }}"
+- name: find-collateral for {{ masternode_name }}/{{ masternode.collateral.address }}
+  shell: find-collateral.py "{{ masternode_wallet_rpc_args }}" "{{ masternode.collateral.address }}" "{{ find_protx }}"
   register: r
   failed_when: False
 
@@ -33,7 +33,7 @@
     collateral_txid_{{masternode_name|replace("-","_")}}: "{{ collateral_txid }}"
     collateral_vout_{{masternode_name|replace("-","_")}}: "{{ collateral_vout }}"
 
-- debug: msg="mn={{ masternode_name }} address={{ masternode.address }} collateral_ok={{collateral_ok}}, collateral_txid={{collateral_txid}}, collateral_vout={{collateral_vout}}"
+- debug: msg="mn={{ masternode_name }} address={{ masternode.collateral.address }} collateral_ok={{collateral_ok}}, collateral_txid={{collateral_txid}}, collateral_vout={{collateral_vout}}"
 
 - name: updating collateral_ok_count
   set_fact:

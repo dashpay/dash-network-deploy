@@ -4,6 +4,6 @@
 - src: geerlingguy.docker
   version: 2.5.1
 
-- src: https://github.com/kyl191/ansible-role-openvpn
+- src: https://github.com/shumkov/ansible-role-openvpn
   name: kyl191.openvpn
-  version: 112f9f5
+  version: patch-1

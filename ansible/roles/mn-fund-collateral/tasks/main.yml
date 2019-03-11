@@ -1,9 +1,10 @@
 ---
 
+# Requires "masternode_names" variable
 
-- name: import masternode funding address key
-  command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].address_key }}'
-  with_items: '{{ groups["masternodes"] }}'
+- name: import masternode collateral private key
+  command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].collateral.private_key }}'
+  with_items: '{{ masternode_names }}'
 
 # check
 
@@ -16,11 +17,11 @@
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
-  with_items: '{{ groups["masternodes"] }}'
+  with_items: '{{ masternode_names }}'
 
 - name: updating collateral_all_ok
   set_fact:
-    collateral_all_ok: "{{ collateral_ok_count|int == groups['masternodes']|length }}"
+    collateral_all_ok: "{{ collateral_ok_count|int == masternode_names|length }}"
 
 - debug: msg="collateral_ok_count={{ collateral_ok_count }}"
 
@@ -31,7 +32,7 @@
     name: generate-blocks
   vars:
     num_blocks: 0
-    balance_needed: "{{ (groups['masternodes']|length - collateral_ok_count) * 1000 }}"
+    balance_needed: "{{ (masternode_names|length - collateral_ok_count|int) * 1000 }}"
   when: not collateral_all_ok
 
 # fund
@@ -40,8 +41,9 @@
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
+    amount: 1000
   when: not vars["collateral_ok_" + item|replace("-","_")]
-  with_items: '{{ groups["masternodes"] }}'
+  with_items: '{{ masternode_names }}'
 
 # verify
 
@@ -56,11 +58,11 @@
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
   when: not collateral_all_ok
-  with_items: '{{ groups["masternodes"] }}'
+  with_items: '{{ masternode_names }}'
 
 - fail:
     msg: funding was not successful
-  when: not collateral_all_ok and collateral_ok_count|int != groups['masternodes']|length
+  when: not collateral_all_ok and collateral_ok_count|int != masternode_names|length
 
 - name: generate at least one block to confirm funding transactions
   include_role:

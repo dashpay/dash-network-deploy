@@ -12,7 +12,7 @@
       changed_when:
       - output.stdout != ""
       - output.stdout != "\r\n"
-    - name: Check if inside AWS.
+    - name: check if inside AWS
       uri:
         url: http://169.254.169.254/latest/meta-data
         timeout: 2
@@ -116,11 +116,15 @@
     - role: generate-firstblock
       when: dash_network == "devnet" or dash_network == "regtest"
 
+# Mine blocks
+
 - hosts: miners
   become: true
   roles:
     - role: dashd-generate-miner
       when: dash_network != "mainnet"
+
+# Start faucet
 
 - hosts: web
   become: true
@@ -134,10 +138,9 @@
 - hosts: masternode-wallet
   become: true
   roles:
-    - mn-fund-collateral
-    - mn-pay-faucet
-    - {role: mn-conf, tags: mn-conf}
-    - mn-start
+    - mn-init
+
+# Prune unused Docker images
 
 - hosts: all
   become: true
