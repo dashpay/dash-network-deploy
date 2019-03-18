@@ -42,6 +42,8 @@ fi
 
 openvpn_start
 
+openvpn_wait_for_connect
+
 NETWORK_ARG=""
 case ${NETWORK} in
     devnet)
