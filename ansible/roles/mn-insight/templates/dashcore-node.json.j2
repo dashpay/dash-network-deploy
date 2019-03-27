@@ -2,12 +2,11 @@
   "network": "{{ 'mainnet' if dash_network == 'mainnet' else 'testnet' }}",
   "port": 3001,
   "services": [
-    "bitcoind",
-    "insight-api-dash",
-    "web"
+    "dashd",
+    "@dashevo/insight-api",
   ],
   "servicesConfig": {
-    "bitcoind": {
+    "dashd": {
       "connect": [{
         "rpchost": "{{ mn_insight_dashd_rpchost }}",
         "rpcport": {{ mn_insight_dashd_rpc_port }},
@@ -16,9 +15,6 @@
         "zmqpubrawtx": "tcp://{{ mn_insight_dashd_rpchost }}:{{ dashd_zmq_port }}",
         "zmqpubhashblock": "tcp://{{ mn_insight_dashd_rpchost }}:{{ dashd_zmq_port }}"
       }]
-    },
-    "insight-api-dash": {
-      "disableRateLimiter": true
     }
   }
 }

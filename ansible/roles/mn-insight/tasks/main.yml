@@ -7,7 +7,7 @@
     dest: '{{ mn_insight_path }}/{{ item }}'
   loop:
     - docker-compose.yml
-    - bitcore-node-dash.json
+    - dashcore-node.json
     - .env
 
 - name: start insight
