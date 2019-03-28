@@ -16,6 +16,9 @@
         "zmqpubrawtx": "tcp://{{ mn_insight_dashd_rpchost }}:{{ dashd_zmq_port }}",
         "zmqpubhashblock": "tcp://{{ mn_insight_dashd_rpchost }}:{{ dashd_zmq_port }}"
       }]
+    },
+    "@dashevo/insight-api": {
+      "disableRateLimiter": true
     }
   }
 }
