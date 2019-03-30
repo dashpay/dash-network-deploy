@@ -38,6 +38,10 @@
   assert:
     that: 'dapi.dapi.state.running'
 
-- name: check Insight container
+- name: check Insight API container
   assert:
     that: 'insight_api.insight_api.state.running'
+
+- name: check Insight API Proxy container
+  assert:
+    that: 'insight_api_proxy.insight_api_proxy.state.running'
