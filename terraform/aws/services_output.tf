@@ -119,7 +119,7 @@ data "template_file" "masternodes" {
       "   - drive_mongodb",
       "   - ipfs",
       "   - sentinel",
-      "   - insight"
+      "   - insight_api"
     )))}"
   }
 }

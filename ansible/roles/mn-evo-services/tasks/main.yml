@@ -3,12 +3,14 @@
 - name: create masternode evolution services dir
   file: path='{{ mn_evo_services_path }}' state=directory recurse=true
 
-- name: copy masternode evolution services docker compose
+- name: copy files
   template:
-    src: '{{ item }}'
+    src: '{{ item }}.j2'
     dest: '{{ mn_evo_services_path }}/{{ item }}'
   loop:
     - docker-compose.yml
+    - dashcore-node.json
+    - insight-api-proxy-nginx.conf
     - .env
 
 - import_tasks: ipfs/main.yml
@@ -35,3 +37,7 @@
 - name: check DAPI container
   assert:
     that: 'dapi.dapi.state.running'
+
+- name: check Insight container
+  assert:
+    that: 'insight_api.insight_api.state.running'
