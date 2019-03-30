@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 LABEL maintainer="Dash Developers <dev@dash.org>"
 LABEL description="DashDrive Node.JS"
@@ -12,22 +12,21 @@ RUN apt-get update -y && \
     unzip \
     python-minimal \
     python-pip \
-    git
+    git \
+    openvpn \
+    software-properties-common \
+    gnupg
 
 # Add apt repositories
 
-RUN curl -s https://swupdate.openvpn.net/repos/repo-public.gpg|apt-key add - && \
-    echo "deb http://build.openvpn.net/debian/openvpn/stable xenial main" > /etc/apt/sources.list.d/openvpn.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367 && \
-    echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu xenial main" > /etc/apt/sources.list.d/ansible.list && \
-    curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN apt-add-repository --yes --update ppa:ansible/ansible && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 # Install dependencies from apt repos
 
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ansible \
-    openvpn \
     nodejs
 
 # Install terraform
@@ -58,7 +57,7 @@ COPY . .
 
 # Install ansible playbook and Node.JS dependencies
 
-RUN pip install --upgrade netaddr awscli paramiko Crypto && \
+RUN pip install --upgrade netaddr awscli && \
     ansible-galaxy install -r ansible/requirements.yml && \
     npm install
 
