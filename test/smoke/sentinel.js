@@ -17,7 +17,7 @@ describe('Sentinel', () => {
 
         const options = {
           filters: JSON.stringify({
-            name: ['mn_sentinel_sentinel'],
+            name: ['sentinel'],
           }),
         };
 
