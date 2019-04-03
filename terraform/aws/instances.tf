@@ -140,7 +140,7 @@ resource "aws_instance" "vpn" {
   count = "${var.vpn_enabled ? 1 : 0}"
 
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t3.nano"
+  instance_type = "t2.nano"
   key_name      = "${aws_key_pair.auth.id}"
 
   subnet_id = "${aws_subnet.default.id}"
