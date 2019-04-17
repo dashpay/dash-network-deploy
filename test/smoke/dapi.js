@@ -57,10 +57,15 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        const { error: { code } } = await dapiClient.request('fetchDapContract', { dapId: 'fakeDapId' });
+        const { error } = await dapiClient.request('fetchContract', { contractId: 'fakeDapId' });
 
-        // we expect code -32602( invalid dap id) or 100( initial sync in progress)
-        expect([-32602, 100]).to.be.containing(code);
+        // There are two expected codes:
+        //   -32602 - Invalid contract ID
+        //   100 - Initial sync in progress
+
+        const message = `Invalid response from Drive: ${JSON.stringify(error)}`;
+
+        expect(error.code).to.be.oneOf([-32602, 100], message);
       });
     });
   }
