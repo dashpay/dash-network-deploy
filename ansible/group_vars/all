@@ -12,8 +12,14 @@ openvpn_enabled: true
 # Sentinel Docker image
 sentinel_image: ablock/sentinel
 
-# Insight API Docker image
-insight_image: dashpay/insight-api
+# Evo services Docker images
+ipfs_image: ipfs/go-ipfs
+drive_image: dashpay/drive
+dapi_image: dashpay/dapi
+
+# Insight Docker image
+insight_image: dashpay/insight
+insight_api_image: dashpay/insight-api
 
 # DashCore Docker image
 dashd_image: dashpay/dashd-develop

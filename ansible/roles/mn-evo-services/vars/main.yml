@@ -1,8 +1,5 @@
 ---
 
-ipfs_image: ipfs/go-ipfs:v0.4.18
-drive_image: dashpay/drive:latest
-
 mn_evo_services_compose_project_name: mn_evo_services
 mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'
 
