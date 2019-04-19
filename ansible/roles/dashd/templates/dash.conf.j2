@@ -43,7 +43,7 @@ rpcallowip=0.0.0.0/0
 {% else %}
 rpcallowip={{ dashd_private_cidr }}
 rpcallowip=127.0.0.0
-rpcallowip=172.0.0.0/8
+rpcallowip=172.16.0.0/12
 rpcallowip=192.168.0.0/16
 rpcallowip={{ hostvars['vpn'].public_ip }}/32
 {% endif %}
