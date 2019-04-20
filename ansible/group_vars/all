@@ -17,9 +17,10 @@ ipfs_image: ipfs/go-ipfs
 drive_image: dashpay/drive
 dapi_image: dashpay/dapi
 
-# Insight Docker image
+# Insight
 insight_image: dashpay/insight
 insight_api_image: dashpay/insight-api
+insight_port: 3001
 
 # DashCore Docker image
 dashd_image: dashpay/dashd-develop

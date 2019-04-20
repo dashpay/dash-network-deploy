@@ -27,7 +27,7 @@ ${elb_host}
 Insight Explorer
 ================
 
-${elb_host}:${insight_port}
+${elb_host}:${insight_port}/insight
 
 
 VPN

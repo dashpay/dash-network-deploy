@@ -2,19 +2,25 @@ const fetch = require('node-fetch');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const { inventory } = getNetworkConfig();
+const { inventory, variables } = getNetworkConfig();
 
 describe('Insight', () => {
-  for (const hostName of inventory.masternodes.hosts) {
+  for (const hostName of inventory.web.hosts) {
     describe(hostName, () => {
-      it('should return block', async function it() {
+      // eslint-disable-next-line no-underscore-dangle
+      const insightUrl = `http://${inventory._meta.hostvars[hostName].public_ip}`
+                          + `:${variables.insight_port}`;
+
+      it('should respond UI', async () => {
+        const response = await fetch(`${insightUrl}/insight`);
+
+        expect(response.status).to.be.equal(200);
+      });
+
+      it('should return block via API', async function it() {
         this.slow(1500);
 
-        // eslint-disable-next-line no-underscore-dangle
-        const url = `http://${inventory._meta.hostvars[hostName].public_ip}:3001`
-          + '/insight-api/blocks?limit=1';
-
-        const response = await fetch(url);
+        const response = await fetch(`${insightUrl}/insight-api/blocks?limit=1`);
         const { blocks } = await response.json();
 
         expect(blocks).to.have.lengthOf(1);
