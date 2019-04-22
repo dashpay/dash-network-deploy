@@ -1,0 +1,25 @@
+{
+  "network": "{{ 'mainnet' if dash_network == 'mainnet' else 'testnet' }}",
+  "port": 3001,
+  "services": [
+    "dashd",
+    "@dashevo/insight-api",
+    {% if ui %}"@dashevo/insight-ui",{% endif %}
+    "web"
+  ],
+  "servicesConfig": {
+    "dashd": {
+      "connect": [{
+        "rpchost": "{{ private_ip }}",
+        "rpcport": {{ dashd_rpc_port }},
+        "rpcuser": "{{ dashd_rpc_user }}",
+        "rpcpassword": "{{ dashd_rpc_password }}",
+        "zmqpubrawtx": "tcp://{{ private_ip }}:{{ dashd_zmq_port }}",
+        "zmqpubhashblock": "tcp://{{ private_ip }}:{{ dashd_zmq_port }}"
+      }]
+    },
+    "@dashevo/insight-api": {
+      "disableRateLimiter": true
+    }
+  }
+}

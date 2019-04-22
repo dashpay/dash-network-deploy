@@ -1,0 +1,29 @@
+---
+
+- name: create Insight dir
+  file: path='{{ insight_path }}' state=directory recurse=true
+
+- name: copy files
+  template:
+    src: '{{ item }}.j2'
+    dest: '{{ insight_path }}/{{ item }}'
+  loop:
+    - docker-compose.yml
+    - dashcore-node.json
+    - insight-proxy-nginx.conf
+    - .env
+
+- name: start Insight
+  docker_service:
+    project_src: '{{ insight_path }}'
+    state: present
+    restarted: yes
+    pull: yes
+
+- name: check Insight container
+  assert:
+    that: 'insight.insight.state.running'
+
+- name: check Insight Proxy container
+  assert:
+    that: 'insight_proxy.insight_proxy.state.running'

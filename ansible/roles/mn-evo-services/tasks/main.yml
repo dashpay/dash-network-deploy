@@ -3,9 +3,9 @@
 - name: create masternode evolution services dir
   file: path='{{ mn_evo_services_path }}' state=directory recurse=true
 
-- name: copy masternode evolution services docker compose
+- name: copy files
   template:
-    src: '{{ item }}'
+    src: '{{ item }}.j2'
     dest: '{{ mn_evo_services_path }}/{{ item }}'
   loop:
     - docker-compose.yml

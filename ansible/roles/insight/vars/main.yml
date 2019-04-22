@@ -1,0 +1,5 @@
+---
+
+insight_compose_project_name: insight
+insight_path: '{{ dashd_home }}/{{ insight_compose_project_name }}'
+ui: true

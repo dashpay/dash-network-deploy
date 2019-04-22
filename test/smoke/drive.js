@@ -4,7 +4,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
-const wait = require('../wait');
+const wait = require('../../lib/test/wait');
 
 describe('Drive', () => {
   for (const hostName of inventory.masternodes.hosts) {
@@ -27,7 +27,7 @@ describe('Drive', () => {
 
         const timeout = 1000;
         const attempts = 90;
- 
+
         this.timeout((attempts + 10) * timeout);
         this.slow((attempts + 10) * timeout);
 

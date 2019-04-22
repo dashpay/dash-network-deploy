@@ -68,7 +68,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      - INSIGHT_URI=http://{{ private_ip }}:3001/insight-api-dash
+      - INSIGHT_URI=http://{{ private_ip }}:3001/insight-api
       - RPC_SERVER_PORT=3000
       - DASHCORE_RPC_HOST={{ private_ip }}
       - DASHCORE_RPC_PORT={{ dashd_rpc_port }}
@@ -79,8 +79,8 @@ services:
       - DASHCORE_P2P_HOST={{ private_ip }}
       - DASHCORE_P2P_PORT={{ dashd_port }}
       - DASHCORE_P2P_NETWORK={{ dash_network }}
-      - DASHDRIVE_RPC_HOST=drive_api
-      - DASHDRIVE_RPC_PORT=6000
+      - DRIVE_RPC_HOST=drive_api
+      - DRIVE_RPC_PORT=6000
       - NETWORK={{ dash_network }}
 
 volumes:
