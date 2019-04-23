@@ -116,12 +116,6 @@ There are two commands that can be useful for debugging:
 
     ```yaml
     evo_services: true
-    insight_image: "<docker-image>"
-    drive_image: "<docker-image>"
-    dapi_image: "<docker-image>"
-    dashd_image: "<docker-image>"
-    # uncomment if docker images are stored in AWS ECR
-    # aws_ecr_login: true
     ```
 
 2. Get current block height:

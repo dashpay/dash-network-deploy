@@ -43,7 +43,7 @@
     state: started
     restart: '{{ dash_config_state is changed }}'
     restart_policy: always
-    image: '{{ dashd_image }}'
+    image: '{{ dashd_evo_image if evo_services else dashd_image }}'
     pull: true
     user: '{{ dash_user_id.stdout }}:{{ dash_group_id.stdout }}'
     working_dir: '{{ dashd_home }}'
