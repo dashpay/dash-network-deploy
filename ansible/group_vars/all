@@ -23,7 +23,8 @@ insight_api_image: dashpay/insight-api
 insight_port: 3001
 
 # DashCore Docker image
-dashd_image: dashpay/dashd-develop
+dashd_image: dashpay/dashd
+dashd_evo_image: dashpay/dashd:evo-latest
 
 dashd_user: dash
 dashd_group: dash
