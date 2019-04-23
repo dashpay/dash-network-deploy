@@ -103,6 +103,7 @@
     - mn-sentinel
     - role: insight
       ui: false
+      when: evo_services
     - role: mn-evo-services
       tags:
         - evo
