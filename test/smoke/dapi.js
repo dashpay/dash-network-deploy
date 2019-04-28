@@ -1,4 +1,12 @@
 const { client: jaysonClient } = require('jayson/promise');
+const grpc = require('grpc');
+const { promisify } = require('util');
+
+const { Client: HealthCheckClient } = require('grpc-health-check/health');
+const {
+  HealthCheckRequest,
+  HealthCheckResponse: { ServingStatus: healthCheckStatuses },
+} = require('grpc-health-check/v1/health_pb');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
@@ -16,7 +24,7 @@ describe('DAPI', () => {
         dapiClient = jaysonClient.http({
           // eslint-disable-next-line no-underscore-dangle
           host: inventory._meta.hostvars[hostName].public_ip,
-          port: 3000,
+          port: variables.dapi_port,
         });
         coreClient = createRpcClientFromConfig(hostName);
       });
@@ -66,6 +74,23 @@ describe('DAPI', () => {
         const message = `Invalid response from Drive: ${JSON.stringify(error)}`;
 
         expect(error.code).to.be.oneOf([-32602, 100], message);
+      });
+
+      it('should respond data from TxFilterStream GRPC service', async () => {
+        const healthClient = new HealthCheckClient(
+          // eslint-disable-next-line no-underscore-dangle
+          `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`,
+          grpc.credentials.createInsecure(),
+        );
+
+        const checkHealth = promisify(healthClient.check).bind(healthClient);
+
+        const request = new HealthCheckRequest();
+        request.setService('org.dash.platform.dapi.TransactionsFilterStream');
+
+        const response = await checkHealth(request);
+
+        expect(response.getStatus()).to.equal(healthCheckStatuses.SERVING);
       });
     });
   }

@@ -45,6 +45,11 @@ variable "dapi_port" {
   default     = 3000
 }
 
+variable "dapi_grpc_port" {
+  description = "DAPI GRPC port"
+  default     = 3010
+}
+
 variable "docker_port" {
   description = "Docker API port"
   default     = 2375

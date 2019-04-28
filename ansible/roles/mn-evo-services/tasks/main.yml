@@ -9,6 +9,9 @@
     dest: '{{ mn_evo_services_path }}/{{ item }}'
   loop:
     - docker-compose.yml
+    - dapi-nginx.conf
+    - dapi-nginx-grpc.conf
+    - dapi-nginx-errors.grpc_conf
     - .env
 
 - import_tasks: ipfs/main.yml
@@ -32,6 +35,14 @@
   assert:
     that: 'drive_mongodb.drive_mongodb.state.running'
 
-- name: check DAPI container
+- name: check DAPI Core container
   assert:
-    that: 'dapi.dapi.state.running'
+    that: 'dapi_core.dapi_core.state.running'
+
+- name: check DAPI TxFilterStream container
+  assert:
+    that: 'dapi_tx_filter_stream.dapi_tx_filter_stream.state.running'
+
+- name: check DAPI Nginx container
+  assert:
+    that: 'dapi_nginx.dapi_nginx.state.running'

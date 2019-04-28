@@ -61,6 +61,15 @@ data "template_file" "service_dapi" {
   }
 }
 
+data "template_file" "service_dapi_grpc" {
+  template = "${file("${path.module}/templates/services/service.tpl")}"
+
+  vars {
+    name = "DAPI GRPC"
+    port = "${var.dapi_grpc_port}"
+  }
+}
+
 data "template_file" "service_drive" {
   template = "${file("${path.module}/templates/services/service.tpl")}"
 
@@ -98,7 +107,8 @@ data "template_file" "masternodes" {
     external_services = "${replace(chomp(join("", list(
       data.template_file.service_ssh.rendered,
       data.template_file.service_core_p2p.rendered,
-      data.template_file.service_dapi.rendered
+      data.template_file.service_dapi.rendered,
+      data.template_file.service_dapi_grpc.rendered
     ))), "{{ip}}", element(aws_instance.masternode.*.public_ip, count.index))}"
 
     internal_services = "${replace(chomp(join("", list(
@@ -113,7 +123,8 @@ data "template_file" "masternodes" {
 
     service_logs = "${chomp(join("\n", list(
       "   - dashd",
-      "   - dapi",
+      "   - dapi_core",
+      "   - dapi_tx_filter_stream",
       "   - drive_sync",
       "   - drive_api",
       "   - drive_mongodb",
