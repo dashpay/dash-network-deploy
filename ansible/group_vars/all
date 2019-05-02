@@ -15,7 +15,11 @@ sentinel_image: ablock/sentinel
 # Evo services Docker images
 ipfs_image: ipfs/go-ipfs
 drive_image: dashpay/drive
+
+# DAPI
 dapi_image: dashpay/dapi
+dapi_port: 3000
+dapi_grpc_port: 3010
 
 # Insight
 insight_image: dashpay/insight

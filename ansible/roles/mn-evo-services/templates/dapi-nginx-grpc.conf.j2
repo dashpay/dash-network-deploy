@@ -1,0 +1,29 @@
+log_format grpc_json escape=json '{"timestamp":"$time_iso8601","client":"$remote_addr",'
+                                  '"uri":"$uri","http-status":$status,'
+                                  '"grpc-status":$grpc_status,"upstream":"$upstream_addr"'
+                                  '"rx-bytes":$request_length,"tx-bytes":$bytes_sent}';
+
+map $upstream_trailer_grpc_status $grpc_status {
+    default $upstream_trailer_grpc_status; # We normally expect to receive
+                                           # grpc-status as a trailer
+    ''      $sent_http_grpc_status;        # Else use the header, regardless of
+                                           # who generated it
+}
+
+server {
+    listen 50051 http2;
+
+    access_log /dev/stdout grpc_json;
+
+    location /org.dash.platform.dapi.TransactionsFilterStream {
+        grpc_pass grpc://{{ private_ip }}:3005;
+    }
+
+    location /grpc.health.v1.Health {
+        grpc_pass grpc://{{ private_ip }}:3005;
+    }
+
+    # Error responses
+    include /etc/nginx/conf.d/dapi-nginx-errors.grpc_conf; # gRPC-compliant error responses
+    default_type application/grpc;   # Ensure gRPC for all error responses
+}
