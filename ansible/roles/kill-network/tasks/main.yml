@@ -14,14 +14,11 @@
     enabled: False
   failed_when: False
 
-- name: kill all docker containers
-  shell: if [ -n "$(docker ps -qa)" ]; then docker rm -fv $(docker ps -qa); fi
+- name: stop all docker containers
+  shell: if [ -n "$(docker container ls -a -q)" ]; then docker container stop $(docker container ls -a -q); fi
 
-- name: remove all docker volumes
-  shell: docker volume ls -qf dangling=true | xargs -r docker volume rm
-
-- name: remove all docker images
-  shell: docker image ls -q | xargs -r docker image rm
+- name: remove all docker data
+  shell: docker system prune -a -f --volumes
 
 - name: delete dash home dir
   file:
