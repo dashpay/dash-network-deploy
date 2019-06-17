@@ -15,12 +15,16 @@ server {
 
     access_log /dev/stdout grpc_json;
 
-    location /org.dash.platform.dapi.TransactionsFilterStream {
+    location /org.dash.platform.dapi.Core {
         grpc_pass grpc://{{ private_ip }}:3005;
     }
 
+    location /org.dash.platform.dapi.TransactionsFilterStream {
+        grpc_pass grpc://{{ private_ip }}:3006;
+    }
+
     location /grpc.health.v1.Health {
-        grpc_pass grpc://{{ private_ip }}:3005;
+        grpc_pass grpc://{{ private_ip }}:3006;
     }
 
     # Error responses
