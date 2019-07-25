@@ -6,7 +6,7 @@ resource "aws_instance" "web" {
   }
 
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -15,10 +15,6 @@ resource "aws_instance" "web" {
   ]
 
   subnet_id = "${aws_subnet.default.id}"
-
-  credit_specification {
-    cpu_credits = "unlimited"
-  }
 
   tags = {
     Name        = "dn-${terraform.workspace}-web-${count.index + 1}"
@@ -32,7 +28,7 @@ resource "aws_instance" "dashd_wallet" {
   count = "${var.wallet_count}"
 
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -41,10 +37,6 @@ resource "aws_instance" "dashd_wallet" {
   ]
 
   subnet_id = "${aws_subnet.default.id}"
-
-  credit_specification {
-    cpu_credits = "unlimited"
-  }
 
   tags = {
     Name        = "dn-${terraform.workspace}-dashd-wallet-${count.index + 1}"
@@ -58,7 +50,7 @@ resource "aws_instance" "dashd_full_node" {
   count = "${var.node_count}"
 
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -67,10 +59,6 @@ resource "aws_instance" "dashd_full_node" {
   ]
 
   subnet_id = "${aws_subnet.default.id}"
-
-  credit_specification {
-    cpu_credits = "unlimited"
-  }
 
   tags = {
     Name        = "dn-${terraform.workspace}-node-${count.index + 1}"
@@ -84,7 +72,7 @@ resource "aws_instance" "miner" {
   count = "${var.miner_count}"
 
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.small"
+  instance_type = "t3.small"
   key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -93,10 +81,6 @@ resource "aws_instance" "miner" {
   ]
 
   subnet_id = "${aws_subnet.default.id}"
-
-  credit_specification {
-    cpu_credits = "unlimited"
-  }
 
   tags = {
     Name        = "dn-${terraform.workspace}-miner-${count.index + 1}"
@@ -110,7 +94,7 @@ resource "aws_instance" "masternode" {
   count = "${var.masternode_count}"
 
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.small"
+  instance_type = "t3.small"
   key_name      = "${aws_key_pair.auth.id}"
 
   vpc_security_group_ids = [
@@ -120,10 +104,6 @@ resource "aws_instance" "masternode" {
   ]
 
   subnet_id = "${aws_subnet.default.id}"
-
-  credit_specification {
-    cpu_credits = "unlimited"
-  }
 
   root_block_device {
     volume_size = "14"
@@ -140,14 +120,10 @@ resource "aws_instance" "vpn" {
   count = "${var.vpn_enabled ? 1 : 0}"
 
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.nano"
+  instance_type = "t3.nano"
   key_name      = "${aws_key_pair.auth.id}"
 
   subnet_id = "${aws_subnet.default.id}"
-
-  credit_specification {
-    cpu_credits = "unlimited"
-  }
 
   vpc_security_group_ids = [
     "${aws_security_group.vpn.id}",
