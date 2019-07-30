@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 LABEL maintainer="Dash Developers <dev@dash.org>"
-LABEL description="DashDrive Node.JS"
+LABEL description="Dash Network Deployment Tool"
 
 # Install build utils
 
