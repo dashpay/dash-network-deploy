@@ -1,7 +1,7 @@
 resource "aws_security_group" "default" {
   name        = "${terraform.workspace}-ssh"
   description = "ssh access"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = aws_vpc.default.id
 
   # SSH access from anywhere
   ingress {
@@ -17,13 +17,13 @@ resource "aws_security_group" "default" {
 
   # Docker API
   ingress {
-    from_port   = "${var.docker_port}"
-    to_port     = "${var.docker_port}"
+    from_port   = var.docker_port
+    to_port     = var.docker_port
     protocol    = "tcp"
     description = "Docker API"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
@@ -36,13 +36,13 @@ resource "aws_security_group" "default" {
 
     cidr_blocks = [
       "0.0.0.0/0",
-      "${var.private_subnet}",
+      var.private_subnet,
     ]
   }
 
   tags = {
     Name        = "dn-${terraform.workspace}-default"
-    DashNetwork = "${terraform.workspace}"
+    DashNetwork = terraform.workspace
   }
 }
 
@@ -50,49 +50,49 @@ resource "aws_security_group" "default" {
 resource "aws_security_group" "dashd_private" {
   name        = "${terraform.workspace}-dashd-private"
   description = "dashd private node"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = aws_vpc.default.id
 
   # Dash Core access
   ingress {
-    from_port   = "${var.dashd_port}"
-    to_port     = "${var.dashd_port}"
+    from_port   = var.dashd_port
+    to_port     = var.dashd_port
     protocol    = "tcp"
     description = "DashCore P2P"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
     ]
   }
 
   # DashCore RPC access
   ingress {
-    from_port   = "${var.dashd_rpc_port}"
-    to_port     = "${var.dashd_rpc_port}"
+    from_port   = var.dashd_rpc_port
+    to_port     = var.dashd_rpc_port
     protocol    = "tcp"
     description = "DashCore RPC"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   # DashCore ZMQ acess
   ingress {
-    from_port   = "${var.dashd_zmq_port}"
-    to_port     = "${var.dashd_zmq_port}"
+    from_port   = var.dashd_zmq_port
+    to_port     = var.dashd_zmq_port
     protocol    = "tcp"
     description = "DashCore ZMQ"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   tags = {
     Name        = "dn-${terraform.workspace}-dashd-private"
-    DashNetwork = "${terraform.workspace}"
+    DashNetwork = terraform.workspace
   }
 }
 
@@ -100,12 +100,12 @@ resource "aws_security_group" "dashd_private" {
 resource "aws_security_group" "dashd_public" {
   name        = "${terraform.workspace}-dashd-public"
   description = "dashd public network"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = aws_vpc.default.id
 
   # Dash Core access
   ingress {
-    from_port   = "${var.dashd_port}"
-    to_port     = "${var.dashd_port}"
+    from_port   = var.dashd_port
+    to_port     = var.dashd_port
     protocol    = "tcp"
     description = "DashCore P2P"
 
@@ -116,40 +116,40 @@ resource "aws_security_group" "dashd_public" {
 
   # DashCore RPC access
   ingress {
-    from_port   = "${var.dashd_rpc_port}"
-    to_port     = "${var.dashd_rpc_port}"
+    from_port   = var.dashd_rpc_port
+    to_port     = var.dashd_rpc_port
     protocol    = "tcp"
     description = "DashCore RPC"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   # DashCore ZMQ acess
   ingress {
-    from_port   = "${var.dashd_zmq_port}"
-    to_port     = "${var.dashd_zmq_port}"
+    from_port   = var.dashd_zmq_port
+    to_port     = var.dashd_zmq_port
     protocol    = "tcp"
     description = "DashCore ZMQ"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   tags = {
     Name        = "dn-${terraform.workspace}-dashd-public"
-    DashNetwork = "${terraform.workspace}"
+    DashNetwork = terraform.workspace
   }
 }
 
 resource "aws_security_group" "http" {
   name        = "${terraform.workspace}-http"
   description = "web node"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = aws_vpc.default.id
 
   ingress {
     from_port   = 80
@@ -158,26 +158,26 @@ resource "aws_security_group" "http" {
     description = "Faucet"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   ingress {
-    from_port   = "${var.insight_port}"
-    to_port     = "${var.insight_port}"
+    from_port   = var.insight_port
+    to_port     = var.insight_port
     protocol    = "tcp"
     description = "Insight Explorer"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   tags = {
     Name        = "dn-${terraform.workspace}-http"
-    DashNetwork = "${terraform.workspace}"
+    DashNetwork = terraform.workspace
   }
 }
 
@@ -185,63 +185,63 @@ resource "aws_security_group" "http" {
 resource "aws_security_group" "masternode" {
   name        = "${terraform.workspace}-masternode"
   description = "masternode"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = aws_vpc.default.id
 
   # IPFS swarm
   ingress {
-    from_port   = "${var.ipfs_swarm_port}"
-    to_port     = "${var.ipfs_swarm_port}"
+    from_port   = var.ipfs_swarm_port
+    to_port     = var.ipfs_swarm_port
     protocol    = "tcp"
     description = "IPFS swarm"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
     ]
   }
 
   # IPFS API
   ingress {
-    from_port   = "${var.ipfs_api_port}"
-    to_port     = "${var.ipfs_api_port}"
+    from_port   = var.ipfs_api_port
+    to_port     = var.ipfs_api_port
     protocol    = "tcp"
     description = "IPFS API"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   # Insight API access
   ingress {
-    from_port   = "${var.insight_port}"
-    to_port     = "${var.insight_port}"
+    from_port   = var.insight_port
+    to_port     = var.insight_port
     protocol    = "tcp"
     description = "Insight API"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   # Drive
   ingress {
-    from_port   = "${var.drive_port}"
-    to_port     = "${var.drive_port}"
+    from_port   = var.drive_port
+    to_port     = var.drive_port
     protocol    = "tcp"
     description = "Drive"
 
     cidr_blocks = [
-      "${var.private_subnet}",
+      var.private_subnet,
       "${aws_eip.vpn.public_ip}/32",
     ]
   }
 
   # DAPI
   ingress {
-    from_port   = "${var.dapi_port}"
-    to_port     = "${var.dapi_port}"
+    from_port   = var.dapi_port
+    to_port     = var.dapi_port
     protocol    = "tcp"
     description = "DAPI"
 
@@ -252,8 +252,8 @@ resource "aws_security_group" "masternode" {
 
   # DAPI GRPC
   ingress {
-    from_port   = "${var.dapi_grpc_port}"
-    to_port     = "${var.dapi_grpc_port}"
+    from_port   = var.dapi_grpc_port
+    to_port     = var.dapi_grpc_port
     protocol    = "tcp"
     description = "DAPI Grpc"
 
@@ -264,14 +264,14 @@ resource "aws_security_group" "masternode" {
 
   tags = {
     Name        = "dn-${terraform.workspace}-masternode"
-    DashNetwork = "${terraform.workspace}"
+    DashNetwork = terraform.workspace
   }
 }
 
 # A security group for the ELB so it is accessible via the web
 resource "aws_security_group" "elb" {
   name   = "${terraform.workspace}-elb"
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = aws_vpc.default.id
 
   # HTTP access from anywhere
   ingress {
@@ -287,8 +287,8 @@ resource "aws_security_group" "elb" {
 
   # Insight Explorer
   ingress {
-    from_port   = "${var.insight_port}"
-    to_port     = "${var.insight_port}"
+    from_port   = var.insight_port
+    to_port     = var.insight_port
     protocol    = "tcp"
     description = "Insight Explorer"
 
@@ -310,16 +310,16 @@ resource "aws_security_group" "elb" {
 
   tags = {
     Name        = "dn-${terraform.workspace}-elb"
-    DashNetwork = "${terraform.workspace}"
+    DashNetwork = terraform.workspace
   }
 }
 
 resource "aws_security_group" "vpn" {
-  count = "${var.vpn_enabled ? 1 : 0}"
+  count = var.vpn_enabled ? 1 : 0
 
   name        = "${terraform.workspace}-vpn"
   description = "vpn client access"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = aws_vpc.default.id
 
   # SSH access from anywhere
   ingress {
@@ -335,8 +335,8 @@ resource "aws_security_group" "vpn" {
 
   # VPN Client
   ingress {
-    from_port   = "${var.vpn_port}"
-    to_port     = "${var.vpn_port}"
+    from_port   = var.vpn_port
+    to_port     = var.vpn_port
     protocol    = "udp"
     description = "VPN client"
 
@@ -353,12 +353,13 @@ resource "aws_security_group" "vpn" {
 
     cidr_blocks = [
       "0.0.0.0/0",
-      "${var.private_subnet}",
+      var.private_subnet,
     ]
   }
 
   tags = {
     Name        = "dn-${terraform.workspace}-vpn"
-    DashNetwork = "${terraform.workspace}"
+    DashNetwork = terraform.workspace
   }
 }
+
