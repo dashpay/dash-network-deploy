@@ -7,6 +7,11 @@ terraform {
   }
 }
 
+data "aws_availability_zones" "available" {
+  blacklisted_names = ["us-west-2d"]
+  state             = "available"
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -42,7 +47,7 @@ resource "aws_vpc" "default" {
   }
 }
 
-# Create an internet gateway to give our subnet access to the outside world
+# Create an internet gateway to give our subnets access to the outside world
 resource "aws_internet_gateway" "default" {
   vpc_id = aws_vpc.default.id
 
@@ -59,24 +64,24 @@ resource "aws_route" "internet_access" {
   gateway_id             = aws_internet_gateway.default.id
 }
 
-# Create a subnet to launch our instances into
-resource "aws_subnet" "default" {
+# Create subnets to launch our instances into
+resource "aws_subnet" "public" {
+  count                   = 3
   vpc_id                  = aws_vpc.default.id
-  cidr_block              = var.private_subnet
+  cidr_block              = var.subnet_public_cidr[count.index]
   map_public_ip_on_launch = true
-
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
   tags = {
-    Name        = "dn-${terraform.workspace}-default"
+    Name        = "${terraform.workspace}-public${count.index}"
     DashNetwork = terraform.workspace
+    Tier        = "Public"
   }
 }
 
 resource "aws_elb" "web" {
   name = terraform.workspace
 
-  subnets = [
-    aws_subnet.default.id,
-  ]
+  subnets = aws_subnet.public.*.id
 
   security_groups = [
     aws_security_group.elb.id,

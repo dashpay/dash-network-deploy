@@ -64,9 +64,13 @@ variable "vpn_port" {
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
-
-variable "private_subnet" {
-  default = "10.0.0.0/16"
+variable "subnet_public_cidr" {
+  type = "list"
+  default = [
+    "10.0.16.0/20",
+    "10.0.32.0/20",
+    "10.0.48.0/20",
+  ]
 }
 
 variable "node_count" {
