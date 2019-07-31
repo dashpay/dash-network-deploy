@@ -1,4 +1,5 @@
-variable "public_key_path" {}
+variable "public_key_path" {
+}
 
 variable "dashd_port" {
   description = "Port for Dash Core nodes"
@@ -93,3 +94,4 @@ variable "vpn_enabled" {
   default     = true
   description = "setup instance for vpn"
 }
+
