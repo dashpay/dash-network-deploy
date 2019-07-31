@@ -22,10 +22,10 @@ resource "aws_security_group" "default" {
     protocol    = "tcp"
     description = "Docker API"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   # outbound internet access
@@ -34,10 +34,10 @@ resource "aws_security_group" "default" {
     to_port   = 0
     protocol  = "-1"
 
-    cidr_blocks = [
+    cidr_blocks = flatten([
       "0.0.0.0/0",
-      var.private_subnet,
-    ]
+      aws_subnet.public.*.cidr_block,
+    ])
   }
 
   tags = {
@@ -59,9 +59,9 @@ resource "aws_security_group" "dashd_private" {
     protocol    = "tcp"
     description = "DashCore P2P"
 
-    cidr_blocks = [
-      var.private_subnet,
-    ]
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+    ])
   }
 
   # DashCore RPC access
@@ -71,10 +71,10 @@ resource "aws_security_group" "dashd_private" {
     protocol    = "tcp"
     description = "DashCore RPC"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   # DashCore ZMQ acess
@@ -84,10 +84,10 @@ resource "aws_security_group" "dashd_private" {
     protocol    = "tcp"
     description = "DashCore ZMQ"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   tags = {
@@ -121,10 +121,10 @@ resource "aws_security_group" "dashd_public" {
     protocol    = "tcp"
     description = "DashCore RPC"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   # DashCore ZMQ acess
@@ -134,10 +134,10 @@ resource "aws_security_group" "dashd_public" {
     protocol    = "tcp"
     description = "DashCore ZMQ"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   tags = {
@@ -157,10 +157,10 @@ resource "aws_security_group" "http" {
     protocol    = "tcp"
     description = "Faucet"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   ingress {
@@ -169,10 +169,10 @@ resource "aws_security_group" "http" {
     protocol    = "tcp"
     description = "Insight Explorer"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   tags = {
@@ -194,9 +194,9 @@ resource "aws_security_group" "masternode" {
     protocol    = "tcp"
     description = "IPFS swarm"
 
-    cidr_blocks = [
-      var.private_subnet,
-    ]
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+    ])
   }
 
   # IPFS API
@@ -206,10 +206,10 @@ resource "aws_security_group" "masternode" {
     protocol    = "tcp"
     description = "IPFS API"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   # Insight API access
@@ -219,10 +219,10 @@ resource "aws_security_group" "masternode" {
     protocol    = "tcp"
     description = "Insight API"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   # Drive
@@ -232,10 +232,10 @@ resource "aws_security_group" "masternode" {
     protocol    = "tcp"
     description = "Drive"
 
-    cidr_blocks = [
-      var.private_subnet,
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
       "${aws_eip.vpn.public_ip}/32",
-    ]
+    ])
   }
 
   # DAPI
@@ -351,10 +351,10 @@ resource "aws_security_group" "vpn" {
     to_port   = 0
     protocol  = "-1"
 
-    cidr_blocks = [
+    cidr_blocks = flatten([
       "0.0.0.0/0",
-      var.private_subnet,
-    ]
+      aws_subnet.public.*.cidr_block,
+    ])
   }
 
   tags = {
@@ -362,4 +362,3 @@ resource "aws_security_group" "vpn" {
     DashNetwork = terraform.workspace
   }
 }
-
