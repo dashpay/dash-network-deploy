@@ -31,7 +31,7 @@ RUN apt-get update -y && \
 
 # Install terraform
 
-ARG TERRAFORM_VERSION=0.12.5
+ARG TERRAFORM_VERSION=0.12.6
 
 RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
