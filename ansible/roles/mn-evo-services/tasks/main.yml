@@ -1,7 +1,10 @@
 ---
 
 - name: create masternode evolution services dir
-  file: path='{{ mn_evo_services_path }}' state=directory recurse=true
+  file:
+    path: '{{ mn_evo_services_path }}'
+    state: directory
+    recurse: true
 
 - name: copy files
   template:
@@ -14,26 +17,36 @@
     - dapi-nginx-errors.grpc_conf
     - .env
 
-- import_tasks: ipfs/main.yml
+- import_tasks: mongodb_replicaset.yml
+
+- import_tasks: tendermint.yml
 
 - name: start masternodes evolution services
-  docker_service:
+  docker_compose:
     project_src: '{{ mn_evo_services_path }}'
     state: present
     restarted: yes
     pull: yes
 
-- name: check DashDrive sync container
+- name: check Drive MongoDB container
   assert:
-    that: 'drive_sync.drive_sync.state.running'
+    that: 'drive_mongodb.drive_mongodb.state.running'
 
-- name: check DashDrive API container
+- name: check Drive Update State container
+  assert:
+    that: 'drive_update_state.drive_update_state.state.running'
+
+- name: check Drive API container
   assert:
     that: 'drive_api.drive_api.state.running'
 
-- name: check DashDrive MongoDB container
+- name: check Machine container
   assert:
-    that: 'drive_mongodb.drive_mongodb.state.running'
+    that: 'machine.machine.state.running'
+
+- name: check Tendermint container
+  assert:
+    that: 'tendermint.tendermint.state.running'
 
 - name: check DAPI Core container
   assert:

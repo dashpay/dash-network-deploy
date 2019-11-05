@@ -1,8 +1,0 @@
----
-
-- name: read IPFS swarm key
-  command: 'cat {{ ipfs_swarm_key_path }}'
-  register: ipfs_swarm_key_file_content
-
-- set_fact:
-    ipfs_swarm_key: '{{ ipfs_swarm_key_file_content.stdout }}'

@@ -187,31 +187,6 @@ resource "aws_security_group" "masternode" {
   description = "masternode"
   vpc_id      = aws_vpc.default.id
 
-  # IPFS swarm
-  ingress {
-    from_port   = var.ipfs_swarm_port
-    to_port     = var.ipfs_swarm_port
-    protocol    = "tcp"
-    description = "IPFS swarm"
-
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-    ])
-  }
-
-  # IPFS API
-  ingress {
-    from_port   = var.ipfs_api_port
-    to_port     = var.ipfs_api_port
-    protocol    = "tcp"
-    description = "IPFS API"
-
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
-    ])
-  }
-
   # Insight API access
   ingress {
     from_port   = var.insight_port
@@ -260,6 +235,43 @@ resource "aws_security_group" "masternode" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+  }
+
+  # Tendermint P2P
+  ingress {
+    from_port   = var.tendermint_p2p_port
+    to_port     = var.tendermint_p2p_port
+    protocol    = "tcp"
+    description = "Tendermint P2P"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+    ])
+  }
+
+  # Tendermint ABCI
+  ingress {
+    from_port   = var.tendermint_abci_port
+    to_port     = var.tendermint_abci_port
+    protocol    = "tcp"
+    description = "Tendermint ABCI"
+
+    cidr_blocks = flatten([
+      "${aws_eip.vpn.public_ip}/32",
+    ])
+  }
+
+  # Tendermint RPC
+  ingress {
+    from_port   = var.tendermint_rpc_port
+    to_port     = var.tendermint_rpc_port
+    protocol    = "tcp"
+    description = "Tendermint RPC"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn.public_ip}/32",
+    ])
   }
 
   tags = {

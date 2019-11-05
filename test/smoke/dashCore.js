@@ -4,9 +4,9 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory, network } = getNetworkConfig();
 
 const allHosts = inventory.masternodes.hosts.concat(
-  inventory['wallet-nodes'].hosts,
+  inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
-  inventory['full-nodes'].hosts,
+  inventory.full_nodes.hosts,
 );
 
 describe('DashCore', () => {

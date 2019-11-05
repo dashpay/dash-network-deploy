@@ -1,0 +1,34 @@
+{
+  "genesis_time": "{{ tendermint_genesis_time }}",
+  "chain_id": "{{ dash_devnet_name if dash_network == 'devnet' else dash_network }}",
+  "consensus_params": {
+    "block": {
+      "max_bytes": "22020096",
+      "max_gas": "-1",
+      "time_iota_ms": "5000"
+    },
+    "evidence": {
+      "max_age": "100000"
+    },
+    "validator": {
+      "pub_key_types": [
+        "ed25519"
+      ]
+    }
+  },
+  "validators": [
+    {% for masternode in groups.masternodes %}
+        {
+          "address": "{{ hostvars[masternode].tendermint_validator_key | json_query('address') }}",
+          "pub_key": {
+             "type": "{{ hostvars[masternode].tendermint_validator_key | json_query('pub_key.type') }}",
+             "value": "{{ hostvars[masternode].tendermint_validator_key | json_query('pub_key.value') }}"
+          },
+          "power": "1",
+          "name": "{{ masternode }}"
+        }
+        {% if not loop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "app_hash": ""
+}

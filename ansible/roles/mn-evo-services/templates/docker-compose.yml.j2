@@ -1,23 +1,30 @@
 version: '3'
 
 services:
-  drive_sync:
+  drive_mongodb:
+    image: mongo:4.2
+    container_name: drive_mongodb
+    command: mongod --replSet driveDocumentIndices --bind_ip_all
+    ports:
+      - 27017:27017
+    volumes:
+      - drive_mongodb:/data/db
+
+  drive_update_state:
     image: {{ drive_image }}
-    container_name: drive_sync
+    container_name: drive_update_state
     restart: always
-    command: npm run sync
+    command: sh -c "sleep 10 && npm run updateState"
     environment:
       - DASHCORE_JSON_RPC_USER={{ dashd_rpc_user }}
       - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
       - DASHCORE_JSON_RPC_HOST={{ private_ip }}
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
-      - DASHCORE_ZMQ_PUB_HASHBLOCK=tcp://{{ private_ip }}:{{ dashd_zmq_port }}
-      - STORAGE_MONGODB_URL=mongodb://drive_mongodb:27017
-      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
-      - STORAGE_IPFS_TIMEOUT=10
-      - SYNC_SKIP_STATE_TRANSITION_WITH_ERRORS=true
+      - STATEVIEW_MONGODB_URL=mongodb://drive_mongodb:27017
+      - UPDATE_STATE_GRPC_PORT=5000
+    ports:
+      - 5000:5000
     depends_on:
-      - ipfs
       - drive_mongodb
 
   drive_api:
@@ -30,34 +37,41 @@ services:
       - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
       - DASHCORE_JSON_RPC_HOST={{ private_ip }}
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
-      - STORAGE_MONGODB_URL=mongodb://drive_mongodb:27017
-      - STORAGE_IPFS_MULTIADDR=/ip4/{{ private_ip }}/tcp/5001
+      - STATEVIEW_MONGODB_URL=mongodb://drive_mongodb:27017
+      - API_RPC_PORT=6000
     depends_on:
-      - ipfs
       - drive_mongodb
     ports:
       - 6000:6000
 
-  drive_mongodb:
-    image: mongo:3.6
-    container_name: drive_mongodb
-    volumes:
-      - drive_mongodb:/data/db
-
-  ipfs:
-    image: {{ ipfs_image }}
-    container_name: ipfs
-    command: daemon --enable-gc --migrate --enable-pubsub-experiment
+  machine:
+    image: {{ machine_image }}
+    container_name: machine
+    command: npm run abci
     environment:
-      LIBP2P_FORCE_PNET: 1
-      SWARM_KEY: "{{ ipfs_swarm_key | default('${SWARM_KEY}') | replace('\n', '\\n') }}"
-      SWARM_PEER: "{{ ipfs_swarm_peer | default('${SWARM_PEER}') }}"
-    ports:
-      - 4001:4001
-      - 5001:5001
+      - DRIVE_UPDATE_STATE_HOST=drive_update_state
+      - DRIVE_UPDATE_STATE_PORT=5000
+      - DRIVE_API_HOST=drive_update_state
+      - DRIVE_API_PORT=6000
     volumes:
-      - ipfs:/data/ipfs
-      - {{ mn_evo_services_path }}/ipfs/init.sh:/usr/local/bin/start_ipfs
+      - machine_leveldb:/usr/src/app/db
+    ports:
+      - 26658:26658
+    depends_on:
+      - drive_api
+      - drive_update_state
+
+  tendermint:
+    image: {{ tendermint_image }}
+    container_name: tendermint
+    command: node
+    ports:
+      - 0.0.0.0:{{ tendermint_rpc_port }}:26657
+      - {{ private_ip }}:{{ tendermint_p2p_port }}:26656
+    volumes:
+      - {{ mn_evo_services_path }}/tendermint:/tendermint
+    depends_on:
+      - machine
 
   dapi_core:
     image: {{ dapi_image }}
@@ -66,6 +80,7 @@ services:
     restart: always
     depends_on:
       - drive_api
+      - tendermint
     ports:
       - 3004:3004
       - 3005:3005
@@ -91,8 +106,6 @@ services:
     container_name: dapi_tx_filter_stream
     command: npm run tx-filter-stream
     restart: always
-    depends_on:
-      - drive_api
     ports:
       - 3006:3006
     environment:
@@ -127,4 +140,5 @@ services:
 
 volumes:
   drive_mongodb:
-  ipfs:
+  machine_leveldb:
+  tendermint:

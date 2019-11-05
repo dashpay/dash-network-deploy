@@ -6,12 +6,6 @@
   gather_facts: False
   become: true
   pre_tasks:
-    - name: install python 2 for Ansible
-      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-      register: output
-      changed_when:
-        - output.stdout != ""
-        - output.stdout != "\r\n"
     - name: check if inside AWS
       uri:
         url: http://169.254.169.254/latest/meta-data
@@ -33,12 +27,22 @@
       when: openvpn_enabled
       tags: vpn
 
-# Setup Docker
+# Setup Python and Docker
+
+- hosts: all
+  become: true
+  tasks:
+    - name: add universe repository
+      apt_repository:
+        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
+        state: present
 
 - hosts: all
   become: true
   vars:
+    pip_package: python3-pip
     pip_install_packages:
+      - name: pymongo
       - name: docker
       - name: docker-compose
         version: "1.22.0"
@@ -57,7 +61,7 @@
 
 # Setup wallets, miners and full nodes
 
-- hosts: wallet-nodes
+- hosts: wallet_nodes
   become: true
   roles:
     - role: dashd
@@ -73,7 +77,7 @@
       tags:
         - dashd
 
-- hosts: full-nodes
+- hosts: full_nodes
   become: true
   roles:
     - role: dashd
@@ -112,13 +116,13 @@
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
 
-- hosts: seed-node
+- hosts: seed_node
   become: true
   roles:
     - role: generate-firstblock
       when: dash_network == "devnet" or dash_network == "regtest"
 
-# Mine blocks
+ Mine blocks
 
 - hosts: miners
   become: true
@@ -142,7 +146,7 @@
 
 # Start masternodes
 
-- hosts: masternode-wallet
+- hosts: masternode_wallet
   become: true
   roles:
     - mn-init

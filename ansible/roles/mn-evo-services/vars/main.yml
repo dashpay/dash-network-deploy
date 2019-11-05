@@ -2,5 +2,3 @@
 
 mn_evo_services_compose_project_name: mn_evo_services
 mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'
-
-ipfs_swarm_key_path: '{{ mn_evo_services_path }}/ipfs/swarm.key'
