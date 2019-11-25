@@ -21,8 +21,6 @@
 
 - name: get Tendermint validator key
   command: cat {{ mn_evo_services_path }}/tendermint/config/priv_validator_key.json
-  args:
-    chdir: '{{ mn_evo_services_path }}'
   register: tendermint_validator_key
 
 - set_fact:

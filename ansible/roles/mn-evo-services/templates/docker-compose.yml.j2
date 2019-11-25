@@ -61,6 +61,12 @@ services:
       - drive_api
       - drive_update_state
 
+  tendermint_dependencies:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - machine
+    command: machine:26658
+
   tendermint:
     image: {{ tendermint_image }}
     container_name: tendermint
@@ -71,7 +77,7 @@ services:
     volumes:
       - {{ mn_evo_services_path }}/tendermint:/tendermint
     depends_on:
-      - machine
+      - tendermint_dependencies
 
   dapi_core:
     image: {{ dapi_image }}
