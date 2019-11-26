@@ -4,8 +4,6 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
-const wait = require('../../lib/test/wait');
-
 describe('Drive', () => {
   for (const hostName of inventory.masternodes.hosts) {
     describe(hostName, () => {
@@ -19,33 +17,15 @@ describe('Drive', () => {
         });
       });
 
-      it('should respond current sync status', async function it() {
+      it('should respond via JSON RPC', async function it() {
         if (!variables.evo_services) {
           this.skip('Evolution services are not enabled');
           return;
         }
 
-        const timeout = 1000;
-        const attempts = 90;
+        const { error } = await driveClient.request('fetchContract', { contractId: 'wrong' });
 
-        this.timeout((attempts + 10) * timeout);
-        this.slow((attempts + 10) * timeout);
-
-        for (let i = 0; i <= attempts; i++) {
-          const { result: info, error } = await driveClient.request('getSyncInfo', {});
-
-          if (error) {
-              expect.fail(error.message);
-          }
-
-          if (info.status === 'synced') {
-            return;
-          }
-
-          await wait(timeout);
-        }
-
-        expect.fail('drive is not synced');
+        expect(error.code).to.equal(-32602);
       });
     });
   }

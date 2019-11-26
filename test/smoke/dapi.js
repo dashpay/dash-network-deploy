@@ -86,7 +86,7 @@ describe('DAPI', () => {
         const checkHealth = promisify(healthClient.check).bind(healthClient);
 
         const request = new HealthCheckRequest();
-        request.setService('org.dash.platform.dapi.TransactionsFilterStream');
+        request.setService('HealthCheck');
 
         const response = await checkHealth(request);
 
