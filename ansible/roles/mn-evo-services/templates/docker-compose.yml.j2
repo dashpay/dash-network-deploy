@@ -61,23 +61,18 @@ services:
       - drive_api
       - drive_update_state
 
-  tendermint_dependencies:
-    image: dadarek/wait-for-dependencies
-    depends_on:
-      - machine
-    command: machine:26658
-
   tendermint:
     image: {{ tendermint_image }}
     container_name: tendermint
-    command: node
+    entrypoint: sh -c "sleep 30 && /usr/bin/tendermint node"
+    restart: always
     ports:
       - 0.0.0.0:{{ tendermint_rpc_port }}:26657
       - {{ private_ip }}:{{ tendermint_p2p_port }}:26656
     volumes:
       - {{ mn_evo_services_path }}/tendermint:/tendermint
     depends_on:
-      - tendermint_dependencies
+      - machine
 
   dapi_core:
     image: {{ dapi_image }}

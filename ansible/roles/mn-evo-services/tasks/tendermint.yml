@@ -9,12 +9,12 @@
     mode: 0750
 
 - name: initialize Tendermint node
-  command: docker-compose run --no-deps tendermint init
+  command: docker-compose run --no-deps --entrypoint='/usr/bin/tendermint' tendermint init
   args:
     chdir: '{{ mn_evo_services_path }}'
 
 - name: get Tendermint node ID
-  command: docker-compose run --no-deps tendermint show_node_id
+  command: docker-compose run --no-deps --entrypoint='/usr/bin/tendermint' tendermint show_node_id
   args:
     chdir: '{{ mn_evo_services_path }}'
   register: tendermint_node_id
