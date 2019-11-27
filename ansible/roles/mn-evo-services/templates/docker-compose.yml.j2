@@ -101,6 +101,8 @@ services:
       - DRIVE_RPC_HOST=drive_api
       - DRIVE_RPC_PORT=6000
       - NETWORK={{ dash_network }}
+      - TENDERMINT_CORE_HOST=tendermint
+      - TENDERMINT_CORE_PORT=26657
 
   dapi_tx_filter_stream:
     image: {{ dapi_image }}
