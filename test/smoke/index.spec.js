@@ -4,6 +4,7 @@ describe('Smoke', () => {
   require('./insight-api');
   require('./drive');
   require('./machine');
+  require('./tendermint');
   require('./dapi');
   require('./sentinel');
   require('./faucet');
