@@ -14,7 +14,7 @@
     - .env
 
 - name: start Insight
-  docker_service:
+  docker_compose:
     project_src: '{{ insight_path }}'
     state: present
     restarted: yes

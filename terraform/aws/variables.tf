@@ -16,16 +16,6 @@ variable "dashd_zmq_port" {
   default     = 29998
 }
 
-variable "ipfs_swarm_port" {
-  description = "IPFS Swarm port"
-  default     = 4001
-}
-
-variable "ipfs_api_port" {
-  description = "IPFS API port"
-  default     = 5001
-}
-
 variable "insight_port" {
   description = "Insight port"
   default     = 3001
@@ -49,6 +39,21 @@ variable "dapi_port" {
 variable "dapi_grpc_port" {
   description = "DAPI GRPC port"
   default     = 3010
+}
+
+variable "tendermint_p2p_port" {
+  description = "Tendermint P2P port"
+  default     = 26656
+}
+
+variable "tendermint_rpc_port" {
+  description = "Tendermint RPC port"
+  default     = 26657
+}
+
+variable "tendermint_abci_port" {
+  description = "Tendermint ABCI port"
+  default     = 26658
 }
 
 variable "docker_port" {

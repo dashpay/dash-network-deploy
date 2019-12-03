@@ -1,0 +1,55 @@
+---
+
+- name: create tendermint home dir
+  file:
+    path: '{{ mn_evo_services_path }}/tendermint'
+    state: directory
+    owner: '{{ tendermint_uid }}'
+    group: '{{ tendermint_gid }}'
+    mode: 0750
+
+- name: initialize Tendermint node
+  command: docker-compose run --no-deps --entrypoint='/usr/bin/tendermint' tendermint init
+  args:
+    chdir: '{{ mn_evo_services_path }}'
+
+- name: get Tendermint node ID
+  command: docker-compose run --no-deps --entrypoint='/usr/bin/tendermint' tendermint show_node_id
+  args:
+    chdir: '{{ mn_evo_services_path }}'
+  register: tendermint_node_id
+
+- name: get Tendermint validator key
+  command: cat {{ mn_evo_services_path }}/tendermint/config/priv_validator_key.json
+  register: tendermint_validator_key
+
+- set_fact:
+    tendermint_node_id: '{{ tendermint_node_id.stdout }}'
+
+- set_fact:
+    tendermint_validator_key: '{{ tendermint_validator_key.stdout }}'
+
+- name: get genesis time
+  command: 'cat {{ mn_evo_services_path }}/tendermint/config/genesis.json'
+  args:
+    chdir: '{{ mn_evo_services_path }}'
+  register: tendermint_genesis_config
+  when: inventory_hostname == groups.masternodes[0]
+
+- set_fact:
+    tendermint_genesis_time: '{{ tendermint_genesis_config.stdout | from_json | json_query("genesis_time") }}'
+  when: inventory_hostname == groups.masternodes[0]
+
+- set_fact:
+    tendermint_genesis_time: '{{ hostvars[groups.masternodes[0]].tendermint_genesis_time }}'
+  when: inventory_hostname != groups.masternodes[0]
+
+- name: create Tendermint genesis.json and config.toml
+  template:
+    src: 'tendermint/{{ item }}.j2'
+    dest: '{{ mn_evo_services_path }}/tendermint/config/{{ item }}'
+    owner: '{{ tendermint_uid }}'
+    group: '{{ tendermint_gid }}'
+  loop:
+    - config.toml
+    - genesis.json

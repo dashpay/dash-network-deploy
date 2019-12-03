@@ -34,21 +34,21 @@ data "template_file" "service_core_zmq" {
   }
 }
 
-data "template_file" "service_ipfs_swarm" {
+data "template_file" "service_tendermint_p2p" {
   template = file("${path.module}/templates/services/service.tpl")
 
   vars = {
-    name = "IPFS Swarm"
-    port = var.ipfs_swarm_port
+    name = "Tendermint P2P"
+    port = var.tendermint_p2p_port
   }
 }
 
-data "template_file" "service_ipfs_api" {
+data "template_file" "service_tendermint_rpc" {
   template = file("${path.module}/templates/services/service.tpl")
 
   vars = {
-    name = "IPFS API"
-    port = var.ipfs_api_port
+    name = "Tendermint RPC"
+    port = var.tendermint_rpc_port
   }
 }
 
@@ -123,8 +123,8 @@ data "template_file" "masternodes" {
         join(
           "",
           [
-            data.template_file.service_ipfs_swarm.rendered,
-            data.template_file.service_ipfs_api.rendered,
+            data.template_file.service_tendermint_p2p.rendered,
+            data.template_file.service_tendermint_rpc.rendered,
             data.template_file.service_core_rpc.rendered,
             data.template_file.service_core_zmq.rendered,
             data.template_file.service_drive.rendered,
@@ -146,7 +146,7 @@ data "template_file" "masternodes" {
           "   - drive_sync",
           "   - drive_api",
           "   - drive_mongodb",
-          "   - ipfs",
+          "   - tendermint",
           "   - sentinel",
           "   - insight",
         ],

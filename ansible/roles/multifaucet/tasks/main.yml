@@ -22,7 +22,7 @@
     - init.sql
 
 - name: multifaucet service
-  docker_service:
+  docker_compose:
     project_src: '{{ dashd_home }}/multifaucet'
     state: present
     build: yes

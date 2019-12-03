@@ -12,7 +12,7 @@
     - .env
 
 - name: start masternodes sentinel
-  docker_service:
+  docker_compose:
     project_src: '{{ mn_sentinel_path }}'
     state: present
     restarted: yes

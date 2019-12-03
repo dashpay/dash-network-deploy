@@ -12,9 +12,18 @@ openvpn_enabled: true
 # Sentinel Docker image
 sentinel_image: ablock/sentinel
 
-# Evo services Docker images
-ipfs_image: ipfs/go-ipfs
+# Drive
 drive_image: dashpay/drive
+
+# Machine
+machine_image: dashpay/js-machine
+
+# Tendermint
+tendermint_image: tendermint/tendermint
+tendermint_p2p_port: 26656
+tendermint_rpc_port: 26657
+tendermint_uid: 100
+tendermint_gid: 1000
 
 # DAPI
 dapi_image: dashpay/dapi
@@ -53,12 +62,12 @@ dashd_sporkaddr: yMtULrhoxd8vRZrsnFobWgRTidtjg2Rnjm
 dashd_sporkkey: cRsR7ywG6bhb5JsnpeRJ4c1fACabmYtK6WUVPiGG3GG4a5iYk6iL
 
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
-dashd_seednode: '{{ hostvars[groups["seed-node"][0]]["public_ip"] }}'
+dashd_seednode: '{{ hostvars[groups.seed_node[0]]["public_ip"] }}'
 
 
 # Faucet stuff
 
-faucet_rpc_host: '{{ hostvars[groups["faucet-wallet"][0]]["private_ip"] }}'
+faucet_rpc_host: '{{ hostvars[groups.faucet_wallet[0]]["private_ip"] }}'
 faucet_rpc_port: '{{ dashd_rpc_port }}'
 faucet_rpc_user: '{{ dashd_rpc_user }}'
 faucet_rpc_password: '{{ dashd_rpc_password }}'
@@ -81,7 +90,7 @@ miner_cpu_quota: 100000 # 100%
 
 # Masternode stuff
 
-masternode_wallet_rpc_host: '{{ hostvars[groups["masternode-wallet"][0]]["private_ip"] }}'
+masternode_wallet_rpc_host: '{{ hostvars[groups.masternode_wallet[0]]["private_ip"] }}'
 masternode_wallet_rpc_port: '{{ dashd_rpc_port }}'
 masternode_wallet_rpc_user: '{{ dashd_rpc_user }}'
 masternode_wallet_rpc_password: '{{ dashd_rpc_password }}'

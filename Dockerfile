@@ -10,23 +10,18 @@ RUN apt-get update -y && \
     ca-certificates \
     curl \
     unzip \
-    python-minimal \
-    python-pip \
+    python3-pip \
+    python3-setuptools \
     git \
     openvpn \
     software-properties-common \
     gnupg
 
-# Add apt repositories
+# Install Node.JS
 
-RUN apt-add-repository --yes --update ppa:ansible/ansible && \
-    curl -sL https://deb.nodesource.com/setup_10.x | bash -
-
-# Install dependencies from apt repos
-
-RUN apt-get update -y && \
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    ansible \
     nodejs
 
 # Install terraform
@@ -57,14 +52,15 @@ COPY . .
 
 # Install ansible playbook and Node.JS dependencies
 
-RUN pip install --upgrade netaddr awscli && \
+RUN pip3 install --upgrade netaddr awscli ansible && \
     ansible-galaxy install -r ansible/requirements.yml && \
     npm install
 
 # Remove build utils
 
 RUN apt-get remove --purge -y \
-        python-pip \
+        python3-pip \
+        python3-setuptools \
         unzip \
         curl \
         git \

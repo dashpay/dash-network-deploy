@@ -3,10 +3,10 @@ ${all_hosts}
 [web]
 ${web_hosts}
 
-[wallet-nodes]
+[wallet_nodes]
 ${wallet_node_hosts}
 
-[full-nodes]
+[full_nodes]
 ${full_node_hosts}
 
 [miners]
@@ -15,11 +15,11 @@ ${miner_hosts}
 [masternodes]
 ${masternode_hosts}
 
-[seed-node]
+[seed_node]
 node-1
 
-[faucet-wallet]
+[faucet_wallet]
 dashd-wallet-1
 
-[masternode-wallet]
+[masternode_wallet]
 dashd-wallet-2
