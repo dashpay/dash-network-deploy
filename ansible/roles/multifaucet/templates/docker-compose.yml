@@ -23,6 +23,10 @@ services:
       - MULTIFAUCET_PAYMENT_GW_RPC_PASS={{ faucet_rpc_password }}
       - MULTIFAUCET_ADDRESS_VERSION=140
       - MULTIFAUCET_DONATION_ADDRESS={{ faucet_address }}
+      - MULTIFAUCET_MIN_PAYOUT={{ }}
+      - MULTIFAUCET_MAX_PAYOUT={{ }}
+      - MULTIFAUCET_PAYOUT_THRESHOLD={{ }}
+      - MULTIFAUCET_PAYOUT_INTERVAL={{ }}
     ports:
       - 80:80
 
