@@ -112,30 +112,11 @@ There are two commands that can be useful for debugging:
 
 ## Deploy Dash Evolution
 
-1. Deploy your network with additional ansible variables:
+In order to deploy evolution services use ansible variable:
 
     ```yaml
     evo_services: true
     ```
-
-2. Get current block height:
-
-    ```bash
-    dash-network dash-cli <network_name> dashd-wallet-2 getblockcount
-    ```
-
-3. Enable DML (DIP3) after ten new blocks:
-
-    ```bash
-    dash-network dash-cli <network_name> dashd-wallet-2 spork SPORK_15_DETERMINISTIC_MNS_ENABLED <current_block_height+10>
-    ```
-
-4. Upgrade your MNs to ProTX when DML is enabled
-  (see [getBlockChainInfo](https://dash-docs.github.io/en/developer-reference#getblockchaininfo)):
-
-   ```bash
-   dash-network deploy -p --ansible-playbook=upgrade-to-protx <network_name>
-   ```
 
 ## Connect to private Dash Network services
 
