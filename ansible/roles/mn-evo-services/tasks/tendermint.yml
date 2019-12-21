@@ -7,11 +7,13 @@
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
     mode: 0750
+  register: tendermint_home_dir
 
 - name: initialize Tendermint node
   command: docker-compose run --no-deps --entrypoint='/usr/bin/tendermint' tendermint init
   args:
     chdir: '{{ mn_evo_services_path }}'
+  when: tendermint_home_dir.changed
 
 - name: get Tendermint node ID
   command: docker-compose run --no-deps --entrypoint='/usr/bin/tendermint' tendermint show_node_id
