@@ -19,6 +19,10 @@ server {
         grpc_pass grpc://{{ private_ip }}:3005;
     }
 
+    location /org.dash.platform.dapi.v0.Platform {
+        grpc_pass grpc://{{ private_ip }}:3005;
+    }
+
     location /org.dash.platform.dapi.v0.TransactionsFilterStream {
         grpc_pass grpc://{{ private_ip }}:3006;
     }

@@ -141,7 +141,7 @@ data "template_file" "masternodes" {
         "\n",
         [
           "   - dashd",
-          "   - dapi_core",
+          "   - dapi_api",
           "   - dapi_tx_filter_stream",
           "   - dapi_nginx",
           "   - drive_update_state",

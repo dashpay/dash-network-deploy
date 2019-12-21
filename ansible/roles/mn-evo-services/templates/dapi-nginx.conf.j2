@@ -1,7 +1,7 @@
 server {
     listen 80 default_server;
 
-    # Route JSON RPC requests to dapi_core
+    # Route JSON RPC requests to DAPI API service
     location = / {
         if ($request_method = 'OPTIONS') {
             add_header 'Access-Control-Allow-Origin' '*';
@@ -26,8 +26,30 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
-    # Route GRPC-WEB requests to DAPI Core service
+    # Route GRPC-WEB requests to DAPI API service
     location /org.dash.platform.dapi.Core {
+        grpc_pass grpc://{{ private_ip }}:3005;
+
+        if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Transfer-Encoding,Custom-Header-1,X-Accept-Content-Transfer-Encoding,X-Accept-Response-Streaming,X-User-Agent,X-Grpc-Web';
+            add_header 'Access-Control-Max-Age' 1728000;
+            add_header 'Content-Type' 'text/plain charset=UTF-8';
+            add_header 'Content-Length' 0;
+            return 204;
+        }
+
+        if ($request_method = 'POST') {
+            add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Transfer-Encoding,Custom-Header-1,X-Accept-Content-Transfer-Encoding,X-Accept-Response-Streaming,X-User-Agent,X-Grpc-Web';
+            add_header 'Access-Control-Expose-Headers' 'Content-Transfer-Encoding';
+        }
+    }
+
+    # Route GRPC-WEB requests to DAPI Platform service
+    location /org.dash.platform.dapi.Platform {
         grpc_pass grpc://{{ private_ip }}:3005;
 
         if ($request_method = 'OPTIONS') {
