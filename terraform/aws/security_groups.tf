@@ -244,9 +244,9 @@ resource "aws_security_group" "masternode" {
     protocol    = "tcp"
     description = "Tendermint P2P"
 
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-    ])
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
   }
 
   # Tendermint ABCI
