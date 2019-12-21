@@ -155,13 +155,13 @@ laddr = "tcp://0.0.0.0:26656"
 # If empty, will use the same port as the laddr,
 # and will introspect on the listener or use UPnP
 # to figure out the address.
-external_address = "{{ private_ip }}:26656"
+external_address = "{{ public_ip }}:26656"
 
 # Comma separated list of seed nodes to connect to
 seeds = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent_peers = "{% for masternode in groups.masternodes %}{% if masternode != inventory_hostname %}{{ hostvars[masternode].tendermint_node_id }}@{{ hostvars[masternode].private_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endif %}{% endfor %}"
+persistent_peers = "{% for masternode in groups.masternodes %}{% if masternode != inventory_hostname %}{{ hostvars[masternode].tendermint_node_id }}@{{ hostvars[masternode].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endif %}{% endfor %}"
 
 # UPNP port forwarding
 upnp = false

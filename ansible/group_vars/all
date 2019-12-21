@@ -22,8 +22,8 @@ machine_image: dashpay/js-machine
 tendermint_image: tendermint/tendermint
 tendermint_p2p_port: 26656
 tendermint_rpc_port: 26657
-tendermint_uid: 100
-tendermint_gid: 1000
+tendermint_uid: '100'
+tendermint_gid: '1000'
 
 # DAPI
 dapi_image: dashpay/dapi
