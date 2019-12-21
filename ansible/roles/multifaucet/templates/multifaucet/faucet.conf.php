@@ -3,10 +3,10 @@
 $config = array(
         "mysql_table_prefix" => getenv("MULTIFAUCET_DB_PRFX"), // table prefix to use
 
-        "minimum_payout" => getenv("MULTIFAUCET_MIN_PAYOUT"), //1000, // minimum to be awarded
-        "maximum_payout" => getenv("MULTIFAUCET_MAX_PAYOUT"), //1000, // maximum to be awarded
-        "payout_threshold" => getenv("MULTIFAUCET_PAYOUT_THRESHOLD"), //1000, // payout threshold, if the faucet contains less than this, display the 'dry_faucet' message
-        "payout_interval" => getenv("MULTIFAUCET_PAYOUT_INTERVAL"), //"1m", // payout interval, the wait time for a user between payouts. Type any numerical value with either a "m" (minutes), "h" (hours), or "d" (days), attached. Examples: 50m for a 50 minute delay, 7h for a 7 hour delay, etc.
+        "minimum_payout" => getenv("MULTIFAUCET_MIN_PAYOUT") ?: 0.01, // minimum to be awarded
+        "maximum_payout" => getenv("MULTIFAUCET_MAX_PAYOUT") ?: 10, // maximum to be awarded
+        "payout_threshold" => getenv("MULTIFAUCET_PAYOUT_THRESHOLD") ?: 250, // payout threshold, if the faucet contains less than this, display the 'dry_faucet' message
+        "payout_interval" => getenv("MULTIFAUCET_PAYOUT_INTERVAL") ?: "7h", // payout interval, the wait time for a user between payouts. Type any numerical value with either a "m" (minutes), "h" (hours), or "d" (days), attached. Examples: 50m for a 50 minute delay, 7h for a 7 hour delay, etc.
 
         // this option has 3 possible values: "ip_address", "wallet_address", and "both". It defines what to check for when a user enters an address in order to decide whether or not to award to this user.
         // "ip_address": checks the user IP address in the payout history.
