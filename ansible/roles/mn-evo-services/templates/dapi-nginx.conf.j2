@@ -1,5 +1,9 @@
+limit_req_zone $binary_remote_addr zone=protect_api:15m rate=120r/m;
+
 server {
     listen 80 default_server;
+    
+    limit_req zone=protect_api burst=300;
 
     # Route JSON RPC requests to dapi_core
     location = / {
