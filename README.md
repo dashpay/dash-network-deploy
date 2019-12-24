@@ -66,6 +66,14 @@ Please don't forget to include the following in your `.gitignore`:
 *.ovpn
 ```
 
+## Configure
+ 
+...
+
+```bash
+dash-network generate <network_name> <masternode_count>
+```
+
 ## Deployment
 
 To deploy a Dash Network use the `deploy` command with a particular network name:
