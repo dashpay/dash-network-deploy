@@ -57,9 +57,9 @@ dashd_rpc_port: 20002
 
 dashd_zmq_port: 29998
 
-# Please provide your own spork key in network config
-dashd_sporkaddr: yMtULrhoxd8vRZrsnFobWgRTidtjg2Rnjm
-dashd_sporkkey: cRsR7ywG6bhb5JsnpeRJ4c1fACabmYtK6WUVPiGG3GG4a5iYk6iL
+# Example sport address/privkey. Please provide your own spork key in network config:
+# dashd_sporkaddr: yMtULrhoxd8vRZrsnFobWgRTidtjg2Rnjm
+# dashd_sporkkey: cRsR7ywG6bhb5JsnpeRJ4c1fACabmYtK6WUVPiGG3GG4a5iYk6iL
 
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
 dashd_seednode: '{{ hostvars[groups.seed_node[0]]["public_ip"] }}'

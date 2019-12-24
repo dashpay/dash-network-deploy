@@ -1,5 +1,7 @@
 ---
 
+dashd_sporkaddr: yMtULrhoxd8vRZrsnFobWgRTidtjg2Rnjm
+
 masternodes:
   masternode-1:
     owner:
