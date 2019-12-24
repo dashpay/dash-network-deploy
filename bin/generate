@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/cli/utils.sh
+
+CMD_USAGE="Generate network configs
+
+Usage: generate <network_name> <masternodes_count> <file_name>"
+
+for i in "$@"
+do
+case ${i} in
+    -h|--help)
+        echo "$CMD_USAGE"
+        exit 0
+    ;;
+esac
+done
+
+NETWORK_NAME="$1"
+MASTERNODES_COUNT="$2"
+FILE_NAME="$3"
+
+if [[ -z ${NETWORK_NAME} ]]; then
+    print_error "Network name is required"
+fi
+
+if [[ -z ${MASTERNODES_COUNT} ]]; then
+    print_error "Masternodes count is required"
+fi
+
+if [[ -z ${FILE_NAME} ]]; then
+    print_error "File name is required"
+fi
+
+node ./lib/configGenerator/generateConfigs.js ${NETWORK_NAME} ${MASTERNODES_COUNT} ${FILE_NAME}
