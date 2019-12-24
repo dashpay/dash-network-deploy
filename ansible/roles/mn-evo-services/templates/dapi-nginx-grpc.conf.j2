@@ -17,7 +17,8 @@ server {
 
     access_log /dev/stdout grpc_json;
     
-    limit_req zone=protect_api burst=300;
+    limit_req zone=protect_api burst=300 nodelay;
+    limit_req_status 429;
 
     location /org.dash.platform.dapi.v0.Core {
         grpc_pass grpc://{{ private_ip }}:3005;
