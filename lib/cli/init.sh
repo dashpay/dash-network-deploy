@@ -23,7 +23,7 @@ VPN_CONFIG_PATH="networks/$NETWORK_NAME.ovpn"
 
 if [ ! -f networks/.env ]; then
 
-    dotenv_example=$(<examples/.env.example)
+    dotenv_example=$(<./.env.example)
 
     print_error "Configuration .env file not found
 
