@@ -20,70 +20,70 @@
 
 # Setup VPN
 
-#- hosts: vpn
-#  become: true
-#  roles:
-#    - role: openvpn
-#      when: openvpn_enabled
-#      tags: vpn
+- hosts: vpn
+  become: true
+  roles:
+    - role: openvpn
+      when: openvpn_enabled
+      tags: vpn
 
 # Setup Python and Docker
 
-#- hosts: all
-#  become: true
-#  tasks:
-#    - name: add universe repository
-#      apt_repository:
-#        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
-#        state: present
-#
-#- hosts: all
-#  become: true
-#  vars:
-#    pip_package: python3-pip
-#    pip_install_packages:
-#      - name: pymongo
-#      - name: docker
-#      - name: docker-compose
-#        version: "1.22.0"
-#  roles:
-#    - geerlingguy.pip
-#    - geerlingguy.docker
-#    - docker-options
+- hosts: all
+  become: true
+  tasks:
+    - name: add universe repository
+      apt_repository:
+        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
+        state: present
 
-#- hosts: all
-#  become: true
-#  roles:
-#    - role: ecr-login
-#      when: aws_ecr_login
-#      tags: always
-#    - dash-cli
+- hosts: all
+  become: true
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: pymongo
+      - name: docker
+      - name: docker-compose
+        version: "1.22.0"
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+    - docker-options
+
+- hosts: all
+  become: true
+  roles:
+    - role: ecr-login
+      when: aws_ecr_login
+      tags: always
+    - dash-cli
 
 # Setup wallets, miners and full nodes
 
-#- hosts: wallet_nodes
-#  become: true
-#  roles:
-#    - role: dashd
-#      dashd_indexes: true
-#      dashd_zmq: true
-#      tags:
-#        - dashd
+- hosts: wallet_nodes
+  become: true
+  roles:
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      tags:
+        - dashd
 
-#- hosts: miners
-#  become: true
-#  roles:
-#    - role: dashd
-#      tags:
-#        - dashd
+- hosts: miners
+  become: true
+  roles:
+    - role: dashd
+      tags:
+        - dashd
 
-#- hosts: full_nodes
-#  become: true
-#  roles:
-#    - role: dashd
-#      dashd_listen: true
-#      tags:
-#        - dashd
+- hosts: full_nodes
+  become: true
+  roles:
+    - role: dashd
+      dashd_listen: true
+      tags:
+        - dashd
 
 # Setup masternodes
 
@@ -98,16 +98,16 @@
         msg: Masternode not defined in network config
       when: masternode is not defined
   roles:
-#    - role: dashd
-#      dashd_listen: true
-#      dashd_zmq: true
-#      dashd_indexes: true
-#      tags:
-#        - dashd
-#    - mn-sentinel
-#    - role: insight
-#      ui: false
-#      when: evo_services
+    - role: dashd
+      dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
+      tags:
+        - dashd
+    - mn-sentinel
+    - role: insight
+      ui: false
+      when: evo_services
     - role: mn-evo-services
       tags:
         - evo
@@ -116,40 +116,40 @@
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
 
-#- hosts: seed_node
-#  become: true
-#  roles:
-#    - role: generate-firstblock
-#      when: dash_network == "devnet" or dash_network == "regtest"
+- hosts: seed_node
+  become: true
+  roles:
+    - role: generate-firstblock
+      when: dash_network == "devnet" or dash_network == "regtest"
 
 # Mine blocks
 
-#- hosts: miners
-#  become: true
-#  roles:
-#    - role: dashd-generate-miner
-#      when: dash_network != "mainnet"
+- hosts: miners
+  become: true
+  roles:
+    - role: dashd-generate-miner
+      when: dash_network != "mainnet"
 
 # Setup faucet and insight
 
-#- hosts: web
-#  become: true
-#  roles:
-#    - multifaucet
-#    - role: dashd
-#      dashd_indexes: true
-#      dashd_zmq: true
-#      dashd_listen: true
-#    - insight
-#  tags:
-#    - web
+- hosts: web
+  become: true
+  roles:
+    - multifaucet
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      dashd_listen: true
+    - insight
+  tags:
+    - web
 
 # Start masternodes
 
-#- hosts: masternode_wallet
-#  become: true
-#  roles:
-#    - mn-init
+- hosts: masternode_wallet
+  become: true
+  roles:
+    - mn-init
 
 # Prune unused Docker images
 
