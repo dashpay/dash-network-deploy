@@ -42,7 +42,7 @@ async function main() {
     + '# ANSIBLE_AWS_SECRET_ACCESS_KEY=""\n'
     + '# ANSIBLE_AWS_REGION=""\n';
 
-  fs.writeFileSync('.env.example', env);
+  fs.writeFileSync('.env', env);
 }
 
 main().catch(console.error);

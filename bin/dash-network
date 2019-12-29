@@ -14,9 +14,7 @@ fi
 if [[ ! -f ".env" ]]; then
     echo "Configuration .env file not found
 
-Please create and configure '.env' file.
-
-Example: https://github.com/dashpay/dash-network-deploy/blob/master/examples/.env.example"
+Please create and configure '.env' file."
 
     exit 1;
 else
