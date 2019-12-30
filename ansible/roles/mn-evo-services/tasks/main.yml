@@ -49,9 +49,9 @@
   assert:
     that: 'tendermint.tendermint.state.running'
 
-- name: check DAPI Core container
+- name: check DAPI API container
   assert:
-    that: 'dapi_core.dapi_core.state.running'
+    that: 'dapi_api.dapi_api.state.running'
 
 - name: check DAPI TxFilterStream container
   assert:

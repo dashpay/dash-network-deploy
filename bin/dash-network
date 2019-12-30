@@ -14,9 +14,7 @@ fi
 if [[ ! -f ".env" ]]; then
     echo "Configuration .env file not found
 
-Please create and configure '.env' file.
-
-Example: https://github.com/dashpay/dash-network-deploy/blob/master/examples/.env.example"
+Please create and configure '.env' file."
 
     exit 1;
 else
@@ -36,6 +34,7 @@ Commands:
   test      - Run smoke test against specific network
   list      - List network hosts and services
   dash-cli  - Execute DashCore RPC command
+  generate  - Generate configs
   logs      - Show specific network service logs"
   exit 0;
 fi

@@ -112,6 +112,7 @@ data "template_file" "masternodes" {
             data.template_file.service_core_p2p.rendered,
             data.template_file.service_dapi.rendered,
             data.template_file.service_dapi_grpc.rendered,
+            data.template_file.service_tendermint_p2p.rendered,
           ],
         ),
       ),
@@ -123,7 +124,6 @@ data "template_file" "masternodes" {
         join(
           "",
           [
-            data.template_file.service_tendermint_p2p.rendered,
             data.template_file.service_tendermint_rpc.rendered,
             data.template_file.service_core_rpc.rendered,
             data.template_file.service_core_zmq.rendered,
@@ -141,12 +141,14 @@ data "template_file" "masternodes" {
         "\n",
         [
           "   - dashd",
-          "   - dapi_core",
+          "   - dapi_api",
           "   - dapi_tx_filter_stream",
-          "   - drive_sync",
+          "   - dapi_nginx",
+          "   - drive_update_state",
           "   - drive_api",
           "   - drive_mongodb",
           "   - tendermint",
+          "   - machine",
           "   - sentinel",
           "   - insight",
         ],

@@ -4,4 +4,4 @@
   shell: docker pull {{ dashd_evo_image if evo_services else dashd_image }}
 
 - name: copy dash-cli from docker container
-  shell: docker run --rm -v /tmp:/host-tmp {{ dashd_evo_image if evo_services else dashd_image }} cp /usr/bin/dash-cli /host-tmp/ && mv /tmp/dash-cli /usr/local/bin/dash-cli
+  shell: docker run --rm -v /tmp:/host-tmp {{ dashd_evo_image if evo_services else dashd_image }} cp /usr/local/bin/dash-cli /host-tmp/ && mv /tmp/dash-cli /usr/local/bin/dash-cli

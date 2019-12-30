@@ -37,25 +37,23 @@ Dash Core developers to assist in Dash Evolution development.
 
 ## Configuration
 
-### Credentials
-
-Configure your credentials in the `.env` file.
-Use [.env.example](https://github.com/dashpay/dash-network-deploy/blob/master/examples/.env.example) as an example.
-
 ### Networks definition
 
-Please reference examples of network configurations
-in the [examples directory](https://github.com/dashpay/dash-network-deploy/tree/master/examples/).
+You can use `generate` command in order to create configs for your network:
 
-The file names are equal to Dash network names.
+```bash
+dash-network generate <network_name> <masternode_count>
+``` 
 
-Terraform configurations are defined in the `*.tfvars` files.
+Terraform configuration is defined in the `*.tfvars` files.
 See [variables.tf](https://github.com/dashpay/dash-network-deploy/blob/master/terraform/aws/variables.tf) for all available options.
 
-Ansible configuration are in the `*.yaml` files.
+Ansible configuration are in the `*.yaml` file.
 [group_vars/all](https://github.com/dashpay/dash-network-deploy/blob/master/ansible/group_vars/all)
 file contains the majority of playbook options.
 The rest are defined in [ansible roles](https://github.com/dashpay/dash-network-deploy/tree/master/ansible/roles).
+
+Configure your credentials in the `.env` file.
 
 ### Using git
 

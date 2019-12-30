@@ -22,6 +22,8 @@ services:
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
       - STATEVIEW_MONGODB_URL=mongodb://drive_mongodb:27017
       - UPDATE_STATE_GRPC_PORT=5000
+      - TENDERMINT_RPC_HOST=tendermint
+      - TENDERMINT_RPC_PORT=26657
     ports:
       - 5000:5000
     depends_on:
@@ -39,6 +41,8 @@ services:
       - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
       - STATEVIEW_MONGODB_URL=mongodb://drive_mongodb:27017
       - API_RPC_PORT=6000
+      - TENDERMINT_RPC_HOST=tendermint
+      - TENDERMINT_RPC_PORT=26657
     depends_on:
       - drive_mongodb
     ports:
@@ -67,16 +71,16 @@ services:
     entrypoint: sh -c "sleep 30 && /usr/bin/tendermint node"
     restart: always
     ports:
-      - 0.0.0.0:{{ tendermint_rpc_port }}:26657
-      - {{ private_ip }}:{{ tendermint_p2p_port }}:26656
+      - {{ tendermint_rpc_port }}:26657
+      - {{ tendermint_p2p_port }}:26656
     volumes:
       - {{ mn_evo_services_path }}/tendermint:/tendermint
     depends_on:
       - machine
 
-  dapi_core:
+  dapi_api:
     image: {{ dapi_image }}
-    container_name: dapi_core
+    container_name: dapi_api
     command: npm run api
     restart: always
     depends_on:
@@ -87,8 +91,8 @@ services:
       - 3005:3005
     environment:
       - INSIGHT_URI=http://{{ private_ip }}:3001/insight-api
-      - RPC_SERVER_PORT=3004
-      - CORE_GRPC_PORT=3005
+      - API_JSON_RPC_PORT=3004
+      - API_GRPC_PORT=3005
       - DASHCORE_RPC_HOST={{ private_ip }}
       - DASHCORE_RPC_PORT={{ dashd_rpc_port }}
       - DASHCORE_RPC_USER={{ dashd_rpc_user }}
@@ -131,7 +135,7 @@ services:
     image: nginx:latest
     container_name: dapi_nginx
     depends_on:
-      - dapi_core
+      - dapi_api
       - dapi_tx_filter_stream
     ports:
       - {{ dapi_port }}:80

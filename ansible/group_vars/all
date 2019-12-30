@@ -22,8 +22,8 @@ machine_image: dashpay/js-machine
 tendermint_image: tendermint/tendermint
 tendermint_p2p_port: 26656
 tendermint_rpc_port: 26657
-tendermint_uid: 100
-tendermint_gid: 1000
+tendermint_uid: '100'
+tendermint_gid: '1000'
 
 # DAPI
 dapi_image: dashpay/dapi
@@ -57,9 +57,9 @@ dashd_rpc_port: 20002
 
 dashd_zmq_port: 29998
 
-# Please provide your own spork key in network config
-dashd_sporkaddr: yMtULrhoxd8vRZrsnFobWgRTidtjg2Rnjm
-dashd_sporkkey: cRsR7ywG6bhb5JsnpeRJ4c1fACabmYtK6WUVPiGG3GG4a5iYk6iL
+# Example sport address/privkey. Please provide your own spork key in network config:
+# dashd_sporkaddr: yMtULrhoxd8vRZrsnFobWgRTidtjg2Rnjm
+# dashd_sporkkey: cRsR7ywG6bhb5JsnpeRJ4c1fACabmYtK6WUVPiGG3GG4a5iYk6iL
 
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
 dashd_seednode: '{{ hostvars[groups.seed_node[0]]["public_ip"] }}'
@@ -72,6 +72,11 @@ faucet_rpc_port: '{{ dashd_rpc_port }}'
 faucet_rpc_user: '{{ dashd_rpc_user }}'
 faucet_rpc_password: '{{ dashd_rpc_password }}'
 faucet_rpc_args: '-rpcconnect={{ faucet_rpc_host }} -rpcport={{ faucet_rpc_port }} -rpcuser={{ faucet_rpc_user }} -rpcpassword={{ faucet_rpc_password }}'
+faucet_minimum_payout: 10
+faucet_maximum_payout: 10
+faucet_payout_threshold: 100
+faucet_payout_interval: "5m"
+
 
 # Example faucet address/privkey (provide your own in network config)
 #faucet_address: yhvXpqQjfN9S4j5mBKbxeGxiETJrrLETg5
