@@ -77,7 +77,7 @@ services:
   dapi_core:
     image: {{ dapi_image }}
     container_name: dapi_core
-    command: npm run core
+    command: npm run api
     restart: always
     depends_on:
       - drive_api
@@ -140,6 +140,16 @@ services:
       - {{ mn_evo_services_path }}/dapi-nginx.conf:/etc/nginx/conf.d/default.conf
       - {{ mn_evo_services_path }}/dapi-nginx-grpc.conf:/etc/nginx/conf.d/dapi-nginx-grpc.conf
       - {{ mn_evo_services_path }}/dapi-nginx-errors.grpc_conf:/etc/nginx/conf.d/dapi-nginx-errors.grpc_conf
+
+  dapi_envoy:
+    image: envoyproxy/envoy:latest
+    container_name: dapi_envoy
+    depends_on:
+      - dapi_core
+    ports:
+      - 3020:80
+    volumes:
+      - {{ mn_evo_services_path }}/dapi-envoy.yaml:/etc/envoy/envoy.yaml
 
 volumes:
   drive_mongodb:
