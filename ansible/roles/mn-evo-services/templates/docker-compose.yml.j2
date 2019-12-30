@@ -149,7 +149,7 @@ services:
     image: envoyproxy/envoy:latest
     container_name: dapi_envoy
     depends_on:
-      - dapi_core
+      - dapi_api
     ports:
       - 3020:80
     volumes:
