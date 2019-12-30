@@ -6,6 +6,12 @@ aws_ecr_login: false
 # Install Evolution Masternode services
 evo_services: false
 
+# List of identities separated by comma
+platform_allowed_data_contract_identities: ''
+platform_dpns_contract_identity: ''
+platform_dpns_top_level_domain_identity: ''
+platfrom_state_transitions_limiter_enabled: false
+
 # Install OpenVPN
 openvpn_enabled: true
 
