@@ -151,7 +151,7 @@ services:
     depends_on:
       - dapi_api
     ports:
-      - 3020:80
+      - 3020:8080
     volumes:
       - {{ mn_evo_services_path }}/dapi-envoy.yaml:/etc/envoy/envoy.yaml
 

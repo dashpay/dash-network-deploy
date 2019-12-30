@@ -249,6 +249,18 @@ resource "aws_security_group" "masternode" {
     ]
   }
 
+  # Envoy
+  ingress {
+    from_port   = 3020
+    to_port     = 3020
+    protocol    = "tcp"
+    description = "Envoy"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
   # Tendermint ABCI
   ingress {
     from_port   = var.tendermint_abci_port
