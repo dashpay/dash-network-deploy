@@ -52,7 +52,7 @@ describe('DashCore', () => {
     });
   });
 
-  describe('Masternodes', () => {
+  describe.only('Masternodes', () => {
     for (const hostName of inventory.masternodes.hosts) {
       describe(hostName, () => {
         let coreClient;
@@ -63,21 +63,18 @@ describe('DashCore', () => {
 
         it('should be in masternodes list', async function it() {
           this.slow(2000);
+          this.timeout(15000);
 
           const { result: masternodes } = await coreClient.masternodelist();
 
-          const nodeIps = Object.values(masternodes).map((node) => {
-            expect(node.status).to.be.equal('ENABLED');
-            return node.address.split(':')[0];
-          });
-
-          // eslint-disable-next-line arrow-body-style
-          const nodeIdsFromInventory = inventory.masternodes.hosts.map((host) => {
+          const nodeFromList = Object.values(masternodes).find(node => (
             // eslint-disable-next-line no-underscore-dangle
-            return inventory._meta.hostvars[host].public_ip;
-          });
+            inventory._meta.hostvars[hostName].public_ip === node.address.split(':')[0]
+          ));
 
-          expect(nodeIps.sort()).to.deep.equal(nodeIdsFromInventory.sort());
+          expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();
+
+          expect(nodeFromList.status).to.be.equal('ENABLED');
         });
       });
     }
