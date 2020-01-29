@@ -52,7 +52,7 @@ describe('DashCore', () => {
     });
   });
 
-  describe.only('Masternodes', () => {
+  describe('Masternodes', () => {
     for (const hostName of inventory.masternodes.hosts) {
       describe(hostName, () => {
         let coreClient;
