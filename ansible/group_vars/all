@@ -106,3 +106,6 @@ masternode_wallet_rpc_port: '{{ dashd_rpc_port }}'
 masternode_wallet_rpc_user: '{{ dashd_rpc_user }}'
 masternode_wallet_rpc_password: '{{ dashd_rpc_password }}'
 masternode_wallet_rpc_args: '-rpcconnect={{ masternode_wallet_rpc_host }} -rpcport={{ masternode_wallet_rpc_port }} -rpcuser={{ masternode_wallet_rpc_user }} -rpcpassword={{ masternode_wallet_rpc_password }}'
+
+# Disk space allocated for swap file on each host
+swap_space: 2G
