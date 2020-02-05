@@ -2,7 +2,7 @@ limit_req_zone $binary_remote_addr zone=protect_api:15m rate=120r/m;
 
 server {
     listen 80 default_server;
-    
+
     limit_req zone=protect_api burst=300 nodelay;
     limit_req_status 429;
 
@@ -26,6 +26,8 @@ server {
         }
 
         proxy_pass http://{{ private_ip }}:3004;
+        proxy_http_version 1.1;
+        proxy_hide_header access-control-allow-origin;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Real-IP $remote_addr;
@@ -51,6 +53,8 @@ server {
         }
 
         proxy_pass http://{{ private_ip }}:3020$request_uri;
+        proxy_http_version 1.1;
+        proxy_hide_header access-control-allow-origin;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Real-IP $remote_addr;
@@ -76,6 +80,8 @@ server {
         }
 
         proxy_pass http://{{ private_ip }}:3020$request_uri;
+        proxy_http_version 1.1;
+        proxy_hide_header access-control-allow-origin;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Real-IP $remote_addr;
@@ -101,6 +107,8 @@ server {
         }
 
         proxy_pass http://{{ private_ip }}:3020$request_uri;
+        proxy_http_version 1.1;
+        proxy_hide_header access-control-allow-origin;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Real-IP $remote_addr;
@@ -125,6 +133,8 @@ server {
         }
 
         proxy_pass http://{{ private_ip }}:3020$request_uri;
+        proxy_http_version 1.1;
+        proxy_hide_header access-control-allow-origin;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Real-IP $remote_addr;
