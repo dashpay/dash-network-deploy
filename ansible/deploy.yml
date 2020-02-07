@@ -17,6 +17,7 @@
   roles:
     - role: aws
       when: is_aws_environment
+    - swap
 
 # Setup VPN
 

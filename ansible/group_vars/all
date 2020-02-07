@@ -6,6 +6,12 @@ aws_ecr_login: false
 # Install Evolution Masternode services
 evo_services: false
 
+# List of identities separated by comma
+platform_allowed_data_contract_identities: ''
+platform_dpns_contract_identity: ''
+platform_dpns_top_level_domain_identity: ''
+platfrom_state_transitions_limiter_enabled: false
+
 # Install OpenVPN
 openvpn_enabled: true
 
@@ -100,3 +106,6 @@ masternode_wallet_rpc_port: '{{ dashd_rpc_port }}'
 masternode_wallet_rpc_user: '{{ dashd_rpc_user }}'
 masternode_wallet_rpc_password: '{{ dashd_rpc_password }}'
 masternode_wallet_rpc_args: '-rpcconnect={{ masternode_wallet_rpc_host }} -rpcport={{ masternode_wallet_rpc_port }} -rpcuser={{ masternode_wallet_rpc_user }} -rpcpassword={{ masternode_wallet_rpc_password }}'
+
+# Disk space allocated for swap file on each host
+swap_space: 2G
