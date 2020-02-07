@@ -16,6 +16,7 @@
     - dapi-nginx-grpc.conf
     - dapi-nginx-errors.grpc_conf
     - .env
+    - dapi-envoy.yaml
 
 - import_tasks: mongodb_replicaset.yml
 
@@ -59,3 +60,7 @@
 - name: check DAPI Nginx container
   assert:
     that: 'dapi_nginx.dapi_nginx.state.running'
+
+- name: check Envoy container
+  assert:
+    that: 'dapi_envoy.dapi_envoy.state.running'
