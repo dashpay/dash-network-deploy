@@ -12,20 +12,38 @@ static_resources:
           route_config:
             name: local_route
             virtual_hosts:
-            - name: local_service
+            - name: dapi_services
               domains: ["*"]
               routes:
-              - match: { prefix: "/" }
+              - match: { prefix: "/org.dash.platform.dapi.v0.Core" }
                 route:
-                  cluster: echo_service
+                  cluster: core_and_platform
+                  max_grpc_timeout: 0s
+              - match: { prefix: "/org.dash.platform.dapi.v0.Platform" }
+                route:
+                  cluster: core_and_platform
+                  max_grpc_timeout: 0s
+              - match: { prefix: "/org.dash.platform.dapi.v0.TransactionsFilterStream" }
+                route:
+                  cluster: tx_filter_stream
+                  max_grpc_timeout: 0s
+              - match: { prefix: "/grpc.health.v1.Health" }
+                route:
+                  cluster: tx_filter_stream
                   max_grpc_timeout: 0s
           http_filters:
           - name: envoy.grpc_web
           - name: envoy.router
   clusters:
-  - name: echo_service
+  - name: core_and_platform
     connect_timeout: 0.25s
     type: logical_dns
     http2_protocol_options: {}
     lb_policy: round_robin
     hosts: [{ socket_address: { address: {{ private_ip }}, port_value: 3005 }}]
+  - name: tx_filter_stream
+    connect_timeout: 0.25s
+    type: logical_dns
+    http2_protocol_options: {}
+    lb_policy: round_robin
+    hosts: [{ socket_address: { address: {{ private_ip }}, port_value: 3006 }}]
