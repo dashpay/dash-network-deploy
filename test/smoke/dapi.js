@@ -1,6 +1,7 @@
-const { client: jaysonClient } = require('jayson/promise');
 const grpc = require('grpc');
 const { promisify } = require('util');
+
+const DAPIClient = require('@dashevo/dapi-client');
 
 const { Client: HealthCheckClient } = require('grpc-health-check/health');
 const {
@@ -13,23 +14,23 @@ const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromCon
 
 const { variables, inventory } = getNetworkConfig();
 
-
-describe('DAPI', () => {
+describe.only('DAPI', () => {
   for (const hostName of inventory.masternodes.hosts) {
     describe(hostName, () => {
       let dapiClient;
       let coreClient;
 
       beforeEach(() => {
-        dapiClient = jaysonClient.http({
+        dapiClient = new DAPIClient();
+        dapiClient.getGrpcUrl = function getGrpcUrl() {
           // eslint-disable-next-line no-underscore-dangle
-          host: inventory._meta.hostvars[hostName].public_ip,
-          port: variables.dapi_port,
-        });
+          return `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`;
+        };
+
         coreClient = createRpcClientFromConfig(hostName);
       });
 
-      it('should respond data from chain', async function it() {
+      it('should respond data from Core', async function it() {
         if (!variables.evo_services) {
           this.skip('Evolution services are not enabled');
           return;
@@ -37,27 +38,13 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        const { result: blockHashFromDapi } = await dapiClient.request('getBlockHash', { height: 1 });
+        const blockHashFromDapi = await dapiClient.getBestBlockHash();
         const { result: blockHashFromCore } = await coreClient.getBlockHash(1);
 
         expect(blockHashFromDapi).to.be.equal(blockHashFromCore);
       });
 
-      it('should respond data from insight', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
-          return;
-        }
-
-        this.slow(1500);
-
-        const { result } = await dapiClient.request('getBestBlockHeight', { blockHeight: 1 });
-
-        expect(result).to.be.an('number');
-        expect(result % 1).to.be.equal(0);
-      });
-
-      it('should respond data from drive', async function it() {
+      it('should respond data from Platform', async function it() {
         if (!variables.evo_services) {
           this.skip('Evolution services are not enabled');
           return;
@@ -65,15 +52,9 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        const { error } = await dapiClient.request('fetchContract', { contractId: 'fakeDapId' });
+        const dataContract = await dapiClient.getDataContract('unknownContractId');
 
-        // There are two expected codes:
-        //   -32602 - Invalid contract ID
-        //   100 - Initial sync in progress
-
-        const message = `Invalid response from Drive: ${JSON.stringify(error)}`;
-
-        expect(error.code).to.be.oneOf([-32602, 100], message);
+        expect(dataContract).to.not.exist();
       });
 
       it('should respond data from TxFilterStream GRPC service', async () => {
