@@ -1,6 +1,8 @@
 /* eslint-disable no-loop-func */
 const DAPIClient = require('@dashevo/dapi-client');
 
+const { Block } = require('@dashevo/dashcore-lib');
+
 // eslint-disable-next-line no-undef
 const { config: { testVariables: { inventory, variables } } } = __karma__;
 
@@ -17,10 +19,16 @@ describe('DAPI', () => {
         };
       });
 
-      it('should respond with a block for a selected height', async () => {
-        const result = await dapiClient.getBlockByHeight(1);
+      it('should respond with a block for a selected height and hash and both should be equal', async () => {
+        let result = await dapiClient.getBlockByHeight(1);
 
-        // TODO: check the result
+        const block = new Block(result);
+
+        result = await dapiClient.getBlockByHash(block.header.hash);
+
+        const blockByHash = new Block(result);
+
+        expect(block.toJSON()).to.deep.equal(blockByHash.toJSON());
       });
     });
   }
