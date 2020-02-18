@@ -26,11 +26,14 @@ module.exports = (config) => {
       optimization: {
         minimize: false,
       },
-      plugins: [
-        new webpack.NamedModulesPlugin(),
-        new webpack.HotModuleReplacementPlugin(),
-      ],
     },
+    plugins: [
+      'karma-mocha',
+      'karma-mocha-reporter',
+      'karma-chai',
+      'karma-firefox-launcher',
+      'karma-webpack',
+    ],
     reporters: ['mocha'],
     port: 9876,
     colors: true,
