@@ -15,7 +15,8 @@ RUN apt-get update -y && \
     git \
     openvpn \
     software-properties-common \
-    gnupg
+    gnupg \
+    firefox
 
 # Install Node.JS
 
