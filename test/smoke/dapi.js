@@ -14,7 +14,7 @@ const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromCon
 
 const { variables, inventory } = getNetworkConfig();
 
-describe.only('DAPI', () => {
+describe('DAPI', () => {
   for (const hostName of inventory.masternodes.hosts) {
     describe(hostName, () => {
       let dapiClient;
