@@ -18,8 +18,6 @@ module.exports = (config) => {
     files: [
       'lib/test/karma/loader.js',
     ],
-    exclude: [
-    ],
     preprocessors: {
       'lib/test/karma/loader.js': ['webpack'],
     },
@@ -41,14 +39,6 @@ module.exports = (config) => {
     browsers: ['FirefoxHeadless'],
     singleRun: false,
     concurrency: Infinity,
-    plugins: [
-      'karma-mocha',
-      'karma-mocha-reporter',
-      'karma-chai',
-      'karma-chrome-launcher',
-      'karma-firefox-launcher',
-      'karma-webpack',
-    ],
     customLaunchers: {
       FirefoxHeadless: {
         base: 'Firefox',
