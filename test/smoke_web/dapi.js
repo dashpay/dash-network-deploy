@@ -19,7 +19,7 @@ describe('DAPI', () => {
         };
       });
 
-      it('should respond with a block for a selected height and hash and both should be equal', async () => {
+      it('should respond via GRPC web with a block for a selected height and hash and both should be equal', async () => {
         let result = await dapiClient.getBlockByHeight(1);
 
         const block = new Block(result);
