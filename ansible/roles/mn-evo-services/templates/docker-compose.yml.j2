@@ -24,7 +24,6 @@ services:
       - UPDATE_STATE_GRPC_PORT=5000
       - TENDERMINT_RPC_HOST=tendermint
       - TENDERMINT_RPC_PORT=26657
-      - ALLOWED_IDENTITIES={{ platform_allowed_data_contract_identities }}
       - DPNS_CONTRACT_ID={{ platform_dpns_contract_identity }}
       - DPNS_TOP_LEVEL_IDENTITY={{ platform_dpns_top_level_domain_identity }}
     ports:
