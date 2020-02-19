@@ -20,7 +20,11 @@ Please read README.md how to configure networks"
 
     echo "Running mocha tests..."
 
+    set +e
+
     test_run_mocha
+
+    set -e
 
     echo "Running karma tests..."
 
