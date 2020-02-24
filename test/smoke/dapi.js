@@ -10,7 +10,6 @@ const {
 } = require('grpc-health-check/v1/health_pb');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
-const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
@@ -18,16 +17,9 @@ describe('DAPI', () => {
   for (const hostName of inventory.masternodes.hosts) {
     describe(hostName, () => {
       let dapiClient;
-      let coreClient;
 
       beforeEach(() => {
         dapiClient = new DAPIClient();
-        dapiClient.getGrpcUrl = function getGrpcUrl() {
-          // eslint-disable-next-line no-underscore-dangle
-          return `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`;
-        };
-
-        coreClient = createRpcClientFromConfig(hostName);
       });
 
       it('should respond data from Core', async function it() {
@@ -38,10 +30,17 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        const blockHashFromDapi = await dapiClient.getBestBlockHash();
-        const { result: blockHashFromCore } = await coreClient.getBlockHash(1);
+        dapiClient.MNDiscovery.getRandomMasternode = async function getRandomMasternode() {
+          return {
+            // eslint-disable-next-line no-underscore-dangle
+            service: `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`,
+          };
+        };
 
-        expect(blockHashFromDapi).to.be.equal(blockHashFromCore);
+        const blockHashFromDapi = await dapiClient.getBestBlockHash();
+
+        expect(blockHashFromDapi).to.be.a('string');
+        expect(blockHashFromDapi).to.be.not.empty();
       });
 
       it('should respond data from Platform', async function it() {
@@ -52,9 +51,18 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        const dataContract = await dapiClient.getDataContract('unknownContractId');
+        dapiClient.getGrpcUrl = function getGrpcUrl() {
+          // eslint-disable-next-line no-underscore-dangle
+          return `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`;
+        };
 
-        expect(dataContract).to.not.exist();
+        try {
+          await dapiClient.getDataContract('unknownContractId');
+
+          expect.fail('Contract not found error is not thrown');
+        } catch (e) {
+          expect(e.message).to.equal('3 INVALID_ARGUMENT: Invalid argument: Contract not found');
+        }
       });
 
       it('should respond data from TxFilterStream GRPC service', async () => {
