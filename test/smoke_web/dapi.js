@@ -15,7 +15,7 @@ describe('DAPI', () => {
         dapiClient = new DAPIClient();
         dapiClient.getGrpcUrl = function getGrpcUrl() {
           // eslint-disable-next-line no-underscore-dangle
-          return `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`;
+          return `http://${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`;
         };
       });
 
