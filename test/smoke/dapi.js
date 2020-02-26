@@ -43,6 +43,34 @@ describe('DAPI', () => {
         expect(blockHashFromDapi).to.be.not.empty();
       });
 
+      it('should respond data from Core using GRPC', async function it() {
+        if (!variables.evo_services) {
+          this.skip('Evolution services are not enabled');
+          return;
+        }
+
+        this.slow(3000);
+
+        dapiClient.getGrpcUrl = function getGrpcUrl() {
+          // eslint-disable-next-line no-underscore-dangle
+          return `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`;
+        };
+
+        const result = await dapiClient.getStatus();
+
+        expect(result).to.have.a.property('coreVersion');
+        expect(result).to.have.a.property('protocolVersion');
+        expect(result).to.have.a.property('blocks');
+        expect(result).to.have.a.property('timeOffset');
+        expect(result).to.have.a.property('connections');
+        expect(result).to.have.a.property('proxy');
+        expect(result).to.have.a.property('difficulty');
+        expect(result).to.have.a.property('testnet');
+        expect(result).to.have.a.property('relayFee');
+        expect(result).to.have.a.property('errors');
+        expect(result).to.have.a.property('network');
+      });
+
       it('should respond data from Platform', async function it() {
         if (!variables.evo_services) {
           this.skip('Evolution services are not enabled');
