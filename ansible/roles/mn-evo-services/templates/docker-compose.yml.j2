@@ -4,6 +4,7 @@ services:
   drive_mongodb:
     image: mongo:4.2
     container_name: drive_mongodb
+    restart: always
     command: mongod --replSet driveDocumentIndices --bind_ip_all
     ports:
       - 27017:27017
@@ -53,6 +54,7 @@ services:
   machine:
     image: {{ machine_image }}
     container_name: machine
+    restart: always
     command: npm run abci
     environment:
       - DRIVE_UPDATE_STATE_HOST=drive_update_state
@@ -142,6 +144,7 @@ services:
   dapi_nginx:
     image: nginx:latest
     container_name: dapi_nginx
+    restart: always
     depends_on:
       - dapi_api
       - dapi_tx_filter_stream
@@ -156,8 +159,9 @@ services:
   dapi_envoy:
     image: envoyproxy/envoy:latest
     container_name: dapi_envoy
+    restart: always
     depends_on:
-      - dapi_api
+      - dapi_nginx
     ports:
       - 3020:8080
     volumes:
@@ -166,3 +170,6 @@ services:
 volumes:
   drive_mongodb:
   machine_leveldb:
+  Starting drive_mongodb ... done
+  Starting machine       ... done
+  Starting dapi_nginx    ... done
