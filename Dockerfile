@@ -16,7 +16,8 @@ RUN apt-get update -y && \
     openvpn \
     software-properties-common \
     gnupg \
-    firefox
+    firefox \
+    ssh
 
 # Install Node.JS
 
@@ -37,9 +38,9 @@ RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraf
 
 ENV DOCKERVERSION=19.03.1
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
-  && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
-                 -C /usr/local/bin docker/docker \
-  && rm docker-${DOCKERVERSION}.tgz
+    && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
+    -C /usr/local/bin docker/docker \
+    && rm docker-${DOCKERVERSION}.tgz
 
 # Copy dash-cli form dashd image
 
@@ -60,12 +61,12 @@ RUN pip3 install --upgrade netaddr awscli ansible && \
 # Remove build utils
 
 RUN apt-get remove --purge -y \
-        python3-pip \
-        python3-setuptools \
-        unzip \
-        curl \
-        git \
-        && rm -rf /var/lib/apt/lists/*
+    python3-pip \
+    python3-setuptools \
+    unzip \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create networks shortcut
 
