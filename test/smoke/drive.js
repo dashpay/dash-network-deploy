@@ -23,6 +23,8 @@ describe('Drive', () => {
           return;
         }
 
+        this.slow(500);
+
         const { error } = await driveClient.request('fetchContract', { contractId: 'wrong' });
 
         expect(error.code).to.equal(-32602);
