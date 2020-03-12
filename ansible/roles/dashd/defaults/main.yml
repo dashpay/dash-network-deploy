@@ -1,6 +1,6 @@
 ---
 
-dashd_debug: 1
+dashd_debug: 0
 
 dashd_indexes: false
 dashd_zmq: false
