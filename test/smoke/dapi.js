@@ -89,7 +89,7 @@ describe('DAPI', () => {
 
           expect.fail('Contract not found error is not thrown');
         } catch (e) {
-          expect(e.message).to.equal('3 INVALID_ARGUMENT: Invalid argument: Contract not found');
+          expect(e.message).to.equal('5 NOT_FOUND: Contract not found');
         }
       });
 
