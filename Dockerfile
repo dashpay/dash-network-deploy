@@ -16,7 +16,8 @@ RUN apt-get update -y && \
     openvpn \
     software-properties-common \
     gnupg \
-    firefox
+    firefox \
+    ssh
 
 # Install Node.JS
 
@@ -37,9 +38,9 @@ RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraf
 
 ENV DOCKERVERSION=19.03.1
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
-  && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
-                 -C /usr/local/bin docker/docker \
-  && rm docker-${DOCKERVERSION}.tgz
+    && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
+    -C /usr/local/bin docker/docker \
+    && rm docker-${DOCKERVERSION}.tgz
 
 # Copy dash-cli form dashd image
 
@@ -49,23 +50,28 @@ COPY --from=dashpay/dashd:latest /usr/local/bin/dash-cli /usr/local/bin
 
 WORKDIR /usr/src/app
 
-COPY . .
+
 
 # Install ansible playbook and Node.JS dependencies
 
+COPY ansible/requirements.yml /ansible-requirements.yml
+
+COPY package*.json ./
+
 RUN pip3 install --upgrade netaddr awscli ansible && \
-    ansible-galaxy install -r ansible/requirements.yml && \
+    ansible-galaxy install -r /ansible-requirements.yml && \
     npm install
 
 # Remove build utils
-
 RUN apt-get remove --purge -y \
-        python3-pip \
-        python3-setuptools \
-        unzip \
-        curl \
-        git \
-        && rm -rf /var/lib/apt/lists/*
+    python3-pip \
+    python3-setuptools \
+    unzip \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY . .
 
 # Create networks shortcut
 
