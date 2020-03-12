@@ -50,8 +50,6 @@ COPY --from=dashpay/dashd:latest /usr/local/bin/dash-cli /usr/local/bin
 
 WORKDIR /usr/src/app
 
-
-
 # Install ansible playbook and Node.JS dependencies
 
 COPY ansible/requirements.yml /ansible-requirements.yml
