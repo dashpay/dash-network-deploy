@@ -1,9 +1,11 @@
 sudo: required
-dist: trusty
+dist: bionic
 
 branches:
   only:
     - master
+    - /^v(0|[1-9]\d*)\.(0|[1-9]\d*)-dev$/
+    - /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
 
 services:
   - docker
@@ -21,6 +23,8 @@ before_deploy:
 
 deploy:
   provider: script
-  script: docker push dashpay/dash-network-deploy
+  skip_cleanup: true
+  script: bash bin/travis-deploy.sh
   on:
-    branch: master
+    tags: true
+    repo: dashevo/dash-network-deploy
