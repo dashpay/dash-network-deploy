@@ -17,10 +17,6 @@ addons:
 
 script: true
 
-before_deploy:
-  - docker build -t dashpay/dash-network-deploy . || travis_terminate 1
-  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
-
 deploy:
   provider: script
   skip_cleanup: true
