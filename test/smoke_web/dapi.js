@@ -20,7 +20,7 @@ describe('DAPI', () => {
       });
 
       it('should respond via gRPC Web', async function it() {
-        this.timeout(3000);
+        this.timeout(4000);
 
         let result = await dapiClient.getBlockByHeight(1);
 
