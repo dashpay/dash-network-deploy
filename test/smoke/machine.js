@@ -23,8 +23,8 @@ async function sendEcho(ip) {
     client.on('error', reject);
 
     setTimeout(() => {
-      reject(new Error('Timeout'));
-    }, 1000);
+      reject(new Error('Can\'t connect to ABCI port: timeout.'));
+    }, 2000);
   });
 }
 
