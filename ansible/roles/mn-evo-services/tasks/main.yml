@@ -28,39 +28,3 @@
     state: present
     restarted: yes
     pull: yes
-
-- name: check Drive MongoDB container
-  assert:
-    that: 'drive_mongodb.drive_mongodb.state.running'
-
-- name: check Drive Update State container
-  assert:
-    that: 'drive_update_state.drive_update_state.state.running'
-
-- name: check Drive API container
-  assert:
-    that: 'drive_api.drive_api.state.running'
-
-- name: check Machine container
-  assert:
-    that: 'machine.machine.state.running'
-
-- name: check Tendermint container
-  assert:
-    that: 'tendermint.tendermint.state.running'
-
-- name: check DAPI API container
-  assert:
-    that: 'dapi_api.dapi_api.state.running'
-
-- name: check DAPI TxFilterStream container
-  assert:
-    that: 'dapi_tx_filter_stream.dapi_tx_filter_stream.state.running'
-
-- name: check DAPI Nginx container
-  assert:
-    that: 'dapi_nginx.dapi_nginx.state.running'
-
-- name: check Envoy container
-  assert:
-    that: 'dapi_envoy.dapi_envoy.state.running'
