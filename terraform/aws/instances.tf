@@ -16,7 +16,7 @@ resource "aws_instance" "web" {
     aws_security_group.http.id,
   ]
 
-  subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
+  subnet_id = element(aws_subnet.public.*.id, count.index)
 
   tags = {
     Name        = "dn-${terraform.workspace}-web-${count.index + 1}"
@@ -43,7 +43,7 @@ resource "aws_instance" "dashd_wallet" {
     aws_security_group.dashd_private.id,
   ]
 
-  subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
+  subnet_id = element(aws_subnet.public.*.id, count.index)
 
   tags = {
     Name        = "dn-${terraform.workspace}-dashd-wallet-${count.index + 1}"
@@ -70,7 +70,7 @@ resource "aws_instance" "dashd_full_node" {
     aws_security_group.dashd_public.id,
   ]
 
-  subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
+  subnet_id = element(aws_subnet.public.*.id, count.index)
 
   tags = {
     Name        = "dn-${terraform.workspace}-node-${count.index + 1}"
@@ -97,7 +97,7 @@ resource "aws_instance" "miner" {
     aws_security_group.dashd_private.id,
   ]
 
-  subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
+  subnet_id = element(aws_subnet.public.*.id, count.index)
 
   tags = {
     Name        = "dn-${terraform.workspace}-miner-${count.index + 1}"
@@ -125,7 +125,7 @@ resource "aws_instance" "masternode" {
     aws_security_group.masternode.id,
   ]
 
-  subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
+  subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
     volume_size = "14"
@@ -150,7 +150,7 @@ resource "aws_instance" "vpn" {
   instance_type = "t3.nano"
   key_name      = aws_key_pair.auth.id
 
-  subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
+  subnet_id = element(aws_subnet.public.*.id, count.index)
 
   vpc_security_group_ids = [
     aws_security_group.vpn[0].id,
