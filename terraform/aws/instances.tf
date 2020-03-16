@@ -23,6 +23,11 @@ resource "aws_instance" "web" {
     Hostname    = "web-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
 }
 
 # dashd wallet nodes (for faucet and masternode collaterals)
@@ -45,6 +50,11 @@ resource "aws_instance" "dashd_wallet" {
     Hostname    = "dashd-wallet-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
 }
 
 # dashd full nodes
@@ -67,6 +77,11 @@ resource "aws_instance" "dashd_full_node" {
     Hostname    = "node-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
 }
 
 # cpu miners (not running a node)
@@ -89,6 +104,11 @@ resource "aws_instance" "miner" {
     Hostname    = "miner-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
 }
 
 # masternodes
@@ -116,6 +136,11 @@ resource "aws_instance" "masternode" {
     Hostname    = "masternode-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
 }
 
 resource "aws_instance" "vpn" {
@@ -136,5 +161,10 @@ resource "aws_instance" "vpn" {
     Hostname    = "vpn"
     DashNetwork = terraform.workspace
   }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
 }
 
