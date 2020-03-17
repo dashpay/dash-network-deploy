@@ -20,7 +20,7 @@ script: true
 deploy:
   provider: script
   skip_cleanup: true
-  script: bash bin/travis-deploy.sh
+  script: bash scripts/travis-deploy.sh
   on:
     tags: true
     repo: dashevo/dash-network-deploy
