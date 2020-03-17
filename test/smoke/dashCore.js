@@ -63,7 +63,6 @@ describe('DashCore', () => {
 
         it('should be in masternodes list', async function it() {
           this.slow(2000);
-          this.timeout(15000);
 
           const { result: masternodes } = await coreClient.masternodelist();
 
