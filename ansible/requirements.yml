@@ -5,3 +5,5 @@
   version: 2.5.3
 
 - src: kyl191.openvpn
+
+- src: Restless-ET.aws-scripts-mon
