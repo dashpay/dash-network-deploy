@@ -63,7 +63,6 @@ describe('DashCore', () => {
 
         it('should be in masternodes list', async function it() {
           this.slow(2000);
-          this.timeout(15000);
 
           const { result: masternodes } = await coreClient.masternodelist();
 
@@ -89,14 +88,14 @@ describe('DashCore', () => {
             return;
           }
 
-          this.timeout(160000);
+          this.timeout(240000);
           this.slow(160000);
 
           const coreClient = createRpcClientFromConfig(hostName);
 
           const { result: previousHeight } = await coreClient.getBlockCount();
 
-          const { result: { height } } = await coreClient.waitForNewBlock(150000);
+          const { result: { height } } = await coreClient.waitForNewBlock(230000);
 
           expect(height).to.be.above(previousHeight, 'no new blocks');
         });
