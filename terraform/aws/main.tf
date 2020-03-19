@@ -78,8 +78,16 @@ resource "aws_subnet" "public" {
   }
 }
 
+locals {
+  public_network_name = replace(terraform.workspace, "devnet-", "")
+}
+
+data "aws_route53_zone" "main_domain" {
+  name = var.main_domain
+}
+
 resource "aws_elb" "web" {
-  name = terraform.workspace
+  name = local.public_network_name
 
   subnets = aws_subnet.public.*.id
 
@@ -117,6 +125,30 @@ resource "aws_elb" "web" {
     Name        = "dn-${terraform.workspace}-web"
     DashNetwork = terraform.workspace
   }
+}
+
+resource "aws_route53_record" "faucet" {
+  zone_id = data.aws_route53_zone.main_domain.zone_id
+  name    = "faucet.${local.public_network_name}.${var.main_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_elb.web.dns_name]
+}
+
+resource "aws_route53_record" "insight" {
+  zone_id = data.aws_route53_zone.main_domain.zone_id
+  name    = "insight.${local.public_network_name}.${var.main_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_elb.web.dns_name]
+}
+
+resource "aws_route53_record" "masternodes" {
+  zone_id = data.aws_route53_zone.main_domain.zone_id
+  name    = "seed.${local.public_network_name}.${var.main_domain}"
+  type    = "A"
+  ttl     = "300"
+  records = concat(aws_instance.masternode.*.public_ip)
 }
 
 resource "aws_key_pair" "auth" {
