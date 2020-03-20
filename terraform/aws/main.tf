@@ -133,6 +133,8 @@ resource "aws_route53_record" "faucet" {
   type    = "CNAME"
   ttl     = "300"
   records = [aws_elb.web.dns_name]
+
+  count = length(var.main_domain) > 1 ? 1 : 0
 }
 
 resource "aws_route53_record" "insight" {
@@ -141,6 +143,8 @@ resource "aws_route53_record" "insight" {
   type    = "CNAME"
   ttl     = "300"
   records = [aws_elb.web.dns_name]
+
+  count = length(var.main_domain) > 1 ? 1 : 0
 }
 
 resource "aws_route53_record" "masternodes" {
@@ -149,6 +153,8 @@ resource "aws_route53_record" "masternodes" {
   type    = "A"
   ttl     = "300"
   records = concat(aws_instance.masternode.*.public_ip)
+
+  count = length(var.main_domain) > 1 ? 1 : 0
 }
 
 resource "aws_key_pair" "auth" {

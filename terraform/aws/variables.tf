@@ -105,6 +105,5 @@ variable "vpn_enabled" {
 }
 
 variable "main_domain" {
-  default     = "networks.dash.org"
   description = "domain name will be used for base for technical records"
 }
