@@ -3,17 +3,7 @@
 # Bootstrap
 
 - hosts: all
-  gather_facts: True
-  become: true
-  roles:
-    - { 
-      role: Restless-ET.aws-scripts-mon, 
-      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util",
-      aws_scripts_mon_use_iam: true
-      }
-
-- hosts: all
-  gather_facts: False
+  gather_facts: true
   become: true
   pre_tasks:
     - name: check if inside AWS
