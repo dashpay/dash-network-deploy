@@ -108,3 +108,8 @@ variable "main_domain" {
   description = "domain name will be used for base for technical records"
   default     = ""
 }
+
+variable "public_network_name" {
+  description = "Name of the network that will be used to create dns records"
+  default     = ""
+}

@@ -78,16 +78,12 @@ resource "aws_subnet" "public" {
   }
 }
 
-locals {
-  public_network_name = replace(terraform.workspace, "devnet-", "")
-}
-
 data "aws_route53_zone" "main_domain" {
   name = var.main_domain
 }
 
 resource "aws_elb" "web" {
-  name = local.public_network_name
+  name = var.public_network_name
 
   subnets = aws_subnet.public.*.id
 
@@ -129,7 +125,7 @@ resource "aws_elb" "web" {
 
 resource "aws_route53_record" "faucet" {
   zone_id = data.aws_route53_zone.main_domain.zone_id
-  name    = "faucet.${local.public_network_name}.${var.main_domain}"
+  name    = "faucet.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_elb.web.dns_name]
@@ -139,7 +135,7 @@ resource "aws_route53_record" "faucet" {
 
 resource "aws_route53_record" "insight" {
   zone_id = data.aws_route53_zone.main_domain.zone_id
-  name    = "insight.${local.public_network_name}.${var.main_domain}"
+  name    = "insight.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_elb.web.dns_name]
@@ -149,7 +145,7 @@ resource "aws_route53_record" "insight" {
 
 resource "aws_route53_record" "masternodes" {
   zone_id = data.aws_route53_zone.main_domain.zone_id
-  name    = "seed.${local.public_network_name}.${var.main_domain}"
+  name    = "seed.${var.public_network_name}.${var.main_domain}"
   type    = "A"
   ttl     = "300"
   records = concat(aws_instance.masternode.*.public_ip)
