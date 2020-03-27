@@ -3,6 +3,8 @@
 ### Bug Fixes
 
 * fix invalid travis deploy path ([be442d6](https://github.com/dashevo/dash-network-deploy/commit/be442d6a75a6257c9392dfd0e3acb97f6164df6c))
+* add sleep before starting Drive API (#138, [6d6fa6d](https://github.com/dashevo/dash-network-deploy/commit/6d6fa6deb257eaeabec3063a91fa9a7e4c9dd0e0)) 
+* Tendermint peers number assert ignores external nodes (#140, [50ae507](https://github.com/dashevo/dash-network-deploy/commit/50ae507f9ee76ab1f24a49f13ade293eb4275e85))
 
 
 # 0.11.0 (2020-03-09)
