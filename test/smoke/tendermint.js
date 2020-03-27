@@ -52,10 +52,12 @@ describe('Tendermint', () => {
         const { result, error } = await tendermintClient.request('net_info', {});
 
         expect(error).to.be.undefined();
-        expect(result).to.include({
-          listening: true,
-          n_peers: (inventory.masternodes.hosts.length - 1).toString(),
-        });
+        expect(result).to.have.property('listening', true);
+        expect(result).to.have.property('n_peers');
+
+        const peersNumber = parseInt(result.n_peers, 10);
+
+        expect(peersNumber).to.be.at.least(inventory.masternodes.hosts.length - 1);
       });
     });
   }
