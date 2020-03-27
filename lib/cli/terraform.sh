@@ -46,7 +46,8 @@ function terraform_run_command() {
         config_path_arg="-var-file=../../$TERRAFORM_CONFIG_PATH";
     fi
 
-    terraform ${1} -var "public_key_path=$PUBLIC_KEY_PATH" \
+    terraform ${1}  -var "public_key_path=$PUBLIC_KEY_PATH" \
+                    -var "public_network_name=$NETWORK_DEVNET_NAME" \
                     ${config_path_arg}
 
 
