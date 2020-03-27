@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/dashevo/dapi/compare/v0.11.0...v0.11.1) (2020-03-27)
+
+### Bug Fixes
+
+* fix invalid travis deploy path ([be442d6](https://github.com/dashevo/dash-network-deploy/commit/be442d6a75a6257c9392dfd0e3acb97f6164df6c))
+
+
 # 0.11.0 (2020-03-09)
 
 ### Bug Fixes
