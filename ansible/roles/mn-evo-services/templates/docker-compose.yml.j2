@@ -46,7 +46,6 @@ services:
     command: npm run api
     restart: always
     depends_on:
-      - drive_api
       - tendermint
     ports:
       - 3004:3004
@@ -64,8 +63,6 @@ services:
       - DASHCORE_P2P_HOST={{ private_ip }}
       - DASHCORE_P2P_PORT={{ dashd_port }}
       - DASHCORE_P2P_NETWORK={{ dash_network }}
-      - DRIVE_RPC_HOST=drive_api
-      - DRIVE_RPC_PORT=6000
       - NETWORK={{ dash_network }}
       - TENDERMINT_CORE_HOST=tendermint
       - TENDERMINT_CORE_PORT=26657
@@ -88,9 +85,18 @@ services:
       - DASHCORE_P2P_HOST={{ private_ip }}
       - DASHCORE_P2P_PORT={{ dashd_port }}
       - DASHCORE_P2P_NETWORK={{ dash_network }}
-      - DRIVE_RPC_HOST=drive_api
-      - DRIVE_RPC_PORT=6000
       - NETWORK={{ dash_network }}
+
+  dapi_envoy:
+    image: envoyproxy/envoy:latest
+    restart: always
+    depends_on:
+      - dapi_api
+      - dapi_tx_filter_stream
+    ports:
+      - 3020:8080
+    volumes:
+      - {{ mn_evo_services_path }}/dapi-envoy.yaml:/etc/envoy/envoy.yaml
 
   dapi_nginx:
     image: nginx:latest
@@ -98,6 +104,7 @@ services:
     depends_on:
       - dapi_api
       - dapi_tx_filter_stream
+      - dapi_envoy
     ports:
       - {{ dapi_port }}:80
       - {{ dapi_grpc_port }}:50051
@@ -105,16 +112,6 @@ services:
       - {{ mn_evo_services_path }}/dapi-nginx.conf:/etc/nginx/conf.d/default.conf
       - {{ mn_evo_services_path }}/dapi-nginx-grpc.conf:/etc/nginx/conf.d/dapi-nginx-grpc.conf
       - {{ mn_evo_services_path }}/dapi-nginx-errors.grpc_conf:/etc/nginx/conf.d/dapi-nginx-errors.grpc_conf
-
-  dapi_envoy:
-    image: envoyproxy/envoy:latest
-    restart: always
-    depends_on:
-      - dapi_nginx
-    ports:
-      - 3020:8080
-    volumes:
-      - {{ mn_evo_services_path }}/dapi-envoy.yaml:/etc/envoy/envoy.yaml
 
 volumes:
   drive_mongodb:
