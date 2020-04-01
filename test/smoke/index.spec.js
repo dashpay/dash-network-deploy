@@ -3,7 +3,6 @@ describe('Smoke', () => {
   require('./dashCore');
   require('./insight-api');
   require('./drive');
-  require('./drive');
   require('./tendermint');
   require('./dapi');
   require('./sentinel');
