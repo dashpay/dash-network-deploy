@@ -64,8 +64,8 @@ services:
       - DASHCORE_P2P_PORT={{ dashd_port }}
       - DASHCORE_P2P_NETWORK={{ dash_network }}
       - NETWORK={{ dash_network }}
-      - TENDERMINT_CORE_HOST=tendermint
-      - TENDERMINT_CORE_PORT=26657
+      - TENDERMINT_RPC_HOST=tendermint
+      - TENDERMINT_RPC_PORT=26657
 
   dapi_tx_filter_stream:
     image: {{ dapi_image }}
