@@ -16,13 +16,13 @@ describe('Tendermint', () => {
           return;
         }
 
-        const machineClient = jaysonClient.http({
+        const tendermintClient = jaysonClient.http({
           // eslint-disable-next-line no-underscore-dangle
           host: inventory._meta.hostvars[hostName].public_ip,
           port: variables.tendermint_rpc_port,
         });
 
-        const response = await machineClient.request('status', {});
+        const response = await tendermintClient.request('status', {});
 
         masternodeStatuses[hostName] = response;
 
