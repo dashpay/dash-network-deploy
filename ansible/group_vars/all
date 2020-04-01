@@ -19,9 +19,6 @@ sentinel_image: ablock/sentinel
 # Drive
 drive_image: dashpay/drive
 
-# Machine
-machine_image: dashpay/js-machine
-
 # Tendermint
 tendermint_image: tendermint/tendermint
 tendermint_p2p_port: 26656
