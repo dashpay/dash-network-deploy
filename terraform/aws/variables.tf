@@ -113,3 +113,8 @@ variable "public_network_name" {
   description = "Name of the network that will be used to create dns records"
   default     = ""
 }
+
+variable "monitoring_enabled" {
+  description = "enable monitoring with CloudWatch"
+  default     = false
+}

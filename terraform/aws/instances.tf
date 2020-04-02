@@ -7,9 +7,10 @@ resource "aws_instance" "web" {
     user = "ubuntu"
   }
 
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
-  key_name      = aws_key_pair.auth.id
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = "t3.micro"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -17,6 +18,12 @@ resource "aws_instance" "web" {
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-web-${count.index + 1}"
+    Hostname    = "web-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
 
   tags = {
     Name        = "dn-${terraform.workspace}-web-${count.index + 1}"
@@ -34,9 +41,10 @@ resource "aws_instance" "web" {
 resource "aws_instance" "dashd_wallet" {
   count = var.wallet_count
 
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
-  key_name      = aws_key_pair.auth.id
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = "t3.micro"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -44,6 +52,12 @@ resource "aws_instance" "dashd_wallet" {
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-dashd-wallet-${count.index + 1}"
+    Hostname    = "dashd-wallet-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
 
   tags = {
     Name        = "dn-${terraform.workspace}-dashd-wallet-${count.index + 1}"
@@ -61,9 +75,10 @@ resource "aws_instance" "dashd_wallet" {
 resource "aws_instance" "dashd_full_node" {
   count = var.node_count
 
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
-  key_name      = aws_key_pair.auth.id
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = "t3.micro"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -71,6 +86,12 @@ resource "aws_instance" "dashd_full_node" {
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-node-${count.index + 1}"
+    Hostname    = "node-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
 
   tags = {
     Name        = "dn-${terraform.workspace}-node-${count.index + 1}"
@@ -88,9 +109,10 @@ resource "aws_instance" "dashd_full_node" {
 resource "aws_instance" "miner" {
   count = var.miner_count
 
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.small"
-  key_name      = aws_key_pair.auth.id
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = "t3.small"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -98,6 +120,12 @@ resource "aws_instance" "miner" {
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-miner-${count.index + 1}"
+    Hostname    = "miner-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
 
   tags = {
     Name        = "dn-${terraform.workspace}-miner-${count.index + 1}"
@@ -115,9 +143,10 @@ resource "aws_instance" "miner" {
 resource "aws_instance" "masternode" {
   count = var.masternode_count
 
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.small"
-  key_name      = aws_key_pair.auth.id
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = "t3.small"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -129,6 +158,12 @@ resource "aws_instance" "masternode" {
 
   root_block_device {
     volume_size = "14"
+  }
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-masternode-${count.index + 1}"
+    Hostname    = "masternode-${count.index + 1}"
+    DashNetwork = terraform.workspace
   }
 
   tags = {
@@ -146,15 +181,22 @@ resource "aws_instance" "masternode" {
 resource "aws_instance" "vpn" {
   count = var.vpn_enabled ? 1 : 0
 
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.nano"
-  key_name      = aws_key_pair.auth.id
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = "t3.nano"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   vpc_security_group_ids = [
     aws_security_group.vpn[0].id,
   ]
+
+  volume_tags = {
+    Name        = "dh-${terraform.workspace}-vpn"
+    Hostname    = "vpn"
+    DashNetwork = terraform.workspace
+  }
 
   tags = {
     Name        = "dh-${terraform.workspace}-vpn"
