@@ -23,7 +23,6 @@
       aws_scripts_mon_use_iam: true
 
 
-
 # Setup VPN
 
 - hosts: vpn
