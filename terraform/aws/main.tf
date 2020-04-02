@@ -78,8 +78,12 @@ resource "aws_subnet" "public" {
   }
 }
 
+data "aws_route53_zone" "main_domain" {
+  name = var.main_domain
+}
+
 resource "aws_elb" "web" {
-  name = terraform.workspace
+  name = var.public_network_name
 
   subnets = aws_subnet.public.*.id
 
@@ -117,6 +121,36 @@ resource "aws_elb" "web" {
     Name        = "dn-${terraform.workspace}-web"
     DashNetwork = terraform.workspace
   }
+}
+
+resource "aws_route53_record" "faucet" {
+  zone_id = data.aws_route53_zone.main_domain.zone_id
+  name    = "faucet.${var.public_network_name}.${var.main_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_elb.web.dns_name]
+
+  count = length(var.main_domain) > 1 ? 1 : 0
+}
+
+resource "aws_route53_record" "insight" {
+  zone_id = data.aws_route53_zone.main_domain.zone_id
+  name    = "insight.${var.public_network_name}.${var.main_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_elb.web.dns_name]
+
+  count = length(var.main_domain) > 1 ? 1 : 0
+}
+
+resource "aws_route53_record" "masternodes" {
+  zone_id = data.aws_route53_zone.main_domain.zone_id
+  name    = "seed.${var.public_network_name}.${var.main_domain}"
+  type    = "A"
+  ttl     = "300"
+  records = concat(aws_instance.masternode.*.public_ip)
+
+  count = length(var.main_domain) > 1 ? 1 : 0
 }
 
 resource "aws_key_pair" "auth" {
