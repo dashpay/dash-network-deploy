@@ -19,7 +19,7 @@ locals {
 
 resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
 
-  count = length(local.instance_ids)
+  count = var.monitoring_enabled ? length(local.instance_ids) : 0
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-cpu-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -35,12 +35,11 @@ resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
   }
 
   alarm_description = "This metric monitors ec2 cpu utilization"
-  #  alarm_actions     = ["${aws_autoscaling_policy.bat.arn}"]
 }
 
 resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
 
-  count = length(local.instance_ids)
+  count = var.monitoring_enabled ? length(local.instance_ids) : 0
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-memory-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -56,12 +55,11 @@ resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
   }
 
   alarm_description = "This metric monitors ec2 memory utilization"
-  #  alarm_actions     = ["${aws_autoscaling_policy.bat.arn}"]
 }
 
 resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
 
-  count = length(local.instance_ids)
+  count = var.monitoring_enabled ? length(local.instance_ids) : 0
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-swap-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -77,12 +75,11 @@ resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
   }
 
   alarm_description = "This metric monitors ec2 swap utilization"
-  #  alarm_actions     = ["${aws_autoscaling_policy.bat.arn}"]
 }
 
 resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
 
-  count = length(local.instance_ids)
+  count = var.monitoring_enabled ? length(local.instance_ids) : 0
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-diskspace-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -100,5 +97,4 @@ resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
   }
 
   alarm_description = "This metric monitors ec2 disk utilization"
-  #  alarm_actions     = ["${aws_autoscaling_policy.bat.arn}"]
 }

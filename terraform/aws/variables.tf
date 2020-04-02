@@ -104,3 +104,7 @@ variable "vpn_enabled" {
   description = "setup instance for vpn"
 }
 
+variable "monitoring_enabled" {
+  description = "enable monitoring with CloudWatch"
+  default     = false
+}
