@@ -17,11 +17,11 @@ services:
     volumes:
       - drive_leveldb:/usr/src/app/db
     environment:
-      - DASHCORE_JSON_RPC_USER={{ dashd_rpc_user }}
-      - DASHCORE_JSON_RPC_PASS={{ dashd_rpc_password }}
-      - DASHCORE_JSON_RPC_HOST={{ private_ip }}
-      - DASHCORE_JSON_RPC_PORT={{ dashd_rpc_port }}
-      - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017?replicaSet=driveDocumentIndices
+      - CORE_JSON_RPC_USER={{ dashd_rpc_user }}
+      - CORE_JSON_RPC_PASS={{ dashd_rpc_password }}
+      - CORE_JSON_RPC_HOST={{ private_ip }}
+      - CORE_JSON_RPC_PORT={{ dashd_rpc_port }}
+      - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017
       - DPNS_CONTRACT_ID={{ platform_dpns_contract_identity }}
       - DPNS_TOP_LEVEL_IDENTITY={{ platform_dpns_top_level_domain_identity }}
     ports:
