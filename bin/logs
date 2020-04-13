@@ -36,11 +36,11 @@ do
   if [ "${i:0:1}" == "-" ]; then
     DOCKER_LOGS_ARGS="${DOCKER_LOGS_ARGS} ${i}"
   else
-    SERVICE_NAME="mn_evo_services_${i}_1"
+    DOCKER_CONTAINER_NAME="mn_evo_services_${i}_1"
   fi
 done
 
-if [[ -z ${SERVICE_NAME} ]]; then
+if [[ -z ${DOCKER_CONTAINER_NAME} ]]; then
     print_error "Service name is required"
 fi
 
@@ -52,4 +52,4 @@ fi
 
 openvpn_start
 
-docker --host ${ANSIBLE_HOST} logs ${DOCKER_LOGS_ARGS} ${SERVICE_NAME}
+docker --host ${ANSIBLE_HOST} logs ${DOCKER_LOGS_ARGS} ${DOCKER_CONTAINER_NAME}
