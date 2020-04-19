@@ -104,3 +104,17 @@ variable "vpn_enabled" {
   description = "setup instance for vpn"
 }
 
+variable "main_domain" {
+  description = "domain name will be used for base for technical records"
+  default     = ""
+}
+
+variable "public_network_name" {
+  description = "Name of the network that will be used to create dns records"
+  default     = ""
+}
+
+variable "monitoring_enabled" {
+  description = "enable monitoring with CloudWatch"
+  default     = false
+}

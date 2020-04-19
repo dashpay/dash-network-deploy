@@ -16,13 +16,13 @@ describe('Tendermint', () => {
           return;
         }
 
-        const machineClient = jaysonClient.http({
+        const tendermintClient = jaysonClient.http({
           // eslint-disable-next-line no-underscore-dangle
           host: inventory._meta.hostvars[hostName].public_ip,
           port: variables.tendermint_rpc_port,
         });
 
-        const response = await machineClient.request('status', {});
+        const response = await tendermintClient.request('status', {});
 
         masternodeStatuses[hostName] = response;
 
@@ -59,25 +59,38 @@ describe('Tendermint', () => {
 
         expect(peersNumber).to.be.at.least(inventory.masternodes.hosts.length - 1);
       });
-    });
-  }
 
-  describe('All masternodes', () => {
-    it('should propagates blocks', async function it() {
-      if (!variables.evo_services) {
-        this.skip('Evolution services are not enabled');
+      it('should sync blocks', async function it() {
+        if (!variables.evo_services) {
+          this.skip('Evolution services are not enabled');
 
-        return;
-      }
+          return;
+        }
 
-      this.slow(inventory.masternodes.hosts.length * 2000);
-      this.timeout(inventory.masternodes.hosts.length * 3000);
-
-      const blockHashes = {};
-
-      for (const hostName of inventory.masternodes.hosts) {
         if (!masternodeStatuses[hostName]) {
-          expect.fail(`can't connect to ${hostName}`);
+          expect.fail('can\'t connect to node');
+        }
+
+        const blockHashes = {};
+
+        for (const host of inventory.masternodes.hosts) {
+          if (!masternodeStatuses[host]) {
+            // eslint-disable-next-line no-continue
+            continue;
+          }
+
+          const {
+            result: {
+              sync_info: {
+                latest_block_height: blockHeight,
+                latest_block_hash: blockHash,
+              },
+            },
+          } = masternodeStatuses[host];
+
+          if (!blockHashes[blockHeight]) {
+            blockHashes[blockHeight] = blockHash;
+          }
         }
 
         const {
@@ -89,15 +102,17 @@ describe('Tendermint', () => {
           },
         } = masternodeStatuses[hostName];
 
-        if (!blockHashes[blockHeight]) {
-          blockHashes[blockHeight] = blockHash;
-        }
-
         expect(blockHashes[blockHeight]).to.be.equal(blockHash);
-      }
 
-      const blocksCounts = Object.keys(blockHashes);
-      expect(Math.max(...blocksCounts) - Math.min(...blocksCounts)).to.be.below(3);
+        const blocksCounts = Object.keys(blockHashes).map(c => parseInt(c, 10));
+        const maxBlocksCount = Math.max(...blocksCounts);
+
+        const blocksCountDiff = maxBlocksCount - blockHeight;
+
+        if (blocksCountDiff > 3) {
+          expect.fail(`${blocksCountDiff} blocks behind`);
+        }
+      });
     });
-  });
+  }
 });

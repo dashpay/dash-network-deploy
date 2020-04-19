@@ -84,13 +84,9 @@ describe('DAPI', () => {
           return `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`;
         };
 
-        try {
-          await dapiClient.getDataContract('unknownContractId');
+        const result = await dapiClient.getDataContract('unknownContractId');
 
-          expect.fail('Contract not found error is not thrown');
-        } catch (e) {
-          expect(e.message).to.equal('5 NOT_FOUND: Contract not found');
-        }
+        expect(result).to.be.null();
       });
 
       it('should respond data from TxFilterStream GRPC service', async () => {

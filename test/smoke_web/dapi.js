@@ -19,8 +19,8 @@ describe('DAPI', () => {
         };
       });
 
-      it('should respond via gRPC Web', async function it() {
-        this.timeout(10000);
+      it('should respond with Core data via gRPC Web', async function it() {
+        this.timeout(15000);
 
         let result = await dapiClient.getBlockByHeight(1);
 
@@ -31,6 +31,14 @@ describe('DAPI', () => {
         const blockByHash = new Block(result);
 
         expect(block.toJSON()).to.deep.equal(blockByHash.toJSON());
+      });
+
+      it('should respond with Platform data via gRPC Web', async function it() {
+        this.timeout(15000);
+
+        const result = await dapiClient.getDataContract('unknown');
+
+        expect(result).to.be.null();
       });
     });
   }

@@ -9,7 +9,6 @@ evo_services: false
 # List of identities separated by comma
 platform_dpns_contract_identity: ''
 platform_dpns_top_level_domain_identity: ''
-platfrom_state_transitions_limiter_enabled: false
 
 # Install OpenVPN
 openvpn_enabled: true
@@ -19,9 +18,6 @@ sentinel_image: ablock/sentinel
 
 # Drive
 drive_image: dashpay/drive
-
-# Machine
-machine_image: dashpay/js-machine
 
 # Tendermint
 tendermint_image: tendermint/tendermint
