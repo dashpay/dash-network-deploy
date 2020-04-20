@@ -40,7 +40,7 @@ docker build --build-arg NODE_ENV=development \
   .
 
 # Login to Docker Hub
-echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
 
 # Push an image and all the tags
 docker push "${IMAGE_NAME}:${MAJOR}${TAG_POSTFIX}"
