@@ -1,3 +1,12 @@
+## [0.12.1](https://github.com/dashpay/dash-network-deploy/compare/v0.12.0...v0.12.1) (2020-04-20)
+
+
+### Bug Fixes
+
+* wrong docker credential envs in deploy script ([#151](https://github.com/dashpay/dash-network-deploy/issues/151))
+
+
+
 # [0.12.0](https://github.com/dashpay/dash-network-deploy/compare/v0.11.1...v0.12.0) (2020-04-19)
 
 
