@@ -1,3 +1,11 @@
+## [0.12.2](https://github.com/dashpay/dash-network-deploy/compare/v0.12.1...v0.12.2) (2020-04-21)
+
+
+### Features
+
+* allow to configure Envoy docker image ([#152](https://github.com/dashpay/dash-network-deploy/issues/152))
+
+
 ## [0.12.1](https://github.com/dashpay/dash-network-deploy/compare/v0.12.0...v0.12.1) (2020-04-20)
 
 
