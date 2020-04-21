@@ -28,6 +28,7 @@ tendermint_gid: '1000'
 
 # DAPI
 dapi_image: dashpay/dapi
+dapi_envoy_image: envoyproxy/envoy
 dapi_port: 3000
 dapi_grpc_port: 3010
 
