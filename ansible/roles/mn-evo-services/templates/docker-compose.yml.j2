@@ -22,7 +22,7 @@ services:
       - CORE_JSON_RPC_HOST={{ private_ip }}
       - CORE_JSON_RPC_PORT={{ dashd_rpc_port }}
       - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017
-      - DPNS_CONTRACT_ID={{ platform_dpns_contract_identity }}
+      - DPNS_CONTRACT_ID={{ platform_dpns_contract_id }}
       - DPNS_TOP_LEVEL_IDENTITY={{ platform_dpns_top_level_domain_identity }}
     ports:
       - 26658:26658
