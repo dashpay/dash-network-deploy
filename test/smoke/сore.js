@@ -9,9 +9,37 @@ const allHosts = inventory.masternodes.hosts.concat(
   inventory.full_nodes.hosts,
 );
 
-describe('DashCore', () => {
+describe('Core', () => {
   describe('All nodes', () => {
+    const blockchainInfo = {};
+    let maxBlockHeight = 0;
+
+    before(async function before() {
+      this.slow(allHosts * 2000);
+      this.timeout(allHosts * 3000);
+
+      for (const hostName of allHosts) {
+        const client = createRpcClientFromConfig(hostName);
+
+        let result;
+
+        try {
+          ({ result } = await client.getBlockchainInfo());
+        } catch (e) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+
+        if (maxBlockHeight < result.blocks) {
+          maxBlockHeight = result.blocks;
+        }
+
+        blockchainInfo[hostName] = result;
+      }
+    });
+
     for (const hostName of allHosts) {
+      // eslint-disable-next-line no-loop-func
       describe(hostName, () => {
         let dashdClient;
 
@@ -27,29 +55,16 @@ describe('DashCore', () => {
           expect(networkactive).to.be.equal(true);
           expect(subversion).to.have.string(`(${network.type}=${network.name})/`);
         });
+
+        it('should sync blocks', async () => {
+          if (!blockchainInfo[hostName]) {
+            expect.fail('Can\'t connect to Core');
+          }
+
+          expect(maxBlockHeight - blockchainInfo[hostName].blocks).to.be.below(3);
+        });
       });
     }
-
-    it('should propagate blocks', async function it() {
-      this.slow(allHosts * 2000);
-      this.timeout(allHosts * 3000);
-
-      const blockHashes = {};
-
-      for (const hostName of allHosts) {
-        const dashdClient = createRpcClientFromConfig(hostName);
-        const { result: { blocks, bestblockhash } } = await dashdClient.getBlockchainInfo();
-
-        if (!blockHashes[blocks]) {
-          blockHashes[blocks] = bestblockhash;
-        }
-
-        expect(blockHashes[blocks]).to.be.equal(bestblockhash);
-      }
-
-      const blocksCounts = Object.keys(blockHashes);
-      expect(Math.max(...blocksCounts) - Math.min(...blocksCounts)).to.be.below(3);
-    });
   });
 
   describe('Masternodes', () => {
