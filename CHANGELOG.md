@@ -1,3 +1,11 @@
+## [0.12.3](https://github.com/dashpay/dash-network-deploy/compare/v0.12.2...v0.12.3) (2020-04-30)
+
+
+### Improvements 
+
+* represent specific unsynced nodes in core smoke tests ([#153](https://github.com/dashpay/dash-network-deploy/issues/153))
+
+
 ## [0.12.2](https://github.com/dashpay/dash-network-deploy/compare/v0.12.1...v0.12.2) (2020-04-21)
 
 
