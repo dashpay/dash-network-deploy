@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 describe('Smoke', () => {
-  require('./сore');
+  require('./core');
   require('./insight-api');
   require('./drive');
   require('./tendermint');
