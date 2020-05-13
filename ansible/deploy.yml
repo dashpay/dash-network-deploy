@@ -156,6 +156,13 @@
   roles:
     - mn-init
 
+# Activate sporks
+
+- hosts: masternode_wallet
+  become: true
+  roles:
+    - activate-dashd-sporks
+
 # Prune unused Docker images
 
 - hosts: all
