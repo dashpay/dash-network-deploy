@@ -79,7 +79,8 @@ resource "aws_subnet" "public" {
 }
 
 data "aws_route53_zone" "main_domain" {
-  name = var.main_domain
+  count = length(var.main_domain) > 1 ? 1 : 0
+  name  = var.main_domain
 }
 
 resource "aws_elb" "web" {
@@ -124,7 +125,7 @@ resource "aws_elb" "web" {
 }
 
 resource "aws_route53_record" "faucet" {
-  zone_id = data.aws_route53_zone.main_domain.zone_id
+  zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
   name    = "faucet.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
@@ -134,7 +135,7 @@ resource "aws_route53_record" "faucet" {
 }
 
 resource "aws_route53_record" "insight" {
-  zone_id = data.aws_route53_zone.main_domain.zone_id
+  zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
   name    = "insight.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
@@ -144,7 +145,7 @@ resource "aws_route53_record" "insight" {
 }
 
 resource "aws_route53_record" "masternodes" {
-  zone_id = data.aws_route53_zone.main_domain.zone_id
+  zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
   name    = "seed.${var.public_network_name}.${var.main_domain}"
   type    = "A"
   ttl     = "300"
