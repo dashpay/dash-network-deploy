@@ -30,6 +30,10 @@ resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
   statistic           = "Average"
   threshold           = "60"
 
+  insufficient_data_actions = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+  alarm_actions             = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+  ok_actions                = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+
   dimensions = {
     InstanceId = local.instance_ids[count.index]
   }
@@ -49,6 +53,10 @@ resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
   period              = "360"
   statistic           = "Average"
   threshold           = "85"
+
+  insufficient_data_actions = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+  alarm_actions             = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+  ok_actions                = length(var.sns_arn) > 1 ? [var.sns_arn] : []
 
   dimensions = {
     InstanceId = local.instance_ids[count.index]
@@ -70,6 +78,10 @@ resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
   statistic           = "Average"
   threshold           = "15"
 
+  insufficient_data_actions = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+  alarm_actions             = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+  ok_actions                = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+
   dimensions = {
     InstanceId = local.instance_ids[count.index]
   }
@@ -89,6 +101,10 @@ resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
   period              = "360"
   statistic           = "Average"
   threshold           = "80"
+
+  insufficient_data_actions = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+  alarm_actions             = length(var.sns_arn) > 1 ? [var.sns_arn] : []
+  ok_actions                = length(var.sns_arn) > 1 ? [var.sns_arn] : []
 
   dimensions = {
     InstanceId = local.instance_ids[count.index]
