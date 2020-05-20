@@ -109,11 +109,10 @@ variable "main_domain" {
   default     = ""
 }
 
-variable "sns_arn" {
+variable "montitoring_sns_arn" {
   description = "ARN of SNS topic that will receive notifications from monitoring"
   default     = ""
 }
-
 
 variable "public_network_name" {
   description = "Name of the network that will be used to create dns records"
