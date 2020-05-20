@@ -1,3 +1,28 @@
+## [0.12.3](https://github.com/dashpay/dash-network-deploy/compare/v0.12.2...v0.12.3) (2020-04-30)
+
+
+### Improvements 
+
+* represent specific unsynced nodes in core smoke tests ([#153](https://github.com/dashpay/dash-network-deploy/issues/153))
+
+
+## [0.12.2](https://github.com/dashpay/dash-network-deploy/compare/v0.12.1...v0.12.2) (2020-04-21)
+
+
+### Features
+
+* allow to configure Envoy docker image ([#152](https://github.com/dashpay/dash-network-deploy/issues/152))
+
+
+## [0.12.1](https://github.com/dashpay/dash-network-deploy/compare/v0.12.0...v0.12.1) (2020-04-20)
+
+
+### Bug Fixes
+
+* wrong docker credential envs in deploy script ([#151](https://github.com/dashpay/dash-network-deploy/issues/151))
+
+
+
 # [0.12.0](https://github.com/dashpay/dash-network-deploy/compare/v0.11.1...v0.12.0) (2020-04-19)
 
 

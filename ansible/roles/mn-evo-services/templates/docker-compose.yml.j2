@@ -88,7 +88,7 @@ services:
       - NETWORK={{ dash_network }}
 
   dapi_envoy:
-    image: envoyproxy/envoy:latest
+    image: {{ dapi_envoy_image }}
     restart: always
     depends_on:
       - dapi_api
