@@ -1,3 +1,12 @@
+## [0.12.4](https://github.com/dashpay/dash-network-deploy/compare/v0.12.3...v0.12.4) (2020-05-20)
+
+
+### Bug Fixes
+
+* optional `main_domain` throws error if not present ([#157](https://github.com/dashpay/dash-network-deploy/issues/157))
+
+
+
 ## [0.12.3](https://github.com/dashpay/dash-network-deploy/compare/v0.12.2...v0.12.3) (2020-04-30)
 
 
