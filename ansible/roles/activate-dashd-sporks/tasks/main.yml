@@ -1,0 +1,30 @@
+---
+
+- name: get current block height
+  shell: dash-cli getblockcount
+  register: blocks_count
+
+- name: generate blocks up to {{spork_ready_block_height}} in order to activate DML
+  include_role:
+    name: generate-blocks
+  vars:
+    num_blocks: "{{ spork_ready_block_height - (blocks_count.stdout | int) }}"
+    balance_needed: 0
+  when: (blocks_count.stdout | int) < spork_ready_block_height
+
+- name: get active sporks list
+  shell: dash-cli spork active
+  register: active_sporks
+
+- name: activate non active sporks
+  shell: dash-cli spork {{item}} 0
+  with_items:
+    - SPORK_2_INSTANTSEND_ENABLED
+    - SPORK_3_INSTANTSEND_BLOCK_FILTERING
+    - SPORK_9_SUPERBLOCKS_ENABLED
+    - SPORK_15_DETERMINISTIC_MNS_ENABLED
+    - SPORK_16_INSTANTSEND_AUTOLOCKS
+    - SPORK_17_QUORUM_DKG_ENABLED
+    - SPORK_19_CHAINLOCKS_ENABLED
+    - SPORK_20_INSTANTSEND_LLMQ_BASED
+  when: (active_sporks.stdout | from_json)[item] == false
