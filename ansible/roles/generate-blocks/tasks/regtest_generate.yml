@@ -2,7 +2,7 @@
 
 - name: generate fixed amount of blocks
   shell: dash-cli {{ faucet_rpc_args }} generate {{ num_blocks }} > /dev/null
-  when: num_blocks > 0
+  when: num_blocks|int > 0
 
 # TODO avoid first call if not needed
 - name: generate enough blocks to have {{ balance_needed|default(0) }} coins
