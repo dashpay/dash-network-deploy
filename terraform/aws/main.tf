@@ -144,7 +144,9 @@ resource "aws_route53_record" "insight" {
   count = length(var.main_domain) > 1 ? 1 : 0
 }
 
-resource "aws_route53_record" "masternodes" {
+# TODO: Deprecated. Remove on 0.14 version.
+
+resource "aws_route53_record" "masternodes-deprecated" {
   zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
   name    = "seed.${var.public_network_name}.${var.main_domain}"
   type    = "A"
@@ -152,6 +154,16 @@ resource "aws_route53_record" "masternodes" {
   records = concat(aws_instance.masternode.*.public_ip)
 
   count = length(var.main_domain) > 1 ? 1 : 0
+}
+
+resource "aws_route53_record" "masternodes" {
+  zone_id = data.aws_route53_zone.main_domain[0].zone_id
+  name    = "seed-${count.index + 1}.${var.public_network_name}.${var.main_domain}"
+  type    = "A"
+  ttl     = "300"
+  records = concat(aws_instance.masternode.*.public_ip)
+
+  count = length(var.main_domain) > 1 ? 5 : 0
 }
 
 resource "aws_key_pair" "auth" {
