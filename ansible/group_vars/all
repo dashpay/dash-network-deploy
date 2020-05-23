@@ -48,6 +48,7 @@ dashd_home: /dash
 # dash_network:
 # dash_devnet_name:
 # dash_network_name:
+dash_devnet_version: 1
 
 dashd_port: 20001
 
