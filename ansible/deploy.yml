@@ -18,10 +18,6 @@
     - role: aws
       when: is_aws_environment
     - swap
-    - role: Restless-ET.aws-scripts-mon
-      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
-      aws_scripts_mon_use_iam: true
-
 
 # Setup VPN
 
@@ -55,13 +51,24 @@
     - geerlingguy.pip
     - geerlingguy.docker
     - docker-options
+    - role: ecr-login
+      when: aws_ecr_login
+      tags: always
+
+# Install AWS monitoring scripts
 
 - hosts: all
   become: true
   roles:
-    - role: ecr-login
-      when: aws_ecr_login
-      tags: always
+    - role: Restless-ET.aws-scripts-mon
+      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
+      aws_scripts_mon_use_iam: true
+
+# Configure dashd cli
+
+- hosts: all
+  become: true
+  roles:
     - dash-cli
 
 # Setup wallets, miners and full nodes
