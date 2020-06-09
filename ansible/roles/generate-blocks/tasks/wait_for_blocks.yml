@@ -2,19 +2,19 @@
 
 - name: getblockchaininfo
   command: dash-cli {{ faucet_rpc_args }} getblockchaininfo
-  when: num_blocks > 0
+  when: num_blocks|int > 0
   register: getblockchaininfo_result
 
 - set_fact:
     initial_block_count: "{{ (getblockchaininfo_result.stdout|from_json).blocks|int }}"
-  when: num_blocks > 0
+  when: num_blocks|int > 0
 
 - debug: var=initial_block_count
-  when: num_blocks > 0
+  when: num_blocks|int > 0
 
 - name: wait for {{ num_blocks }} blocks
   command: dash-cli {{ faucet_rpc_args }} getblockchaininfo
-  when: num_blocks > 0
+  when: num_blocks|int > 0
   register: getblockchaininfo_result
   until: (getblockchaininfo_result.stdout|from_json).blocks|int >= (initial_block_count|int + num_blocks|int)
   retries: 200

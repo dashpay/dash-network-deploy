@@ -7,7 +7,7 @@ aws_ecr_login: false
 evo_services: false
 
 # List of identities separated by comma
-platform_dpns_contract_identity: ''
+platform_dpns_contract_id: ''
 platform_dpns_top_level_domain_identity: ''
 
 # Install OpenVPN
@@ -48,6 +48,7 @@ dashd_home: /dash
 # dash_network:
 # dash_devnet_name:
 # dash_network_name:
+dash_devnet_version: 1
 
 dashd_port: 20001
 

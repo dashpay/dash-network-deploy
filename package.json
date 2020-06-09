@@ -1,6 +1,6 @@
 {
   "name": "@dashevo/dash-network-deploy",
-  "version": "0.12.4",
+  "version": "0.13.0",
   "description": "Dash Network deployment tool",
   "directories": {
     "lib": "lib",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@dashevo/dapi-client": "~0.12.0",
     "@dashevo/dashcore-lib": "~0.18.0",
-    "@dashevo/dashd-rpc": "^1.2.0",
+    "@dashevo/dashd-rpc": "^2.0.0",
     "bls-signatures": "^0.1.9",
     "bs58": "^4.0.1",
     "chai": "^4.1.2",
@@ -34,7 +34,7 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "grpc": "^1.20.0",
+    "grpc": "^1.24.3",
     "grpc-health-check": "^1.7.0",
     "jayson": "^2.0.6",
     "js-yaml": "^3.13.1",
