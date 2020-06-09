@@ -1,3 +1,22 @@
+# [0.13.0](https://github.com/dashpay/dash-network-deploy/compare/v0.13.0-dev.1...v0.13.0) (2020-06-09)
+
+
+### Bug Fixes
+
+* unavailable monitoring apt packets ([#162](https://github.com/dashpay/dash-network-deploy/issues/162))
+* optional `main_domain` throws error if not present ([#157](https://github.com/dashpay/dash-network-deploy/issues/157))
+
+
+### Features
+
+* upgrade terraform to 0.12.26 ([#165](https://github.com/dashpay/dash-network-deploy/issues/165))
+* versioning for Core and Tendermint devnet networks ([#163](https://github.com/dashpay/dash-network-deploy/issues/163))
+* multiple masternode seeds ([#161](https://github.com/dashpay/dash-network-deploy/issues/161))
+* monitoring alarms to slack ([#158](https://github.com/dashpay/dash-network-deploy/issues/158), [#160](https://github.com/dashpay/dash-network-deploy/issues/160))
+* activate Core sporks ([#156](https://github.com/dashpay/dash-network-deploy/issues/156), [#159](https://github.com/dashpay/dash-network-deploy/issues/159))
+
+
+
 ## [0.12.3](https://github.com/dashpay/dash-network-deploy/compare/v0.12.2...v0.12.3) (2020-04-30)
 
 
