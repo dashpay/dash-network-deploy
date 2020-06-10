@@ -1,3 +1,12 @@
+## [0.13.1](https://github.com/dashpay/dash-network-deploy/compare/v0.13.0...v0.13.1) (2020-06-10)
+
+
+### Bug Fixes
+
+* `swappiness` value is too big ([#166](https://github.com/dashpay/dash-network-deploy/issues/166), [#167](https://github.com/dashpay/dash-network-deploy/issues/166))
+
+
+
 # [0.13.0](https://github.com/dashpay/dash-network-deploy/compare/v0.12.4...v0.13.0) (2020-06-09)
 
 
