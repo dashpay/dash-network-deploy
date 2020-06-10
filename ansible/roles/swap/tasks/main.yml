@@ -46,4 +46,4 @@
   become_user: root
   sysctl:
     name: vm.swappiness
-    value: "60"
+    value: "10"
