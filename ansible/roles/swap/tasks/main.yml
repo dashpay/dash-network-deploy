@@ -47,3 +47,10 @@
   sysctl:
     name: vm.swappiness
     value: "10"
+  register: swappiness
+  
+- name: reset swap usage
+  become: yes
+  become_user: root
+  shell: swapoff -a && swapon -a
+  when: swappiness.changed
