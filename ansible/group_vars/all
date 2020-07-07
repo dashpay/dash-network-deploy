@@ -20,7 +20,7 @@ sentinel_image: ablock/sentinel
 drive_image: dashpay/drive
 
 # Tendermint
-tendermint_image: tendermint/tendermint
+tendermint_image: dashpay/tendermint
 tendermint_p2p_port: 26656
 tendermint_rpc_port: 26657
 tendermint_uid: '100'
