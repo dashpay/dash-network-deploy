@@ -161,8 +161,8 @@ locals {
 }
 
 resource "random_shuffle" "dns_ips" {
-  input = concat(aws_instance.masternode.*.public_ip)
-  result_count = length(concat(aws_instance.masternode.*.public_ip)) > local.dns_record_length ? local.dns_record_length : length(concat(aws_instance.masternode.*.public_ip)) 
+  input        = concat(aws_instance.masternode.*.public_ip)
+  result_count = length(concat(aws_instance.masternode.*.public_ip)) > local.dns_record_length ? local.dns_record_length : length(concat(aws_instance.masternode.*.public_ip))
 }
 
 resource "aws_route53_record" "masternodes" {
@@ -170,7 +170,7 @@ resource "aws_route53_record" "masternodes" {
   name    = "seed-${count.index + 1}.${var.public_network_name}.${var.main_domain}"
   type    = "A"
   ttl     = "300"
-  records = [ random_shuffle.dns_ips.result ]
+  records = random_shuffle.dns_ips.result
 
   count = length(var.main_domain) > 1 ? 5 : 0
 }
