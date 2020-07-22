@@ -176,5 +176,5 @@
   become: true
   tasks:
     - name: prune unused docker images
-      shell: docker image prune -f
+      shell: docker system prune -af
       tags: always
