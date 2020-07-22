@@ -18,6 +18,11 @@
     - .env
     - dapi-envoy.yaml
 
+- name: pull platform docker images
+  command: docker-compose pull
+  args:
+    chdir: '{{ mn_evo_services_path }}'
+
 - import_tasks: mongodb_replicaset.yml
 
 - import_tasks: tendermint.yml
