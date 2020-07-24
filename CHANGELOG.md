@@ -1,3 +1,19 @@
+# [0.14.0](https://github.com/dashpay/dash-network-deploy/compare/v0.13.1...v0.14.0) (2020-07-24)
+
+
+### Bug Fixes
+
+* dirty get Tendermint node ID output ([#172](https://github.com/dashpay/dash-network-deploy/issues/172))
+* some DNS services block long records ([#170](https://github.com/dashpay/dash-network-deploy/issues/170))
+* invalid volumes were added during Tendermint container creation ([#169](https://github.com/dashpay/dash-network-deploy/issues/169))
+
+
+### Features
+
+* prune all unused docker data ([#173](https://github.com/dashpay/dash-network-deploy/issues/173))
+
+
+
 ## [0.13.1](https://github.com/dashpay/dash-network-deploy/compare/v0.13.0...v0.13.1) (2020-06-10)
 
 
