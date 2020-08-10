@@ -1,5 +1,3 @@
-const webpack = require('webpack');
-
 const getNetworkConfig = require('./lib/test/getNetworkConfig');
 
 const { inventory, variables } = getNetworkConfig();

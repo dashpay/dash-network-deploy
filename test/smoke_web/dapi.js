@@ -13,20 +13,22 @@ describe('DAPI', () => {
 
       before(() => {
         dapiClient = new DAPIClient();
-        dapiClient.getGrpcUrl = function getGrpcUrl() {
-          // eslint-disable-next-line no-underscore-dangle
-          return `http://${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`;
-        };
       });
 
       it('should respond with Core data via gRPC Web', async function it() {
         this.timeout(15000);
 
-        let result = await dapiClient.getBlockByHeight(1);
+        let result = await dapiClient.core.getBlockByHeight(1, {
+          // eslint-disable-next-line no-underscore-dangle
+          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+        });
 
         const block = new Block(result);
 
-        result = await dapiClient.getBlockByHash(block.header.hash);
+        result = await dapiClient.core.getBlockByHash(block.header.hash, {
+          // eslint-disable-next-line no-underscore-dangle
+          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+        });
 
         const blockByHash = new Block(result);
 
@@ -36,7 +38,10 @@ describe('DAPI', () => {
       it('should respond with Platform data via gRPC Web', async function it() {
         this.timeout(15000);
 
-        const result = await dapiClient.getDataContract('unknown');
+        const result = await dapiClient.platform.getDataContract('unknown', {
+          // eslint-disable-next-line no-underscore-dangle
+          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+        });
 
         expect(result).to.be.null();
       });
