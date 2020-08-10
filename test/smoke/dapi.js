@@ -30,14 +30,10 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        dapiClient.MNDiscovery.getRandomMasternode = async function getRandomMasternode() {
-          return {
-            // eslint-disable-next-line no-underscore-dangle
-            service: `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`,
-          };
-        };
-
-        const blockHashFromDapi = await dapiClient.getBestBlockHash();
+        const blockHashFromDapi = await dapiClient.core.getBestBlockHash({
+          // eslint-disable-next-line no-underscore-dangle
+          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+        });
 
         expect(blockHashFromDapi).to.be.a('string');
         expect(blockHashFromDapi).to.be.not.empty();
@@ -51,12 +47,10 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        dapiClient.getGrpcUrl = function getGrpcUrl() {
+        const result = await dapiClient.core.getStatus({
           // eslint-disable-next-line no-underscore-dangle
-          return `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`;
-        };
-
-        const result = await dapiClient.getStatus();
+          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`],
+        });
 
         expect(result).to.have.a.property('coreVersion');
         expect(result).to.have.a.property('protocolVersion');
@@ -79,12 +73,10 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        dapiClient.getGrpcUrl = function getGrpcUrl() {
+        const result = await dapiClient.platform.getDataContract('unknownContractId', {
           // eslint-disable-next-line no-underscore-dangle
-          return `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`;
-        };
-
-        const result = await dapiClient.getDataContract('unknownContractId');
+          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`],
+        });
 
         expect(result).to.be.null();
       });
