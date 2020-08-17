@@ -157,7 +157,7 @@ resource "aws_instance" "masternode" {
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
-    volume_size = "14"
+    volume_size = "30"
   }
 
   volume_tags = {
