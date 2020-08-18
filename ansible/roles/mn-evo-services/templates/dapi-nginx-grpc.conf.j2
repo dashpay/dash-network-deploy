@@ -20,16 +20,16 @@ server {
     limit_req zone=protect_http2_api burst=300 nodelay;
     limit_req_status 429;
 
+    location /org.dash.platform.dapi.v0.Core/subscribeToTransactionsWithProofs {
+        grpc_pass grpc://{{ private_ip }}:3006;
+    }
+
     location /org.dash.platform.dapi.v0.Core {
         grpc_pass grpc://{{ private_ip }}:3005;
     }
 
     location /org.dash.platform.dapi.v0.Platform {
         grpc_pass grpc://{{ private_ip }}:3005;
-    }
-
-    location /org.dash.platform.dapi.v0.TransactionsFilterStream {
-        grpc_pass grpc://{{ private_ip }}:3006;
     }
 
     location /grpc.health.v1.Health {
