@@ -144,7 +144,7 @@ resource "aws_instance" "masternode" {
   count = var.masternode_count
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.small"
+  instance_type        = "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
