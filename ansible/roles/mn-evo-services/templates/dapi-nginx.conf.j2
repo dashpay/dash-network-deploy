@@ -33,7 +33,7 @@ server {
     }
 
     # Route GRPC-WEB requests to Envoy DAPI TransactionsFilterStream service
-    location /org.dash.platform.dapi.v0.Core/subscribeToTransactionsWithProofs {
+    location = /org.dash.platform.dapi.v0.Core/subscribeToTransactionsWithProofs {
         if ($request_method = 'OPTIONS') {
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
@@ -59,7 +59,7 @@ server {
     }
 
     # Route GRPC-WEB requests to Envoy DAPI API service
-    location ~ /org.dash.platform.dapi.v0.Core {
+    location ~ ^/org\.dash\.platform\.dapi\.v0\.Core {
         if ($request_method = 'OPTIONS') {
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
@@ -85,7 +85,7 @@ server {
     }
 
     # Route GRPC-WEB requests to Envoy DAPI Platform service
-    location ~ /org.dash.platform.dapi.v0.Platform {
+    location ~ ^/org\.dash\.platform\.dapi\.v0\.Platform {
         if ($request_method = 'OPTIONS') {
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
@@ -135,7 +135,7 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
-    location ~ /org.dash.platform.dapi.v[0-9]+.Core {
+    location ~ ^/org\.dash\.platform\.dapi\.v[0-9]+\.Core {
         add_header 'Access-Control-Allow-Origin' '*' always;
         add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
         add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Transfer-Encoding,Custom-Header-1,X-Accept-Content-Transfer-Encoding,X-Accept-Response-Streaming,X-User-Agent,X-Grpc-Web' always;
@@ -146,7 +146,7 @@ server {
         return 204;
     }
 
-    location ~ /org.dash.platform.dapi.v[0-9]+.Platform {
+    location ~ ^/org\.dash\.platform\.dapi\.v[0-9]+\.Platform {
         add_header 'Access-Control-Allow-Origin' '*' always;
         add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
         add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Transfer-Encoding,Custom-Header-1,X-Accept-Content-Transfer-Encoding,X-Accept-Response-Streaming,X-User-Agent,X-Grpc-Web' always;
