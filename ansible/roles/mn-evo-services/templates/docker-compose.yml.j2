@@ -7,8 +7,11 @@ services:
     command: mongod --replSet driveDocumentIndices --bind_ip_all
     ports:
       - 27017:27017
+    extra_hosts:
+      - "drive_mongodb:127.0.0.1"
     volumes:
       - drive_mongodb:/data/db
+      - {{ mn_evo_services_path }}/initiate_mongodb_replica.js:/docker-entrypoint-initdb.d/initiate_mongodb_replica.js
 
   drive_abci:
     image: {{ drive_image }}
@@ -21,7 +24,7 @@ services:
       - CORE_JSON_RPC_PASS={{ dashd_rpc_password }}
       - CORE_JSON_RPC_HOST={{ private_ip }}
       - CORE_JSON_RPC_PORT={{ dashd_rpc_port }}
-      - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017
+      - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017?replicaSet=driveDocumentIndices
       - DPNS_CONTRACT_ID={{ platform_dpns_contract_id }}
       - DPNS_TOP_LEVEL_IDENTITY={{ platform_dpns_top_level_domain_identity }}
     ports:
