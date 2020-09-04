@@ -1,3 +1,29 @@
+# [0.15.0](https://github.com/dashpay/dash-network-deploy/compare/v0.14.0...v0.15.0) (2020-09-04)
+
+
+### Bug Fixes
+
+* gRPC buffer size settings in NGINX was too small ([#185](https://github.com/dashpay/dash-network-deploy/issues/185))
+* MongoDB node is not in primary or recovering state ([#186](https://github.com/dashpay/dash-network-deploy/issues/186))
+
+
+### Features
+
+* nginx responds with unimplemented in case of unsupported version ([#184](https://github.com/dashpay/dash-network-deploy/issues/184))
+* upgrade masternode AWS instance to medium ([#182](https://github.com/dashpay/dash-network-deploy/issues/182))
+* increase disk space for masternode root volume ([#179](https://github.com/dashpay/dash-network-deploy/issues/179))
+* move `subscribeToTransactionsWithProofs` to `Core` service ([#180](https://github.com/dashpay/dash-network-deploy/issues/180))
+* update DAPI Client to 0.15 ([#178](https://github.com/dashpay/dash-network-deploy/issues/178))
+
+
+### BREAKING CHANGES
+
+* redeploy the infrastructure of existing networks required
+* see [Drive breaking changes](https://github.com/dashevo/js-drive/releases/tag/v0.15.0)
+* see [DAPI breaking changes](https://github.com/dashevo/dapi/releases/tag/v0.15.0)
+
+
+
 # [0.14.0](https://github.com/dashpay/dash-network-deploy/compare/v0.13.1...v0.14.0) (2020-07-24)
 
 
