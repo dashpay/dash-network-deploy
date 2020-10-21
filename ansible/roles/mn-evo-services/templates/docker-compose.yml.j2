@@ -27,6 +27,8 @@ services:
       - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017?replicaSet=driveDocumentIndices
       - DPNS_CONTRACT_ID={{ platform_dpns_contract_id }}
       - DPNS_TOP_LEVEL_IDENTITY={{ platform_dpns_top_level_domain_identity }}
+      - NODE_ENV=development
+      - LOGGING_LEVEL=debug
     ports:
       - 26658:26658
     depends_on:
@@ -69,6 +71,7 @@ services:
       - NETWORK={{ dash_network }}
       - TENDERMINT_RPC_HOST=tendermint
       - TENDERMINT_RPC_PORT=26657
+      - NODE_ENV=development
 
   dapi_tx_filter_stream:
     image: {{ dapi_image }}
