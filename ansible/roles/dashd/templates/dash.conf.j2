@@ -12,6 +12,7 @@ daemon=0  # leave this set to 0 for Docker
 logtimestamps=1
 maxconnections=256
 debug={{ dashd_debug }}
+printtoconsole=1
 
 {% if dashd_indexes %}
 # optional indices (required for Insight)
@@ -33,7 +34,6 @@ zmqpubhashblock=tcp://0.0.0.0:{{ dashd_zmq_port }}
 
 # JSONRPC
 server=1
-rpcport={{ dashd_rpc_port }}
 rpcuser={{ dashd_rpc_user }}
 rpcpassword={{ dashd_rpc_password }}
 
@@ -51,26 +51,34 @@ rpcallowip={{ hostvars['vpn'].public_ip }}/32
 rpcworkqueue=64
 rpcthreads=16
 
-# external network
 {% if dashd_listen %}
 listen=1
-bind=0.0.0.0
 {% else %}
 listen=0
 {% endif %}
+
 externalip={{ dashd_externalip }}
-port={{ dashd_port }}
+
 dnsseed=0
 allowprivatenet={{ dashd_allowprivatenet }}
 
-printtoconsole=1
+[{{ dash_network }}]
 
-{% if dashd_seednode is not none and not dashd_isseednode %}
-addnode={{ dashd_seednode }}:{{ dashd_port }}
-{% endif %}
+rpcport={{ dashd_rpc_port }}
 
 {% if masternode is defined %}
 masternodeblsprivkey={{ masternode.operator.private_key }}
+{% endif %}
+
+# external network
+{% if dashd_listen %}
+bind=0.0.0.0
+{% endif %}
+
+port={{ dashd_port }}
+
+{% if dashd_seednode is not none and not dashd_isseednode %}
+addnode={{ dashd_seednode }}:{{ dashd_port }}
 {% endif %}
 
 {% if dashd_sporkaddr is defined %}
