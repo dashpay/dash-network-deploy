@@ -53,7 +53,7 @@
     command: 'dashd -conf={{ dashd_home }}/.dashcore/dash.conf -datadir={{ dashd_home }}/.dashcore'
 
 - name: wait for rpc to be available
-  shell: dash-cli getinfo
+  shell: dash-cli getblockchaininfo
   register: task_result
   until: task_result.rc == 0
   retries: 5
