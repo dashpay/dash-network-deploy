@@ -1,3 +1,28 @@
+# [0.16.0](https://github.com/dashpay/dash-network-deploy/compare/v0.15.0...v0.16.0) (2020-10-28)
+
+
+### Bug Fixes
+
+* `getinfo` RPC command is removed in DashCore 0.16 ([#191](https://github.com/dashpay/dash-network-deploy/issues/191))
+
+
+### Features
+
+* update dashd config for DashCore 0.16 ([#190](https://github.com/dashpay/dash-network-deploy/issues/190))
+* variables for env and logging level ([#188](https://github.com/dashpay/dash-network-deploy/issues/188), [#189](https://github.com/dashpay/dash-network-deploy/issues/189))
+
+
+### Chores
+
+* update DAPI Client to 0.16 ([#192](https://github.com/dashpay/dash-network-deploy/issues/188))
+
+
+### BREAKING CHANGES
+
+* DashCore 0.15 and lower are not supported
+
+
+
 # [0.15.0](https://github.com/dashpay/dash-network-deploy/compare/v0.14.0...v0.15.0) (2020-09-04)
 
 
