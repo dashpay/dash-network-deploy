@@ -73,7 +73,9 @@ describe('DAPI', () => {
 
         this.slow(3000);
 
-        const result = await dapiClient.platform.getDataContract('unknownContractId', {
+        const unknownContractId = Buffer.alloc(32).fill(1);
+
+        const result = await dapiClient.platform.getDataContract(unknownContractId, {
           // eslint-disable-next-line no-underscore-dangle
           dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`],
         });

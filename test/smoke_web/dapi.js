@@ -38,7 +38,9 @@ describe('DAPI', () => {
       it('should respond with Platform data via gRPC Web', async function it() {
         this.timeout(15000);
 
-        const result = await dapiClient.platform.getDataContract('unknown', {
+        const unknownContractId = Buffer.alloc(32).fill(1);
+
+        const result = await dapiClient.platform.getDataContract(unknownContractId, {
           // eslint-disable-next-line no-underscore-dangle
           dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
         });
