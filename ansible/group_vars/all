@@ -10,6 +10,7 @@ node_environment: 'production'
 
 # List of identities separated by comma
 platform_dpns_contract_id: ''
+platform_dpns_contract_block_height: ''
 platform_dpns_top_level_domain_identity: ''
 
 # Install OpenVPN

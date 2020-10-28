@@ -26,6 +26,7 @@ services:
       - CORE_JSON_RPC_PORT={{ dashd_rpc_port }}
       - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017?replicaSet=driveDocumentIndices
       - DPNS_CONTRACT_ID={{ platform_dpns_contract_id }}
+      - DPNS_CONTRACT_BLOCK_HEIGHT={{ platform_dpns_contract_block_height }}
       - DPNS_TOP_LEVEL_IDENTITY={{ platform_dpns_top_level_domain_identity }}
       - NODE_ENV={{ node_environment }}
       - LOGGING_LEVEL={{ drive_logging_level }}
