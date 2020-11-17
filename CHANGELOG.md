@@ -1,3 +1,12 @@
+## [0.16.2](https://github.com/dashpay/dash-network-deploy/compare/v0.16.1...v0.16.2) (2020-11-17)
+
+
+### Bug Fixes
+
+* outdated sporks ([#195](https://github.com/dashpay/dash-network-deploy/issues/195))
+
+
+
 ## [0.16.1](https://github.com/dashpay/dash-network-deploy/compare/v0.16.0...v0.16.1) (2020-10-28)
 
 
