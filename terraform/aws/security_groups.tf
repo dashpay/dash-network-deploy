@@ -24,7 +24,7 @@ resource "aws_security_group" "default" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -73,7 +73,7 @@ resource "aws_security_group" "dashd_private" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -86,7 +86,7 @@ resource "aws_security_group" "dashd_private" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -123,7 +123,7 @@ resource "aws_security_group" "dashd_public" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -136,7 +136,7 @@ resource "aws_security_group" "dashd_public" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -159,7 +159,7 @@ resource "aws_security_group" "http" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -171,7 +171,7 @@ resource "aws_security_group" "http" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -196,7 +196,7 @@ resource "aws_security_group" "masternode" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -209,7 +209,7 @@ resource "aws_security_group" "masternode" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -257,7 +257,7 @@ resource "aws_security_group" "masternode" {
     description = "Tendermint ABCI"
 
     cidr_blocks = flatten([
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -270,7 +270,7 @@ resource "aws_security_group" "masternode" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 

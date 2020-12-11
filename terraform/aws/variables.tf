@@ -123,3 +123,8 @@ variable "monitoring_enabled" {
   description = "enable monitoring with CloudWatch"
   default     = false
 }
+
+variable "disk_size" {
+  description = "Default disk size for nodes, increase for testnet"
+  default     = 30
+}

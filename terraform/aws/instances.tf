@@ -46,6 +46,10 @@ resource "aws_instance" "dashd_wallet" {
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
+  root_block_device {
+    volume_size = var.disk_size
+  }
+
   vpc_security_group_ids = [
     aws_security_group.default.id,
     aws_security_group.dashd_private.id,
@@ -80,6 +84,10 @@ resource "aws_instance" "dashd_full_node" {
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
+  root_block_device {
+    volume_size = var.disk_size
+  }
+
   vpc_security_group_ids = [
     aws_security_group.default.id,
     aws_security_group.dashd_public.id,
@@ -113,6 +121,10 @@ resource "aws_instance" "miner" {
   instance_type        = "t3.small"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  root_block_device {
+    volume_size = var.disk_size
+  }
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -157,7 +169,7 @@ resource "aws_instance" "masternode" {
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
-    volume_size = "30"
+    volume_size = var.disk_size
   }
 
   volume_tags = {

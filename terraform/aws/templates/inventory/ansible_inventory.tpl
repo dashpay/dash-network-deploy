@@ -16,10 +16,10 @@ ${miner_hosts}
 ${masternode_hosts}
 
 [seed_node]
-node-1
-
-[faucet_wallet]
-dashd-wallet-1
+${node_hosts}
 
 [masternode_wallet]
+dashd-wallet-1
+
+[faucet_wallet]
 dashd-wallet-2

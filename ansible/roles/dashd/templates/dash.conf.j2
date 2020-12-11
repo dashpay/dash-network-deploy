@@ -42,7 +42,7 @@ rpcallowip=::/0
 rpcallowip=0.0.0.0/0
 {% else %}
 rpcallowip={{ dashd_private_cidr }}
-rpcallowip=127.0.0.0
+rpcallowip=127.0.0.1/8
 rpcallowip=172.16.0.0/12
 rpcallowip=192.168.0.0/16
 rpcallowip={{ hostvars['vpn'].public_ip }}/32
@@ -77,7 +77,7 @@ bind=0.0.0.0
 
 port={{ dashd_port }}
 
-{% if dashd_seednode is not none and not dashd_isseednode %}
+{% if dashd_seednode is not none and not dashd_isseednode and dash_network == 'devnet' and dash_network == 'regtest' %}
 addnode={{ dashd_seednode }}:{{ dashd_port }}
 {% endif %}
 
@@ -88,9 +88,12 @@ sporkaddr={{ dashd_sporkaddr }}
 sporkkey={{ dashd_sporkkey }}
 {% endif %}
 
+{% if dash_network == 'devnet' %}
 # First 1000 blocks should be mined with lowest difficulty (like in regtest, so it's instant)
 # and first 500 blocks are mined with a block subsidity multiplied by 10
 # this allows to register MNs immediately (DIP3 activates on block 2)
 minimumdifficultyblocks=1000
 highsubsidyblocks=500
 highsubsidyfactor=10
+{% endif %}
+

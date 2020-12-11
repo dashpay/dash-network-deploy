@@ -1,5 +1,4 @@
 ---
-
 # Bootstrap
 
 - hosts: all
@@ -86,6 +85,7 @@
   become: true
   roles:
     - role: dashd
+      when: dash_network != "mainnet" and dash_network != "testnet"
       tags:
         - dashd
 
@@ -93,6 +93,7 @@
   become: true
   roles:
     - role: dashd
+      when: dash_network != "mainnet" and dash_network != "testnet"
       dashd_listen: true
       tags:
         - dashd
@@ -103,7 +104,7 @@
   become: true
   pre_tasks:
     - set_fact:
-        masternode: '{{ masternodes[inventory_hostname] }}'
+        masternode: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
     - fail:
@@ -140,19 +141,22 @@
   become: true
   roles:
     - role: dashd-generate-miner
-      when: dash_network != "mainnet"
+      when: dash_network != "mainnet" and dash_network != "testnet"
 
 # Setup faucet and insight
 
 - hosts: web
   become: true
   roles:
-    - multifaucet
+    - role: multifaucet
+      when: dash_network != "mainnet" and dash_network != "testnet"
     - role: dashd
+      when: dash_network != "mainnet" and dash_network != "testnet"
       dashd_indexes: true
       dashd_zmq: true
       dashd_listen: true
-    - insight
+    - role: insight
+      when: dash_network != "mainnet" and dash_network != "testnet"
   tags:
     - web
 
@@ -161,14 +165,16 @@
 - hosts: masternode_wallet
   become: true
   roles:
-    - mn-init
+    - role: mn-init
+      when: dash_network != "mainnet"
 
 # Activate sporks
 
 - hosts: masternode_wallet
   become: true
   roles:
-    - activate-dashd-sporks
+    - role: activate-dashd-sporks
+      when: dash_network != "mainnet" and dash_network != "testnet"
 
 # Prune unused Docker images
 
