@@ -1,3 +1,21 @@
+## [0.16.2](https://github.com/dashpay/dash-network-deploy/compare/v0.16.1...v0.16.2) (2020-11-17)
+
+
+### Bug Fixes
+
+* outdated sporks ([#195](https://github.com/dashpay/dash-network-deploy/issues/195))
+
+
+
+## [0.16.1](https://github.com/dashpay/dash-network-deploy/compare/v0.16.0...v0.16.1) (2020-10-28)
+
+
+### Features
+
+* pass DPNS contract block height to Drive ([#194](https://github.com/dashpay/dash-network-deploy/issues/194))
+
+
+
 # [0.16.0](https://github.com/dashpay/dash-network-deploy/compare/v0.15.0...v0.16.0) (2020-10-28)
 
 
