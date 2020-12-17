@@ -8,8 +8,8 @@ terraform {
 }
 
 data "aws_availability_zones" "available" {
-  blacklisted_names = ["us-west-2d"]
-  state             = "available"
+  exclude_names = ["us-west-2d"]
+  state         = "available"
 }
 
 data "aws_ami" "ubuntu" {
