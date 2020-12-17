@@ -85,7 +85,6 @@
   become: true
   roles:
     - role: dashd
-      when: dash_network != "mainnet" and dash_network != "testnet"
       tags:
         - dashd
 
@@ -93,7 +92,6 @@
   become: true
   roles:
     - role: dashd
-      when: dash_network != "mainnet" and dash_network != "testnet"
       dashd_listen: true
       tags:
         - dashd
@@ -141,22 +139,19 @@
   become: true
   roles:
     - role: dashd-generate-miner
-      when: dash_network != "mainnet" and dash_network != "testnet"
+      when: dash_network != "mainnet"
 
 # Setup faucet and insight
 
 - hosts: web
   become: true
   roles:
-    - role: multifaucet
-      when: dash_network != "mainnet" and dash_network != "testnet"
+    - multifaucet
     - role: dashd
-      when: dash_network != "mainnet" and dash_network != "testnet"
       dashd_indexes: true
       dashd_zmq: true
       dashd_listen: true
-    - role: insight
-      when: dash_network != "mainnet" and dash_network != "testnet"
+    - insight
   tags:
     - web
 
@@ -165,8 +160,7 @@
 - hosts: masternode_wallet
   become: true
   roles:
-    - role: mn-init
-      when: dash_network != "mainnet"
+    - mn-init
 
 # Activate sporks
 

@@ -18,8 +18,8 @@ ${masternode_hosts}
 [seed_node]
 ${node_hosts}
 
-[masternode_wallet]
+[faucet_wallet]
 dashd-wallet-1
 
-[faucet_wallet]
+[masternode_wallet]
 dashd-wallet-2
