@@ -23,10 +23,40 @@ VPN_CONFIG_PATH="networks/$NETWORK_NAME.ovpn"
 
 if [ ! -f networks/.env ]; then
 
-    print_error "Configuration .env file not found
+    echo "Configuration .env file not found.
 
-Please create and configure '.env' file."
+Generating blank '.env' file... "
 
-else
+  cat > networks/.env<< EOF
+# Terraform remote backend configuration https://www.terraform.io/docs/backends/types/s3.html
+TERRAFORM_S3_BUCKET=""
+TERRAFORM_S3_KEY=""
+TERRAFORM_DYNAMODB_TABLE=""
+# Absolute paths to private and public keys for SSH access to an infrastructure
+PRIVATE_KEY_PATH=""
+PUBLIC_KEY_PATH=""
+# AWS credentials are used by Terraform for creating
+# infrastructure and by Ansible for fetching images from AWS ECR.
+#
+# You should specify credentials for both
+# Ansible and Terraform or specify a particular
+# configuration using "TERRAFORM_" and "ANSIBLE_" prefixes
+# AWS_PROFILE="" # You can use AWS_PROFILE instead of AWS credentials
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+AWS_REGION=""
+# TERRAFORM_AWS_PROFILE=""
+# TERRAFORM_AWS_ACCESS_KEY_ID=""
+# TERRAFORM_AWS_SECRET_ACCESS_KEY=""
+# TERRAFORM_AWS_REGION=""
+# ANSIBLE_AWS_PROFILE=""
+# ANSIBLE_AWS_ACCESS_KEY_ID=""
+# ANSIBLE_AWS_SECRET_ACCESS_KEY=""
+# ANSIBLE_AWS_REGION=""
+EOF
+
+fi
+
+if [ -f networks/.env ]; then
     source networks/.env
 fi
