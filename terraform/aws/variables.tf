@@ -124,7 +124,12 @@ variable "monitoring_enabled" {
   default     = false
 }
 
-variable "disk_size" {
+variable "core_node_disk_size" {
+  description = "Default disk size for nodes, increase for testnet"
+  default     = 20
+}
+
+variable "mn_node_disk_size" {
   description = "Default disk size for nodes, increase for testnet"
   default     = 30
 }
