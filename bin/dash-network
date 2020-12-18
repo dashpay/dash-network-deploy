@@ -12,11 +12,12 @@ fi
 # Load configuration
 
 if [[ ! -f ".env" ]]; then
-    echo "Configuration .env file not found
+    if [[ $1 != "envfile" ]]; then
+        echo "Configuration '.env' file not found
 
-Please create and configure '.env' file."
-
-    exit 1;
+Please run 'dash-network envfile' to create a blank '.env' file."
+        exit 1;
+    fi
 else
     source ".env"
 fi
@@ -34,6 +35,7 @@ Commands:
   test      - Run smoke test against specific network
   list      - List network hosts and services
   dash-cli  - Execute DashCore RPC command
+  envfile   - Generate blank '.env' file
   generate  - Generate configs
   logs      - Show specific network service logs"
   exit 0;

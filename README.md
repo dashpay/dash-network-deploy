@@ -42,6 +42,15 @@ Dash Core developers to assist in Dash Evolution development.
 
 ## Configuration
 
+### Generate .env file
+
+Infrastructure credentials are required for most operations. These are stored in an `.env` file.
+You can use the `envfile` command to generate a blank `.env` file for use as a template.
+
+```bash
+dash-network envfile
+```
+
 ### Networks definition
 
 You can use `generate` command in order to create configs for your network:
