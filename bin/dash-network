@@ -9,6 +9,12 @@ if ! [[ -x "$(command -v docker)" ]]; then
   exit 1
 fi
 
+# Load configuration	
+
+if [[ -f ".env" ]]; then
+    source ".env"
+fi
+
 # Show help if command is not specified
 
 if [[ -z $1 ]]; then
