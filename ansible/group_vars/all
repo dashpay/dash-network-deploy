@@ -53,7 +53,10 @@ dashd_home: /dash
 # dash_network_name:
 dash_devnet_version: 1
 
-dashd_port: 20001
+dash_ports:
+  "testnet": 19999
+  "livenet": 9999
+dashd_port: "{{ dash_ports[dash_network] or 20001 }}"
 
 # DashCore RPC settings
 dashd_rpc_allow_public: false
