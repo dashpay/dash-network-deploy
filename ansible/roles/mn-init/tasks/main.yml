@@ -21,14 +21,14 @@
   debug:
     var: new_masternode_names
 
-- name: found collaterals for not inialized masternodes
+- name: fund collaterals for not initialized masternodes
   include_role:
     name: mn-fund-collateral
   vars:
     masternode_names: "{{ new_masternode_names }}"
   when: new_masternode_names|length > 0
 
-- name: create pro tx for not initialzied masternodes
+- name: create pro tx for not initialized masternodes
   include_role:
     name: mn-createprotx
   vars:
