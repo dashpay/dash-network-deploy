@@ -3,7 +3,7 @@
 # Requires "masternodes" and "masternode_names" variables
 
 - name: get list of banned masternode protx
-  include: mn-find-protx.yml
+  include: find-protx.yml
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
