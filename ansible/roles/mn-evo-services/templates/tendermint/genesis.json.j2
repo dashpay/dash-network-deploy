@@ -16,6 +16,7 @@
       ]
     }
   },
+  "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | to_int }},
   "validators": [
     {% for masternode in groups.masternodes %}
         {
