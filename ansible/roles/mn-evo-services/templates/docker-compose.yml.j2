@@ -40,13 +40,13 @@ services:
 
   tendermint:
     image: {{ tendermint_image }}
-    entrypoint: sh -c "sleep 30 && /usr/bin/tendermint node"
+    entrypoint: sh -c "sleep 30 && /usr/bin/tenderdash node"
     restart: always
     ports:
       - {{ tendermint_rpc_port }}:26657
       - {{ tendermint_p2p_port }}:26656
     volumes:
-      - {{ mn_evo_services_path }}/tendermint:/tendermint
+      - {{ mn_evo_services_path }}/tendermint:/tenderdash
     depends_on:
       - drive_abci
 

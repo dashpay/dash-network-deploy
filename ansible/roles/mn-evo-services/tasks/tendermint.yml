@@ -10,13 +10,13 @@
   register: tendermint_home_dir
 
 - name: initialize Tendermint node
-  command: docker-compose run --no-deps --rm --entrypoint='/usr/bin/tenderdash' tenderdash init
+  command: docker-compose run --no-deps --rm --entrypoint='/usr/bin/tenderdash' tendermint init
   args:
     chdir: '{{ mn_evo_services_path }}'
   when: tendermint_home_dir.changed
 
 - name: get Tendermint node ID
-  command: docker-compose run --no-deps --rm --entrypoint='/usr/bin/tenderdash' tenderdash show_node_id
+  command: docker-compose run --no-deps --rm --entrypoint='/usr/bin/tenderdash' tendermint show_node_id
   args:
     chdir: '{{ mn_evo_services_path }}'
   register: tendermint_node_id
