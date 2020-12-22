@@ -17,7 +17,7 @@ platform_dpns_top_level_domain_identity: ''
 openvpn_enabled: true
 
 # Sentinel Docker image
-sentinel_image: ablock/sentinel
+sentinel_image: dashpay/sentinel:latest
 
 # Drive
 drive_image: dashpay/drive
