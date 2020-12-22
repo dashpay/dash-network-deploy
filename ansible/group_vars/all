@@ -1,17 +1,16 @@
 ---
-
 # Login to AWS ECR using passed from .env AWS credentials
 aws_ecr_login: false
 
 # Install Evolution Masternode services
 evo_services: false
 
-node_environment: 'production'
+node_environment: "production"
 
 # List of identities separated by comma
-platform_dpns_contract_id: ''
-platform_dpns_contract_block_height: ''
-platform_dpns_top_level_domain_identity: ''
+platform_dpns_contract_id: ""
+platform_dpns_contract_block_height: ""
+platform_dpns_top_level_domain_identity: ""
 
 # Install OpenVPN
 openvpn_enabled: true
@@ -27,8 +26,8 @@ drive_logging_level: info
 tendermint_image: dashpay/tendermint
 tendermint_p2p_port: 26656
 tendermint_rpc_port: 26657
-tendermint_uid: '100'
-tendermint_gid: '1000'
+tendermint_uid: "100"
+tendermint_gid: "1000"
 
 # DAPI
 dapi_image: dashpay/dapi
@@ -69,21 +68,19 @@ dashd_zmq_port: 29998
 # dashd_sporkkey: cRsR7ywG6bhb5JsnpeRJ4c1fACabmYtK6WUVPiGG3GG4a5iYk6iL
 
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
-dashd_seednode: '{{ hostvars[groups.seed_node[0]]["public_ip"] }}'
-
+dashd_seednode: '{{ hostvars[groups.seed_node[0]]["public_ip"] if groups.seed_node else none }}'
 
 # Faucet stuff
 
 faucet_rpc_host: '{{ hostvars[groups.faucet_wallet[0]]["private_ip"] }}'
-faucet_rpc_port: '{{ dashd_rpc_port }}'
-faucet_rpc_user: '{{ dashd_rpc_user }}'
-faucet_rpc_password: '{{ dashd_rpc_password }}'
-faucet_rpc_args: '-rpcconnect={{ faucet_rpc_host }} -rpcport={{ faucet_rpc_port }} -rpcuser={{ faucet_rpc_user }} -rpcpassword={{ faucet_rpc_password }}'
+faucet_rpc_port: "{{ dashd_rpc_port }}"
+faucet_rpc_user: "{{ dashd_rpc_user }}"
+faucet_rpc_password: "{{ dashd_rpc_password }}"
+faucet_rpc_args: "-rpcconnect={{ faucet_rpc_host }} -rpcport={{ faucet_rpc_port }} -rpcuser={{ faucet_rpc_user }} -rpcpassword={{ faucet_rpc_password }}"
 faucet_minimum_payout: 10
 faucet_maximum_payout: 10
 faucet_payout_threshold: 100
 faucet_payout_interval: "5m"
-
 
 # Example faucet address/privkey (provide your own in network config)
 #faucet_address: yhvXpqQjfN9S4j5mBKbxeGxiETJrrLETg5
@@ -91,10 +88,10 @@ faucet_payout_interval: "5m"
 
 # Miner stuff
 
-miner_rpc_host: '{{ faucet_rpc_host }}'
-miner_rpc_port: '{{ faucet_rpc_port }}'
-miner_rpc_user: '{{ faucet_rpc_user }}'
-miner_rpc_password: '{{ faucet_rpc_password }}'
+miner_rpc_host: "{{ faucet_rpc_host }}"
+miner_rpc_port: "{{ faucet_rpc_port }}"
+miner_rpc_user: "{{ faucet_rpc_user }}"
+miner_rpc_password: "{{ faucet_rpc_password }}"
 miner_payment_address: "{{ faucet_address }}"
 
 # Allow to run miners at 100% by default
@@ -103,10 +100,10 @@ miner_cpu_quota: 100000 # 100%
 # Masternode stuff
 
 masternode_wallet_rpc_host: '{{ hostvars[groups.masternode_wallet[0]]["private_ip"] }}'
-masternode_wallet_rpc_port: '{{ dashd_rpc_port }}'
-masternode_wallet_rpc_user: '{{ dashd_rpc_user }}'
-masternode_wallet_rpc_password: '{{ dashd_rpc_password }}'
-masternode_wallet_rpc_args: '-rpcconnect={{ masternode_wallet_rpc_host }} -rpcport={{ masternode_wallet_rpc_port }} -rpcuser={{ masternode_wallet_rpc_user }} -rpcpassword={{ masternode_wallet_rpc_password }}'
+masternode_wallet_rpc_port: "{{ dashd_rpc_port }}"
+masternode_wallet_rpc_user: "{{ dashd_rpc_user }}"
+masternode_wallet_rpc_password: "{{ dashd_rpc_password }}"
+masternode_wallet_rpc_args: "-rpcconnect={{ masternode_wallet_rpc_host }} -rpcport={{ masternode_wallet_rpc_port }} -rpcuser={{ masternode_wallet_rpc_user }} -rpcpassword={{ masternode_wallet_rpc_password }}"
 
 # Disk space allocated for swap file on each host
 swap_space: 2G
