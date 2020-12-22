@@ -16,7 +16,7 @@ ${miner_hosts}
 ${masternode_hosts}
 
 [seed_node]
-node-1
+${node_hosts}
 
 [faucet_wallet]
 dashd-wallet-1

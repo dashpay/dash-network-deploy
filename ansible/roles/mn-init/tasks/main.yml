@@ -1,5 +1,12 @@
 ---
 
+- name: wait for wallet to sync with blockchain
+  command: dash-cli mnsync status
+  register: mnsync_status
+  retries: 100
+  delay: 60
+  until: (mnsync_status.stdout | from_json).IsSynced is true
+
 - name: get list of ProTx transactions from the wallet
   command: dash-cli protx list wallet true
   register: get_protx_list_result

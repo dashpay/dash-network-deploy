@@ -65,7 +65,7 @@ data "template_file" "vpn" {
   vars = {
     index      = count.index + 1
     name       = element(aws_instance.vpn.*.tags.Hostname, count.index)
-    public_ip  = aws_eip.vpn.public_ip
+    public_ip  = element(aws_eip.vpn.*.public_ip, count.index)
     private_ip = element(aws_instance.vpn.*.private_ip, count.index)
   }
 }
@@ -90,6 +90,7 @@ data "template_file" "ansible_inventory" {
     full_node_hosts   = join("\n", concat(aws_instance.dashd_full_node.*.tags.Hostname))
     miner_hosts       = join("\n", concat(aws_instance.miner.*.tags.Hostname))
     masternode_hosts  = join("\n", concat(aws_instance.masternode.*.tags.Hostname))
+    node_hosts        = join("\n", concat(aws_instance.dashd_full_node.*.tags.Hostname))
   }
 }
 

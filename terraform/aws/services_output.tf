@@ -260,9 +260,9 @@ data "template_file" "services" {
     wallets      = chomp(join("\n", data.template_file.wallets.*.rendered))
     full_nodes   = chomp(join("\n", data.template_file.full_nodes.*.rendered))
     miners       = chomp(join("\n", data.template_file.miners.*.rendered))
-    elb_host     = aws_elb.web.dns_name
+    elb_host     = chomp(join("\n", aws_elb.web.*.dns_name))
     insight_port = var.insight_port
-    vpn_host     = aws_eip.vpn.public_ip
+    vpn_host     = chomp(join("\n", aws_eip.vpn.*.public_ip))
     vpn_port     = var.vpn_port
   }
 }

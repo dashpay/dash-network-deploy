@@ -1,5 +1,4 @@
 ---
-
 # Bootstrap
 
 - hosts: all
@@ -103,7 +102,7 @@
   become: true
   pre_tasks:
     - set_fact:
-        masternode: '{{ masternodes[inventory_hostname] }}'
+        masternode: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
     - fail:
@@ -168,7 +167,8 @@
 - hosts: masternode_wallet
   become: true
   roles:
-    - activate-dashd-sporks
+    - role: activate-dashd-sporks
+      when: dash_network != "mainnet" and dash_network != "testnet"
 
 # Prune unused Docker images
 
