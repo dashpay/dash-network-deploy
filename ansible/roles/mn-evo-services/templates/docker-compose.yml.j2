@@ -24,6 +24,8 @@ services:
       - CORE_JSON_RPC_PASS={{ dashd_rpc_password }}
       - CORE_JSON_RPC_HOST={{ private_ip }}
       - CORE_JSON_RPC_PORT={{ dashd_rpc_port }}
+      - CORE_ZMQ_HOST={{ private_ip }}
+      - CORE_ZMQ_PORT={{ dashd_zmq_port }}
       - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017?replicaSet=driveDocumentIndices
       - DPNS_CONTRACT_ID={{ platform_dpns_contract_id }}
       - DPNS_CONTRACT_BLOCK_HEIGHT={{ platform_dpns_contract_block_height }}
@@ -32,6 +34,7 @@ services:
       - DASHPAY_CONTRACT_BLOCK_HEIGHT={{ platform_dashpay_contract_block_height }}
       - NODE_ENV={{ node_environment }}
       - LOGGING_LEVEL={{ drive_logging_level }}
+      - INITIAL_CORE_CHAINLOCKED_HEIGHT={{ platform_initial_core_chain_locked_height }}
     ports:
       - 26658:26658
     depends_on:
@@ -39,13 +42,13 @@ services:
 
   tendermint:
     image: {{ tendermint_image }}
-    entrypoint: sh -c "sleep 30 && /usr/bin/tendermint node"
+    entrypoint: sh -c "sleep 30 && /usr/bin/tenderdash node"
     restart: always
     ports:
       - {{ tendermint_rpc_port }}:26657
       - {{ tendermint_p2p_port }}:26656
     volumes:
-      - {{ mn_evo_services_path }}/tendermint:/tendermint
+      - {{ mn_evo_services_path }}/tendermint:/tenderdash
     depends_on:
       - drive_abci
 
