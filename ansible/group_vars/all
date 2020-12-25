@@ -11,6 +11,8 @@ node_environment: "production"
 platform_dpns_contract_id: ""
 platform_dpns_contract_block_height: ""
 platform_dpns_top_level_domain_identity: ""
+platform_dashpay_contract_id: ""
+platform_dashpay_contract_block_height: ""
 
 platform_initial_core_chain_locked_height: ""
 
