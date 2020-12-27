@@ -89,7 +89,7 @@ resource "aws_elb" "web" {
 
   subnets = aws_subnet.public.*.id
 
-  count = var.web_count > 1 ? 1 : 0
+  count = var.web_count >= 1 ? 1 : 0
 
   security_groups = [
     aws_security_group.elb.id,
@@ -132,7 +132,7 @@ resource "aws_route53_record" "faucet" {
   name    = "faucet.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
-  records = [join("", aws_elb.web[*].dns_name)]
+  records = [aws_elb.web[count.index].dns_name]
 
   count = length(var.main_domain) > 1 ? 1 : 0
 }
@@ -142,7 +142,7 @@ resource "aws_route53_record" "insight" {
   name    = "insight.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
-  records = [join("", aws_elb.web[*].dns_name)]
+  records = [aws_elb.web[count.index].dns_name]
 
   count = length(var.main_domain) > 1 ? 1 : 0
 }
