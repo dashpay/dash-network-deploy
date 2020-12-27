@@ -10,6 +10,7 @@ if grep -q "devnet" <<< "$NETWORK_NAME"; then
     fi
 elif [[ " ${networks[@]} " =~ " ${NETWORK_NAME} " ]]; then
     NETWORK="$NETWORK_NAME"
+    NETWORK_DEVNET_NAME="$NETWORK_NAME"
 else
     print_error "Invalid network name '$NETWORK_NAME'. Supported networks: regtest, devnet-<name>, testnet, mainnet"
 fi

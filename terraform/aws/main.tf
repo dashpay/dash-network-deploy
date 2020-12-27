@@ -132,7 +132,7 @@ resource "aws_route53_record" "faucet" {
   name    = "faucet.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
-  records = [aws_elb.web[0].dns_name]
+  records = [join("", aws_elb.web[*].dns_name)]
 
   count = length(var.main_domain) > 1 ? 1 : 0
 }
@@ -142,7 +142,7 @@ resource "aws_route53_record" "insight" {
   name    = "insight.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
-  records = [aws_elb.web[0].dns_name]
+  records = [join("", aws_elb.web[*].dns_name)]
 
   count = length(var.main_domain) > 1 ? 1 : 0
 }
