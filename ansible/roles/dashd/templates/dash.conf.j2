@@ -5,7 +5,7 @@ regtest=1
 {% elif dash_network == 'testnet' %}
 testnet=1
 {% elif dash_network == 'devnet' %}
-devnet={{ dash_devnet_name }}{{ '-' + dash_devnet_version|string if dash_devnet_version != 1 else '' }}
+devnet={{ dash_devnet_name }}
 {% endif %}
 
 daemon=0  # leave this set to 0 for Docker

@@ -1,6 +1,6 @@
 {
   "genesis_time": "{{ tendermint_genesis_time }}",
-  "chain_id": "dash-{{ 'devnet-' + dash_devnet_name + ('-' + dash_devnet_version|string if dash_devnet_version != 1 else '') if dash_network == 'devnet' else dash_network }}",
+  "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
   "consensus_params": {
     "block": {
       "max_bytes": "22020096",

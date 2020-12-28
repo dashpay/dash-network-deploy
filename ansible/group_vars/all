@@ -32,6 +32,7 @@ tendermint_p2p_port: 26656
 tendermint_rpc_port: 26657
 tendermint_uid: "100"
 tendermint_gid: "1000"
+# tenderdash_chain_id:
 
 # DAPI
 dapi_image: dashpay/dapi
@@ -55,7 +56,6 @@ dashd_home: /dash
 # dash_network:
 # dash_devnet_name:
 # dash_network_name:
-dash_devnet_version: 1
 
 dashd_port: 20001
 
