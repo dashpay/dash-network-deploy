@@ -55,7 +55,7 @@ describe('Core', () => {
           const chainNames = {
             testnet: 'test',
             mainnet: 'main',
-            devnet: 'devnet',
+            devnet: network.name,
             regtest: 'regtest',
           };
 
