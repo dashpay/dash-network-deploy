@@ -17,7 +17,8 @@ RUN apt-get update -y && \
     software-properties-common \
     gnupg \
     firefox \
-    ssh
+    ssh \
+    wget
 
 # Install Node.JS
 
@@ -59,6 +60,8 @@ COPY package*.json ./
 RUN pip3 install --upgrade netaddr awscli ansible && \
     ansible-galaxy install -r /ansible-requirements.yml && \
     npm install
+
+RUN wget -c https://github.com/dw/mitogen/archive/v0.3.0-rc.0.tar.gz -O - | tar -xz
 
 # Remove build utils
 RUN apt-get remove --purge -y \
