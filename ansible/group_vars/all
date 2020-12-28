@@ -14,6 +14,8 @@ platform_dpns_top_level_domain_identity: ""
 platform_dashpay_contract_id: ""
 platform_dashpay_contract_block_height: ""
 
+platform_initial_core_chain_locked_height: ""
+
 # Install OpenVPN
 openvpn_enabled: true
 
@@ -25,7 +27,7 @@ drive_image: dashpay/drive
 drive_logging_level: info
 
 # Tendermint
-tendermint_image: dashpay/tendermint
+tendermint_image: dashpay/tenderdash
 tendermint_p2p_port: 26656
 tendermint_rpc_port: 26657
 tendermint_uid: "100"

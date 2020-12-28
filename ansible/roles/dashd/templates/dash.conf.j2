@@ -23,13 +23,12 @@ spentindex=1
 {% endif %}
 
 {% if dashd_zmq %}
-# ZeroMQ notifications (required for Insight)
+# ZeroMQ notifications
 zmqpubrawtx=tcp://0.0.0.0:{{ dashd_zmq_port }}
 zmqpubrawtxlock=tcp://0.0.0.0:{{ dashd_zmq_port }}
 zmqpubhashblock=tcp://0.0.0.0:{{ dashd_zmq_port }}
-#zmqpubhashtx=tcp://0.0.0.0:{{ dashd_zmq_port }}
-#zmqpubhashtxlock=tcp://0.0.0.0:{{ dashd_zmq_port }}
-#zmqpubrawblock=tcp://0.0.0.0:{{ dashd_zmq_port }}
+zmqpubrawchainlocksig=tcp://0.0.0.0:{{ dashd_zmq_port }}
+zmqpubrawtxlocksig=tcp://0.0.0.0:{{ dashd_zmq_port }}
 {% endif %}
 
 # JSONRPC
@@ -73,15 +72,6 @@ sporkaddr={{ dashd_sporkaddr }}
 sporkkey={{ dashd_sporkkey }}
 {% endif %}
 
-{% if dash_network == 'devnet' %}
-# First 1000 blocks should be mined with lowest difficulty (like in regtest, so it's instant)
-# and first 500 blocks are mined with a block subsidity multiplied by 10
-# this allows to register MNs immediately (DIP3 activates on block 2)
-minimumdifficultyblocks=1000
-highsubsidyblocks=500
-highsubsidyfactor=10
-{% endif %}
-
 {% if dash_network == 'regtest' %}
 [regtest]
 {% elif dash_network == 'mainnet' %}
@@ -90,6 +80,13 @@ highsubsidyfactor=10
 [test]
 {% elif dash_network == 'devnet' %}
 [devnet]
+
+# First 1000 blocks should be mined with lowest difficulty (like in regtest, so it's instant)
+# and first 500 blocks are mined with a block subsidity multiplied by 10
+# this allows to register MNs immediately (DIP3 activates on block 2)
+minimumdifficultyblocks=1000
+highsubsidyblocks=500
+highsubsidyfactor=10
 {% endif %}
 
 rpcport={{ dashd_rpc_port }}
