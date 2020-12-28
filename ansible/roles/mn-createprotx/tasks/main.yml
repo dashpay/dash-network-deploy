@@ -3,8 +3,11 @@
 # Requires "masternode_names" variable
 
 - name: import masternode owner private key
-  command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].owner.private_key }}'
+  command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
   with_items: '{{ masternode_names }}'
+
+- name: rescan blockchain
+  command: 'dash-cli {{ masternode_wallet_rpc_args }} rescanblockchain'
 
 # fund
 
