@@ -46,8 +46,14 @@ function terraform_run_command() {
         config_path_arg="-var-file=../../$TERRAFORM_CONFIG_PATH";
     fi
 
+    if [[ $NETWORK == "devnet" ]]; then
+        PUBLIC_NETWORK_NAME=$NETWORK_DEVNET_NAME
+    else
+        PUBLIC_NETWORK_NAME=$NETWORK_NAME
+    fi
+
     terraform ${1}  -var "public_key_path=$PUBLIC_KEY_PATH" \
-                    -var "public_network_name=$NETWORK_DEVNET_NAME" \
+                    -var "public_network_name=$PUBLIC_NETWORK_NAME" \
                     ${config_path_arg}
 
 
