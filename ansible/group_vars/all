@@ -33,6 +33,7 @@ tendermint_rpc_port: 26657
 tendermint_uid: "100"
 tendermint_gid: "1000"
 # tenderdash_chain_id:
+tenderdash_max_validators_count: 50
 
 # DAPI
 dapi_image: dashpay/dapi
