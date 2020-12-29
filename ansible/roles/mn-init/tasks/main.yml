@@ -5,7 +5,7 @@
   register: mnsync_status
   retries: 100
   delay: 60
-  until: (mnsync_status.stdout | from_json).IsSynced is true
+  until: mnsync_status.stdout|from_json|json_query("IsSynced") == true
 
 - name: get list of ProTx transactions from the wallet
   command: dash-cli protx list wallet true
