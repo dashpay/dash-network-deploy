@@ -20,7 +20,7 @@
   },
   "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
   "validators": [
-    {% for masternode in groups.masternodes %}
+    {% for masternode in groups.masternodes[:tenderdash_max_validators_count] %}
         {
           "address": "{{ hostvars[masternode].tendermint_validator_key | json_query('address') }}",
           "pub_key": {
