@@ -1,3 +1,41 @@
+# [0.17.0](https://github.com/dashpay/dash-network-deploy/compare/v0.16.2...v0.17.0) (2020-12-30)
+
+
+### Features
+
+* introduce maximum validators configuration value ([#210](https://github.com/dashpay/dash-network-deploy/issues/210))
+* `tenderdash_chain_id` option ([a8c44fd](https://github.com/dashpay/dash-network-deploy/commit/a8c44fd55dd4c64f79c284bbe485063541aedd2b))
+* add dashpay environment variables ([#205](https://github.com/dashpay/dash-network-deploy/issues/205))
+* enable web and faucet for testnet ([c1f3fbf](https://github.com/dashpay/dash-network-deploy/commit/c1f3fbfc613cb51f104951ee38e014f430caa9fb))
+* make two different disk size settings ([6a76c4d](https://github.com/dashpay/dash-network-deploy/commit/6a76c4dfdc52faf6fbec8f19995d55a54f1266a4))
+* support dash 0.17 ([#203](https://github.com/dashpay/dash-network-deploy/issues/203))
+* unban masternodes ([#202](https://github.com/dashpay/dash-network-deploy/issues/202))
+* update to platform v0.17 ([#204](https://github.com/dashpay/dash-network-deploy/issues/204))
+* use small instance for web ([fbaea45](https://github.com/dashpay/dash-network-deploy/commit/fbaea452ba0d1df86aa6057f831a71a75715b8dc))
+* validate .env in init ([#199](https://github.com/dashpay/dash-network-deploy/issues/199))
+
+
+### Bug Fixes
+
+* DAPI timed out during broadcast state transition ([16952ff](https://github.com/dashpay/dash-network-deploy/commit/16952fffcfc038be11d62d3946b0657748939f0d))
+* peers count is not a number ([3e98b39](https://github.com/dashpay/dash-network-deploy/commit/3e98b3944e4e17424a116eab0e76d89b79412ba6))
+* rescan after all keys are imported ([#208](https://github.com/dashpay/dash-network-deploy/issues/208))
+* rescan after import for owner keys ([#209](https://github.com/dashpay/dash-network-deploy/issues/209))
+* smoke tests expecting tenderdash to connect to all deployed nodes ([3b2bf02](https://github.com/dashpay/dash-network-deploy/commit/3b2bf0285e2e3de2b9a7f0aa04b3795fd5c084d7))
+* test true not found ([#211](https://github.com/dashpay/dash-network-deploy/issues/211)) ([6ac98f7](https://github.com/dashpay/dash-network-deploy/commit/6ac98f7d08e0180702d48cba61cb39eb72e3f709))
+* `main_domain` option doesn't work for testnet ([#206](https://github.com/dashpay/dash-network-deploy/issues/206))
+* wrong devnet chain name assert ([#207](https://github.com/dashpay/dash-network-deploy/issues/207))
+* generate command doesn't create configs ([#196](https://github.com/dashpay/dash-network-deploy/issues/196))
+* smoke tests can't get the right RPC port and network ([7960f47](https://github.com/dashpay/dash-network-deploy/commit/7960f47d00588735712fce1d5c29758a59de6a60))
+* use v3 AWS provider syntax ([#197](https://github.com/dashpay/dash-network-deploy/issues/197))
+
+
+### BREAKING CHANGES
+
+* 0.16 and lower versions of Core and Platform are not supporting
+
+
+
 ## [0.16.2](https://github.com/dashpay/dash-network-deploy/compare/v0.16.1...v0.16.2) (2020-11-17)
 
 
