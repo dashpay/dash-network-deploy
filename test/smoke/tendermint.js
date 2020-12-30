@@ -41,7 +41,7 @@ describe('Tendermint', () => {
         });
       });
 
-      it('should be interconnected with all masternodes', async function it() {
+      it('should be connected to peers', async function it() {
         if (!variables.evo_services) {
           this.skip('Evolution services are not enabled');
 
@@ -59,10 +59,7 @@ describe('Tendermint', () => {
         expect(error).to.be.undefined();
         expect(result).to.have.property('listening', true);
         expect(result).to.have.property('n_peers');
-
-        const peersNumber = parseInt(result.n_peers, 10);
-
-        expect(peersNumber).to.be.at.least(inventory.masternodes.hosts.length - 1);
+        expect(result.n_peers).to.be.greaterThan(0);
       });
 
       it('should sync blocks', async function it() {
