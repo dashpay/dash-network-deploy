@@ -59,7 +59,7 @@ describe('Tendermint', () => {
         expect(error).to.be.undefined();
         expect(result).to.have.property('listening', true);
         expect(result).to.have.property('n_peers');
-        expect(result.n_peers).to.be.greaterThan(0);
+        expect(parseInt(result.n_peers, 10)).to.be.greaterThan(0);
       });
 
       it('should sync blocks', async function it() {
