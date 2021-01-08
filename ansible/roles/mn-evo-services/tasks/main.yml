@@ -28,7 +28,7 @@
 
 - import_tasks: tendermint.yml
   vars:
-    skip_genesis: "{{ skip_tenderdash_genesis|default(false)|to_bool }}"
+    skip_genesis: "{{ skip_tenderdash_genesis|default(false)|bool }}"
 
 - name: start masternodes evolution services
   docker_compose:
