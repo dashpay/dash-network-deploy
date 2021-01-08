@@ -1,67 +1,68 @@
 ---
+
 # Bootstrap
 
-- hosts: all
-  gather_facts: true
-  become: true
-  pre_tasks:
-    - name: check if inside AWS
-      uri:
-        url: http://169.254.169.254/latest/meta-data
-        timeout: 2
-      register: aws_uri_check
-      failed_when: False
-    - set_fact:
-        is_aws_environment: "{{ aws_uri_check.status == 200 }}"
-  roles:
-    - role: aws
-      when: is_aws_environment
-    - swap
+#- hosts: all
+#  gather_facts: true
+#  become: true
+#  pre_tasks:
+#    - name: check if inside AWS
+#      uri:
+#        url: http://169.254.169.254/latest/meta-data
+#        timeout: 2
+#      register: aws_uri_check
+#      failed_when: False
+#    - set_fact:
+#        is_aws_environment: "{{ aws_uri_check.status == 200 }}"
+#  roles:
+#    - role: aws
+#      when: is_aws_environment
+#    - swap
 
 # Setup VPN
 
-- hosts: vpn
-  become: true
-  roles:
-    - role: openvpn
-      when: openvpn_enabled
-      tags: vpn
+#- hosts: vpn
+#  become: true
+#  roles:
+#    - role: openvpn
+#      when: openvpn_enabled
+#      tags: vpn
 
 # Setup Python and Docker
 
-- hosts: all
-  become: true
-  tasks:
-    - name: add universe repository
-      apt_repository:
-        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
-        state: present
-
-- hosts: all
-  become: true
-  vars:
-    pip_package: python3-pip
-    pip_install_packages:
-      - name: pymongo
-      - name: docker
-      - name: docker-compose
-        version: "1.22.0"
-  roles:
-    - geerlingguy.pip
-    - geerlingguy.docker
-    - docker-options
-    - role: ecr-login
-      when: aws_ecr_login
-      tags: always
+#- hosts: all
+#  become: true
+#  tasks:
+#    - name: add universe repository
+#      apt_repository:
+#        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
+#        state: present
+#
+#- hosts: all
+#  become: true
+#  vars:
+#    pip_package: python3-pip
+#    pip_install_packages:
+#      - name: pymongo
+#      - name: docker
+#      - name: docker-compose
+#        version: "1.22.0"
+#  roles:
+#    - geerlingguy.pip
+#    - geerlingguy.docker
+#    - docker-options
+#    - role: ecr-login
+#      when: aws_ecr_login
+#      tags: always
 
 # Install AWS monitoring scripts
 
-- hosts: all
-  become: true
-  roles:
-    - role: Restless-ET.aws-scripts-mon
-      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
-      aws_scripts_mon_use_iam: true
+#- hosts: all
+#  become: true
+#  roles:
+#    - role: Restless-ET.aws-scripts-mon
+#      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
+#      aws_scripts_mon_use_iam: true
 
 # Configure dashd cli
 
@@ -70,7 +71,7 @@
   roles:
     - dash-cli
 
-# Setup wallets, miners and full nodes
+# Setup wallets and miners
 
 - hosts: wallet_nodes
   become: true
@@ -88,13 +89,36 @@
       tags:
         - dashd
 
-- hosts: full_nodes
+
+# Setup seed nodes
+
+- hosts: seed_nodes
   become: true
   roles:
     - role: dashd
       dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
       tags:
         - dashd
+    - role: insight
+      ui: false
+      when: evo_services
+    - role: mn-evo-services
+      vars:
+        skip_tenderdash_genesis: true
+        skip_services_start: true
+      tags:
+        - evo
+      when: evo_services
+  post_tasks:
+    - name: get tenderdash genesis time
+      command: 'cat {{ mn_evo_services_path }}/tendermint/config/genesis.json'
+      args:
+        chdir: '{{ mn_evo_services_path }}'
+      register: tendermint_genesis_config
+    - set_fact:
+        tendermint_genesis_time: '{{ tendermint_genesis_config.stdout | from_json | json_query("genesis_time") }}'
 
 # Setup masternodes
 
@@ -124,10 +148,28 @@
         - evo
       when: evo_services
 
+# Update Tenderdash genesis on seed nodes and start it
+
+- hosts: seed_nodes
+  become: true
+  tasks:
+    - name: update Tendermint genesis.json
+      template:
+        src: 'roles/mn-evo-services/templates/tendermint/genesis.json.j2'
+        dest: '{{ mn_evo_services_path }}/tendermint/config/genesis.json'
+        owner: '{{ tendermint_uid }}'
+        group: '{{ tendermint_gid }}'
+    - name: start Tendermint seed nodes
+      docker_compose:
+        project_src: '{{ mn_evo_services_path }}'
+        state: present
+        restarted: yes
+        pull: yes
+
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
 
-- hosts: seed_node
+- hosts: seed-1
   become: true
   roles:
     - role: generate-firstblock

@@ -1,5 +1,7 @@
 ---
 
+# Variables: skip_tenderdash_genesis (false), skip_services_start (false)
+
 - name: create masternode evolution services dir
   file:
     path: '{{ mn_evo_services_path }}'
@@ -25,6 +27,8 @@
     chdir: '{{ mn_evo_services_path }}'
 
 - import_tasks: tendermint.yml
+  vars:
+    skip_genesis: "{{ skip_tenderdash_genesis|default(false)|to_bool }}"
 
 - name: start masternodes evolution services
   docker_compose:
@@ -32,3 +36,4 @@
     state: present
     restarted: yes
     pull: yes
+  when: skip_services_start|default(false) == false

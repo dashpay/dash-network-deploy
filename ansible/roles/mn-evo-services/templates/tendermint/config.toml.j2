@@ -185,10 +185,10 @@ laddr = "tcp://0.0.0.0:26656"
 external_address = "{{ public_ip }}:26656"
 
 # Comma separated list of seed nodes to connect to
-seeds = ""
+seeds = "{% if inventory_hostname != 'seed-1' %}{{ hostvars['seed-1'].tendermint_node_id }}@{{ hostvars['seed-1'].public_ip }}:{{ tendermint_p2p_port }}{% endif %}"
 
 # Comma separated list of nodes to keep persistent connections to
-persistent_peers = "{% for masternode in groups.masternodes[:tenderdash_max_validators_count] %}{% if masternode != inventory_hostname %}{{ hostvars[masternode].tendermint_node_id }}@{{ hostvars[masternode].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endif %}{% endfor %}"
+persistent_peers = ""
 
 # UPNP port forwarding
 upnp = false
@@ -231,7 +231,7 @@ pex = true
 # peers. If another node asks it for addresses, it responds and disconnects.
 #
 # Does not work if the peer-exchange reactor is disabled.
-seed_mode = false
+seed_mode = {% if inventory_hostname != 'seed-1' %}false{% else %}true{% endif %}
 
 # Comma separated list of peer IDs to keep private (will not be gossiped to other peers)
 private_peer_ids = ""

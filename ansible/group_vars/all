@@ -73,7 +73,7 @@ dashd_zmq_port: 29998
 # dashd_sporkkey: cRsR7ywG6bhb5JsnpeRJ4c1fACabmYtK6WUVPiGG3GG4a5iYk6iL
 
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
-dashd_seednode: '{{ hostvars[groups.seed_node[0]]["public_ip"] if groups.seed_node else none }}'
+dashd_seednode: '{{ hostvars['seed-1']["public_ip"] if groups.seed_node else none }}'
 
 # Faucet stuff
 
@@ -112,3 +112,8 @@ masternode_wallet_rpc_args: "-rpcconnect={{ masternode_wallet_rpc_host }} -rpcpo
 
 # Disk space allocated for swap file on each host
 swap_space: 2G
+
+# MN Evo Services
+
+mn_evo_services_compose_project_name: mn_evo_services
+mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'

@@ -11,7 +11,7 @@ ${wallets}
 Full nodes
 ==========
 
-${full_nodes}
+${seeds}
 
 Miners
 ======
