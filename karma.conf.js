@@ -24,6 +24,9 @@ module.exports = (config) => {
       optimization: {
         minimize: false,
       },
+      node: {
+        fs: 'empty',
+      },
     },
     plugins: [
       'karma-mocha',

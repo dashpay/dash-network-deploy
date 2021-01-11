@@ -6,7 +6,7 @@ const { inventory, network } = getNetworkConfig();
 const allHosts = inventory.masternodes.hosts.concat(
   inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
-  inventory.full_nodes.hosts,
+  inventory.seed_nodes.hosts,
 );
 
 describe('Core', () => {
