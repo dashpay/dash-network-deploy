@@ -1,3 +1,12 @@
+## [0.17.1](https://github.com/dashpay/dash-network-deploy/compare/v0.17.0...v0.17.1) (2021-01-11)
+
+
+### Bug Fixes
+
+* removed `dash_devnet_version` using in smoke tests ([#214](https://github.com/dashpay/dash-network-deploy/issues/214))
+
+
+
 # [0.17.0](https://github.com/dashpay/dash-network-deploy/compare/v0.16.2...v0.17.0) (2020-12-30)
 
 

@@ -1,7 +1,7 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const { inventory, network, variables } = getNetworkConfig();
+const { inventory, network } = getNetworkConfig();
 
 const allHosts = inventory.masternodes.hosts.concat(
   inventory.wallet_nodes.hosts,
@@ -63,13 +63,8 @@ describe('Core', () => {
           expect(blockchainInfo[hostName].chain).to.equal(chainNames[network.type]);
           expect(networkactive).to.be.equal(true);
 
-          let networkName = network.name;
           if (network.type === 'devnet') {
-            if (variables.dash_devnet_version !== 1) {
-              networkName += `-${variables.dash_devnet_version}`;
-            }
-
-            expect(subversion).to.have.string(`(${network.type}=${networkName})/`);
+            expect(subversion).to.have.string(`(${network.type}=${network.name})/`);
           }
         });
 
