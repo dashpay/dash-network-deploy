@@ -147,18 +147,6 @@ resource "aws_route53_record" "insight" {
   count = length(var.main_domain) > 1 ? 1 : 0
 }
 
-# TODO: Deprecated. Remove on 0.14 version.
-
-resource "aws_route53_record" "masternodes-deprecated" {
-  zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
-  name    = "seed.${var.public_network_name}.${var.main_domain}"
-  type    = "A"
-  ttl     = "300"
-  records = concat(aws_instance.masternode.*.public_ip)
-
-  count = length(var.main_domain) > 1 ? 1 : 0
-}
-
 locals {
   dns_record_length = 10 // recommended number of hosts per A record. Other way there might be problems with resolving of seeds in some regions.
 }
