@@ -78,7 +78,7 @@ variable "subnet_public_cidr" {
   ]
 }
 
-variable "node_count" {
+variable "seed_count" {
   default = 1
 }
 

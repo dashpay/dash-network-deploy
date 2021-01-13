@@ -1,5 +1,5 @@
 {
-  "genesis_time": "{{ tendermint_genesis_time }}",
+  "genesis_time": "{{ hostvars[groups.seed_nodes[0]].tendermint_genesis_time }}",
   "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
   "consensus_params": {
     "block": {

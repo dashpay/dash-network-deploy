@@ -1,4 +1,0 @@
----
-
-mn_evo_services_compose_project_name: mn_evo_services
-mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'

@@ -29,6 +29,19 @@ async function sendEcho(ip) {
 }
 
 describe('Drive', () => {
+  describe('seed-1', () => {
+    it('should listen for ABCI connection', async function it() {
+      if (!variables.evo_services) {
+        this.skip('Evolution services are not enabled');
+
+        return;
+      }
+
+      // eslint-disable-next-line no-underscore-dangle
+      await sendEcho(inventory._meta.hostvars['seed-1'].public_ip);
+    });
+  });
+
   for (const hostName of inventory.masternodes.hosts) {
     describe(hostName, () => {
       it('should listen for ABCI connection', async function it() {

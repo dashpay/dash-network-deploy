@@ -165,7 +165,7 @@ data "template_file" "wallets" {
     external_services = replace(
       chomp(join("", [data.template_file.service_ssh.rendered])),
       "{{ip}}",
-      element(aws_instance.masternode.*.public_ip, count.index),
+      element(aws_instance.dashd_wallet.*.public_ip, count.index),
     )
     internal_services = replace(
       chomp(
@@ -180,18 +180,18 @@ data "template_file" "wallets" {
         ),
       ),
       "{{ip}}",
-      element(aws_instance.masternode.*.public_ip, count.index),
+      element(aws_instance.dashd_wallet.*.public_ip, count.index),
     )
     service_logs = chomp(join("\n", ["   - dashd"]))
   }
 }
 
-data "template_file" "full_nodes" {
-  count    = length(aws_instance.dashd_full_node)
+data "template_file" "seeds" {
+  count    = length(aws_instance.seed_node)
   template = file("${path.module}/templates/services/node.tpl")
 
   vars = {
-    name = "node-${count.index + 1}"
+    name = "seed-${count.index + 1}"
     external_services = replace(
       chomp(
         join(
@@ -199,27 +199,44 @@ data "template_file" "full_nodes" {
           [
             data.template_file.service_ssh.rendered,
             data.template_file.service_core_p2p.rendered,
+            data.template_file.service_dapi.rendered,
+            data.template_file.service_dapi_grpc.rendered,
+            data.template_file.service_tendermint_p2p.rendered,
           ],
         ),
       ),
       "{{ip}}",
-      element(aws_instance.masternode.*.public_ip, count.index),
+      element(aws_instance.seed_node.*.public_ip, count.index),
     )
     internal_services = replace(
       chomp(
         join(
           "",
           [
+            data.template_file.service_tendermint_rpc.rendered,
             data.template_file.service_core_rpc.rendered,
             data.template_file.service_core_zmq.rendered,
+            data.template_file.service_drive.rendered,
+            data.template_file.service_insight.rendered,
             data.template_file.service_docker.rendered,
           ],
         ),
       ),
       "{{ip}}",
-      element(aws_instance.masternode.*.public_ip, count.index),
+      element(aws_instance.seed_node.*.public_ip, count.index),
     )
-    service_logs = chomp(join("\n", ["   - dashd"]))
+    service_logs = chomp(join("\n", [
+      "   - dashd",
+      "   - dapi_api",
+      "   - dapi_tx_filter_stream",
+      "   - dapi_nginx",
+      "   - dapi_envoy",
+      "   - drive_abci",
+      "   - drive_mongodb",
+      "   - tendermint",
+      "   - sentinel",
+      "   - insight",
+    ]))
   }
 }
 
@@ -232,7 +249,7 @@ data "template_file" "miners" {
     external_services = replace(
       chomp(join("", [data.template_file.service_ssh.rendered])),
       "{{ip}}",
-      element(aws_instance.masternode.*.public_ip, count.index),
+      element(aws_instance.miner.*.public_ip, count.index),
     )
     internal_services = replace(
       chomp(
@@ -246,7 +263,7 @@ data "template_file" "miners" {
         ),
       ),
       "{{ip}}",
-      element(aws_instance.masternode.*.public_ip, count.index),
+      element(aws_instance.miner.*.public_ip, count.index),
     )
     service_logs = chomp(join("\n", ["   - dashd"]))
   }
@@ -258,7 +275,7 @@ data "template_file" "services" {
   vars = {
     masternodes  = chomp(join("\n", data.template_file.masternodes.*.rendered))
     wallets      = chomp(join("\n", data.template_file.wallets.*.rendered))
-    full_nodes   = chomp(join("\n", data.template_file.full_nodes.*.rendered))
+    seeds        = chomp(join("\n", data.template_file.seeds.*.rendered))
     miners       = chomp(join("\n", data.template_file.miners.*.rendered))
     elb_host     = chomp(join("\n", aws_elb.web.*.dns_name))
     insight_port = var.insight_port
