@@ -1,0 +1,59 @@
+---
+- name: Redhat - add beats repository
+  become: yes
+  template:
+    src: beats.repo.j2
+    dest: /etc/yum.repos.d/beats.repo
+  when: beats_add_repository | bool
+
+- name: RedHat - install yum-version-lock
+  become: yes
+  yum:
+    name: yum-plugin-versionlock
+    state: present
+    update_cache: true
+  when: version_lock | bool
+  register: versionlock_install
+  until: versionlock_install is succeeded
+
+- name: RedHat - unlock {{ beat }} for install
+  become: yes
+  shell: yum versionlock delete {{ beat }} || true
+  changed_when: false
+  when: version_lock | bool
+  tags:
+    - skip_ansible_lint
+
+- name: RedHat - Ensure {{ beat }} is installed
+  become: yes
+  yum:
+    name: >-
+      {{ beat }}{% if beats_version is defined and beats_version|length %}-{{ beats_version }}{% endif %}
+    state: present
+    update_cache: true
+  register: beat_install
+  until: beat_install is succeeded
+  when: use_repository | bool
+  notify: restart the service
+
+- name: RedHat - lock {{ beat }} version
+  become: yes
+  shell: >-
+    yum versionlock add
+    {{ beat }}{% if beats_version is defined and beats_version|length %}-{{ beats_version }}{% endif %}
+  when: version_lock | bool
+  changed_when: false
+  tags:
+    - skip_ansible_lint
+
+- name: RedHat - Install {{ beat }} from url
+  become: yes
+  yum:
+    name: >-
+      {% if custom_package_url is defined %}{{ custom_package_url }}{%
+        else %}{{ beats_package_url }}/{{ beat }}-{{ beats_version }}-{{ ansible_architecture }}.rpm{% endif %}
+    state: present
+  register: beat_install
+  until: beat_install is succeeded
+  when: not use_repository
+  notify: restart the service
