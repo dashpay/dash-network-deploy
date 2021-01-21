@@ -54,7 +54,7 @@ services:
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
     ports:
-      - "5601:5601"
+      - "{{ kibana_port }}:{{ kibana_port }}"
     networks:
       - elk
     depends_on:
