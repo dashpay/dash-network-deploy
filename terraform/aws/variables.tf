@@ -133,3 +133,8 @@ variable "mn_node_disk_size" {
   description = "Default disk size for nodes, increase for testnet"
   default     = 30
 }
+
+variable "web_node_disk_size" {
+  description = "Default disk size for nodes, increase for testnet"
+  default     = 100
+}
