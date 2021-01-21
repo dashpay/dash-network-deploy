@@ -35,10 +35,10 @@ services:
       - DASHPAY_CONTRACT_BLOCK_HEIGHT={{ platform_dashpay_contract_block_height }}
       - NODE_ENV={{ node_environment }}
       - LOG_STDOUT_LEVEL={{ drive_log_stdout_level }}
-      - LOG_PRETTY_PRETTY_FILE_LEVEL={{ drive_log_pretty_file_level }}
-      - LOG_PRETTY_PRETTY_FILE_PATH=/var/log/drive/drive-pretty.log
-      - LOG_PRETTY_JSON_FILE_LEVEL={{ drive_log_json_file_level }}
-      - LOG_PRETTY_JSON_FILE_PATH=/var/log/drive/drive-json.log
+      - LOG_PRETTY_FILE_LEVEL={{ drive_log_pretty_file_level }}
+      - LOG_PRETTY_FILE_PATH=/var/log/drive/drive-pretty.log
+      - LOG_JSON_FILE_LEVEL={{ drive_log_json_file_level }}
+      - LOG_JSON_FILE_PATH=/var/log/drive/drive-json.log
       - INITIAL_CORE_CHAINLOCKED_HEIGHT={{ platform_initial_core_chain_locked_height }}
     ports:
       - 26658:26658
