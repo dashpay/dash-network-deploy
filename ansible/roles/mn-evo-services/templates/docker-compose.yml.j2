@@ -19,6 +19,7 @@ services:
     command: sh -c "sleep 15 && npm run abci"
     volumes:
       - drive_leveldb:/usr/src/app/db
+      - {{ mn_evo_services_path }}/logs:/var/log/drive
     environment:
       - CORE_JSON_RPC_USER={{ dashd_rpc_user }}
       - CORE_JSON_RPC_PASS={{ dashd_rpc_password }}
@@ -33,7 +34,11 @@ services:
       - DASHPAY_CONTRACT_ID={{ platform_dashpay_contract_id }}
       - DASHPAY_CONTRACT_BLOCK_HEIGHT={{ platform_dashpay_contract_block_height }}
       - NODE_ENV={{ node_environment }}
-      - LOGGING_LEVEL={{ drive_logging_level }}
+      - LOG_STDOUT_LEVEL={{ drive_log_stdout_level }}
+      - LOG_PRETTY_PRETTY_LEVEL={{ drive_log_pretty_level }}
+      - LOG_PRETTY_PRETTY_PATH=/var/log/drive/drive-pretty.log
+      - LOG_PRETTY_JSON_LEVEL={{ drive_log_json_level }}
+      - LOG_PRETTY_JSON_PATH=/var/log/drive/drive-json.log
       - INITIAL_CORE_CHAINLOCKED_HEIGHT={{ platform_initial_core_chain_locked_height }}
     ports:
       - 26658:26658
