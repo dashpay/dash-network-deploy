@@ -1,0 +1,6 @@
+---
+
+elk_compose_project_name: elk
+elk_path: '{{ dashd_home }}/{{ elk_compose_project_name }}'
+elk_elasticsearch_password: password
+elk_kibana_port: 5601
