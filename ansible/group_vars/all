@@ -24,7 +24,9 @@ sentinel_image: dashpay/sentinel:latest
 
 # Drive
 drive_image: dashpay/drive
-drive_logging_level: info
+drive_log_stdout_level: info
+drive_log_pretty_file_level: silent
+drive_log_json_file_level: silent
 
 # Tendermint
 tendermint_image: dashpay/tenderdash
