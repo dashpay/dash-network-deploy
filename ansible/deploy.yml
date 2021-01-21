@@ -218,7 +218,7 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
-    - mn-elk-services
+    - elk
   tags:
     - web
 

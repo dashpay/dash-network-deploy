@@ -2,14 +2,14 @@
 
 - name: create masternode elk services dir
   file:
-    path: '{{ mn_elk_services_path }}'
+    path: '{{ elk_path }}'
     state: directory
     recurse: true
 
 - name: copy files
   template:
     src: '{{ item }}.j2'
-    dest: '{{ mn_elk_services_path }}/{{ item }}'
+    dest: '{{ elk_path }}/{{ item }}'
   loop:
     - docker-compose.yml
     - elasticsearch.yml
@@ -19,7 +19,7 @@
 
 - name: start elk services
   docker_compose:
-    project_src: '{{ mn_elk_services_path }}'
+    project_src: '{{ elk_path }}'
     state: present
     restarted: yes
     pull: yes

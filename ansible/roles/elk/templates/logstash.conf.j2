@@ -14,7 +14,7 @@ output {
 	elasticsearch {
 		hosts => "elasticsearch:9200"
 		user => "elastic"
-		password => "{{ elasticsearch_password }}"
+		password => "{{ elk_elasticsearch_password }}"
 		ecs_compatibility => disabled
 	}
 }

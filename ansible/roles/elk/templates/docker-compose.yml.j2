@@ -5,7 +5,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     volumes:
       - type: bind
-        source: {{ mn_elk_services_path }}/elasticsearch.yml
+        source: {{ elk_path }}/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
       - type: volume
@@ -16,7 +16,7 @@ services:
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_PASSWORD: {{ elasticsearch_password }}
+      ELASTIC_PASSWORD: {{ elk_elasticsearch_password }}
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
@@ -27,11 +27,11 @@ services:
     image: docker.elastic.co/logstash/logstash:7.10.2
     volumes:
       - type: bind
-        source: {{ mn_elk_services_path }}/logstash.yml
+        source: {{ elk_path }}/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
         read_only: true
       - type: bind
-        source: {{ mn_elk_services_path }}/logstash.conf
+        source: {{ elk_path }}/logstash.conf
         target: /usr/share/logstash/pipeline/logstash.conf
         read_only: true
     ports:
@@ -50,11 +50,11 @@ services:
     image: docker.elastic.co/kibana/kibana:7.10.2
     volumes:
       - type: bind
-        source: {{ mn_elk_services_path }}/kibana.yml
+        source: {{ elk_path }}/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
     ports:
-      - "{{ kibana_port }}:{{ kibana_port }}"
+      - "{{ elk_kibana_port }}:{{ elk_kibana_port }}"
     networks:
       - elk
     depends_on:

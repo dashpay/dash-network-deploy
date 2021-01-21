@@ -120,7 +120,7 @@ mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name 
 
 # ELK
 
-mn_elk_services_compose_project_name: mn_elk_services
-mn_elk_services_path: '{{ dashd_home }}/{{ mn_elk_services_compose_project_name}}'
-elasticsearch_password: password
-kibana_port: 5601
+elk_compose_project_name: elk
+elk_path: '{{ dashd_home }}/{{ elk_compose_project_name }}'
+elk_elasticsearch_password: password
+elk_kibana_port: 5601
