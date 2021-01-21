@@ -117,3 +117,10 @@ swap_space: 2G
 
 mn_evo_services_compose_project_name: mn_evo_services
 mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'
+
+# ELK
+
+mn_elk_services_compose_project_name: mn_elk_services
+mn_elk_services_path: '{{ dashd_home }}/{{ mn_elk_services_compose_project_name}}'
+elasticsearch_password: password
+kibana_port: 5601

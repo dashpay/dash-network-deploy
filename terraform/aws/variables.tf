@@ -66,6 +66,11 @@ variable "vpn_port" {
   default     = 1194
 }
 
+variable "kibana_port" {
+  description = "Kibana port"
+  default     = 5601
+}
+
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }

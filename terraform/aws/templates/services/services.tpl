@@ -29,6 +29,10 @@ Insight Explorer
 
 ${elb_host}:${insight_port}/insight
 
+Kibana
+======
+
+${elb_host}:${kibana_port}
 
 VPN
 ===
