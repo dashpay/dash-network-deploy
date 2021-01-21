@@ -119,3 +119,8 @@ swap_space: 2G
 
 mn_evo_services_compose_project_name: mn_evo_services
 mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'
+
+# ELK
+
+elk_elasticsearch_username: elastic
+elk_elasticsearch_password: password
