@@ -2,92 +2,92 @@
 
 # Bootstrap
 
-#- hosts: all
-#  gather_facts: true
-#  become: true
-#  pre_tasks:
-#    - name: check if inside AWS
-#      uri:
-#        url: http://169.254.169.254/latest/meta-data
-#        timeout: 2
-#      register: aws_uri_check
-#      failed_when: False
-#    - set_fact:
-#        is_aws_environment: "{{ aws_uri_check.status == 200 }}"
-#  roles:
-#    - role: aws
-#      when: is_aws_environment
-#    - swap
-#
-## Setup VPN
-#
-#- hosts: vpn
-#  become: true
-#  roles:
-#    - role: openvpn
-#      when: openvpn_enabled
-#      tags: vpn
-#
-## Setup Python and Docker
-#
-#- hosts: all
-#  become: true
-#  tasks:
-#    - name: add universe repository
-#      apt_repository:
-#        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
-#        state: present
-#
-#- hosts: all
-#  become: true
-#  vars:
-#    pip_package: python3-pip
-#    pip_install_packages:
-#      - name: pymongo
-#      - name: docker
-#      - name: docker-compose
-#        version: "1.22.0"
-#  roles:
-#    - geerlingguy.pip
-#    - geerlingguy.docker
-#    - docker-options
-#    - role: ecr-login
-#      when: aws_ecr_login
-#      tags: always
-#
-## Install AWS monitoring scripts
-#
-#- hosts: all
-#  become: true
-#  roles:
-#    - role: Restless-ET.aws-scripts-mon
-#      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
-#      aws_scripts_mon_use_iam: true
-#
-## Configure dashd cli
-#
-#- hosts: all
-#  become: true
-#  roles:
-#    - dash-cli
-#
-## Setup wallets and miners
-#
-#- hosts: wallet_nodes
-#  become: true
-#  roles:
-#    - role: dashd
-#      dashd_indexes: true
-#      dashd_zmq: true
-#      tags:
-#        - dashd
-#
-#- hosts: miners
-#  become: true
-#  roles:
-#    - role: dashd
-#      tags:
-#        - dashd
+- hosts: all
+  gather_facts: true
+  become: true
+  pre_tasks:
+    - name: check if inside AWS
+      uri:
+        url: http://169.254.169.254/latest/meta-data
+        timeout: 2
+      register: aws_uri_check
+      failed_when: False
+    - set_fact:
+        is_aws_environment: "{{ aws_uri_check.status == 200 }}"
+  roles:
+    - role: aws
+      when: is_aws_environment
+    - swap
+
+# Setup VPN
+
+- hosts: vpn
+  become: true
+  roles:
+    - role: openvpn
+      when: openvpn_enabled
+      tags: vpn
+
+# Setup Python and Docker
+
+- hosts: all
+  become: true
+  tasks:
+    - name: add universe repository
+      apt_repository:
+        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
+        state: present
+
+- hosts: all
+  become: true
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: pymongo
+      - name: docker
+      - name: docker-compose
+        version: "1.22.0"
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+    - docker-options
+    - role: ecr-login
+      when: aws_ecr_login
+      tags: always
+
+# Install AWS monitoring scripts
+
+- hosts: all
+  become: true
+  roles:
+    - role: Restless-ET.aws-scripts-mon
+      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
+      aws_scripts_mon_use_iam: true
+
+# Configure dashd cli
+
+- hosts: all
+  become: true
+  roles:
+    - dash-cli
+
+# Setup wallets and miners
+
+- hosts: wallet_nodes
+  become: true
+  roles:
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      tags:
+        - dashd
+
+- hosts: miners
+  become: true
+  roles:
+    - role: dashd
+      tags:
+        - dashd
 
 
 # Setup seed nodes
@@ -95,15 +95,15 @@
 - hosts: seed_nodes
   become: true
   roles:
-#    - role: dashd
-#      dashd_listen: true
-#      dashd_zmq: true
-#      dashd_indexes: true
-#      tags:
-#        - dashd
-#    - role: insight
-#      ui: false
-#      when: evo_services
+    - role: dashd
+      dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
+      tags:
+        - dashd
+    - role: insight
+      ui: false
+      when: evo_services
     - role: mn-evo-services
       vars:
         skip_tenderdash_genesis: true
@@ -133,16 +133,16 @@
         msg: Masternode not defined in network config
       when: masternode is not defined
   roles:
-#    - role: dashd
-#      dashd_listen: true
-#      dashd_zmq: true
-#      dashd_indexes: true
-#      tags:
-#        - dashd
-#    - mn-sentinel
-#    - role: insight
-#      ui: false
-#      when: evo_services
+    - role: dashd
+      dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
+      tags:
+        - dashd
+    - mn-sentinel
+    - role: insight
+      ui: false
+      when: evo_services
     - role: mn-evo-services
       tags:
         - evo
@@ -169,48 +169,48 @@
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
 
-#- hosts: seed-1
-#  become: true
-#  roles:
-#    - role: generate-firstblock
-#      when: dash_network == "devnet" or dash_network == "regtest"
-#
-## Mine blocks
-#
-#- hosts: miners
-#  become: true
-#  roles:
-#    - role: dashd-generate-miner
-#      when: dash_network != "mainnet"
-#
-## Setup faucet and insight
-#
-#- hosts: web
-#  become: true
-#  roles:
-#    - multifaucet
-#    - role: dashd
-#      dashd_indexes: true
-#      dashd_zmq: true
-#      dashd_listen: true
-#    - insight
-#  tags:
-#    - web
+- hosts: seed-1
+  become: true
+  roles:
+    - role: generate-firstblock
+      when: dash_network == "devnet" or dash_network == "regtest"
+
+# Mine blocks
+
+- hosts: miners
+  become: true
+  roles:
+    - role: dashd-generate-miner
+      when: dash_network != "mainnet"
+
+# Setup faucet and insight
+
+- hosts: web
+  become: true
+  roles:
+    - multifaucet
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      dashd_listen: true
+    - insight
+  tags:
+    - web
 
 # Start masternodes
 
-#- hosts: masternode_wallet
-#  become: true
-#  roles:
-#    - mn-init
+- hosts: masternode_wallet
+  become: true
+  roles:
+    - mn-init
 
 # Activate sporks
 
-#- hosts: masternode_wallet
-#  become: true
-#  roles:
-#    - role: activate-dashd-sporks
-#      when: dash_network != "mainnet" and dash_network != "testnet"
+- hosts: masternode_wallet
+  become: true
+  roles:
+    - role: activate-dashd-sporks
+      when: dash_network != "mainnet" and dash_network != "testnet"
 
 # Prune unused Docker images
 
