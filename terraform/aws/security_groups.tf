@@ -321,6 +321,18 @@ resource "aws_security_group" "elb" {
     ]
   }
 
+  # Kibana
+  ingress {
+    from_port   = var.kibana_port
+    to_port     = var.kibana_port
+    protocol    = "tcp"
+    description = "Kibana"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
   # outbound internet access
   egress {
     from_port = 0
