@@ -175,11 +175,72 @@ resource "aws_security_group" "http" {
     ])
   }
 
-    ingress {
+  ingress {
     from_port   = var.kibana_port
     to_port     = var.kibana_port
     protocol    = "tcp"
     description = "Kibana"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+  ingress {
+    from_port   = 5044
+    to_port     = 5044
+    protocol    = "tcp"
+    description = "Logstash Beats input"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    description = "Logstash TCP input"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+
+  ingress {
+    from_port   = 9600
+    to_port     = 9600
+    protocol    = "tcp"
+    description = "Logstash Monitoring API"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+  ingress {
+    from_port   = 9200
+    to_port     = 9200
+    protocol    = "tcp"
+    description = "Elasticsearch HTTP"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+  ingress {
+    from_port   = 9300
+    to_port     = 9300
+    protocol    = "tcp"
+    description = "Elasticsearch TCP transport"
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
