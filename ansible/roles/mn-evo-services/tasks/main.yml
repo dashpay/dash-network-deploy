@@ -2,11 +2,33 @@
 
 # Variables: skip_tenderdash_genesis (false), skip_services_start (false)
 
-- name: create masternode evolution services dir
+- name: create platform services dir
   file:
     path: '{{ mn_evo_services_path }}'
     state: directory
     recurse: true
+
+- name: create platform logs dir
+  file:
+    path: '{{ mn_evo_services_path }}/logs'
+    state: directory
+    recurse: true
+
+- name: configure log rotation
+  include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_applications:
+      - name: platform-logs
+        definitions:
+          - logs:
+              - '{{ mn_evo_services_path }}/logs/*.log'
+            options:
+              - rotate 14
+              - compress
+              - daily
+              - missingok
+              - notifempty
 
 - name: copy files
   template:
