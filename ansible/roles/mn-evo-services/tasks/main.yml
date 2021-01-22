@@ -24,7 +24,7 @@
           - logs:
               - '{{ mn_evo_services_path }}/logs/*.log'
             options:
-              - rotate 14
+              - rotate 7
               - daily
               - missingok
               - notifempty
