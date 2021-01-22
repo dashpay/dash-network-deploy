@@ -121,7 +121,7 @@
               - type: log
                 enabled: true
                 paths:
-                  - "{{ mn_evo_services_path }}/logs/*.log"
+                  - "{{ mn_evo_services_path }}/logs/*.log*"
         output_conf: {
           "elasticsearch": {
             "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
@@ -175,7 +175,7 @@
               - type: log
                 enabled: true
                 paths:
-                  - "{{ mn_evo_services_path }}/logs/*.log"
+                  - "{{ mn_evo_services_path }}/logs/*.log*"
         output_conf: {
           "elasticsearch": {
             "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
