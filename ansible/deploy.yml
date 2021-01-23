@@ -111,9 +111,9 @@
       tags:
         - evo
       when: evo_services
-    - role: elastic.beats
+    - include_role:
+      name: elastic.beats
       vars:
-        beats_version: 7.10.2
         beat: filebeat
         beat_conf:
           filebeat:
@@ -151,23 +151,9 @@
         msg: Masternode not defined in network config
       when: masternode is not defined
   roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - mn-sentinel
-    - role: insight
-      ui: false
-      when: evo_services
-    - role: mn-evo-services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic.beats
+    - include_role:
+      name: elastic.beats
       vars:
-        beats_version: 7.10.2
         beat: filebeat
         beat_conf:
           filebeat:

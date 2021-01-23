@@ -1,8 +1,0 @@
-.kitchen/
-*.pyc
-.vendor
-.bundle
-Converging
-TODO
-.idea/
-beats.iml

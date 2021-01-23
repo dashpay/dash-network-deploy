@@ -1,3 +1,0 @@
----
-default_file: "/etc/default"
-repo_url: "https://artifacts.elastic.co/packages/{{ beats_major_version }}/apt"
