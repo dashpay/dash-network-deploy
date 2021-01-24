@@ -122,6 +122,8 @@
                 enabled: true
                 paths:
                   - "{{ mn_evo_services_path }}/logs/*.log*"
+                json.keys_under_root: false
+                json.message_key: abciMethod
         output_conf: {
           "elasticsearch": {
             "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
@@ -162,6 +164,8 @@
                 enabled: true
                 paths:
                   - "{{ mn_evo_services_path }}/logs/*.log*"
+                json.keys_under_root: false
+                json.message_key: abciMethod
         output_conf: {
           "elasticsearch": {
             "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
