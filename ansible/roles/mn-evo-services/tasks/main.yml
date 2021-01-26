@@ -28,6 +28,7 @@
               - daily
               - missingok
               - notifempty
+              - copytruncate
 
 - name: copy files
   template:
