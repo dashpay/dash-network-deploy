@@ -135,7 +135,7 @@ variable "core_node_disk_size" {
 }
 
 variable "mn_node_disk_size" {
-  description = "Default disk size for nodes, increase for testnet"
+  description = "Disk size of masternodes"
   default     = 30
 }
 
