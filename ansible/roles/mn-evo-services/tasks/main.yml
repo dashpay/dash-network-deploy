@@ -22,7 +22,7 @@
       - name: platform-logs
         definitions:
           - logs:
-              - '{{ mn_evo_services_path }}/logs/*.log'
+              - '{{ mn_evo_services_path }}/logs/*.log*'
             options:
               - rotate 7
               - daily

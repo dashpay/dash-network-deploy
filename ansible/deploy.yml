@@ -123,12 +123,60 @@
                 paths:
                   - "{{ mn_evo_services_path }}/logs/*.log*"
                 json.keys_under_root: false
-                json.message_key: msg
+                json.message_key: json.msg
           processors:
             - timestamp:
                 field: json.time
                 layouts: 
                   - UNIX_MS
+            - if:
+                equals:
+                  json.level: 10
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: trace
+            - if:
+                equals:
+                  json.level: 20
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: debug
+            - if:
+                equals:
+                  json.level: 30
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: info
+            - if:
+                equals:
+                  json.level: 40
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: warn
+            - if:
+                equals:
+                  json.level: 50
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: error
+            - if:
+                equals:
+                  json.level: 60
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: fatal
         output_conf: {
           "elasticsearch": {
             "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
@@ -184,12 +232,60 @@
                 paths:
                   - "{{ mn_evo_services_path }}/logs/*.log*"
                 json.keys_under_root: false
-                json.message_key: msg
+                json.message_key: json.msg
           processors:
             - timestamp:
                 field: json.time
                 layouts: 
                   - UNIX_MS
+            - if:
+                equals:
+                  json.level: 10
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: trace
+            - if:
+                equals:
+                  json.level: 20
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: debug
+            - if:
+                equals:
+                  json.level: 30
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: info
+            - if:
+                equals:
+                  json.level: 40
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: warn
+            - if:
+                equals:
+                  json.level: 50
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: error
+            - if:
+                equals:
+                  json.level: 60
+              then:
+              - add_fields:
+                  target: log
+                  fields:
+                    level: fatal
         output_conf: {
           "elasticsearch": {
             "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
