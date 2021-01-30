@@ -177,6 +177,10 @@
                   target: log
                   fields:
                     level: fatal
+            - add_fields:
+                target: event
+                fields:
+                  dataset: "drive.log"
         output_conf: {
           "elasticsearch": {
             "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
@@ -286,6 +290,10 @@
                   target: log
                   fields:
                     level: fatal
+            - add_fields:
+                target: event
+                fields:
+                  dataset: "drive.log"
         output_conf: {
           "elasticsearch": {
             "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
