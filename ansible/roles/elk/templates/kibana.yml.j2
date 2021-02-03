@@ -11,3 +11,6 @@ monitoring.ui.container.elasticsearch.enabled: true
 #
 elasticsearch.username: {{ elk_elasticsearch_username }}
 elasticsearch.password: {{ elk_elasticsearch_password }}
+xpack.security.encryptionKey: {{ elk_kibana_encryptionkey }}
+xpack.security.session.idleTimeout: "1h"
+xpack.security.session.lifespan: "30d"
