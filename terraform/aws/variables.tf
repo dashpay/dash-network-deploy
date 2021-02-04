@@ -141,5 +141,5 @@ variable "mn_node_disk_size" {
 
 variable "web_node_disk_size" {
   description = "Disk size of web nodes"
-  default     = 200
+  default     = 100
 }
