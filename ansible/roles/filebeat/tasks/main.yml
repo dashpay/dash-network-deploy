@@ -21,6 +21,7 @@
           - type: log
             enabled: true
             json.message_key: msg
+            exclude_files: ['\.gz$']
             paths:
               - "{{ mn_evo_services_path }}/logs/*.log*"
             json.keys_under_root: false
