@@ -24,7 +24,6 @@
             exclude_files: ['\.gz$']
             paths:
               - "{{ mn_evo_services_path }}/logs/*.log*"
-            json.keys_under_root: false
       processors:
         - timestamp:
             field: json.time

@@ -26,9 +26,12 @@
             options:
               - rotate 7
               - daily
+              - maxsize 1G
               - missingok
               - notifempty
               - copytruncate
+              - compress
+              - delaycompress
 
 - name: copy files
   template:
