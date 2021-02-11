@@ -123,5 +123,5 @@ mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name 
 # ELK
 
 elk_elasticsearch_username: elastic
-elk_elasticsearch_password: password
-elk_kibana_encryptionkey: 32_chars_or_longer_encryption_key
+elk_elasticsearch_password: 
+elk_kibana_encryptionkey: 

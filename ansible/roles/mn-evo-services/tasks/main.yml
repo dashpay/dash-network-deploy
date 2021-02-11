@@ -18,6 +18,7 @@
   include_role:
     name: arillso.logrotate
   vars:
+    logrotate_use_hourly_rotation: true
     logrotate_applications:
       - name: platform-logs
         definitions:
