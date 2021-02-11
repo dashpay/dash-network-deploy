@@ -14,13 +14,46 @@
   vars:
     beat: filebeat
     beat_conf:
-      setup.ilm:
-        policy_file: /etc/filebeat/ilm_policy.json
+      setup:
+        template:
+          settings:
+            index:
+              sort.field: 
+                - json.height
+                - json.abciMethod
+                - json.level
+              sort.order: 
+                - asc
+                - asc
+                - asc
+          name: drive-abci
+          pattern: drive-abci-*
+          append_fields:
+            - name: stateRepository.params
+              type: object
+              dynamic: runtime
+            - name: stateRepository.response
+              type: object
+              dynamic: runtime
+            - name: abciRequest
+              type: object
+              dynamic: runtime
+            - name: errors
+              type: nested
+              dynamic: runtime
+            - name: height
+              type: long
+            - name: err
+              type: object
+              dyanmic: runtime
+        ilm:
+          policy_file: /etc/filebeat/ilm_policy.json
       filebeat:
         inputs:
           - type: log
             enabled: true
             json.message_key: msg
+            json.keys_under_root: true
             exclude_files: ['\.gz$']
             paths:
               - "{{ mn_evo_services_path }}/logs/*.log*"
@@ -86,5 +119,6 @@
         "hosts": ["{{ hostvars['web-1'].private_ip }}:9200"],
         "username": "{{ elk_elasticsearch_username }}",
         "password": "{{ elk_elasticsearch_password }}",
+        "index": "drive-abci"
       }
     }
