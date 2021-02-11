@@ -34,6 +34,11 @@
               - compress
               - delaycompress
 
+- name: set mode to logrotate cron file
+  file:
+    path: /etc/cron.daily/logrotate
+    mode: "+x"
+
 - name: copy files
   template:
     src: '{{ item }}.j2'
