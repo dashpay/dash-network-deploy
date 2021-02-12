@@ -131,6 +131,6 @@
       elasticsearch:
         hosts:
           - "{{ hostvars['web-1'].private_ip }}:9200"
-        username: "{{ elk_elasticsearch_username }}",
-        password: "{{ elk_elasticsearch_password }}",
+        username: "{{ elk_elasticsearch_username }}"
+        password: "{{ elk_elasticsearch_password }}"
         index: "logs-drive-abci-%{[agent.version]}"
