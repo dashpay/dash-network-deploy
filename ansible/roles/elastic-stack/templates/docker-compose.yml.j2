@@ -5,7 +5,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
     volumes:
       - type: bind
-        source: {{ elk_path }}/elasticsearch.yml
+        source: {{ elastic_path }}/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
       - type: volume
@@ -16,22 +16,22 @@ services:
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xms1g -Xmx3g"
-      ELASTIC_PASSWORD: {{ elk_elasticsearch_password }}
+      ELASTIC_PASSWORD: {{ elastic_password }}
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
     networks:
-      - elk
+      - elastic
 
   #logstash:
-  #  image: docker.elastic.co/logstash/logstash:7.10.2
+  #  image: docker.elastic.co/logstash/logstash:7.11.0
   #  volumes:
   #    - type: bind
-  #      source: {{ elk_path }}/logstash.yml
+  #      source: {{ elastic_path }}/logstash.yml
   #      target: /usr/share/logstash/config/logstash.yml
   #      read_only: true
   #    - type: bind
-  #      source: {{ elk_path }}/logstash.conf
+  #      source: {{ elastic_path }}/logstash.conf
   #      target: /usr/share/logstash/pipeline/logstash.conf
   #      read_only: true
   #  ports:
@@ -42,7 +42,7 @@ services:
   #  environment:
   #    LS_JAVA_OPTS: "-Xmx256m -Xms256m"
   #  networks:
-  #    - elk
+  #    - elastic
   #  depends_on:
   #    - elasticsearch
 
@@ -50,18 +50,18 @@ services:
     image: docker.elastic.co/kibana/kibana:7.11.0
     volumes:
       - type: bind
-        source: {{ elk_path }}/kibana.yml
+        source: {{ elastic_path }}/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
     ports:
-      - "{{ elk_kibana_port }}:{{ elk_kibana_port }}"
+      - "{{ kibana_port }}:{{ kibana_port }}"
     networks:
-      - elk
+      - elastic
     depends_on:
       - elasticsearch
 
 networks:
-  elk:
+  elastic:
     driver: bridge
 
 volumes:

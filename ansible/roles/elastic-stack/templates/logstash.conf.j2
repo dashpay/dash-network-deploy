@@ -13,8 +13,8 @@ input {
 output {
 	elasticsearch {
 		hosts => "elasticsearch:9200"
-		user => "{{ elk_elasticsearch_username }}"
-		password => "{{ elk_elasticsearch_password }}"
+		user => "{{ elastic_username }}"
+		password => "{{ elastic_password }}"
 		ecs_compatibility => disabled
 	}
 }

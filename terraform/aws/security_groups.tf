@@ -176,8 +176,8 @@ resource "aws_security_group" "http" {
   }
 
   ingress {
-    from_port   = var.elk_kibana_port
-    to_port     = var.elk_kibana_port
+    from_port   = var.kibana_port
+    to_port     = var.kibana_port
     protocol    = "tcp"
     description = "Kibana"
 
@@ -384,8 +384,8 @@ resource "aws_security_group" "elb" {
 
   # Kibana
   ingress {
-    from_port   = var.elk_kibana_port
-    to_port     = var.elk_kibana_port
+    from_port   = var.kibana_port
+    to_port     = var.kibana_port
     protocol    = "tcp"
     description = "Kibana"
 

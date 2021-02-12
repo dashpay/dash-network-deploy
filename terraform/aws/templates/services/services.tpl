@@ -32,7 +32,7 @@ ${elb_host}:${insight_port}/insight
 Kibana
 ======
 
-${elb_host}:${elk_kibana_port}
+${elb_host}:${kibana_port}
 
 VPN
 ===

@@ -131,6 +131,10 @@
       elasticsearch:
         hosts:
           - "{{ hostvars['web-1'].private_ip }}:9200"
-        username: "{{ elk_elasticsearch_username }}"
-        password: "{{ elk_elasticsearch_password }}"
+        username: "{{ elastic_username }}"
+        password: "{{ elastic_password }}"
         index: "logs-drive-abci-%{[agent.version]}"
+    logging_conf:
+      level: info
+      files:
+        rotateeverybytes: 10485760

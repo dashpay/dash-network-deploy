@@ -93,7 +93,7 @@ data "template_file" "service_kibana" {
 
   vars = {
     name = "Kibana"
-    port = var.elk_kibana_port
+    port = var.kibana_port
   }
 }
 
@@ -288,7 +288,7 @@ data "template_file" "services" {
     miners          = chomp(join("\n", data.template_file.miners.*.rendered))
     elb_host        = chomp(join("\n", aws_elb.web.*.dns_name))
     insight_port    = var.insight_port
-    elk_kibana_port = var.elk_kibana_port
+    kibana_port     = var.kibana_port
     vpn_host        = chomp(join("\n", aws_eip.vpn.*.public_ip))
     vpn_port        = var.vpn_port
   }

@@ -66,7 +66,7 @@ variable "vpn_port" {
   default     = 1194
 }
 
-variable "elk_kibana_port" {
+variable "kibana_port" {
   description = "Kibana port"
   default     = 5601
 }

@@ -114,9 +114,9 @@ resource "aws_elb" "web" {
   }
 
   listener {
-    instance_port     = var.elk_kibana_port
+    instance_port     = var.kibana_port
     instance_protocol = "http"
-    lb_port           = var.elk_kibana_port
+    lb_port           = var.kibana_port
     lb_protocol       = "http"
   }
 
