@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
     volumes:
       - type: bind
         source: {{ elk_path }}/elasticsearch.yml
@@ -47,7 +47,7 @@ services:
   #    - elasticsearch
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.10.2
+    image: docker.elastic.co/kibana/kibana:7.11.0
     volumes:
       - type: bind
         source: {{ elk_path }}/kibana.yml
