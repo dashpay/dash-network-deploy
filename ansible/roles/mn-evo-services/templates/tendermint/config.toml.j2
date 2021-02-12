@@ -263,6 +263,11 @@ max_txs_bytes = 1073741824
 # Size of the cache (used to filter transactions we saw earlier) in transactions
 cache_size = 10000
 
+# Do not remove invalid transactions from the cache (default: false)
+# Set to true if it's not possible for any invalid transaction to become valid
+# again in the future.
+keep-invalid-txs-in-cache = true
+
 # Maximum size of a single transaction.
 # NOTE: the max size of a tx transmitted over the network is {max_tx_bytes}.
 max_tx_bytes = 1048576
@@ -347,7 +352,7 @@ skip_timeout_commit = false
 
 # EmptyBlocks mode and possible interval between empty blocks
 create_empty_blocks = true
-create_empty_blocks_interval = "3m"
+create_empty_blocks_interval = "500ms"
 
 # Reactor sleep duration parameters
 peer_gossip_sleep_duration = "100ms"
