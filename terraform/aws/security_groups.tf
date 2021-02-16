@@ -175,48 +175,22 @@ resource "aws_security_group" "http" {
     ])
   }
 
+  tags = {
+    Name        = "dn-${terraform.workspace}-http"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_security_group" "log" {
+  name        = "${terraform.workspace}-log"
+  description = "log node"
+  vpc_id      = aws_vpc.default.id
+
   ingress {
     from_port   = var.kibana_port
     to_port     = var.kibana_port
     protocol    = "tcp"
     description = "Kibana"
-
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn[0].public_ip}/32",
-    ])
-  }
-
-  ingress {
-    from_port   = 5044
-    to_port     = 5044
-    protocol    = "tcp"
-    description = "Logstash Beats input"
-
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn[0].public_ip}/32",
-    ])
-  }
-
-  ingress {
-    from_port   = 5000
-    to_port     = 5000
-    protocol    = "tcp"
-    description = "Logstash TCP input"
-
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn[0].public_ip}/32",
-    ])
-  }
-
-
-  ingress {
-    from_port   = 9600
-    to_port     = 9600
-    protocol    = "tcp"
-    description = "Logstash Monitoring API"
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
@@ -249,7 +223,7 @@ resource "aws_security_group" "http" {
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-http"
+    Name        = "dn-${terraform.workspace}-log"
     DashNetwork = terraform.workspace
   }
 }

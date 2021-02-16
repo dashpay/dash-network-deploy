@@ -71,6 +71,13 @@
   roles:
     - dash-cli
 
+# Setup logging system
+
+- hosts: log
+  become: true
+  roles:
+    - elastic-stack
+
 # Setup wallets and miners
 
 - hosts: wallet_nodes

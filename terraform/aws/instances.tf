@@ -226,3 +226,39 @@ resource "aws_instance" "vpn" {
 
 }
 
+resource "aws_instance" "log" {
+  count = var.log_enabled ? 1 : 0
+
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = "t3.medium"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  root_block_device {
+    volume_size = var.log_node_disk_size
+  }
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.log.id,
+  ]
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-log"
+    Hostname    = "log"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-log"
+    Hostname    = "log"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
+}
