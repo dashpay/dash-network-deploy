@@ -197,7 +197,11 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
-    - elk
+    - role: mn-evo-services
+      tags:
+        - evo
+      when: evo_services
+    - platform-explorer
   tags:
     - web
 
