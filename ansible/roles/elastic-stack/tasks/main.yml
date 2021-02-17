@@ -1,6 +1,6 @@
 ---
 
-- name: create masternode elastic services dir
+- name: create elastic services dir
   file:
     path: '{{ elastic_path }}'
     state: directory
