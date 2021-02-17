@@ -247,13 +247,13 @@ resource "aws_instance" "logs" {
 
   volume_tags = {
     Name        = "dn-${terraform.workspace}-logs"
-    Hostname    = "elastic-stack"
+    Hostname    = "logs"
     DashNetwork = terraform.workspace
   }
 
   tags = {
     Name        = "dn-${terraform.workspace}-logs"
-    Hostname    = "elastic-stack"
+    Hostname    = "logs"
     DashNetwork = terraform.workspace
   }
 
