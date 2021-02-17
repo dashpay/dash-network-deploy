@@ -3,7 +3,7 @@ ${all_hosts}
 [web]
 ${web_hosts}
 
-[logs]
+[logs_nodes]
 ${logs_hosts}
 
 [wallet_nodes]
