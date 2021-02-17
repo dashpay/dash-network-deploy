@@ -104,7 +104,7 @@ variable "web_count" {
   default = 1
 }
 
-variable "log_enabled" {
+variable "logs_enabled" {
   default = true
   description = "setup instance for logging"
 }
