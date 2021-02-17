@@ -28,7 +28,7 @@
             - name: json.abciRequest
               type: object
               dynamic: runtime
-            - name: json.errors
+            - name: json.consensusErrors
               type: nested
               dynamic: runtime
             - name: json.height
