@@ -193,8 +193,7 @@ resource "aws_security_group" "logs" {
     description = "Kibana"
 
     cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn[0].public_ip}/32",
+      "0.0.0.0/0",
     ])
   }
 
@@ -350,18 +349,6 @@ resource "aws_security_group" "elb" {
     to_port     = var.insight_port
     protocol    = "tcp"
     description = "Insight Explorer"
-
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
-  }
-
-  # Kibana
-  ingress {
-    from_port   = var.kibana_port
-    to_port     = var.kibana_port
-    protocol    = "tcp"
-    description = "Kibana"
 
     cidr_blocks = [
       "0.0.0.0/0",
