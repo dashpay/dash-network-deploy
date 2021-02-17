@@ -204,7 +204,6 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
-    - elk
   tags:
     - web
 
