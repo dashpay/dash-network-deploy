@@ -15,6 +15,18 @@ resource "aws_security_group" "default" {
     ]
   }
 
+  # ET SSH access from anywhere
+  ingress {
+    from_port   = 2022
+    to_port     = 2022
+    protocol    = "tcp"
+    description = "ET SSH"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
   # Docker API
   ingress {
     from_port   = var.docker_port
