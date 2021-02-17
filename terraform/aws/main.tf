@@ -152,7 +152,7 @@ resource "aws_route53_record" "logs" {
   name    = "logs.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
-  records = [aws_elb.logs.dns_name]
+  records = [aws_instance.logs[count.index].public_ip]
 
   count = length(var.main_domain) > 1 ? 1 : 0
 }
