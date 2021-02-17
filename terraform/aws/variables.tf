@@ -149,7 +149,7 @@ variable "web_node_disk_size" {
   default     = 50
 }
 
-variable "log_node_disk_size" {
+variable "logs_node_disk_size" {
   description = "Disk size of log nodes"
   default     = 100
 }
