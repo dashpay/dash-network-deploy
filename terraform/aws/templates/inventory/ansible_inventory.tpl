@@ -3,6 +3,9 @@ ${all_hosts}
 [web]
 ${web_hosts}
 
+[logs]
+${logs_hosts}
+
 [wallet_nodes]
 ${wallet_node_hosts}
 
