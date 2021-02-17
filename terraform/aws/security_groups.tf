@@ -181,9 +181,9 @@ resource "aws_security_group" "http" {
   }
 }
 
-resource "aws_security_group" "log" {
-  name        = "${terraform.workspace}-log"
-  description = "log node"
+resource "aws_security_group" "logs" {
+  name        = "${terraform.workspace}-logs"
+  description = "logs node"
   vpc_id      = aws_vpc.default.id
 
   ingress {
@@ -223,7 +223,7 @@ resource "aws_security_group" "log" {
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-log"
+    Name        = "dn-${terraform.workspace}-logs"
     DashNetwork = terraform.workspace
   }
 }

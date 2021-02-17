@@ -133,7 +133,7 @@
     output_conf:
       elasticsearch:
         hosts:
-          - "{{ hostvars['log'].private_ip }}:9200"
+          - "{{ hostvars['logs'].private_ip }}:9200"
         username: "{{ elastic_username }}"
         password: "{{ elastic_password }}"
     logging_conf:
