@@ -10,7 +10,7 @@
 
 - name: set up filebeat log monitoring
   include_role:
-    name: elastic.beats
+    name: ansible-beats
   vars:
     beat: filebeat
     beat_conf:
