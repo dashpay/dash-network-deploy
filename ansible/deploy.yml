@@ -51,6 +51,7 @@
     - geerlingguy.pip
     - geerlingguy.docker
     - docker-options
+    - eternal-terminal
     - role: ecr-login
       when: aws_ecr_login
       tags: always
