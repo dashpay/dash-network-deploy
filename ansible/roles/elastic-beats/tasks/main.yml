@@ -10,47 +10,16 @@
 
 - name: set up filebeat log monitoring
   include_role:
-    name: ansible-beats
+    name: elastic.beats
   vars:
+    beats_version: 7.11.1
     beat: filebeat
     beat_conf:
       setup:
         template:
           name: logs-drive-abci-%{[agent.version]}
+          type: index
           pattern: logs-drive-abci-%{[agent.version]}-*
-          append_fields:
-            - name: json.stateRepository.params
-              type: object
-              dynamic: runtime
-            - name: json.stateRepository.response
-              type: object
-              dynamic: runtime
-            - name: json.abciRequest
-              type: object
-              dynamic: runtime
-            - name: json.consensusErrors
-              type: nested
-              dynamic: runtime
-            - name: json.height
-              type: long
-            - name: json.err
-              type: object
-              dyanmic: runtime
-          settings:
-            index:
-              sort:
-                field:
-                  - json.height
-                  - json.abciMethod
-                  - json.level
-                order:
-                  - asc
-                  - asc
-                  - asc
-        ilm:
-          policy_file: /etc/filebeat/ilm_policy.json
-          rollover_alias: "logs-drive-abci"
-          policy_name: "masternode-logs"
       filebeat:
         inputs:
           - type: log
@@ -137,6 +106,6 @@
         username: "{{ elastic_username }}"
         password: "{{ elastic_password }}"
     logging_conf:
-      level: info
+      level: debug
       files:
         rotateeverybytes: 10485760

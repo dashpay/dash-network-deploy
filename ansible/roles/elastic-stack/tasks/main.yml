@@ -19,5 +19,34 @@
   docker_compose:
     project_src: '{{ elastic_path }}'
     state: present
-    restarted: yes
     pull: yes
+
+- name: Wait for Elastic Stack to be available
+  uri:
+    url: http://localhost:9200
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+  register: response
+  until: response.status == 200
+  retries: 10
+  delay: 10
+
+- name: Configure ILM policy
+  uri:
+    url: "http://localhost:9200/_ilm/policy/masternode-logs"
+    method: PUT
+    status_code: 200
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/ilm_policy.json') }}"
+
+- name: Set up index template
+  uri:
+    url: "http://localhost:9200/_index_template/logs_drive_abci"
+    method: PUT
+    status_code: 200
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/index-templates/logs-drive-abci.json') }}"

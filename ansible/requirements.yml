@@ -10,8 +10,7 @@
 
 - src: arillso.logrotate
 
-# disabled while waiting for release
-# - src: elastic.beats
-#   version: v7.10.2
+- src: elastic.beats
+  version: v7.10.2
 
-- src: https://github.com/strophy/ansible-beats
+# - src: https://github.com/strophy/ansible-beats

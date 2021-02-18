@@ -1,0 +1,42 @@
+{
+  "index_patterns": [
+    "logs-drive-abci-*"
+  ],
+  "priority": 101,
+  "template": {
+    "mappings": {
+      "_source": {
+        "enabled": true,
+        "includes": [],
+        "excludes": []
+      },
+      "_routing": {
+        "required": false
+      },
+      "dynamic": "runtime",
+      "numeric_detection": true,
+      "date_detection": true,
+      "properties": {
+        "json.abciMethod": {
+          "type": "keyword"
+        },
+        "json.height": {
+          "type": "long",
+          "index": true,
+          "ignore_malformed": false,
+          "coerce": true,
+          "doc_values": true,
+          "store": false
+        },
+        "json.level": {
+          "type": "keyword",
+          "index": true
+        },
+        "json.msg": {
+          "type": "text",
+          "index": true
+        }
+      }
+    }
+  }
+}
