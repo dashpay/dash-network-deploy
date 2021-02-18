@@ -2,16 +2,17 @@
   "index_patterns": [
     "logs-drive-abci-*"
   ],
-  "priority": 101,
+  "priority": 200,
+  "data_stream": { },
   "template": {
+    "settings": {
+      "index.lifecycle.name": "masternode-logs"
+    },
     "mappings": {
       "_source": {
         "enabled": true,
         "includes": [],
         "excludes": []
-      },
-      "_routing": {
-        "required": false
       },
       "dynamic": "runtime",
       "numeric_detection": true,
