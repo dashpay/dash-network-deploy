@@ -7,6 +7,9 @@
     beats_version: 7.11.1
     beat: filebeat
     beat_conf:
+      setup:
+        template:
+          enabled: false
       filebeat:
         inputs:
           - type: log
