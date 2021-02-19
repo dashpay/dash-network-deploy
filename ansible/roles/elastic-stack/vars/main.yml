@@ -1,0 +1,5 @@
+---
+
+elastic_compose_project_name: elastic
+elastic_path: '{{ dashd_home }}/{{ elastic_compose_project_name }}'
+kibana_port: 5601

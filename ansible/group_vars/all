@@ -119,3 +119,9 @@ swap_space: 2G
 
 mn_evo_services_compose_project_name: mn_evo_services
 mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'
+
+# Elastic
+
+elastic_username: elastic
+elastic_password: 
+kibana_encryptionkey: 

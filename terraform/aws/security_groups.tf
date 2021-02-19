@@ -193,6 +193,52 @@ resource "aws_security_group" "http" {
   }
 }
 
+resource "aws_security_group" "logs" {
+  name        = "${terraform.workspace}-logs"
+  description = "logs node"
+  vpc_id      = aws_vpc.default.id
+
+  ingress {
+    from_port   = var.kibana_port
+    to_port     = var.kibana_port
+    protocol    = "tcp"
+    description = "Kibana"
+
+    cidr_blocks = flatten([
+      "0.0.0.0/0",
+    ])
+  }
+
+  ingress {
+    from_port   = 9200
+    to_port     = 9200
+    protocol    = "tcp"
+    description = "Elasticsearch HTTP"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+  ingress {
+    from_port   = 9300
+    to_port     = 9300
+    protocol    = "tcp"
+    description = "Elasticsearch TCP transport"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-logs"
+    DashNetwork = terraform.workspace
+  }
+}
+
 # dashd node accessible from the public internet
 resource "aws_security_group" "masternode" {
   name        = "${terraform.workspace}-masternode"

@@ -9,3 +9,6 @@
 - src: Restless-ET.aws-scripts-mon
 
 - src: arillso.logrotate
+
+- src: elastic.beats
+  version: v7.11.1

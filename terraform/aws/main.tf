@@ -147,6 +147,16 @@ resource "aws_route53_record" "insight" {
   count = length(var.main_domain) > 1 ? 1 : 0
 }
 
+resource "aws_route53_record" "logs" {
+  zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
+  name    = "logs.${var.public_network_name}.${var.main_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_instance.logs[count.index].public_ip]
+
+  count = length(var.main_domain) > 1 ? 1 : 0
+}
+
 locals {
   dns_record_length = 10 // recommended number of hosts per A record. Other way there might be problems with resolving of seeds in some regions.
 }
