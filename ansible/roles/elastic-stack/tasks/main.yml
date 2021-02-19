@@ -61,3 +61,15 @@
     body_format: json
     body: "{{ lookup('file', 'files/index-templates/logs-drive-tenderdash.json') }}"
 
+- name: Set up Kibana UI
+  uri:
+    url: "http://localhost:5601/api/saved_objects/_bulk_create"
+    method: POST
+    status_code: 200
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    body_format: json
+    force_basic_auth: true
+    headers:
+      kbn-xsrf: true
+    body: "{{ lookup('file', 'files/infrastructure-ui-source.json') }}"

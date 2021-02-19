@@ -1,0 +1,55 @@
+[
+  {
+    "type": "infrastructure-ui-source",
+    "id": "default",
+    "attributes": {
+      "name": "Default",
+      "logColumns": [
+        {
+          "timestampColumn": {
+            "id": "5e7f964a-be8a-40d8-88d2-fbcfbdca0e2f"
+          }
+        },
+        {
+          "fieldColumn": {
+            "field": "host.name",
+            "id": "0a9708dc-abfc-4108-ba73-71db12dcbfa3"
+          }
+        },
+        {
+          "fieldColumn": {
+            "field": "event.dataset",
+            "id": " eb9777a8-fcd3-420e-ba7d-172fff6da7a2"
+          }
+        },
+        {
+          "fieldColumn": {
+            "field": "log.level",
+            "id": "db39b647-228e-4325-bbb4-2c4d4fee6563"
+          }
+        },
+        {
+          "fieldColumn": {
+            "field": "json.height",
+            "id": "e64f5d23-da8e-43b8-86e8-12d26356f1b4"
+          }
+        },
+        {
+          "fieldColumn": {
+            "field": "json.abciMethod",
+            "id": "dc749071-7649-4760-9e54-a0f11444229e"
+          }
+        },
+        {
+          "fieldColumn": {
+            "field": "message",
+            "id": "08445f8e-ce35-4ab9-ad2c-f7d76544ea0f"
+          }
+        }
+      ]
+    },
+    "migrationVersion": {
+      "infrastructure-ui-source": "7.9.0"
+    }
+  }
+]
