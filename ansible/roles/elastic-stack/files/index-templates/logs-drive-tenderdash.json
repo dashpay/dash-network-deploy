@@ -1,6 +1,6 @@
 {
   "index_patterns": [
-    "logs-drive-abci-*"
+    "logs-drive-tenderdash-*"
   ],
   "priority": 200,
   "data_stream": { },
@@ -18,7 +18,7 @@
       "numeric_detection": true,
       "date_detection": true,
       "properties": {
-        "json.abciMethod": {
+        "json.module": {
           "type": "keyword",
           "store": false
         },
