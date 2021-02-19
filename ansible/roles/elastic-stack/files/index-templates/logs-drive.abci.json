@@ -1,6 +1,6 @@
 {
   "index_patterns": [
-    "logs-drive-abci-*"
+    "logs-drive.abci-*"
   ],
   "priority": 200,
   "data_stream": { },

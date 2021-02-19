@@ -7,11 +7,6 @@
     beats_version: 7.11.1
     beat: filebeat
     beat_conf:
-      setup:
-        template:
-          name: logs-drive-abci-%{[agent.version]}
-          type: index
-          pattern: logs-drive-abci-%{[agent.version]}-*
       filebeat:
         inputs:
           - type: log
@@ -19,7 +14,7 @@
             json.message_key: msg
             json.keys_under_root: false
             exclude_files: ['\.gz$']
-            index: "logs-drive-abci-%{[agent.version]}"
+            index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
             paths:
               - "{{ mn_evo_services_path }}/logs/drive-json*.log*"
             processors:
@@ -78,7 +73,7 @@
               - add_fields:
                   target: event
                   fields:
-                    dataset: "drive-abci.log"
+                    dataset: "drive.abci-{{ dash_network_name }}"
               - rename:
                   fields:
                     - from: "json.msg"
@@ -96,14 +91,14 @@
             json.message_key: _msg
             json.keys_under_root: false
             exclude_files: ['\.gz$']
-            index: "logs-drive-tenderdash-%{[agent.version]}"
+            index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
             paths:
               - "{{ mn_evo_services_path }}/logs/tenderdash-json*.log*"
             processors:
               - add_fields:
                   target: event
                   fields:
-                    dataset: "drive-tenderdash.log"
+                    dataset: "drive.tenderdash-{{ dash_network_name }}"
               - rename:
                   fields:
                     - from: "json._msg"

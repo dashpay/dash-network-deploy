@@ -1,6 +1,6 @@
 {
   "index_patterns": [
-    "logs-drive-tenderdash-*"
+    "logs-drive.tenderdash-*"
   ],
   "priority": 200,
   "data_stream": { },
