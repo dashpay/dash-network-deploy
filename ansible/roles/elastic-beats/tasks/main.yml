@@ -86,29 +86,6 @@
                     - json.hostname
                     - json.time
                   ignore_missing: true
-          - type: log
-            enabled: true
-            json.message_key: _msg
-            json.keys_under_root: false
-            exclude_files: ['\.gz$']
-            index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
-            paths:
-              - "{{ mn_evo_services_path }}/logs/tenderdash-json*.log*"
-            processors:
-              - add_fields:
-                  target: event
-                  fields:
-                    dataset: "drive.tenderdash-{{ dash_network_name }}"
-              - rename:
-                  fields:
-                    - from: "json._msg"
-                      to: "message"
-                  ignore_missing: true
-                  fail_on_error: true
-              - rename:
-                  fields:
-                    - from: "json.level"
-                    - to: "log.level"
     output_conf:
       elasticsearch:
         hosts:
