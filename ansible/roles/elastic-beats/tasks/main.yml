@@ -1,13 +1,5 @@
 ---
 
-- name: copy filebeat ILM policy
-  template:
-    src: 'ilm_policy.json.j2'
-    dest: '/etc/filebeat/ilm_policy.json'
-    mode: 0644
-    owner: root
-    group: root
-
 - name: set up filebeat log monitoring
   include_role:
     name: elastic.beats
