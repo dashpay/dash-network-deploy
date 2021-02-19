@@ -1,56 +1,15 @@
 ---
 
-- name: copy filebeat ILM policy
-  template:
-    src: 'ilm_policy.json.j2'
-    dest: '/etc/filebeat/ilm_policy.json'
-    mode: 0644
-    owner: root
-    group: root
-
 - name: set up filebeat log monitoring
   include_role:
     name: elastic.beats
   vars:
+    beats_version: 7.11.1
     beat: filebeat
     beat_conf:
       setup:
         template:
-          name: logs-drive-abci-%{[agent.version]}
-          pattern: logs-drive-abci-%{[agent.version]}-*
-          append_fields:
-            - name: json.stateRepository.params
-              type: object
-              dynamic: runtime
-            - name: json.stateRepository.response
-              type: object
-              dynamic: runtime
-            - name: json.abciRequest
-              type: object
-              dynamic: runtime
-            - name: json.errors
-              type: nested
-              dynamic: runtime
-            - name: json.height
-              type: long
-            - name: json.err
-              type: object
-              dyanmic: runtime
-          settings:
-            index:
-              sort:
-                field:
-                  - json.height
-                  - json.abciMethod
-                  - json.level
-                order:
-                  - asc
-                  - asc
-                  - asc
-        ilm:
-          policy_file: /etc/filebeat/ilm_policy.json
-          rollover_alias: "logs-drive-abci"
-          policy_name: "masternode-logs"
+          enabled: false
       filebeat:
         inputs:
           - type: log
@@ -58,9 +17,9 @@
             json.message_key: msg
             json.keys_under_root: false
             exclude_files: ['\.gz$']
-            index: "logs-drive-abci-%{[agent.version]}"
+            index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
             paths:
-              - "{{ mn_evo_services_path }}/logs/*.log*"
+              - "{{ mn_evo_services_path }}/logs/drive-json*.log*"
             processors:
               - timestamp:
                   field: json.time
@@ -117,7 +76,7 @@
               - add_fields:
                   target: event
                   fields:
-                    dataset: "drive-abci.log"
+                    dataset: "drive.abci-{{ dash_network_name }}"
               - rename:
                   fields:
                     - from: "json.msg"
@@ -133,7 +92,7 @@
     output_conf:
       elasticsearch:
         hosts:
-          - "{{ hostvars['web-1'].private_ip }}:9200"
+          - "{{ hostvars['logs'].private_ip }}:9200"
         username: "{{ elastic_username }}"
         password: "{{ elastic_password }}"
     logging_conf:

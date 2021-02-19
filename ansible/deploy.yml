@@ -51,6 +51,7 @@
     - geerlingguy.pip
     - geerlingguy.docker
     - docker-options
+    - eternal-terminal
     - role: ecr-login
       when: aws_ecr_login
       tags: always
@@ -70,6 +71,13 @@
   become: true
   roles:
     - dash-cli
+
+# Setup logs
+
+- hosts: logs
+  become: true
+  roles:
+    - elastic-stack
 
 # Setup wallets and miners
 
@@ -111,7 +119,7 @@
       tags:
         - evo
       when: evo_services
-    - role: filebeat
+    - role: elastic-beats
   post_tasks:
     - name: get tenderdash genesis time
       command: 'cat {{ mn_evo_services_path }}/tendermint/config/genesis.json'
@@ -148,7 +156,7 @@
       tags:
         - evo
       when: evo_services
-    - role: filebeat
+    - role: elastic-beats
 
 
 # Update Tenderdash genesis on seed nodes and start it

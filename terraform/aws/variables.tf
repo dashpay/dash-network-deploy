@@ -104,6 +104,11 @@ variable "web_count" {
   default = 1
 }
 
+variable "logs_enabled" {
+  default = true
+  description = "setup instance for logging"
+}
+
 variable "vpn_enabled" {
   default     = true
   description = "setup instance for vpn"
@@ -141,5 +146,10 @@ variable "mn_node_disk_size" {
 
 variable "web_node_disk_size" {
   description = "Disk size of web nodes"
+  default     = 50
+}
+
+variable "logs_node_disk_size" {
+  description = "Disk size of log nodes"
   default     = 100
 }

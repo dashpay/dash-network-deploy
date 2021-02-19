@@ -1,0 +1,47 @@
+{
+  "index_patterns": [
+    "logs-drive.abci-*"
+  ],
+  "priority": 200,
+  "data_stream": { },
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "masternode-logs"
+    },
+    "mappings": {
+      "_source": {
+        "enabled": true,
+        "includes": [],
+        "excludes": []
+      },
+      "dynamic": "runtime",
+      "numeric_detection": true,
+      "date_detection": true,
+      "properties": {
+        "json.abciMethod": {
+          "type": "keyword"
+        },
+        "json.height": {
+          "type": "long",
+          "ignore_malformed": true
+        },
+        "log.level": {
+          "type": "keyword"
+        },
+        "json.level": {
+          "type": "short"
+        },
+        "event.dataset": {
+          "type": "keyword"
+        },
+        "host.name": {
+          "type": "keyword"
+        },
+        "message": {
+          "type": "text",
+          "norms": false
+        }
+      }
+    }
+  }
+}
