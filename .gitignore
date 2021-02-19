@@ -12,6 +12,3 @@ node_modules
 
 # Jet Brains
 .idea
-
-# Config
-.env
