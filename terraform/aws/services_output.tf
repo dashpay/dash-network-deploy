@@ -282,19 +282,19 @@ data "template_file" "services" {
   template = file("${path.module}/templates/services/services.tpl")
 
   vars = {
-    masternodes     = chomp(join("\n", data.template_file.masternodes.*.rendered))
-    wallets         = chomp(join("\n", data.template_file.wallets.*.rendered))
-    seeds           = chomp(join("\n", data.template_file.seeds.*.rendered))
-    miners          = chomp(join("\n", data.template_file.miners.*.rendered))
-    elb_host        = chomp(join("\n", aws_elb.web.*.dns_name))
-    insight_port    = var.insight_port
-    kibana_port     = var.kibana_port
-    vpn_host        = chomp(join("\n", aws_eip.vpn.*.public_ip))
-    vpn_port        = var.vpn_port
+    masternodes            = chomp(join("\n", data.template_file.masternodes.*.rendered))
+    wallets                = chomp(join("\n", data.template_file.wallets.*.rendered))
+    seeds                  = chomp(join("\n", data.template_file.seeds.*.rendered))
+    miners                 = chomp(join("\n", data.template_file.miners.*.rendered))
+    elb_host               = chomp(join("\n", aws_elb.web.*.dns_name))
+    insight_port           = var.insight_port
+    kibana_port            = var.kibana_port
+    platform_explorer_port = var.platform_explorer_port
+    vpn_host               = chomp(join("\n", aws_eip.vpn.*.public_ip))
+    vpn_port               = var.vpn_port
   }
 }
 
 output "services" {
   value = data.template_file.services.rendered
 }
-
