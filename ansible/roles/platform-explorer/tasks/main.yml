@@ -7,4 +7,6 @@
     restart_policy: always
     image: '{{ platform_explorer_image }}'
     pull: true
-    network_mode: host
+    published_ports: 0.0.0.0:{{ platform_explorer_port }}:{{ platform_explorer_port }}
+    container_default_behavior: compatibility
+    network_mode: mn_evo_services_default
