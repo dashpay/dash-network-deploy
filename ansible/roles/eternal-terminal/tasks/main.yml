@@ -2,7 +2,7 @@
 
 - name: Add the official ET repository
   apt_repository:
-    repo: 'deb http://ppa.launchpad.net/jgmath2000/et/ubuntu/ {{ ansible_lsb.codename }} main'
+    repo: ppa:jgmath2000/et
     state: present
     update_cache: yes
 
