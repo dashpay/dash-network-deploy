@@ -153,3 +153,8 @@ variable "logs_node_disk_size" {
   description = "Disk size of log nodes"
   default     = 100
 }
+
+variable "logs_node_instance_type" {
+  description = "Instance type of log nodes"
+  default     = "t3.medium"
+}
