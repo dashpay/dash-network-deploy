@@ -150,7 +150,7 @@ resource "aws_route53_record" "insight" {
 resource "aws_route53_record" "logs" {
   zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
   name    = "logs.${var.public_network_name}.${var.main_domain}"
-  type    = "CNAME"
+  type    = "A"
   ttl     = "300"
   records = [aws_instance.logs[count.index].public_ip]
 
