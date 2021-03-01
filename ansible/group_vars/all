@@ -125,3 +125,4 @@ mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name 
 elastic_username: elastic
 elastic_password: 
 kibana_encryptionkey: 
+elastic_max_heap_size: 2g

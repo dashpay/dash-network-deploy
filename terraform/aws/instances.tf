@@ -230,7 +230,7 @@ resource "aws_instance" "logs" {
   count = var.logs_enabled ? 1 : 0
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.medium"
+  instance_type        = var.logs_node_instance_type
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
