@@ -109,9 +109,6 @@
       dashd_indexes: true
       tags:
         - dashd
-    - role: insight
-      ui: false
-      when: evo_services
     - role: mn-evo-services
       vars:
         skip_tenderdash_genesis: true
@@ -149,9 +146,6 @@
       tags:
         - dashd
     - mn-sentinel
-    - role: insight
-      ui: false
-      when: evo_services
     - role: mn-evo-services
       tags:
         - evo
