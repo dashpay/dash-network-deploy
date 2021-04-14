@@ -1,3 +1,12 @@
+## [0.18.1](https://github.com/dashpay/dash-network-deploy/compare/v0.18.0...v0.18.1) (2021-04-14)
+
+
+### Bug Fixes
+
+* new llmq-qvvec-sync syntax in 0.17.0.0-rc4 ([#233](https://github.com/dashpay/dash-network-deploy/issues/233))
+
+
+
 # [0.18.0](https://github.com/dashpay/dash-network-deploy/compare/v0.18.0-dev.1...v0.18.0) (2021-03-03)
 
 
