@@ -13,6 +13,9 @@ platform_dpns_contract_block_height: ""
 platform_dpns_top_level_domain_identity: ""
 platform_dashpay_contract_id: ""
 platform_dashpay_contract_block_height: ""
+platform_feature_flags_contract_id: ""
+platform_feature_flags_contract_block_height: ""
+platform_feature_flags_top_level_identity: ""
 
 platform_initial_core_chain_locked_height: ""
 
@@ -123,6 +126,6 @@ mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name 
 # Elastic
 
 elastic_username: elastic
-elastic_password: 
-kibana_encryptionkey: 
+elastic_password:
+kibana_encryptionkey:
 elastic_max_heap_size: 2g
