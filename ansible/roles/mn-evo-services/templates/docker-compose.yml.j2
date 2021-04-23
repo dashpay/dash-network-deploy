@@ -40,6 +40,9 @@ services:
       - LOG_JSON_FILE_LEVEL={{ drive_log_json_file_level }}
       - LOG_JSON_FILE_PATH=/var/log/drive/drive-json.log
       - INITIAL_CORE_CHAINLOCKED_HEIGHT={{ platform_initial_core_chain_locked_height }}
+      - FEATURE_FLAGS_CONTRACT_ID={{ platform_feature_flags_contract_id }}
+      - FEATURE_FLAGS_CONTRACT_BLOCK_HEIGHT={{ platform_feature_flags_contract_block_height }}
+      - FEATURE_FLAGS_TOP_LEVEL_IDENTITY={{ platform_feature_flags_top_level_identity }}
     ports:
       - 26658:26658
     depends_on:
