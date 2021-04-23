@@ -1,7 +1,7 @@
 # Dash Network Deployment Tool
 
 [![Latest Release](https://img.shields.io/github/v/release/dashevo/dash-network-deploy)](https://github.com/dashevo/dash-network-deploy/releases/latest)
-[![Build Status](https://img.shields.io/travis/com/dashevo/dash-network-deploy)](https://travis-ci.com/dashevo/dash-network-deploy)
+[![Build Status](https://github.com/dashevo/dash-network-deploy/actions/workflows/release.yml/badge.svg)](https://github.com/dashevo/dash-network-deploy/actions/workflows/release.yml)
 [![Release Date](https://img.shields.io/github/release-date/dashevo/dash-network-deploy)](https://img.shields.io/github/release-date/dashevo/dash-network-deploy)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen)](https://github.com/RichardLitt/standard-readme)
 
