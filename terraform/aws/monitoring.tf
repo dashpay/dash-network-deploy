@@ -2,7 +2,7 @@ locals {
   instance_ids = concat(
     aws_instance.web.*.id,
     aws_instance.dashd_wallet.*.id,
-    aws_instance.dashd_full_node.*.id,
+    aws_instance.seed_node.*.id,
     aws_instance.miner.*.id,
     aws_instance.masternode.*.id,
     aws_instance.vpn.*.id,
@@ -10,7 +10,7 @@ locals {
   instance_hostnames = concat(
     aws_instance.web.*.tags.Hostname,
     aws_instance.dashd_wallet.*.tags.Hostname,
-    aws_instance.dashd_full_node.*.tags.Hostname,
+    aws_instance.seed_node.*.tags.Hostname,
     aws_instance.miner.*.tags.Hostname,
     aws_instance.masternode.*.tags.Hostname,
     aws_instance.vpn.*.tags.Hostname,

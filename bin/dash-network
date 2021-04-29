@@ -9,15 +9,9 @@ if ! [[ -x "$(command -v docker)" ]]; then
   exit 1
 fi
 
-# Load configuration
+# Load configuration	
 
-if [[ ! -f ".env" ]]; then
-    echo "Configuration .env file not found
-
-Please create and configure '.env' file."
-
-    exit 1;
-else
+if [[ -f ".env" ]]; then
     source ".env"
 fi
 

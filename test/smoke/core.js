@@ -1,12 +1,12 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const { inventory, network, variables } = getNetworkConfig();
+const { inventory, network } = getNetworkConfig();
 
 const allHosts = inventory.masternodes.hosts.concat(
   inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
-  inventory.full_nodes.hosts,
+  inventory.seed_nodes.hosts,
 );
 
 describe('Core', () => {
@@ -52,13 +52,20 @@ describe('Core', () => {
 
           const { result: { networkactive, subversion } } = await dashdClient.getNetworkInfo();
 
-          let networkName = network.name;
-          if (network.type === 'devnet' && variables.dash_devnet_version !== 1) {
-            networkName += `-${variables.dash_devnet_version}`;
-          }
+          const chainNames = {
+            testnet: 'test',
+            mainnet: 'main',
+            devnet: network.name,
+            regtest: 'regtest',
+          };
 
+          expect(blockchainInfo[hostName]).to.be.not.empty();
+          expect(blockchainInfo[hostName].chain).to.equal(chainNames[network.type]);
           expect(networkactive).to.be.equal(true);
-          expect(subversion).to.have.string(`(${network.type}=${networkName})/`);
+
+          if (network.type === 'devnet') {
+            expect(subversion).to.have.string(`(${network.type}=${network.name})/`);
+          }
         });
 
         it('should sync blocks', async () => {

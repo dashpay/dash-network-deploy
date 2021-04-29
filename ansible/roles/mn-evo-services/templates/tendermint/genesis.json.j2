@@ -1,6 +1,6 @@
 {
-  "genesis_time": "{{ tendermint_genesis_time }}",
-  "chain_id": "dash-{{ 'devnet-' + dash_devnet_name + ('-' + dash_devnet_version|string if dash_devnet_version != 1 else '') if dash_network == 'devnet' else dash_network }}",
+  "genesis_time": "{{ hostvars[groups.seed_nodes[0]].tendermint_genesis_time }}",
+  "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
   "consensus_params": {
     "block": {
       "max_bytes": "22020096",
@@ -8,7 +8,9 @@
       "time_iota_ms": "5000"
     },
     "evidence": {
-      "max_age": "100000"
+      "max_age": "100000",
+      "max_age_num_blocks": "100000",
+      "max_age_duration": "172800000000000"
     },
     "validator": {
       "pub_key_types": [
@@ -16,8 +18,9 @@
       ]
     }
   },
+  "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
   "validators": [
-    {% for masternode in groups.masternodes %}
+    {% for masternode in groups.masternodes[:tenderdash_max_validators_count] %}
         {
           "address": "{{ hostvars[masternode].tendermint_validator_key | json_query('address') }}",
           "pub_key": {

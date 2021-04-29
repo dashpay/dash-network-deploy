@@ -15,6 +15,18 @@ resource "aws_security_group" "default" {
     ]
   }
 
+  # ET SSH access from anywhere
+  ingress {
+    from_port   = 2022
+    to_port     = 2022
+    protocol    = "tcp"
+    description = "ET SSH"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
   # Docker API
   ingress {
     from_port   = var.docker_port
@@ -24,7 +36,7 @@ resource "aws_security_group" "default" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -73,7 +85,7 @@ resource "aws_security_group" "dashd_private" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -86,7 +98,7 @@ resource "aws_security_group" "dashd_private" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -123,7 +135,7 @@ resource "aws_security_group" "dashd_public" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -136,7 +148,7 @@ resource "aws_security_group" "dashd_public" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -159,7 +171,7 @@ resource "aws_security_group" "http" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -171,12 +183,58 @@ resource "aws_security_group" "http" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
   tags = {
     Name        = "dn-${terraform.workspace}-http"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_security_group" "logs" {
+  name        = "${terraform.workspace}-logs"
+  description = "logs node"
+  vpc_id      = aws_vpc.default.id
+
+  ingress {
+    from_port   = var.kibana_port
+    to_port     = var.kibana_port
+    protocol    = "tcp"
+    description = "Kibana"
+
+    cidr_blocks = flatten([
+      "0.0.0.0/0",
+    ])
+  }
+
+  ingress {
+    from_port   = 9200
+    to_port     = 9200
+    protocol    = "tcp"
+    description = "Elasticsearch HTTP"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+  ingress {
+    from_port   = 9300
+    to_port     = 9300
+    protocol    = "tcp"
+    description = "Elasticsearch TCP transport"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-logs"
     DashNetwork = terraform.workspace
   }
 }
@@ -196,7 +254,7 @@ resource "aws_security_group" "masternode" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -209,7 +267,7 @@ resource "aws_security_group" "masternode" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -257,7 +315,7 @@ resource "aws_security_group" "masternode" {
     description = "Tendermint ABCI"
 
     cidr_blocks = flatten([
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 
@@ -270,7 +328,7 @@ resource "aws_security_group" "masternode" {
 
     cidr_blocks = flatten([
       aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn.public_ip}/32",
+      "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
 

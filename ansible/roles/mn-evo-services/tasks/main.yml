@@ -1,10 +1,43 @@
 ---
 
-- name: create masternode evolution services dir
+# Variables: skip_tenderdash_genesis (false), skip_services_start (false)
+
+- name: create platform services dir
   file:
     path: '{{ mn_evo_services_path }}'
     state: directory
     recurse: true
+
+- name: create platform logs dir
+  file:
+    path: '{{ mn_evo_services_path }}/logs'
+    state: directory
+    recurse: true
+
+- name: configure log rotation
+  include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_use_hourly_rotation: true
+    logrotate_applications:
+      - name: platform-logs
+        definitions:
+          - logs:
+              - '{{ mn_evo_services_path }}/logs/*.log'
+            options:
+              - rotate 7
+              - daily
+              - maxsize 1G
+              - missingok
+              - notifempty
+              - copytruncate
+              - compress
+              - delaycompress
+
+- name: set mode to logrotate cron file
+  file:
+    path: /etc/cron.daily/logrotate
+    mode: "+x"
 
 - name: copy files
   template:
@@ -25,6 +58,8 @@
     chdir: '{{ mn_evo_services_path }}'
 
 - import_tasks: tendermint.yml
+  vars:
+    skip_genesis: "{{ skip_tenderdash_genesis|default(false)|bool }}"
 
 - name: start masternodes evolution services
   docker_compose:
@@ -32,3 +67,4 @@
     state: present
     restarted: yes
     pull: yes
+  when: skip_services_start|default(false) == false

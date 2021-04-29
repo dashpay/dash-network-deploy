@@ -1,4 +1,4 @@
 ---
 
-docker_log_max_size: 768m
+docker_log_max_size: 256m
 docker_log_max_file: 4

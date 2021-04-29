@@ -1,0 +1,16 @@
+---
+## Default Kibana configuration from Kibana base image.
+## https://github.com/elastic/kibana/blob/master/src/dev/build/tasks/os_packages/docker_generator/templates/kibana_yml.template.ts
+#
+server.name: kibana
+server.host: 0.0.0.0
+elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+monitoring.ui.container.elasticsearch.enabled: true
+
+## X-Pack security credentials
+#
+elasticsearch.username: {{ elastic_username }}
+elasticsearch.password: {{ elastic_password }}
+xpack.security.encryptionKey: {{ kibana_encryptionkey }}
+xpack.security.session.idleTimeout: "1h"
+xpack.security.session.lifespan: "30d"

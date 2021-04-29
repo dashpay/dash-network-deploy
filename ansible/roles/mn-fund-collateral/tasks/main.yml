@@ -3,8 +3,11 @@
 # Requires "masternode_names" variable
 
 - name: import masternode collateral private key
-  command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].collateral.private_key }}'
+  command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].collateral.private_key }} "" false'
   with_items: '{{ masternode_names }}'
+
+- name: rescan blockchain
+  command: 'dash-cli {{ masternode_wallet_rpc_args }} rescanblockchain'
 
 # check
 

@@ -66,6 +66,11 @@ variable "vpn_port" {
   default     = 1194
 }
 
+variable "kibana_port" {
+  description = "Kibana port"
+  default     = 5601
+}
+
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
@@ -78,7 +83,7 @@ variable "subnet_public_cidr" {
   ]
 }
 
-variable "node_count" {
+variable "seed_count" {
   default = 1
 }
 
@@ -97,6 +102,11 @@ variable "wallet_count" {
 
 variable "web_count" {
   default = 1
+}
+
+variable "logs_enabled" {
+  default = true
+  description = "setup instance for logging"
 }
 
 variable "vpn_enabled" {
@@ -122,4 +132,29 @@ variable "public_network_name" {
 variable "monitoring_enabled" {
   description = "enable monitoring with CloudWatch"
   default     = false
+}
+
+variable "core_node_disk_size" {
+  description = "Default disk size for nodes, increase for testnet"
+  default     = 20
+}
+
+variable "mn_node_disk_size" {
+  description = "Disk size of masternodes"
+  default     = 30
+}
+
+variable "web_node_disk_size" {
+  description = "Disk size of web nodes"
+  default     = 50
+}
+
+variable "logs_node_disk_size" {
+  description = "Disk size of log nodes"
+  default     = 100
+}
+
+variable "logs_node_instance_type" {
+  description = "Instance type of log nodes"
+  default     = "t3.medium"
 }

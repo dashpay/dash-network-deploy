@@ -19,16 +19,30 @@ services:
     command: sh -c "sleep 15 && npm run abci"
     volumes:
       - drive_leveldb:/usr/src/app/db
+      - {{ mn_evo_services_path }}/logs:/var/log/drive
     environment:
       - CORE_JSON_RPC_USER={{ dashd_rpc_user }}
       - CORE_JSON_RPC_PASS={{ dashd_rpc_password }}
       - CORE_JSON_RPC_HOST={{ private_ip }}
       - CORE_JSON_RPC_PORT={{ dashd_rpc_port }}
+      - CORE_ZMQ_HOST={{ private_ip }}
+      - CORE_ZMQ_PORT={{ dashd_zmq_port }}
       - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017?replicaSet=driveDocumentIndices
       - DPNS_CONTRACT_ID={{ platform_dpns_contract_id }}
+      - DPNS_CONTRACT_BLOCK_HEIGHT={{ platform_dpns_contract_block_height }}
       - DPNS_TOP_LEVEL_IDENTITY={{ platform_dpns_top_level_domain_identity }}
+      - DASHPAY_CONTRACT_ID={{ platform_dashpay_contract_id }}
+      - DASHPAY_CONTRACT_BLOCK_HEIGHT={{ platform_dashpay_contract_block_height }}
       - NODE_ENV={{ node_environment }}
-      - LOGGING_LEVEL={{ drive_logging_level }}
+      - LOG_STDOUT_LEVEL={{ drive_log_stdout_level }}
+      - LOG_PRETTY_FILE_LEVEL={{ drive_log_pretty_file_level }}
+      - LOG_PRETTY_FILE_PATH=/var/log/drive/drive-pretty.log
+      - LOG_JSON_FILE_LEVEL={{ drive_log_json_file_level }}
+      - LOG_JSON_FILE_PATH=/var/log/drive/drive-json.log
+      - INITIAL_CORE_CHAINLOCKED_HEIGHT={{ platform_initial_core_chain_locked_height }}
+      - FEATURE_FLAGS_CONTRACT_ID={{ platform_feature_flags_contract_id }}
+      - FEATURE_FLAGS_CONTRACT_BLOCK_HEIGHT={{ platform_feature_flags_contract_block_height }}
+      - FEATURE_FLAGS_TOP_LEVEL_IDENTITY={{ platform_feature_flags_top_level_identity }}
     ports:
       - 26658:26658
     depends_on:
@@ -36,13 +50,13 @@ services:
 
   tendermint:
     image: {{ tendermint_image }}
-    entrypoint: sh -c "sleep 30 && /usr/bin/tendermint node"
+    entrypoint: sh -c "sleep 30 && /usr/bin/tenderdash node"
     restart: always
     ports:
       - {{ tendermint_rpc_port }}:26657
       - {{ tendermint_p2p_port }}:26656
     volumes:
-      - {{ mn_evo_services_path }}/tendermint:/tendermint
+      - {{ mn_evo_services_path }}/tendermint:/tenderdash
     depends_on:
       - drive_abci
 
@@ -56,7 +70,6 @@ services:
       - 3004:3004
       - 3005:3005
     environment:
-      - INSIGHT_URI=http://{{ private_ip }}:3001/insight-api
       - API_JSON_RPC_PORT=3004
       - API_GRPC_PORT=3005
       - DASHCORE_RPC_HOST={{ private_ip }}
@@ -80,7 +93,6 @@ services:
     ports:
       - 3006:3006
     environment:
-      - INSIGHT_URI=http://{{ private_ip }}:3001/insight-api
       - TX_FILTER_STREAM_GRPC_PORT=3006
       - DASHCORE_RPC_HOST={{ private_ip }}
       - DASHCORE_RPC_PORT={{ dashd_rpc_port }}

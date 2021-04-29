@@ -11,7 +11,7 @@ ${wallets}
 Full nodes
 ==========
 
-${full_nodes}
+${seeds}
 
 Miners
 ======
@@ -29,6 +29,10 @@ Insight Explorer
 
 ${elb_host}:${insight_port}/insight
 
+Kibana
+======
+
+${logs_host}:${kibana_port}
 
 VPN
 ===

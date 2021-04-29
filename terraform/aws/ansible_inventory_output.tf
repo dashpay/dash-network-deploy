@@ -10,6 +10,18 @@ data "template_file" "web_hosts" {
   }
 }
 
+data "template_file" "logs_hosts" {
+  count    = length(aws_instance.logs)
+  template = file("${path.module}/templates/inventory/hostname.tpl")
+
+  vars = {
+    index      = count.index + 1
+    name       = element(aws_instance.logs.*.tags.Hostname, count.index)
+    public_ip  = element(aws_instance.logs.*.public_ip, count.index)
+    private_ip = element(aws_instance.logs.*.private_ip, count.index)
+  }
+}
+
 data "template_file" "wallet_node_hosts" {
   count    = length(aws_instance.dashd_wallet)
   template = file("${path.module}/templates/inventory/hostname.tpl")
@@ -22,15 +34,15 @@ data "template_file" "wallet_node_hosts" {
   }
 }
 
-data "template_file" "full_node_hosts" {
-  count    = length(aws_instance.dashd_full_node)
+data "template_file" "seed_node_hosts" {
+  count    = length(aws_instance.seed_node)
   template = file("${path.module}/templates/inventory/hostname.tpl")
 
   vars = {
     index      = count.index + 1
-    name       = element(aws_instance.dashd_full_node.*.tags.Hostname, count.index)
-    public_ip  = element(aws_instance.dashd_full_node.*.public_ip, count.index)
-    private_ip = element(aws_instance.dashd_full_node.*.private_ip, count.index)
+    name       = element(aws_instance.seed_node.*.tags.Hostname, count.index)
+    public_ip  = element(aws_instance.seed_node.*.public_ip, count.index)
+    private_ip = element(aws_instance.seed_node.*.private_ip, count.index)
   }
 }
 
@@ -65,7 +77,7 @@ data "template_file" "vpn" {
   vars = {
     index      = count.index + 1
     name       = element(aws_instance.vpn.*.tags.Hostname, count.index)
-    public_ip  = aws_eip.vpn.public_ip
+    public_ip  = element(aws_eip.vpn.*.public_ip, count.index)
     private_ip = element(aws_instance.vpn.*.private_ip, count.index)
   }
 }
@@ -78,18 +90,20 @@ data "template_file" "ansible_inventory" {
       "\n",
       concat(
         data.template_file.web_hosts.*.rendered,
+        data.template_file.logs_hosts.*.rendered,
         data.template_file.wallet_node_hosts.*.rendered,
-        data.template_file.full_node_hosts.*.rendered,
+        data.template_file.seed_node_hosts.*.rendered,
         data.template_file.miner_hosts.*.rendered,
         data.template_file.masternode_hosts.*.rendered,
         data.template_file.vpn.*.rendered,
       ),
     )
     web_hosts         = join("\n", concat(aws_instance.web.*.tags.Hostname))
+    logs_hosts        = join("\n", concat(aws_instance.logs.*.tags.Hostname))
     wallet_node_hosts = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
-    full_node_hosts   = join("\n", concat(aws_instance.dashd_full_node.*.tags.Hostname))
     miner_hosts       = join("\n", concat(aws_instance.miner.*.tags.Hostname))
     masternode_hosts  = join("\n", concat(aws_instance.masternode.*.tags.Hostname))
+    seed_hosts        = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
   }
 }
 
