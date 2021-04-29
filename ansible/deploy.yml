@@ -2,68 +2,68 @@
 
 # Bootstrap
 
-# - hosts: all
-#   gather_facts: true
-#   become: true
-#   pre_tasks:
-#     - name: check if inside AWS
-#       uri:
-#         url: http://169.254.169.254/latest/meta-data
-#         timeout: 2
-#       register: aws_uri_check
-#       failed_when: False
-#     - set_fact:
-#         is_aws_environment: "{{ aws_uri_check.status == 200 }}"
-#   roles:
-#     - role: aws
-#       when: is_aws_environment
-#     - swap
+- hosts: all
+  gather_facts: true
+  become: true
+  pre_tasks:
+    - name: check if inside AWS
+      uri:
+        url: http://169.254.169.254/latest/meta-data
+        timeout: 2
+      register: aws_uri_check
+      failed_when: False
+    - set_fact:
+        is_aws_environment: "{{ aws_uri_check.status == 200 }}"
+  roles:
+    - role: aws
+      when: is_aws_environment
+    - swap
 
 # Setup VPN
 
-# - hosts: vpn
-#   become: true
-#   roles:
-#     - role: openvpn
-#       when: openvpn_enabled
-#       tags: vpn
+- hosts: vpn
+  become: true
+  roles:
+    - role: openvpn
+      when: openvpn_enabled
+      tags: vpn
 
 # Setup Python and Docker
 
-# - hosts: all
-#   become: true
-#   tasks:
-#     - name: add universe repository
-#       apt_repository:
-#         repo: deb http://archive.ubuntu.com/ubuntu bionic universe
-#         state: present
+- hosts: all
+  become: true
+  tasks:
+    - name: add universe repository
+      apt_repository:
+        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
+        state: present
 
-# - hosts: all
-#   become: true
-#   vars:
-#     pip_package: python3-pip
-#     pip_install_packages:
-#       - name: pymongo
-#       - name: docker
-#       - name: docker-compose
-#         version: "1.22.0"
-#   roles:
-#     - geerlingguy.pip
-#     - geerlingguy.docker
-#     - docker-options
-#     - eternal-terminal
-#     - role: ecr-login
-#       when: aws_ecr_login
-#       tags: always
+- hosts: all
+  become: true
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: pymongo
+      - name: docker
+      - name: docker-compose
+        version: "1.22.0"
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+    - docker-options
+    - eternal-terminal
+    - role: ecr-login
+      when: aws_ecr_login
+      tags: always
 
 # Install AWS monitoring scripts
 
-# - hosts: all
-#   become: true
-#   roles:
-#     - role: Restless-ET.aws-scripts-mon
-#       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
-#       aws_scripts_mon_use_iam: true
+- hosts: all
+  become: true
+  roles:
+    - role: Restless-ET.aws-scripts-mon
+      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
+      aws_scripts_mon_use_iam: true
 
 # Configure dashd cli
 

@@ -126,6 +126,6 @@ mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name 
 # Elastic
 
 elastic_username: elastic
-elastic_password: 1i55mC^gHE#K50c
-kibana_encryptionkey: n1u6dz92c70zUYDgPUhzOuu6ZJWzGD8r
+elastic_password:
+kibana_encryptionkey:
 elastic_max_heap_size: 2g
