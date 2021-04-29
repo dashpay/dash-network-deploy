@@ -55,7 +55,7 @@ describe('DAPI', () => {
         expect(result).to.have.a.property('version');
         expect(result).to.have.a.property('time');
         expect(result).to.have.a.property('status');
-        expect(result).to.have.a.property('sync_progress');
+        expect(result).to.have.a.property('syncProgress');
         expect(result).to.have.a.property('chain');
         expect(result).to.have.a.property('masternode');
         expect(result).to.have.a.property('network');
