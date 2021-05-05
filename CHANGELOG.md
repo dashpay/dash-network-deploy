@@ -1,3 +1,18 @@
+# [0.19.0](https://github.com/dashpay/dash-network-deploy/compare/v0.18.1...v0.19.0) (2021-05-05)
+
+
+### Features
+
+* feature flags ([#235](https://github.com/dashpay/dash-network-deploy/issues/235))
+* update smoke tests to DAPI v0.19 ([#236](https://github.com/dashpay/dash-network-deploy/issues/236), [#237](https://github.com/dashpay/dash-network-deploy/issues/237))
+
+
+### Refactoring
+
+* remove Insight API from masternodes ([#232](https://github.com/dashpay/dash-network-deploy/issues/232))
+
+
+
 ## [0.18.1](https://github.com/dashpay/dash-network-deploy/compare/v0.18.0...v0.18.1) (2021-04-14)
 
 
