@@ -1,3 +1,52 @@
+# [0.19.0](https://github.com/dashpay/dash-network-deploy/compare/v0.18.1...v0.19.0) (2021-05-05)
+
+
+### Features
+
+* feature flags ([#235](https://github.com/dashpay/dash-network-deploy/issues/235))
+* update smoke tests to DAPI v0.19 ([#236](https://github.com/dashpay/dash-network-deploy/issues/236), [#237](https://github.com/dashpay/dash-network-deploy/issues/237))
+
+
+### Refactoring
+
+* remove Insight API from masternodes ([#232](https://github.com/dashpay/dash-network-deploy/issues/232))
+
+
+
+## [0.18.1](https://github.com/dashpay/dash-network-deploy/compare/v0.18.0...v0.18.1) (2021-04-14)
+
+
+### Bug Fixes
+
+* new llmq-qvvec-sync syntax in 0.17.0.0-rc4 ([#233](https://github.com/dashpay/dash-network-deploy/issues/233))
+
+
+
+# [0.18.0](https://github.com/dashpay/dash-network-deploy/compare/v0.18.0-dev.1...v0.18.0) (2021-03-03)
+
+
+### Bug Fixes
+
+* show correct output in services template ([#228](https://github.com/dashpay/dash-network-deploy/issues/228))
+* Tenderdash commands with underscore are deprecated ([#222](https://github.com/dashpay/dash-network-deploy/issues/222)
+* pBFT block time went ahead on testnet ([#221](https://github.com/dashpay/dash-network-deploy/issues/221))
+* build error due to outdated pip ([#220](https://github.com/dashpay/dash-network-deploy/issues/220))
+
+
+### Features
+
+* collecting Drive logs to ELK ([#218](https://github.com/dashpay/dash-network-deploy/issues/218), [#225](https://github.com/dashpay/dash-network-deploy/issues/225), [#230](https://github.com/dashpay/dash-network-deploy/issues/230), [#231](https://github.com/dashpay/dash-network-deploy/issues/231))
+* support eternal terminal ([#226](https://github.com/dashpay/dash-network-deploy/issues/226), [#229](https://github.com/dashpay/dash-network-deploy/issues/229))
+* enable `llmq-qvvec-sync` for Core ([#219](https://github.com/dashpay/dash-network-deploy/issues/219))
+* Tenderdash seed nodes ([#213](https://github.com/dashpay/dash-network-deploy/issues/213))
+  
+
+### Refactoring
+
+* remove deprecated CNAME record for seed ([#215](https://github.com/dashpay/dash-network-deploy/issues/215))
+
+
+
 ## [0.17.1](https://github.com/dashpay/dash-network-deploy/compare/v0.17.0...v0.17.1) (2021-01-11)
 
 

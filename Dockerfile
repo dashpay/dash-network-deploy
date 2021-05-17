@@ -56,8 +56,8 @@ COPY ansible/requirements.yml /ansible-requirements.yml
 
 COPY package*.json ./
 
-RUN pip3 install -U pip && \
-    pip3 install --upgrade netaddr awscli ansible && \
+RUN python3 -m pip install -U pip && \
+    python3 -m pip install --upgrade netaddr awscli ansible && \
     ansible-galaxy install -r /ansible-requirements.yml && \
     npm install
 

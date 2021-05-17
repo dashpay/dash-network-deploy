@@ -52,16 +52,12 @@ describe('DAPI', () => {
           dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`],
         });
 
-        expect(result).to.have.a.property('coreVersion');
-        expect(result).to.have.a.property('protocolVersion');
-        expect(result).to.have.a.property('blocks');
-        expect(result).to.have.a.property('timeOffset');
-        expect(result).to.have.a.property('connections');
-        expect(result).to.have.a.property('proxy');
-        expect(result).to.have.a.property('difficulty');
-        expect(result).to.have.a.property('testnet');
-        expect(result).to.have.a.property('relayFee');
-        expect(result).to.have.a.property('errors');
+        expect(result).to.have.a.property('version');
+        expect(result).to.have.a.property('time');
+        expect(result).to.have.a.property('status');
+        expect(result).to.have.a.property('syncProgress');
+        expect(result).to.have.a.property('chain');
+        expect(result).to.have.a.property('masternode');
         expect(result).to.have.a.property('network');
       });
 

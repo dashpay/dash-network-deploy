@@ -289,6 +289,7 @@ data "template_file" "services" {
     elb_host        = chomp(join("\n", aws_elb.web.*.dns_name))
     insight_port    = var.insight_port
     kibana_port     = var.kibana_port
+    logs_host       = aws_route53_record.logs[0].name
     vpn_host        = chomp(join("\n", aws_eip.vpn.*.public_ip))
     vpn_port        = var.vpn_port
   }

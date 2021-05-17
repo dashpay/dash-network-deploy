@@ -1,6 +1,6 @@
 {
   "name": "@dashevo/dash-network-deploy",
-  "version": "0.18.0-dev.1",
+  "version": "0.19.0",
   "description": "Dash Network deployment tool",
   "directories": {
     "lib": "lib",
@@ -21,12 +21,12 @@
   },
   "homepage": "https://github.com/dashpay/dash-network-deploy#readme",
   "dependencies": {
-    "@dashevo/dapi-client": "~0.17.2",
-    "@dashevo/dashcore-lib": "~0.19.19",
-    "@dashevo/dashd-rpc": "^2.0.0",
+    "@dashevo/dapi-client": "0.19.0-dev.3",
+    "@dashevo/dashcore-lib": "^0.19.23",
+    "@dashevo/dashd-rpc": "^2.3.0",
     "bls-signatures": "^0.1.9",
     "bs58": "^4.0.1",
-    "chai": "^4.1.2",
+    "chai": "^4.3.4",
     "chai-arrays": "^2.0.0",
     "chai-as-promised": "^7.1.1",
     "dirty-chai": "^2.0.1",
@@ -34,7 +34,7 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "grpc": "^1.24.3",
+    "grpc": "^1.24.7",
     "grpc-health-check": "^1.7.0",
     "jayson": "^2.0.6",
     "js-yaml": "^3.13.1",
@@ -49,7 +49,7 @@
     "mocha": "^7.2.0",
     "node-fetch": "^2.6.1",
     "node-openvpn": "github:luigiplr/node-openvpn",
-    "webpack": "^4.41.6",
+    "webpack": "^4.46.0",
     "webpack-cli": "^3.3.11"
   }
 }
