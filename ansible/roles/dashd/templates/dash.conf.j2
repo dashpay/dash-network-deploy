@@ -14,7 +14,7 @@ maxconnections=256
 debug={{ dashd_debug }}
 printtoconsole=1
 
-llmq-qvvec-sync=llmq_100_67:0
+
 
 {% if dashd_indexes %}
 # optional indices (required for Insight)
@@ -78,10 +78,13 @@ sporkkey={{ dashd_sporkkey }}
 [regtest]
 {% elif dash_network == 'mainnet' %}
 [main]
+llmq-qvvec-sync=llmq_100_67:0
 {% elif dash_network == 'testnet' %}
 [test]
+llmq-qvvec-sync=llmq_100_67:0
 {% elif dash_network == 'devnet' %}
 [devnet]
+llmq-qvvec-sync=llmq_devnet:0
 
 # First 1000 blocks should be mined with lowest difficulty (like in regtest, so it's instant)
 # and first 500 blocks are mined with a block subsidity multiplied by 10

@@ -133,15 +133,15 @@ You can use the OpenVPN config generated during deployment (`<network_name>.ovpn
     git clone https://github.com/dashpay/dash-network-deploy.git
     ```
 
-2. Install Ansible and Terraform per instructions provided on the official websites:
+2. Install Ansible (v2.10.7+) and Terraform (v0.12.x) per instructions provided on the official websites:
 
     * [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
     * [Terraform](https://www.terraform.io/intro/getting-started/install.html)
 
-3. Ensure Python netaddr package is installed locally
+3. Ensure Python netaddr and jmespath package is installed locally
 
     ```bash
-    pip install -U netaddr
+    pip install -U netaddr jmespath
     ```
 
     * Note: You may need to run the above command with "pip2" instead of "pip" if

@@ -1,6 +1,9 @@
 {
   "genesis_time": "{{ hostvars[groups.seed_nodes[0]].tendermint_genesis_time }}",
   "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
+  "initial_height": "0",
+  "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
+  "initial_proposal_core_chain_lock": null,
   "consensus_params": {
     "block": {
       "max_bytes": "22020096",
@@ -14,11 +17,11 @@
     },
     "validator": {
       "pub_key_types": [
-        "ed25519"
+        "bls12381"
       ]
-    }
+    },
+    "version": {}
   },
-  "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
   "validators": [
     {% for masternode in groups.masternodes[:tenderdash_max_validators_count] %}
         {
@@ -28,10 +31,17 @@
              "value": "{{ hostvars[masternode].tendermint_validator_key | json_query('pub_key.value') }}"
           },
           "power": "1",
-          "name": "{{ masternode }}"
+          "name": "{{ masternode }}",
+          "pro_tx_hash": "{{ hostvars[masternode].core_masternode_status | json_query('proTxHash') }}"
         }
         {% if not loop.last %},{% endif %}
     {% endfor %}
   ],
+  "threshold_public_key": {
+    "type": "tendermint/PubKeyBLS12381",
+    "value": "iWbSZVOrq5y5Fda8+y4h3EyHsK77v0eadVZ562pvH3Q4Iv18lopPj00KxuTgOcFV"
+  },
+  "quorum_type": "100",
+  "quorum_hash": "{{ core_quorum_hash }}",
   "app_hash": ""
 }
