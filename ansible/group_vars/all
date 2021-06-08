@@ -32,6 +32,15 @@ drive_log_pretty_file_level: silent
 drive_log_json_file_level: silent
 platform_drive_validator_set_llmq_type: 
 
+core_llmq_types:
+    1: llmq_50_60
+    2: llmq_400_60
+    3: llmq_400_85
+    4: llmq_100_67
+    100: llmq_test
+    101: llmq_devnet
+    102: llmq_test_v17
+
 # Tendermint
 tendermint_image: dashpay/tenderdash
 tendermint_p2p_port: 26656
