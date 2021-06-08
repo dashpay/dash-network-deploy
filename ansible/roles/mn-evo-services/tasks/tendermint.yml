@@ -33,13 +33,6 @@
 - set_fact:
     tendermint_validator_key: '{{ tendermint_validator_key.stdout }}'
 
-- name: get Core quorum hash
-  command: dash-cli getbestblockhash
-  register: core_quorum_hash
-
-- set_fact:
-    core_quorum_hash: '{{ core_quorum_hash.stdout }}'
-
 - name: get masternode status
   command: dash-cli masternode status
   register: core_masternode_status
