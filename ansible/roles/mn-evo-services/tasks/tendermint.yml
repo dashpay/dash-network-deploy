@@ -23,24 +23,15 @@
     chdir: '{{ mn_evo_services_path }}'
   register: tendermint_node_id
 
-- set_fact:
-    tendermint_node_id: '{{ tendermint_node_id.stdout }}'
-
 - name: get Tendermint validator key
   command: cat {{ mn_evo_services_path }}/tendermint/config/priv_validator_key.json
   register: tendermint_validator_key
 
 - set_fact:
-    tendermint_validator_key: '{{ tendermint_validator_key.stdout }}'
-
-- name: get masternode status
-  command: dash-cli masternode status
-  register: core_masternode_status
-  when: inventory_hostname.find('masternode') != -1
+    tendermint_node_id: '{{ tendermint_node_id.stdout }}'
 
 - set_fact:
-    core_masternode_status: '{{ core_masternode_status.stdout }}'
-  when: inventory_hostname.find('masternode') != -1
+    tendermint_validator_key: '{{ tendermint_validator_key.stdout }}'
 
 - name: create Tendermint config.toml
   template:
