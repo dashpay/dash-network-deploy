@@ -70,7 +70,7 @@ priv_validator_laddr = ""
 
 # Local Dash Core Host to connect to
 # If this is set, the node follows a Dash Core PrivValidator process
-priv_validator_core_rpc_host = "core:{{ dashd_rpc_port }}"
+priv_validator_core_rpc_host = "{{ private_ip }}:{{ dashd_rpc_port }}"
 
 # Local Dash Core RPC Username
 priv_validator_core_rpc_username = "{{ dashd_rpc_user }}"
