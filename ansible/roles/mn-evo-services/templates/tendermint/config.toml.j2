@@ -79,7 +79,7 @@ priv_validator_core_rpc_username = "{{ dashd_rpc_user }}"
 priv_validator_core_rpc_password = "{{ dashd_rpc_password }}"
 
 # LLMQ Type used
-llmq_type_used = 100
+llmq_type_used = {{ platform_drive_validator_set_llmq_type }}
 
 # Path to the JSON file containing the private key to use for node authentication in the p2p protocol
 node_key_file = "config/node_key.json"
@@ -368,7 +368,7 @@ create_empty_blocks = true
 create_empty_blocks_interval = "3m"
 
 # Set the Dash Core quorum type
-quorum_type = 100
+quorum_type = {{ platform_drive_validator_set_llmq_type }}
 
 # Set the App hash size
 app_hash_size = 20
