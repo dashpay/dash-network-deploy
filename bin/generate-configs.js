@@ -4,9 +4,9 @@ const generateAnsibleConfig = require('../lib/configGenerator/generateAnsibleCon
 const generateTerraformConfig = require('../lib/configGenerator/generateTerraformConfig');
 
 async function main() {
-  const [network, networkName, masternodesCount] = process.argv.slice(2);
+  const [network, networkName, masternodesCount, seedsCount] = process.argv.slice(2);
 
-  await generateAnsibleConfig(network, networkName, masternodesCount);
+  await generateAnsibleConfig(network, networkName, masternodesCount, seedsCount);
   await generateTerraformConfig(network, networkName, masternodesCount);
 }
 
