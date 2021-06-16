@@ -185,7 +185,7 @@ laddr = "tcp://0.0.0.0:26656"
 external_address = "{{ public_ip }}:26656"
 
 # Comma separated list of seed nodes to connect to
-seeds = "{% if inventory_hostname not in groups.seed_nodes %}{% for seed in groups.seed_nodes %}{{ hostvars[seed].seed_nodes[seed].node_key.id }}@{{ hostvars[seed].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}"
+seeds = "{% if inventory_hostname not in groups.seed_nodes %}{% for seed in groups.seed_nodes %}{{ seed_nodes[seed].node_key.id }}@{{ hostvars[seed].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}"
 
 # Comma separated list of nodes to keep persistent connections to
 persistent_peers = ""
