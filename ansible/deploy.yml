@@ -117,8 +117,6 @@
       tags:
         - dashd
     - role: mn-evo-services
-      vars:
-        skip_validator: true
       tags:
         - evo
       when: evo_services

@@ -1,7 +1,5 @@
 ---
 
-# Variables: skip_tenderdash_genesis (false), skip_services_start (false)
-
 - name: create platform services dir
   file:
     path: '{{ mn_evo_services_path }}'
