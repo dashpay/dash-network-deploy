@@ -67,4 +67,3 @@
     state: present
     restarted: yes
     pull: yes
-  when: skip_services_start|default(false) == false

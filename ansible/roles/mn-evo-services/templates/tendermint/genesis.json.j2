@@ -20,18 +20,22 @@
   },
   "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
   "validators": [
-    {% for masternode in groups.masternodes[:tenderdash_max_validators_count] %}
-        {
-          "address": "{{ hostvars[masternode].tendermint_validator_key | json_query('address') }}",
-          "pub_key": {
-             "type": "{{ hostvars[masternode].tendermint_validator_key | json_query('pub_key.type') }}",
-             "value": "{{ hostvars[masternode].tendermint_validator_key | json_query('pub_key.value') }}"
-          },
-          "power": "1",
-          "name": "{{ masternode }}"
-        }
-        {% if not loop.last %},{% endif %}
-    {% endfor %}
+    {
+      "address": "0751C0B717E3F9CB0ABC0AD63B740978ABD597BF",
+      "pub_key": {
+        "type": "tendermint/PubKeyBLS12381",
+        "value": "A+OY6bG13RElaxL7Mko+Q2S5oRvg8y32zU4YxeKtY32bJw8SQBqZFTt6RXF8VuJ9"
+      },
+      "power": "100",
+      "name": "",
+      "pro_tx_hash": "5CD8233AAFF03609721D36E682D84346F2134551E44C10AE2B1A86CB1ACCF5D3"
+    }
   ],
+  "threshold_public_key": {
+    "type": "tendermint/PubKeyBLS12381",
+    "value": "A+OY6bG13RElaxL7Mko+Q2S5oRvg8y32zU4YxeKtY32bJw8SQBqZFTt6RXF8VuJ9"
+  },
+  "quorum_type": "{{ platform_drive_validator_set_llmq_type }}",
+  "quorum_hash": "00000201a9d68294b1aa11d689eee77fa588a76247a80e09e903dd250e4ead83",
   "app_hash": ""
 }
