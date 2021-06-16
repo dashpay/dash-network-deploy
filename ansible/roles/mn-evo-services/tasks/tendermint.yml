@@ -1,7 +1,5 @@
 ---
 
-# Variables: skip_genesis (false)
-
 - name: create tendermint home dir
   file:
     path: '{{ mn_evo_services_path }}/tendermint'
@@ -26,34 +24,17 @@
     group: '{{ tendermint_gid }}'
     mode: 0750
 
-- name: create Tendermint node_key.json
+- name: create Tendermint configs
   template:
-    src: 'roles/mn-evo-services/templates/tendermint/node_key.json.j2'
-    dest: '{{ mn_evo_services_path }}/tendermint/config/node_key.json'
+    src: 'roles/mn-evo-services/templates/tendermint/{{ item }}.j2'
+    dest: '{{ mn_evo_services_path }}/tendermint/config/{{ item }}'
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
-
-- name: create Tendermint priv_validator_key.json
-  template:
-    src: 'roles/mn-evo-services/templates/tendermint/priv_validator_key.json.j2'
-    dest: '{{ mn_evo_services_path }}/tendermint/config/priv_validator_key.json'
-    owner: '{{ tendermint_uid }}'
-    group: '{{ tendermint_gid }}' 
-  when: skip_validator is not defined or skip_validator == false
-
-- name: create Tendermint config.toml
-  template:
-    src: 'roles/mn-evo-services/templates/tendermint/config.toml.j2'
-    dest: '{{ mn_evo_services_path }}/tendermint/config/config.toml'
-    owner: '{{ tendermint_uid }}'
-    group: '{{ tendermint_gid }}'
-
-- name: create Tendermint genesis.json
-  template:
-    src: 'roles/mn-evo-services/templates/tendermint/genesis.json.j2'
-    dest: '{{ mn_evo_services_path }}/tendermint/config/genesis.json'
-    owner: '{{ tendermint_uid }}'
-    group: '{{ tendermint_gid }}'
+  loop:
+    - config.toml
+    - genesis.json
+    - priv_validator_key.json
+    - node_key.json
 
 - name: create Tendermint priv_validator_state.json
   template: 
