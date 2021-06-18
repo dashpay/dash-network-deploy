@@ -20,11 +20,11 @@
     restarted: yes
     pull: yes
 
-# Disable broken checks
-# - name: check Insight container
-#   assert:
-#     that: 'insight.insight.state.running'
 
-# - name: check Insight Proxy container
-#   assert:
-#     that: 'insight_proxy.insight_proxy.state.running'
+- name: check Insight container
+  assert:
+    that: 'insight.insight.state.running'
+
+- name: check Insight Proxy container
+  assert:
+    that: 'insight_proxy.insight_proxy.state.running'
