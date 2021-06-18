@@ -6,7 +6,11 @@ set -ea
 
 CMD_USAGE="Generate network configs
 
-Usage: generate <network_name> <masternodes_count>"
+Usage: generate <network_name> <masternodes_count> [options]
+
+Options:
+  -s=<count> --seeds-count=<count> - Number of seed nodes on the network
+  -h         --help                - Show help"
 
 for i in "$@"
 do
@@ -29,6 +33,17 @@ if [[ -z ${MASTERNODES_COUNT} ]]; then
     print_error "Masternodes count is required"
 fi
 
+SEEDS_COUNT="1"
+
+for i in "${@:3}"
+do
+case ${i} in
+    -s=*|--seeds-count=*)
+    SEEDS_COUNT="${i#*=}"
+    ;;
+esac
+done
+
 . ./lib/cli/init.sh
 
-node ./bin/generate-configs.js ${NETWORK} ${NETWORK_NAME} ${MASTERNODES_COUNT}
+node ./bin/generate-configs.js ${NETWORK} ${NETWORK_NAME} ${MASTERNODES_COUNT} ${SEEDS_COUNT}

@@ -97,11 +97,18 @@
       tags:
         - dashd
 
-
 # Setup seed nodes
 
 - hosts: seed_nodes
   become: true
+  pre_tasks:
+    - set_fact:
+        node: "{{ seed_nodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in seed_nodes
+    - fail:
+        msg: Seed node not defined in tenderdash config
+      when: node is not defined
   roles:
     - role: dashd
       dashd_listen: true
@@ -110,21 +117,10 @@
       tags:
         - dashd
     - role: mn-evo-services
-      vars:
-        skip_tenderdash_genesis: true
-        skip_services_start: true
       tags:
         - evo
       when: evo_services
     - role: elastic-beats
-  post_tasks:
-    - name: get tenderdash genesis time
-      command: 'cat {{ mn_evo_services_path }}/tendermint/config/genesis.json'
-      args:
-        chdir: '{{ mn_evo_services_path }}'
-      register: tendermint_genesis_config
-    - set_fact:
-        tendermint_genesis_time: '{{ tendermint_genesis_config.stdout | from_json | json_query("genesis_time") }}'
 
 # Setup masternodes
 
@@ -132,12 +128,13 @@
   become: true
   pre_tasks:
     - set_fact:
+        node: "{{ masternodes[inventory_hostname] }}"
         masternode: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
     - fail:
         msg: Masternode not defined in network config
-      when: masternode is not defined
+      when: node is not defined
   roles:
     - role: dashd
       dashd_listen: true
@@ -151,25 +148,6 @@
         - evo
       when: evo_services
     - role: elastic-beats
-
-
-# Update Tenderdash genesis on seed nodes and start it
-
-- hosts: seed_nodes
-  become: true
-  tasks:
-    - name: update Tendermint genesis.json
-      template:
-        src: 'roles/mn-evo-services/templates/tendermint/genesis.json.j2'
-        dest: '{{ mn_evo_services_path }}/tendermint/config/genesis.json'
-        owner: '{{ tendermint_uid }}'
-        group: '{{ tendermint_gid }}'
-    - name: start Tendermint seed nodes
-      docker_compose:
-        project_src: '{{ mn_evo_services_path }}'
-        state: present
-        restarted: yes
-        pull: yes
 
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
