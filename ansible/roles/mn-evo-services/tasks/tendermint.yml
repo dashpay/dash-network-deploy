@@ -33,12 +33,4 @@
   loop:
     - config.toml
     - genesis.json
-    - priv_validator_key.json
     - node_key.json
-
-- name: create Tendermint priv_validator_state.json
-  template: 
-    src: 'roles/mn-evo-services/templates/tendermint/priv_validator_state.json.j2'
-    dest: '{{ mn_evo_services_path }}/tendermint/data/priv_validator_state.json'
-    owner: '{{ tendermint_uid }}'
-    group: '{{ tendermint_gid }}'
