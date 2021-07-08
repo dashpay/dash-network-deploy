@@ -97,18 +97,10 @@
       tags:
         - dashd
 
-# Setup seed nodes
+# Setup core on seed nodes
 
 - hosts: seed_nodes
   become: true
-  pre_tasks:
-    - set_fact:
-        node: "{{ seed_nodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in seed_nodes
-    - fail:
-        msg: Seed node not defined in tenderdash config
-      when: node is not defined
   roles:
     - role: dashd
       dashd_listen: true
@@ -116,25 +108,19 @@
       dashd_indexes: true
       tags:
         - dashd
-    - role: mn-evo-services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic-beats
 
-# Setup masternodes
+# Setup core on masternodes
 
 - hosts: masternodes
   become: true
   pre_tasks:
     - set_fact:
-        node: "{{ masternodes[inventory_hostname] }}"
         masternode: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
     - fail:
         msg: Masternode not defined in network config
-      when: node is not defined
+      when: masternode is not defined
   roles:
     - role: dashd
       dashd_listen: true
@@ -143,11 +129,6 @@
       tags:
         - dashd
     - mn-sentinel
-    - role: mn-evo-services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic-beats
 
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
@@ -194,6 +175,44 @@
   roles:
     - role: activate-dashd-sporks
       when: dash_network != "mainnet" and dash_network != "testnet"
+
+# Setup platform on seed nodes
+
+- hosts: seed_nodes
+  become: true
+  pre_tasks:
+    - set_fact:
+        node: "{{ seed_nodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in seed_nodes
+    - fail:
+        msg: Seed node not defined in network config
+      when: node is not defined
+  roles:
+    - role: mn-evo-services
+      tags:
+        - evo
+      when: evo_services
+    - role: elastic-beats
+
+# Setup platform on masternodes
+
+- hosts: masternodes
+  become: true
+  pre_tasks:
+    - set_fact:
+        node: "{{ masternodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in masternodes
+    - fail:
+        msg: Masternode not defined in network config
+      when: node is not defined
+  roles:
+    - role: mn-evo-services
+      tags:
+        - evo
+      when: evo_services
+    - role: elastic-beats
 
 # Prune unused Docker images
 
