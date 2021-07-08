@@ -1,7 +1,5 @@
 ---
 
-# Variables: skip_genesis (false)
-
 - name: create tendermint home dir
   file:
     path: '{{ mn_evo_services_path }}/tendermint'
@@ -9,41 +7,30 @@
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
     mode: 0750
-  register: tendermint_home_dir
 
-- name: initialize Tendermint node
-  command: docker-compose run --no-deps --rm --entrypoint='/usr/bin/tenderdash' tendermint init
-  args:
-    chdir: '{{ mn_evo_services_path }}'
-  when: tendermint_home_dir.changed
-
-- name: get Tendermint node ID
-  command: docker-compose run --no-deps --rm --entrypoint='/usr/bin/tenderdash' tendermint show-node-id
-  args:
-    chdir: '{{ mn_evo_services_path }}'
-  register: tendermint_node_id
-
-- name: get Tendermint validator key
-  command: cat {{ mn_evo_services_path }}/tendermint/config/priv_validator_key.json
-  register: tendermint_validator_key
-
-- set_fact:
-    tendermint_node_id: '{{ tendermint_node_id.stdout }}'
-
-- set_fact:
-    tendermint_validator_key: '{{ tendermint_validator_key.stdout }}'
-
-- name: create Tendermint config.toml
-  template:
-    src: 'roles/mn-evo-services/templates/tendermint/config.toml.j2'
-    dest: '{{ mn_evo_services_path }}/tendermint/config/config.toml'
+- name: create tendermint config dir
+  file:
+    path: '{{ mn_evo_services_path }}/tendermint/config'
+    state: directory
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
+    mode: 0750
 
-- name: create Tendermint genesis.json
-  template:
-    src: 'roles/mn-evo-services/templates/tendermint/genesis.json.j2'
-    dest: '{{ mn_evo_services_path }}/tendermint/config/genesis.json'
+- name: create tendermint data dir
+  file:
+    path: '{{ mn_evo_services_path }}/tendermint/data'
+    state: directory
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
-  when: skip_genesis is not defined or skip_genesis == false
+    mode: 0750
+
+- name: create Tendermint configs
+  template:
+    src: 'roles/mn-evo-services/templates/tendermint/{{ item }}.j2'
+    dest: '{{ mn_evo_services_path }}/tendermint/config/{{ item }}'
+    owner: '{{ tendermint_uid }}'
+    group: '{{ tendermint_gid }}'
+  loop:
+    - config.toml
+    - genesis.json
+    - node_key.json

@@ -12,3 +12,6 @@ node_modules
 
 # Jet Brains
 .idea
+
+# VS Code
+.vscode

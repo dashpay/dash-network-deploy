@@ -20,6 +20,7 @@
     restarted: yes
     pull: yes
 
+
 - name: check Insight container
   assert:
     that: 'insight.insight.state.running'

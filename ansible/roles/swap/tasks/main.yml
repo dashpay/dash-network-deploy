@@ -41,7 +41,7 @@
   become_user: root
   command: swapon -a
 
-- name: set swapiness
+- name: set swappiness
   become: yes
   become_user: root
   sysctl:

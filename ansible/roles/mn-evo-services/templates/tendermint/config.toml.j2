@@ -58,6 +58,8 @@ log_format = "plain"
 # Path to the JSON file containing the initial validator set and other meta data
 genesis_file = "config/genesis.json"
 
+is_masternode = {% if inventory_hostname in groups.masternodes %}true{% else %}false{% endif %}
+
 # Path to the JSON file containing the private key to use as a validator in the consensus protocol
 priv_validator_key_file = "config/priv_validator_key.json"
 
@@ -67,6 +69,16 @@ priv_validator_state_file = "data/priv_validator_state.json"
 # TCP or UNIX socket address for Tendermint to listen on for
 # connections from an external PrivValidator process
 priv_validator_laddr = ""
+
+# Local Dash Core Host to connect to
+# If this is set, the node follows a Dash Core PrivValidator process
+priv_validator_core_rpc_host = "{{ private_ip }}:{{ dashd_rpc_port }}"
+
+# Local Dash Core RPC Username
+priv_validator_core_rpc_username = "{{ dashd_rpc_user }}"
+
+# Local Dash Core RPC Password
+priv_validator_core_rpc_password = "{{ dashd_rpc_password }}"
 
 # Path to the JSON file containing the private key to use for node authentication in the p2p protocol
 node_key_file = "config/node_key.json"
@@ -185,7 +197,7 @@ laddr = "tcp://0.0.0.0:26656"
 external_address = "{{ public_ip }}:26656"
 
 # Comma separated list of seed nodes to connect to
-seeds = "{% if inventory_hostname not in groups.seed_nodes %}{% for seed in groups.seed_nodes %}{{ hostvars[seed].tendermint_node_id }}@{{ hostvars[seed].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}"
+seeds = "{% if inventory_hostname not in groups.seed_nodes %}{% for seed in groups.seed_nodes %}{{ seed_nodes[seed].node_key.id }}@{{ hostvars[seed].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}"
 
 # Comma separated list of nodes to keep persistent connections to
 persistent_peers = ""
@@ -353,6 +365,12 @@ skip_timeout_commit = false
 # EmptyBlocks mode and possible interval between empty blocks
 create_empty_blocks = true
 create_empty_blocks_interval = "3m"
+
+# Set the Dash Core quorum type
+quorum_type = {{ platform_drive_validator_set_llmq_type }}
+
+# Set the App hash size
+app_hash_size = 20
 
 # Reactor sleep duration parameters
 peer_gossip_sleep_duration = "100ms"
