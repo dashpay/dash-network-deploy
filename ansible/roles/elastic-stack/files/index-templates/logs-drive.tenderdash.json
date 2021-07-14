@@ -19,24 +19,18 @@
       "date_detection": true,
       "properties": {
         "json.module": {
-          "type": "keyword",
-          "store": false
+          "type": "keyword"
         },
         "json.height": {
           "type": "integer",
-          "index": true,
-          "ignore_malformed": true,
-          "store": false
+          "ignore_malformed": true
         },
         "log.level": {
-          "type": "keyword",
-          "index": true,
-          "store": false
+          "type": "keyword"
         },
         "message": {
           "type": "text",
-          "index": true,
-          "store": true
+          "norms": false
         }
       }
     }
