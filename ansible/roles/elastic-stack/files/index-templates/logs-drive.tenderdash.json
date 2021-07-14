@@ -1,0 +1,44 @@
+{
+  "index_patterns": [
+    "logs-drive.tenderdash-*"
+  ],
+  "priority": 200,
+  "data_stream": { },
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "masternode-logs"
+    },
+    "mappings": {
+      "_source": {
+        "enabled": true,
+        "includes": [],
+        "excludes": []
+      },
+      "dynamic": "runtime",
+      "numeric_detection": true,
+      "date_detection": true,
+      "properties": {
+        "json.module": {
+          "type": "keyword"
+        },
+        "json.height": {
+          "type": "integer",
+          "ignore_malformed": true
+        },
+        "log.level": {
+          "type": "keyword"
+        },
+        "event.dataset": {
+          "type": "keyword"
+        },
+        "host.name": {
+          "type": "keyword"
+        },
+        "message": {
+          "type": "text",
+          "norms": false
+        }
+      }
+    }
+  }
+}
