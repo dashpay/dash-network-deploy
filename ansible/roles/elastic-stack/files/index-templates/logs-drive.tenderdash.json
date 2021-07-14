@@ -28,6 +28,12 @@
         "log.level": {
           "type": "keyword"
         },
+        "event.dataset": {
+          "type": "keyword"
+        },
+        "host.name": {
+          "type": "keyword"
+        },
         "message": {
           "type": "text",
           "norms": false
