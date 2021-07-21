@@ -5,7 +5,7 @@
 
 * integrate latest Tenderdash ([#238](https://github.com/dashpay/dash-network-deploy/issues/238), [#241](https://github.com/dashpay/dash-network-deploy/issues/241))
 * migrate Drive state tree to `blake3` ([#243](https://github.com/dashpay/dash-network-deploy/issues/243))
-* index template and filebeat input for Tenderdash log data ([#227](https://github.com/dashpay/dash-network-deploy/issues/227))
+* added Tenderdash logs to Kibana ([#227](https://github.com/dashpay/dash-network-deploy/issues/227))
 
 
 
