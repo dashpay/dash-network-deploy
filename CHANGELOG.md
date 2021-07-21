@@ -1,3 +1,13 @@
+# [0.20.0](https://github.com/dashpay/dash-network-deploy/compare/v0.19.0...v0.20.0) (2021-07-21)
+
+
+### Features
+
+* integrate latest Tenderdash ([#238](https://github.com/dashpay/dash-network-deploy/issues/238), [#241](https://github.com/dashpay/dash-network-deploy/issues/241), [#227](https://github.com/dashpay/dash-network-deploy/issues/227))
+* migrate Drive state tree to `blake3` ([#243](https://github.com/dashpay/dash-network-deploy/issues/243))
+
+
+
 # [0.19.0](https://github.com/dashpay/dash-network-deploy/compare/v0.18.1...v0.19.0) (2021-05-05)
 
 
@@ -39,7 +49,7 @@
 * support eternal terminal ([#226](https://github.com/dashpay/dash-network-deploy/issues/226), [#229](https://github.com/dashpay/dash-network-deploy/issues/229))
 * enable `llmq-qvvec-sync` for Core ([#219](https://github.com/dashpay/dash-network-deploy/issues/219))
 * Tenderdash seed nodes ([#213](https://github.com/dashpay/dash-network-deploy/issues/213))
-  
+
 
 ### Refactoring
 
@@ -218,7 +228,7 @@
 ## [0.12.3](https://github.com/dashpay/dash-network-deploy/compare/v0.12.2...v0.12.3) (2020-04-30)
 
 
-### Improvements 
+### Improvements
 
 * represent specific unsynced nodes in core smoke tests ([#153](https://github.com/dashpay/dash-network-deploy/issues/153))
 
@@ -263,7 +273,7 @@
 
 * update to new Drive ([#145](https://github.com/dashpay/dash-network-deploy/issues/145), [43d3a8f](https://github.com/dashpay/dash-network-deploy/commit/43d3a8f6b05307549e645fbb37185818136392a2), [9a90ae1](https://github.com/dashpay/dash-network-deploy/commit/9a90ae157ebd5ebdc3346822a08cc12bf5950389))
 * point to errored node in tendermint block propagation test ([a8b6b81](https://github.com/dashpay/dash-network-deploy/commit/a8b6b81685083ce622a02e3849795a9e9b5f5871))
-* introduce monitoring alarms ([#133](https://github.com/dashpay/dash-network-deploy/issues/133), [#135](https://github.com/dashpay/dash-network-deploy/issues/135)) 
+* introduce monitoring alarms ([#133](https://github.com/dashpay/dash-network-deploy/issues/133), [#135](https://github.com/dashpay/dash-network-deploy/issues/135))
 * optionally assign root DNS for Insight UI and Faucet ([#139](https://github.com/dashpay/dash-network-deploy/issues/139))
 * update deploy script to tag image for every Semver segment ([#149](https://github.com/dashpay/dash-network-deploy/issues/149))
 
@@ -304,7 +314,7 @@
 * update DAPI smoke tests to DAPI v0.10 ([47488bb](https://github.com/dashevo/dash-network-deploy/commit/47488bbcc269959090f061218321d04605639060))
 * remove data contract restriction option ([6356bc0](https://github.com/dashevo/dash-network-deploy/commit/6356bc0081f1df08619a68ec4c4c359b0ed16cac))
 * introduce Envoy proxy for gRPC Web ([e269cd2](https://github.com/dashevo/dash-network-deploy/commit/e269cd2b64ee5981d400274a087ec9a450a45f43))
-* add swap role and enable for all hosts ([b9ee37e](https://github.com/dashevo/dash-network-deploy/commit/b9ee37e698e877accc898eb86df3a74bb83d1eaf)) 
+* add swap role and enable for all hosts ([b9ee37e](https://github.com/dashevo/dash-network-deploy/commit/b9ee37e698e877accc898eb86df3a74bb83d1eaf))
 * upgrade Terraform to v0.12.23 ([#130](https://github.com/dashpay/dash-network-deploy/issues/130))
 * upgrade AWS instances to Ubuntu 18 LTS ([#128](https://github.com/dashpay/dash-network-deploy/issues/128))
 * add versions for Docker image ([1356783](https://github.com/dashevo/dash-network-deploy/commit/13567835cc5ebc730ae107d263cd85dd349b73cb))
