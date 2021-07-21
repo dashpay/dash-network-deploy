@@ -40,12 +40,17 @@ describe('DAPI', () => {
 
         const unknownContractId = Buffer.alloc(32).fill(1);
 
-        const result = await dapiClient.platform.getDataContract(unknownContractId, {
-          // eslint-disable-next-line no-underscore-dangle
-          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
-        });
+        try {
+          await dapiClient.platform.getDataContract(unknownContractId, {
+            // eslint-disable-next-line no-underscore-dangle
+            dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+          });
 
-        expect(result).to.be.null();
+          expect.fail('should respond not found');
+        } catch (e) {
+          // NOT_FOUND
+          expect(e.code).to.be.equal(5);
+        }
       });
     });
   }
