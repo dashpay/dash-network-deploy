@@ -8,6 +8,11 @@
 * added Tenderdash logs to Kibana ([#227](https://github.com/dashpay/dash-network-deploy/issues/227))
 
 
+### BREAKING CHANGES
+
+* not compatible with Dash Platform v0.19 and lower
+
+
 
 # [0.19.0](https://github.com/dashpay/dash-network-deploy/compare/v0.18.1...v0.19.0) (2021-05-05)
 
