@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 LABEL maintainer="Dash Developers <dev@dash.org>"
 LABEL description="Dash Network Deployment Tool"
@@ -21,14 +21,14 @@ RUN apt-get update -y && \
 
 # Install Node.JS
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+RUN curl -sSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     nodejs
 
 # Install terraform
 
-ARG TERRAFORM_VERSION=0.12.26
+ARG TERRAFORM_VERSION=0.12.31
 
 RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
@@ -36,7 +36,7 @@ RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraf
 
 # Install Docker client
 
-ENV DOCKERVERSION=19.03.1
+ENV DOCKERVERSION=20.10.8
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
     && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
     -C /usr/local/bin docker/docker \
