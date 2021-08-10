@@ -1,13 +1,13 @@
-const grpc = require('grpc');
-const { promisify } = require('util');
+// const grpc = require('@grpc/grpc-js');
+// const { promisify } = require('util');
 
 const DAPIClient = require('@dashevo/dapi-client');
 
-const { Client: HealthCheckClient } = require('grpc-health-check/health');
-const {
-  HealthCheckRequest,
-  HealthCheckResponse: { ServingStatus: healthCheckStatuses },
-} = require('grpc-health-check/v1/health_pb');
+// const { Client: HealthCheckClient } = require('grpc-health-check/health');
+// const {
+//   HealthCheckRequest,
+//   HealthCheckResponse: { ServingStatus: healthCheckStatuses },
+// } = require('grpc-health-check/v1/health_pb');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
@@ -84,22 +84,22 @@ describe('DAPI', () => {
         }
       });
 
-      it('should respond data from TxFilterStream GRPC service', async () => {
-        const healthClient = new HealthCheckClient(
-          // eslint-disable-next-line no-underscore-dangle
-          `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`,
-          grpc.credentials.createInsecure(),
-        );
+      // it('should respond data from TxFilterStream GRPC service', async () => {
+      //   const healthClient = new HealthCheckClient(
+      //     // eslint-disable-next-line no-underscore-dangle
+      //     `${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`,
+      //     grpc.credentials.createInsecure(),
+      //   );
 
-        const checkHealth = promisify(healthClient.check).bind(healthClient);
+      //   const checkHealth = promisify(healthClient.check).bind(healthClient);
 
-        const request = new HealthCheckRequest();
-        request.setService('HealthCheck');
+      //   const request = new HealthCheckRequest();
+      //   request.setService('HealthCheck');
 
-        const response = await checkHealth(request);
+      //   const response = await checkHealth(request);
 
-        expect(response.getStatus()).to.equal(healthCheckStatuses.SERVING);
-      });
+      //   expect(response.getStatus()).to.equal(healthCheckStatuses.SERVING);
+      // });
     });
   }
 });
