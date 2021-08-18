@@ -1,8 +1,4 @@
-# Specify the provider and access details
-provider "aws" {
-  version = "~> 3.54"
-}
-
+# Specify backend and image details
 terraform {
   backend "s3" {
   }
