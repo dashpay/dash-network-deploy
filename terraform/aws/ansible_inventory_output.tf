@@ -1,113 +1,113 @@
-data "template_file" "web_hosts" {
-  count    = length(aws_instance.web)
-  template = file("${path.module}/templates/inventory/hostname.tpl")
-
-  vars = {
-    index      = count.index + 1
-    name       = element(aws_instance.web.*.tags.Hostname, count.index)
-    public_ip  = element(aws_instance.web.*.public_ip, count.index)
-    private_ip = element(aws_instance.web.*.private_ip, count.index)
-  }
-}
-
-data "template_file" "logs_hosts" {
-  count    = length(aws_instance.logs)
-  template = file("${path.module}/templates/inventory/hostname.tpl")
-
-  vars = {
-    index      = count.index + 1
-    name       = element(aws_instance.logs.*.tags.Hostname, count.index)
-    public_ip  = element(aws_instance.logs.*.public_ip, count.index)
-    private_ip = element(aws_instance.logs.*.private_ip, count.index)
-  }
-}
-
-data "template_file" "wallet_node_hosts" {
-  count    = length(aws_instance.dashd_wallet)
-  template = file("${path.module}/templates/inventory/hostname.tpl")
-
-  vars = {
-    index      = count.index + 1
-    name       = element(aws_instance.dashd_wallet.*.tags.Hostname, count.index)
-    public_ip  = element(aws_instance.dashd_wallet.*.public_ip, count.index)
-    private_ip = element(aws_instance.dashd_wallet.*.private_ip, count.index)
-  }
-}
-
-data "template_file" "seed_node_hosts" {
-  count    = length(aws_instance.seed_node)
-  template = file("${path.module}/templates/inventory/hostname.tpl")
-
-  vars = {
-    index      = count.index + 1
-    name       = element(aws_instance.seed_node.*.tags.Hostname, count.index)
-    public_ip  = element(aws_instance.seed_node.*.public_ip, count.index)
-    private_ip = element(aws_instance.seed_node.*.private_ip, count.index)
-  }
-}
-
-data "template_file" "miner_hosts" {
-  count    = length(aws_instance.miner)
-  template = file("${path.module}/templates/inventory/hostname.tpl")
-
-  vars = {
-    index      = count.index + 1
-    name       = element(aws_instance.miner.*.tags.Hostname, count.index)
-    public_ip  = element(aws_instance.miner.*.public_ip, count.index)
-    private_ip = element(aws_instance.miner.*.private_ip, count.index)
-  }
-}
-
-data "template_file" "masternode_hosts" {
-  count    = length(aws_instance.masternode)
-  template = file("${path.module}/templates/inventory/hostname.tpl")
-
-  vars = {
-    index      = count.index + 1
-    name       = element(aws_instance.masternode.*.tags.Hostname, count.index)
-    public_ip  = element(aws_instance.masternode.*.public_ip, count.index)
-    private_ip = element(aws_instance.masternode.*.private_ip, count.index)
-  }
-}
-
-data "template_file" "vpn" {
-  count    = var.vpn_enabled ? 1 : 0
-  template = file("${path.module}/templates/inventory/hostname.tpl")
-
-  vars = {
-    index      = count.index + 1
-    name       = element(aws_instance.vpn.*.tags.Hostname, count.index)
-    public_ip  = element(aws_eip.vpn.*.public_ip, count.index)
-    private_ip = element(aws_instance.vpn.*.private_ip, count.index)
-  }
-}
-
-data "template_file" "ansible_inventory" {
-  template = file("${path.module}/templates/inventory/ansible_inventory.tpl")
-
-  vars = {
-    all_hosts = join(
-      "\n",
-      concat(
-        data.template_file.web_hosts.*.rendered,
-        data.template_file.logs_hosts.*.rendered,
-        data.template_file.wallet_node_hosts.*.rendered,
-        data.template_file.seed_node_hosts.*.rendered,
-        data.template_file.miner_hosts.*.rendered,
-        data.template_file.masternode_hosts.*.rendered,
-        data.template_file.vpn.*.rendered,
-      ),
+locals {
+  web_hosts = [
+    for n in range(length(aws_instance.web)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.web.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.web.*.public_ip, n)
+        private_ip = element(aws_instance.web.*.private_ip, n)
+      }
     )
-    web_hosts         = join("\n", concat(aws_instance.web.*.tags.Hostname))
-    logs_hosts        = join("\n", concat(aws_instance.logs.*.tags.Hostname))
-    wallet_node_hosts = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
-    miner_hosts       = join("\n", concat(aws_instance.miner.*.tags.Hostname))
-    masternode_hosts  = join("\n", concat(aws_instance.masternode.*.tags.Hostname))
-    seed_hosts        = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
-  }
+  ]
+
+  logs_hosts = [
+    for n in range(length(aws_instance.logs)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.logs.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.logs.*.public_ip, n)
+        private_ip = element(aws_instance.logs.*.private_ip, n)
+      }
+    )
+  ]
+
+  wallet_node_hosts = [
+    for n in range(length(aws_instance.dashd_wallet)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.dashd_wallet.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.dashd_wallet.*.public_ip, n)
+        private_ip = element(aws_instance.dashd_wallet.*.private_ip, n)
+      }
+    )
+  ]
+
+  seed_node_hosts = [
+    for n in range(length(aws_instance.seed_node)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.seed_node.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.seed_node.*.public_ip, n)
+        private_ip = element(aws_instance.seed_node.*.private_ip, n)
+      }
+    )
+  ]
+
+  miner_hosts = [
+    for n in range(length(aws_instance.miner)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.miner.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.miner.*.public_ip, n)
+        private_ip = element(aws_instance.miner.*.private_ip, n)
+      }
+    )
+  ]
+
+  masternode_hosts = [
+    for n in range(length(aws_instance.masternode)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.masternode.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.masternode.*.public_ip, n)
+        private_ip = element(aws_instance.masternode.*.private_ip, n)
+      }
+    )
+  ]
+
+  vpn = [
+    for n in range(var.vpn_enabled ? 1 : 0) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.vpn.*.tags.Hostname, n)
+        public_ip  = element(aws_eip.vpn.*.public_ip, n)
+        private_ip = element(aws_instance.vpn.*.private_ip, n)
+      }
+    )
+  ]
+
+  ansible_inventory = templatefile(
+    "${path.module}/templates/inventory/ansible_inventory.tpl",
+    {
+      all_hosts = join(
+        "\n",
+        concat(
+          local.web_hosts.*,
+          local.logs_hosts.*,
+          local.wallet_node_hosts.*,
+          local.seed_node_hosts.*,
+          local.miner_hosts.*,
+          local.masternode_hosts.*,
+          local.vpn.*,
+        ),
+      )
+      web_hosts         = join("\n", concat(aws_instance.web.*.tags.Hostname))
+      logs_hosts        = join("\n", concat(aws_instance.logs.*.tags.Hostname))
+      wallet_node_hosts = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
+      miner_hosts       = join("\n", concat(aws_instance.miner.*.tags.Hostname))
+      masternode_hosts  = join("\n", concat(aws_instance.masternode.*.tags.Hostname))
+      seed_hosts        = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
+    }
+  )
 }
 
 output "ansible_inventory" {
-  value = data.template_file.ansible_inventory.rendered
+  value = local.ansible_inventory
 }
-

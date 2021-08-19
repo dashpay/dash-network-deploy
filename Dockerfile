@@ -28,7 +28,7 @@ RUN curl -sSL https://deb.nodesource.com/setup_lts.x | bash - && \
 
 # Install terraform
 
-ARG TERRAFORM_VERSION=0.12.31
+ARG TERRAFORM_VERSION=1.0.5
 
 RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
