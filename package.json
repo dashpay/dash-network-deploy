@@ -31,7 +31,7 @@
     "chai-arrays": "^2.0.0",
     "chai-as-promised": "^7.1.1",
     "dirty-chai": "^2.0.1",
-    "dockerode": "^2.5.7",
+    "dockerode": "^3.3.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
