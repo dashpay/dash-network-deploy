@@ -106,7 +106,7 @@ describe('Tendermint', () => {
 
         expect(blockHashes[blockHeight]).to.be.equal(blockHash);
 
-        const blocksCounts = Object.keys(blockHashes).map(c => parseInt(c, 10));
+        const blocksCounts = Object.keys(blockHashes).map((c) => parseInt(c, 10));
         const maxBlocksCount = Math.max(...blocksCounts);
 
         const blocksCountDiff = maxBlocksCount - blockHeight;

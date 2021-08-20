@@ -93,7 +93,7 @@ describe('Core', () => {
 
           const { result: masternodes } = await coreClient.masternodelist();
 
-          const nodeFromList = Object.values(masternodes).find(node => (
+          const nodeFromList = Object.values(masternodes).find((node) => (
             // eslint-disable-next-line no-underscore-dangle
             inventory._meta.hostvars[hostName].public_ip === node.address.split(':')[0]
           ));
