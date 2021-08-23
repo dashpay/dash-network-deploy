@@ -1,14 +1,17 @@
 - src: geerlingguy.pip
-  version: 1.3.0
+  version: 2.1.0
 
 - src: geerlingguy.docker
-  version: 2.5.3
+  version: 4.1.0
 
 - src: kyl191.openvpn
+  version: v0.9.1
 
 - src: Restless-ET.aws-scripts-mon
+  version: 1.0.1
 
 - src: arillso.logrotate
+  version: 1.6.1
 
 - src: elastic.beats
   version: v7.11.1
