@@ -42,4 +42,4 @@ docker run -ti --rm \
            -v "$HOME/.aws:/root/.aws" \
            -v "$PUBLIC_KEY_PATH:$PUBLIC_KEY_PATH" \
            -v "$PRIVATE_KEY_PATH:$PRIVATE_KEY_PATH" \
-           strophy/dash-network-deploy:latest "$@"
+           dashpay/dash-network-deploy "$@"
