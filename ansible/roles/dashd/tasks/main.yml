@@ -51,6 +51,7 @@
     - '{{ dashd_home }}:/dash'
     network_mode: host
     command: 'dashd -conf={{ dashd_home }}/.dashcore/dash.conf -datadir={{ dashd_home }}/.dashcore'
+    container_default_behavior: compatibility
 
 - name: wait for rpc to be available
   shell: dash-cli getblockchaininfo

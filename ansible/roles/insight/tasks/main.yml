@@ -19,12 +19,12 @@
     state: present
     restarted: yes
     pull: yes
-
+  register: output
 
 - name: check Insight container
   assert:
-    that: 'insight.insight.state.running'
+    that: 'output.services.insight.insight.state.running'
 
 - name: check Insight Proxy container
   assert:
-    that: 'insight_proxy.insight_proxy.state.running'
+    that: 'output.services.insight_proxy.insight_proxy.state.running'

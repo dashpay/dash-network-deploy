@@ -13,7 +13,7 @@ function services_list() {
 
     cd terraform/aws
 
-    terraform output services
+    terraform output -raw services
 
     cd ../..
 }

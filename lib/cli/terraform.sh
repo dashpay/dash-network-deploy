@@ -59,7 +59,7 @@ function terraform_run_command() {
 
     # Create the inventory file for Ansible
 
-    terraform output ansible_inventory > ../../${INVENTORY_FILE}
+    terraform output -raw ansible_inventory > ../../${INVENTORY_FILE}
 
     cd ../../
 }
@@ -74,7 +74,7 @@ function terraform_output_inventory() {
 
         terraform workspace select "$NETWORK_NAME"
 
-        terraform output ansible_inventory > ../../${INVENTORY_FILE}
+        terraform output -raw ansible_inventory > ../../${INVENTORY_FILE}
 
         echo "Ansible inventory file successfully created."
 
