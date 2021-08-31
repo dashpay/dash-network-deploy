@@ -214,6 +214,16 @@
       when: evo_services
     - role: elastic-beats
 
+
+# Set up fake latency on masternodes (if enabled)
+- hosts: masternodes
+  become: true
+  roles:
+    - role: add-fake-latency
+      when: latency == 1
+    - role: remove-fake-latency
+      when: latency == 0
+
 # Prune unused Docker images
 
 - hosts: all

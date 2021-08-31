@@ -1,0 +1,4 @@
+---
+
+- name: Generate fake latency
+  shell: tc qdisc replace dev ens5 root netem delay {{ latency_max }}ms {{ latency_min }}ms 25%
