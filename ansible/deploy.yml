@@ -215,14 +215,14 @@
     - role: elastic-beats
 
 
-# Set up fake latency on masternodes (if enabled)
-- hosts: masternodes
-  become: true
-  roles:
-    - role: add-fake-latency
-      when: latency == 1
-    - role: remove-fake-latency
-      when: latency == 0
+ # Set up fake latency on masternodes (if enabled)
+ - hosts: masternodes
+   become: true
+   roles:
+     - role: add-fake-latency
+       when: masternode_network_latency
+     - role: remove-fake-latency
+       when: masternode_network_latency
 
 # Prune unused Docker images
 
