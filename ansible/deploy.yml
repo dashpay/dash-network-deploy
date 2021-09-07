@@ -228,7 +228,7 @@
     - role: add-fake-latency
       when: masternode_network_latency
     - role: remove-fake-latency
-      when: masternode_network_latency
+      when: not masternode_network_latency
 
 # Prune unused Docker images
 
