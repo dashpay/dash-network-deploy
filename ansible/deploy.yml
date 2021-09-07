@@ -2,6 +2,12 @@
 
 # Bootstrap
 
+# Remove latency on masternodes before deployment starts (if enabled)
+- hosts: masternodes
+  become: true
+    - role: remove-fake-latency
+
+
 - hosts: all
   gather_facts: true
   become: true
