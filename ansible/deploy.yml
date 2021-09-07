@@ -5,220 +5,221 @@
 # Remove latency on masternodes before deployment starts (if enabled)
 - hosts: masternodes
   become: true
-    - role: remove-fake-latency
+  roles: 
+    -  remove-fake-latency
 
 
-- hosts: all
-  gather_facts: true
-  become: true
-  pre_tasks:
-    - name: check if inside AWS
-      uri:
-        url: http://169.254.169.254/latest/meta-data
-        timeout: 2
-      register: aws_uri_check
-      failed_when: False
-    - set_fact:
-        is_aws_environment: "{{ aws_uri_check.status == 200 }}"
-  roles:
-    - role: aws
-      when: is_aws_environment
-    - swap
+# - hosts: all
+#   gather_facts: true
+#   become: true
+#   pre_tasks:
+#     - name: check if inside AWS
+#       uri:
+#         url: http://169.254.169.254/latest/meta-data
+#         timeout: 2
+#       register: aws_uri_check
+#       failed_when: False
+#     - set_fact:
+#         is_aws_environment: "{{ aws_uri_check.status == 200 }}"
+#   roles:
+#     - role: aws
+#       when: is_aws_environment
+#     - swap
 
-# Setup VPN
+# # Setup VPN
 
-- hosts: vpn
-  become: true
-  roles:
-    - role: openvpn
-      when: openvpn_enabled
-      tags: vpn
+# - hosts: vpn
+#   become: true
+#   roles:
+#     - role: openvpn
+#       when: openvpn_enabled
+#       tags: vpn
 
-# Setup Python and Docker
+# # Setup Python and Docker
 
-- hosts: all
-  become: true
-  tasks:
-    - name: add universe repository
-      apt_repository:
-        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
-        state: present
+# - hosts: all
+#   become: true
+#   tasks:
+#     - name: add universe repository
+#       apt_repository:
+#         repo: deb http://archive.ubuntu.com/ubuntu bionic universe
+#         state: present
 
-- hosts: all
-  become: true
-  vars:
-    pip_package: python3-pip
-    pip_install_packages:
-      - name: pymongo
-      - name: docker
-      - name: docker-compose
-        version: "1.22.0"
-  roles:
-    - geerlingguy.pip
-    - geerlingguy.docker
-    - docker-options
-    - eternal-terminal
-    - role: ecr-login
-      when: aws_ecr_login
-      tags: always
+# - hosts: all
+#   become: true
+#   vars:
+#     pip_package: python3-pip
+#     pip_install_packages:
+#       - name: pymongo
+#       - name: docker
+#       - name: docker-compose
+#         version: "1.22.0"
+#   roles:
+#     - geerlingguy.pip
+#     - geerlingguy.docker
+#     - docker-options
+#     - eternal-terminal
+#     - role: ecr-login
+#       when: aws_ecr_login
+#       tags: always
 
-# Install AWS monitoring scripts
+# # Install AWS monitoring scripts
 
-- hosts: all
-  become: true
-  roles:
-    - role: Restless-ET.aws-scripts-mon
-      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
-      aws_scripts_mon_use_iam: true
+# - hosts: all
+#   become: true
+#   roles:
+#     - role: Restless-ET.aws-scripts-mon
+#       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
+#       aws_scripts_mon_use_iam: true
 
-# Configure dashd cli
+# # Configure dashd cli
 
-- hosts: all
-  become: true
-  roles:
-    - dash-cli
+# - hosts: all
+#   become: true
+#   roles:
+#     - dash-cli
 
-# Setup logs
+# # Setup logs
 
-- hosts: logs
-  become: true
-  roles:
-    - elastic-stack
+# - hosts: logs
+#   become: true
+#   roles:
+#     - elastic-stack
 
-# Setup wallets and miners
+# # Setup wallets and miners
 
-- hosts: wallet_nodes
-  become: true
-  roles:
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      tags:
-        - dashd
+# - hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: dashd
+#       dashd_indexes: true
+#       dashd_zmq: true
+#       tags:
+#         - dashd
 
-- hosts: miners
-  become: true
-  roles:
-    - role: dashd
-      tags:
-        - dashd
+# - hosts: miners
+#   become: true
+#   roles:
+#     - role: dashd
+#       tags:
+#         - dashd
 
-# Setup core on seed nodes
+# # Setup core on seed nodes
 
-- hosts: seed_nodes
-  become: true
-  roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
+# - hosts: seed_nodes
+#   become: true
+#   roles:
+#     - role: dashd
+#       dashd_listen: true
+#       dashd_zmq: true
+#       dashd_indexes: true
+#       tags:
+#         - dashd
 
-# Setup core on masternodes
+# # Setup core on masternodes
 
-- hosts: masternodes
-  become: true
-  pre_tasks:
-    - set_fact:
-        masternode: "{{ masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in masternodes
-    - fail:
-        msg: Masternode not defined in network config
-      when: masternode is not defined
-  roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - mn-sentinel
+# - hosts: masternodes
+#   become: true
+#   pre_tasks:
+#     - set_fact:
+#         masternode: "{{ masternodes[inventory_hostname] }}"
+#       tags: always
+#       when: inventory_hostname in masternodes
+#     - fail:
+#         msg: Masternode not defined in network config
+#       when: masternode is not defined
+#   roles:
+#     - role: dashd
+#       dashd_listen: true
+#       dashd_zmq: true
+#       dashd_indexes: true
+#       tags:
+#         - dashd
+#     - mn-sentinel
 
-# Generate first block on seed node
-# so that all nodes leave IBD mode (required for mining)
+# # Generate first block on seed node
+# # so that all nodes leave IBD mode (required for mining)
 
-- hosts: seed-1
-  become: true
-  roles:
-    - role: generate-firstblock
-      when: dash_network == "devnet" or dash_network == "regtest"
+# - hosts: seed-1
+#   become: true
+#   roles:
+#     - role: generate-firstblock
+#       when: dash_network == "devnet" or dash_network == "regtest"
 
-# Mine blocks
+# # Mine blocks
 
-- hosts: miners
-  become: true
-  roles:
-    - role: dashd-generate-miner
-      when: dash_network != "mainnet"
+# - hosts: miners
+#   become: true
+#   roles:
+#     - role: dashd-generate-miner
+#       when: dash_network != "mainnet"
 
-# Setup faucet and insight
+# # Setup faucet and insight
 
-- hosts: web
-  become: true
-  roles:
-    - multifaucet
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      dashd_listen: true
-    - insight
-  tags:
-    - web
+# - hosts: web
+#   become: true
+#   roles:
+#     - multifaucet
+#     - role: dashd
+#       dashd_indexes: true
+#       dashd_zmq: true
+#       dashd_listen: true
+#     - insight
+#   tags:
+#     - web
 
-# Start masternodes
+# # Start masternodes
 
-- hosts: masternode_wallet
-  become: true
-  roles:
-    - mn-init
+# - hosts: masternode_wallet
+#   become: true
+#   roles:
+#     - mn-init
 
-# Activate sporks
+# # Activate sporks
 
-- hosts: masternode_wallet
-  become: true
-  roles:
-    - role: activate-dashd-sporks
-      when: dash_network != "mainnet" and dash_network != "testnet"
+# - hosts: masternode_wallet
+#   become: true
+#   roles:
+#     - role: activate-dashd-sporks
+#       when: dash_network != "mainnet" and dash_network != "testnet"
 
-# Setup platform on seed nodes
+# # Setup platform on seed nodes
 
-- hosts: seed_nodes
-  become: true
-  pre_tasks:
-    - set_fact:
-        node: "{{ seed_nodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in seed_nodes
-    - fail:
-        msg: Seed node not defined in network config
-      when: node is not defined
-  roles:
-    - role: mn-evo-services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic-beats
+# - hosts: seed_nodes
+#   become: true
+#   pre_tasks:
+#     - set_fact:
+#         node: "{{ seed_nodes[inventory_hostname] }}"
+#       tags: always
+#       when: inventory_hostname in seed_nodes
+#     - fail:
+#         msg: Seed node not defined in network config
+#       when: node is not defined
+#   roles:
+#     - role: mn-evo-services
+#       tags:
+#         - evo
+#       when: evo_services
+#     - role: elastic-beats
 
-# Setup platform on masternodes
+# # Setup platform on masternodes
 
-- hosts: masternodes
-  become: true
-  pre_tasks:
-    - set_fact:
-        node: "{{ masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in masternodes
-    - fail:
-        msg: Masternode not defined in network config
-      when: node is not defined
-  roles:
-    - role: mn-evo-services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic-beats
+# - hosts: masternodes
+#   become: true
+#   pre_tasks:
+#     - set_fact:
+#         node: "{{ masternodes[inventory_hostname] }}"
+#       tags: always
+#       when: inventory_hostname in masternodes
+#     - fail:
+#         msg: Masternode not defined in network config
+#       when: node is not defined
+#   roles:
+#     - role: mn-evo-services
+#       tags:
+#         - evo
+#       when: evo_services
+#     - role: elastic-beats
 
 
  # Set up fake latency on masternodes (if enabled)
