@@ -143,5 +143,5 @@ elastic_max_heap_size: 2g
 #Fake latency stuff
 
 masternode_network_latency: false
-latency_min: 10
-latency_max: 100
+masternode_network_latency_min: 10
+masternode_network_latency_max: 100
