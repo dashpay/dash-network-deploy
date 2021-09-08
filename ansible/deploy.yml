@@ -2,6 +2,12 @@
 
 # Bootstrap
 
+# Remove latency on masternodes before deployment starts (if enabled)
+- hosts: masternodes
+  become: true
+  roles: 
+    -  remove-fake-latency
+
 - hosts: all
   gather_facts: true
   become: true
@@ -213,6 +219,16 @@
         - evo
       when: evo_services
     - role: elastic-beats
+
+
+ # Set up fake latency on masternodes (if enabled)
+- hosts: masternodes
+  become: true
+  roles:
+    - role: add-fake-latency
+      when: masternode_network_latency
+    - role: remove-fake-latency
+      when: not masternode_network_latency
 
 # Prune unused Docker images
 
