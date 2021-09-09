@@ -60,10 +60,6 @@ jobs:
             latest=${{ !contains(github.event.release.tag_name, '-dev') }}
             suffix=${{ steps.suffix.outputs.result }}
 
-      # BuildX cache temporary workaround
-      # https://github.com/docker/build-push-action/issues/252
-      # https://github.com/moby/buildkit/issues/1896
-
       - name: Build and push Docker image
         id: docker_build
         uses: docker/build-push-action@v2
@@ -73,14 +69,9 @@ jobs:
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
-          cache-from: type=local,src=/tmp/.buildx-cache # <---
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new # <---
-          # platforms: linux/amd64,linux/arm64,linux/arm/v7
-
-      - name: Temporary fix for Docker cache action
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
 
       - name: Show Docker image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
