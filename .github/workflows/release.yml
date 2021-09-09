@@ -50,7 +50,7 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v3
         with:
-          images: dashpay/dapi
+          images: dashpay/dash-network-deploy
           tags: |
             type=match,pattern=v(\d+),group=1
             type=match,pattern=v(\d+.\d+),group=1
