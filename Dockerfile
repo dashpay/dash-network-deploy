@@ -21,7 +21,7 @@ RUN apt-get update -y && \
 
 # Install Node.JS
 
-RUN curl -sSL https://deb.nodesource.com/setup_lts.x | bash - && \
+RUN curl -sSL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     nodejs
