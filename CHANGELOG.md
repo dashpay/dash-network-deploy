@@ -1,3 +1,24 @@
+# [0.21.0](https://github.com/dashpay/dash-network-deploy/compare/v0.20.0...v0.21.0) (2021-10-29)
+
+
+### Features
+
+* atomic latency option added to Ansible ([#255](https://github.com/dashpay/dash-network-deploy/issues/255))
+
+
+### Chores
+
+* migrate to Node.JS 16 ([#260](https://github.com/dashevo/dash-network-deploy/pull/260))
+* ansible improvements ([#254](https://github.com/dashevo/dash-network-deploy/pull/254))
+* update terraform to version 1.0.5 ([#253](https://github.com/dashevo/dash-network-deploy/pull/253))
+
+
+### Bug Fixes
+
+* network fork on restart ([#263](https://github.com/dashpay/dash-network-deploy/issues/263))
+
+
+
 # [0.20.0](https://github.com/dashpay/dash-network-deploy/compare/v0.19.0...v0.20.0) (2021-07-21)
 
 
