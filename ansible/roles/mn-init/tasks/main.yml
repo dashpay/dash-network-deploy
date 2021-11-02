@@ -16,7 +16,7 @@
 
 - name: get names of registered masternodes
   set_fact:
-      registered_masternode_names: "{{ registered_masternode_names + [ item ] }}"
+    registered_masternode_names: "{{ registered_masternode_names + [ item ] }}"
   when: get_protx_list_result.stdout|from_json|json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ groups["masternodes"] }}'
 
@@ -32,13 +32,17 @@
   debug:
     var: new_masternode_names
 
+- name: get list of banned masternodes from the wallet
+  set_fact:
+    banned_masternodes_list: "{{ get_protx_list_result.stdout|from_json|json_query('[?state.PoSeBanHeight > `0`]') }}"
+
 - set_fact:
     banned_masternode_names: []
 
 - name: get names of banned masternodes
   set_fact:
-      banned_masternode_names: "{{ banned_masternode_names + [ item ] }}"
-  when: get_protx_list_result.stdout|from_json|json_query("[?state.PoSeBanHeight > `0`]")
+    banned_masternode_names: "{{ banned_masternode_names + [ item ] }}"
+  when: banned_masternodes_list|json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ registered_masternode_names }}'
 
 - name: banned masternodes list
