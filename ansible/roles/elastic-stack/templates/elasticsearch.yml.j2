@@ -3,11 +3,26 @@
 ## https://github.com/elastic/elasticsearch/blob/master/distribution/docker/src/docker/config/elasticsearch.yml
 #
 cluster.name: "{{ dash_network_name }}-cluster"
-network.host: 0.0.0.0
+node.name: "{{ inventory_hostname }}-elasticsearch"
+
+network.bind_host: 0.0.0.0
+network.publish_host: {{ hostvars[inventory_hostname].private_ip }}
+http.port: 9200
+transport.port: 9300
+
+discovery.seed_hosts: "{% for seed in template_seeds %}{{ hostvars[seed].private_ip }}{% if not loop.last %},{% endif %}{% endfor %}"
+cluster.initial_master_nodes:
+{% for node in groups.logs_nodes %}  - {{ hostvars[node].private_ip }}
+{% endfor %}
 
 ## X-Pack settings
 ## see https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-xpack.html
 #
 xpack.license.self_generated.type: basic
-xpack.security.enabled: true
 xpack.monitoring.collection.enabled: true
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.verification_mode: certificate 
+xpack.security.transport.ssl.certificate_authorities: /usr/share/elasticsearch/config/certificates/ca/ca.crt
+xpack.security.transport.ssl.certificate: /usr/share/elasticsearch/config/certificates/{{ inventory_hostname }}/{{ inventory_hostname }}.crt
+xpack.security.transport.ssl.key: /usr/share/elasticsearch/config/certificates/{{ inventory_hostname }}/{{ inventory_hostname }}.key

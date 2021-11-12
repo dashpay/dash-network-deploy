@@ -1,12 +1,35 @@
 ---
 
-- name: create elastic services dir
+- name: increase VM max map count to ES minimum
+  command: sysctl -w vm.max_map_count=262144
+
+- name: create create elastic services and certs dirs
   file:
-    path: '{{ elastic_path }}'
+    path: '{{ certs_path }}/{{ inventory_hostname }}'
     state: directory
     recurse: true
 
+# Generate certificates on first logs node
+- import_tasks: generate-certs.yml
+  run_once: true
+  delegate_to: '{{ play_hosts|first }}'
+
+- name: fetch generated certs
+  run_once: true
+  fetch:
+    src: '{{ bundle_path }}/bundle.zip'
+    dest: /tmp/ansible/{{ dash_network_name }}/
+    flat: true
+
+- name: install certs
+  unarchive:
+    src: /tmp/ansible/{{ dash_network_name }}/bundle.zip
+    dest: '{{ certs_path }}'
+    include: [ '{{ inventory_hostname }}/*', 'ca/*' ]
+
 - name: copy files
+  vars:
+    template_seeds: "{{ groups.logs_nodes | reject('equalto', inventory_hostname) }}"
   template:
     src: '{{ item }}.j2'
     dest: '{{ elastic_path }}/{{ item }}'
@@ -20,6 +43,7 @@
     project_src: '{{ elastic_path }}'
     state: present
     pull: yes
+    restarted: yes
 
 - name: Wait for Elastic Stack to be available
   uri:
@@ -31,45 +55,7 @@
   retries: 10
   delay: 10
 
-- name: Configure ILM policy
-  uri:
-    url: "http://localhost:9200/_ilm/policy/masternode-logs"
-    method: PUT
-    status_code: 200
-    user: "{{ elastic_username }}"
-    password: "{{ elastic_password }}"
-    body_format: json
-    body: "{{ lookup('file', 'files/ilm_policy.json') }}"
-
-- name: Set up abci index template
-  uri:
-    url: "http://localhost:9200/_index_template/logs-drive.abci"
-    method: PUT
-    status_code: 200
-    user: "{{ elastic_username }}"
-    password: "{{ elastic_password }}"
-    body_format: json
-    body: "{{ lookup('file', 'files/index-templates/logs-drive.abci.json') }}"
-
-- name: Set up tenderdash index template
-  uri:
-    url: "http://localhost:9200/_index_template/logs-drive.tenderdash"
-    method: PUT
-    status_code: 200
-    user: "{{ elastic_username }}"
-    password: "{{ elastic_password }}"
-    body_format: json
-    body: "{{ lookup('file', 'files/index-templates/logs-drive.tenderdash.json') }}"
-
-- name: Set up Kibana UI
-  uri:
-    url: "http://localhost:5601/api/saved_objects/_bulk_create"
-    method: POST
-    status_code: 200
-    user: "{{ elastic_username }}"
-    password: "{{ elastic_password }}"
-    body_format: json
-    force_basic_auth: true
-    headers:
-      kbn-xsrf: true
-    body: "{{ lookup('file', 'files/infrastructure-ui-source.json') }}"
+# Generate certificates on first logs node
+- import_tasks: configure-cluster.yml
+  run_once: true
+  delegate_to: '{{ play_hosts|first }}'

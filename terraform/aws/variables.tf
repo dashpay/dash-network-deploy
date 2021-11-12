@@ -104,9 +104,9 @@ variable "web_count" {
   default = 1
 }
 
-variable "logs_enabled" {
-  default = true
-  description = "setup instance for logging"
+variable "logs_count" {
+  default = 1
+  description = "number of logging nodes to create. must be at least 1"
 }
 
 variable "vpn_enabled" {

@@ -1,0 +1,20 @@
+---
+
+- name: create certs and bundle dir
+  file:
+    path: '{{ bundle_path }}'
+    state: directory
+    recurse: true
+
+- name: generate templates for certificate creation
+  template:
+    src: 'certs/{{ item }}.j2'
+    dest: '{{ bundle_path }}/{{ item }}'
+  loop:
+    - docker-compose.yml
+    - instances.yml
+    - .env
+
+- name: generate certs
+  docker_compose:
+    project_src: '{{ bundle_path }}'

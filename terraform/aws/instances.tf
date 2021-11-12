@@ -227,7 +227,7 @@ resource "aws_instance" "vpn" {
 }
 
 resource "aws_instance" "logs" {
-  count = var.logs_enabled ? 1 : 0
+  count = var.logs_count
 
   ami                  = data.aws_ami.ubuntu.id
   instance_type        = var.logs_node_instance_type
@@ -246,14 +246,14 @@ resource "aws_instance" "logs" {
   ]
 
   volume_tags = {
-    Name        = "dn-${terraform.workspace}-logs"
-    Hostname    = "logs"
+    Name        = "dn-${terraform.workspace}-logs-${count.index + 1}"
+    Hostname    = "logs-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-logs"
-    Hostname    = "logs"
+    Name        = "dn-${terraform.workspace}-logs-${count.index + 1}"
+    Hostname    = "logs-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
 
