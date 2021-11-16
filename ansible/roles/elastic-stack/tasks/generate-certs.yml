@@ -14,7 +14,9 @@
     - docker-compose.yml
     - instances.yml
     - .env
+  register: templates
 
 - name: generate certs
   docker_compose:
     project_src: '{{ bundle_path }}'
+  when: templates is changed

@@ -3,7 +3,7 @@
 - name: increase VM max map count to ES minimum
   command: sysctl -w vm.max_map_count=262144
 
-- name: create create elastic services and certs dirs
+- name: create elastic services and certs dirs
   file:
     path: '{{ certs_path }}/{{ inventory_hostname }}'
     state: directory
@@ -25,7 +25,7 @@
   unarchive:
     src: /tmp/ansible/{{ dash_network_name }}/bundle.zip
     dest: '{{ certs_path }}'
-    include: [ '{{ inventory_hostname }}/*', 'ca/*' ]
+    include: [ '{{ inventory_hostname }}/*', 'ca/ca.crt' ]
 
 - name: copy files
   vars:
@@ -55,7 +55,7 @@
   retries: 10
   delay: 10
 
-# Generate certificates on first logs node
+# Configure Elasticsearch and Kibana
 - import_tasks: configure-cluster.yml
   run_once: true
   delegate_to: '{{ play_hosts|first }}'
