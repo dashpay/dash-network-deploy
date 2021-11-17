@@ -106,7 +106,7 @@ variable "web_count" {
 
 variable "logs_count" {
   default = 1
-  description = "number of logging nodes to create. must be at least 1"
+  description = "number of logging nodes to create. set to 0 to disable logging for the network"
 }
 
 variable "vpn_enabled" {
