@@ -42,4 +42,3 @@
     headers:
       kbn-xsrf: true
     body: "{{ lookup('file', 'files/infrastructure-ui-source.json') }}"
-    
