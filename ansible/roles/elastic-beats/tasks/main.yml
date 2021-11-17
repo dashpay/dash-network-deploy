@@ -8,7 +8,7 @@
   include_role:
     name: elastic.beats
   vars:
-    beats_version: 7.11.1
+    beats_version: 7.11.2
     beat: filebeat
     beat_conf:
       setup:
