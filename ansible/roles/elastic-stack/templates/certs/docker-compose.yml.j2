@@ -15,7 +15,7 @@ services:
           bin/elasticsearch-certutil cert --silent --pem \
           --ca-cert /certs/ca/ca.crt --ca-key /certs/ca/ca.key \
           --in /certs/instances.yml --out /certs/bundle.zip;
-          cd /certs && zip -j /certs/bundle.zip ca/ca.* -r;
+          cd /certs && zip /certs/bundle.zip ca/ca.* -r;
         fi;
         chown -R 1000:0 /certs
       '
