@@ -235,7 +235,12 @@ resource "aws_instance" "logs" {
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   root_block_device {
+    volume_size = var.logs_node_root_disk_size
+  }
+
+  ebs_block_device {
     volume_size = var.logs_node_disk_size
+    device_name = "/dev/nvme1n1"
   }
 
   subnet_id = element(aws_subnet.public.*.id, count.index)

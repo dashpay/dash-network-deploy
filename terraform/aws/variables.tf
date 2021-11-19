@@ -149,6 +149,11 @@ variable "web_node_disk_size" {
   default     = 50
 }
 
+variable "logs_node_root_disk_size" {
+  description = "Default disk size for nodes, increase for testnet"
+  default     = 20
+}
+
 variable "logs_node_disk_size" {
   description = "Disk size of log nodes"
   default     = 100

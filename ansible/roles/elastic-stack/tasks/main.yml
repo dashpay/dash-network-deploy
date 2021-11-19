@@ -12,6 +12,9 @@
     state: directory
     recurse: true
 
+# Partition and format data volume
+- import_tasks: volume.yml
+
 # Generate certificates on first logs node
 - import_tasks: generate-certs.yml
   run_once: true

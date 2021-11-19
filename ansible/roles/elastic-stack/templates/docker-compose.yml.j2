@@ -12,7 +12,7 @@ services:
         source: '{{ certs_path }}'
         target: /usr/share/elasticsearch/config/certificates/
       - type: volume
-        source: elasticsearch_data
+        source: '{{ data_path }}' 
         target: /usr/share/elasticsearch/data
     ports:
       - "9200:9200"
@@ -40,6 +40,3 @@ services:
 networks:
   elastic:
     driver: bridge
-
-volumes:
-  elasticsearch_data:
