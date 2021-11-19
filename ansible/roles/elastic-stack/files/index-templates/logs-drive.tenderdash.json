@@ -6,7 +6,11 @@
   "data_stream": { },
   "template": {
     "settings": {
-      "index.lifecycle.name": "masternode-logs"
+      "index": {
+        "lifecycle.name": "masternode-logs",
+        "number_of_shards": 3,
+        "number_of_replicas" : 0
+      }
     },
     "mappings": {
       "_source": {
