@@ -240,7 +240,7 @@ resource "aws_instance" "logs" {
 
   ebs_block_device {
     volume_size = var.logs_node_disk_size
-    device_name = "/dev/nvme1n1"
+    device_name = "/dev/sdf"
   }
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
