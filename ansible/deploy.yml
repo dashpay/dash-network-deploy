@@ -80,7 +80,7 @@
 
 # Setup logs
 
-- hosts: logs
+- hosts: logs_nodes
   become: true
   roles:
     - elastic-stack
