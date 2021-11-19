@@ -11,7 +11,7 @@ services:
       - type: bind
         source: '{{ certs_path }}'
         target: /usr/share/elasticsearch/config/certificates/
-      - type: volume
+      - type: bind
         source: '{{ data_path }}' 
         target: /usr/share/elasticsearch/data
     ports:
