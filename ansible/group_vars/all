@@ -137,8 +137,10 @@ mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name 
 
 elastic_username: elastic
 elastic_password:
+elastic_version: 7.15.2
+elastic_data_block_device: /dev/nvme1n1
 kibana_encryptionkey:
-elastic_max_heap_size: 2g
+elastic_heap_size: 2g
 
 #Fake latency stuff
 

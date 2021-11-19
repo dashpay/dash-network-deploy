@@ -104,9 +104,9 @@ variable "web_count" {
   default = 1
 }
 
-variable "logs_enabled" {
-  default = true
-  description = "setup instance for logging"
+variable "logs_count" {
+  default = 1
+  description = "number of logging nodes to create. set to 0 to disable logging for the network"
 }
 
 variable "vpn_enabled" {
@@ -147,6 +147,11 @@ variable "mn_node_disk_size" {
 variable "web_node_disk_size" {
   description = "Disk size of web nodes"
   default     = 50
+}
+
+variable "logs_node_root_disk_size" {
+  description = "Default disk size for nodes, increase for testnet"
+  default     = 20
 }
 
 variable "logs_node_disk_size" {

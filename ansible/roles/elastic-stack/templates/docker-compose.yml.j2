@@ -2,29 +2,29 @@ version: '3.2'
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.1
+    image: "docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}"
     volumes:
       - type: bind
         source: {{ elastic_path }}/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
-      - type: volume
-        source: elasticsearch_data
+      - type: bind
+        source: '{{ certs_path }}'
+        target: /usr/share/elasticsearch/config/certificates/
+      - type: bind
+        source: '{{ data_path }}' 
         target: /usr/share/elasticsearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
-      ES_JAVA_OPTS: "-Xms1g -Xmx{{ elastic_max_heap_size }}"
+      ES_JAVA_OPTS: "-Xms{{ elastic_heap_size }} -Xmx{{ elastic_heap_size }}"
       ELASTIC_PASSWORD: {{ elastic_password }}
-      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
-      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
-      discovery.type: single-node
     networks:
       - elastic
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.11.1
+    image: "docker.elastic.co/kibana/kibana:{{ elastic_version }}"
     volumes:
       - type: bind
         source: {{ elastic_path }}/kibana.yml
@@ -40,6 +40,3 @@ services:
 networks:
   elastic:
     driver: bridge
-
-volumes:
-  elasticsearch_data:

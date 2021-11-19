@@ -2,4 +2,7 @@
 
 elastic_compose_project_name: elastic
 elastic_path: '{{ dashd_home }}/{{ elastic_compose_project_name }}'
+bundle_path: '{{ elastic_path }}/bundle'
+certs_path: '{{ elastic_path }}/certificates'
+data_path: '{{ elastic_path }}/data'
 kibana_port: 5601

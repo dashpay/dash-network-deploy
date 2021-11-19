@@ -1,0 +1,6 @@
+instances:
+{% for node in groups.logs_nodes %}
+  - name: {{ hostvars[node].inventory_hostname }}
+    ip:
+      - {{ hostvars[node].private_ip}}
+{% endfor %}

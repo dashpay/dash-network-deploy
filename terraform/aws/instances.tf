@@ -227,7 +227,7 @@ resource "aws_instance" "vpn" {
 }
 
 resource "aws_instance" "logs" {
-  count = var.logs_enabled ? 1 : 0
+  count = var.logs_count
 
   ami                  = data.aws_ami.ubuntu.id
   instance_type        = var.logs_node_instance_type
@@ -235,7 +235,12 @@ resource "aws_instance" "logs" {
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   root_block_device {
+    volume_size = var.logs_node_root_disk_size
+  }
+
+  ebs_block_device {
     volume_size = var.logs_node_disk_size
+    device_name = "/dev/sdf"
   }
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
@@ -246,14 +251,14 @@ resource "aws_instance" "logs" {
   ]
 
   volume_tags = {
-    Name        = "dn-${terraform.workspace}-logs"
-    Hostname    = "logs"
+    Name        = "dn-${terraform.workspace}-logs-${count.index + 1}"
+    Hostname    = "logs-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-logs"
-    Hostname    = "logs"
+    Name        = "dn-${terraform.workspace}-logs-${count.index + 1}"
+    Hostname    = "logs-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
 
