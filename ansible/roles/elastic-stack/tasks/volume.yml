@@ -6,8 +6,6 @@
   ansible.builtin.file:
     path: "{{ data_path }}"
     state: "directory"
-    owner: "ubuntu"
-    group: "root"
 
 - name: create partition
   community.general.parted:
@@ -30,3 +28,10 @@
     src: "{{ elastic_data_block_device }}p1"
     fstype: ext4
     state: "mounted"
+
+- name: ensure correct permissions
+  ansible.builtin.file:
+    path: "{{ data_path }}"
+    state: "directory"
+    owner: "ubuntu"
+    group: "root"
