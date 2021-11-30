@@ -66,6 +66,11 @@ variable "vpn_port" {
   default     = 1194
 }
 
+variable "metrics_port" {
+  description = "VPN port"
+  default     = 3000
+}
+
 variable "kibana_port" {
   description = "Kibana port"
   default     = 5601
@@ -112,6 +117,11 @@ variable "logs_count" {
 variable "vpn_enabled" {
   default     = true
   description = "setup instance for vpn"
+}
+
+variable "metrics_enabled" {
+  default     = false
+  description = "setup instance for metrics"
 }
 
 variable "main_domain" {
@@ -161,5 +171,15 @@ variable "logs_node_disk_size" {
 
 variable "logs_node_instance_type" {
   description = "Instance type of log nodes"
+  default     = "t3.medium"
+}
+
+variable "metrics_node_root_disk_size" {
+  description = "Default disk size for metrics"
+  default     = 20
+}
+
+variable "metrics_node_instance_type" {
+  description = "Instance type of metrics node"
   default     = "t3.medium"
 }

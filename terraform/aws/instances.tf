@@ -267,3 +267,40 @@ resource "aws_instance" "logs" {
   }
 
 }
+
+resource "aws_instance" "metrics" {
+  count = var.metrics_enabled ? 1 : 0
+
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = var.metrics_node_instance_type
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  root_block_device {
+    volume_size = var.metrics_node_root_disk_size
+  }
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.metrics.id,
+  ]
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-metrics-${count.index + 1}"
+    Hostname    = "metrics-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-metrics-${count.index + 1}"
+    Hostname    = "metrics-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
+}

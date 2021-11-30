@@ -432,3 +432,51 @@ resource "aws_security_group" "vpn" {
     DashNetwork = terraform.workspace
   }
 }
+
+resource "aws_security_group" "metrics" {
+
+  name        = "${terraform.workspace}-metrics"
+  description = "metrics access"
+  vpc_id      = aws_vpc.default.id
+
+  # SSH access from anywhere
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    description = "SSH"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+  # VPN Client
+  ingress {
+    from_port   = var.metrics_port
+    to_port     = var.metrics_port
+    protocol    = "tcp"
+    description = "metrics connection"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+  # outbound internet access
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+
+    cidr_blocks = flatten([
+      "0.0.0.0/0",
+      aws_subnet.public.*.cidr_block,
+    ])
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-metrics"
+    DashNetwork = terraform.workspace
+  }
+}
