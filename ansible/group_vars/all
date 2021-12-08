@@ -140,7 +140,7 @@ elastic_password:
 elastic_version: 7.16.0
 elastic_data_block_device: /dev/nvme1n1
 kibana_encryptionkey:
-elastic_heap_size: 2g
+elastic_heap_size: 3g
 
 # Fake latency stuff
 
