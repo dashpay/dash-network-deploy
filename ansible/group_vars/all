@@ -142,7 +142,7 @@ elastic_data_block_device: /dev/nvme1n1
 kibana_encryptionkey:
 elastic_heap_size: 2g
 
-#Fake latency stuff
+# Fake latency stuff
 
 masternode_network_latency: false
 masternode_network_latency_min: 10
