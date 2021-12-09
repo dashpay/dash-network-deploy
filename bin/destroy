@@ -36,7 +36,7 @@ echo "Destroying $NETWORK_NAME network...";
 
 if [ -z ${KEEP_INFRASTRUCTURE} ]; then
     terraform_run_command "destroy"
-    rm "networks/$NETWORK_NAME.inventory"
+    rm "networks/$NETWORK_NAME/$NETWORK_NAME.inventory"
 else
     echo "Removing software and configuration and keeping infrastructure..."
     ansible_run_playbook "destroy.yml"
