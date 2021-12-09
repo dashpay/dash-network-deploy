@@ -1,5 +1,9 @@
 ---
 
+- name: get core container id
+  command: docker ps -aqf "name=dashd"
+  register: core_container_id
+
 - name: get tenderdash container id
   command: docker ps -aqf "name=mn_evo_services_tendermint"
   register: tenderdash_container_id
@@ -16,6 +20,20 @@
           enabled: false
       filebeat:
         inputs:
+          - type: container
+            enabled: true
+            index: "logs-core-{{ dash_network_name }}-%{[agent.version]}"
+            paths:
+              - '/var/lib/docker/containers/{{ core_container_id.stdout }}*/*.log'
+            processors:
+              - add_fields:
+                  target: event
+                  fields:
+                    dataset: "core-{{ dash_network_name }}"
+              - dissect:
+                  tokenizer: "%{?timestamp} %{message}"
+                  overwrite_keys: true
+                  target_prefix: ""
           - type: log
             enabled: true
             json.message_key: msg
