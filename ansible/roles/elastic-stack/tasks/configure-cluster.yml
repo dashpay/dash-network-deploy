@@ -10,6 +10,16 @@
     body_format: json
     body: "{{ lookup('file', 'files/ilm_policy.json') }}"
 
+- name: Set up core index template
+  uri:
+    url: "http://localhost:9200/_index_template/logs-core"
+    method: PUT
+    status_code: 200
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/index-templates/logs-core.json') }}"
+
 - name: Set up abci index template
   uri:
     url: "http://localhost:9200/_index_template/logs-drive.abci"
