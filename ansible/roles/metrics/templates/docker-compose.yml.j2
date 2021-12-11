@@ -8,6 +8,8 @@ services:
     volumes:
       - "./storage-schemas.conf:/opt/graphite/conf/storage-schemas.conf"
       - "./storage-aggregation.conf:/opt/graphite/conf/storage-aggregation.conf"
+      - "./http.d:/etc/nginx/http.d/"
+      - "./sites-enabled:/etc/nginx/sites-enabled/"
       - "graphite-storage:/opt/graphite/storage"
       - "statsd-config:/opt/statsd/config"
   grafana:

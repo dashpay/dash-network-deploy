@@ -15,6 +15,16 @@
     - storage-aggregation.conf
     - storage-schemas.conf
 
+- name: copy (more) files
+  copy:
+    src: 'http.d'
+    dest: '/opt/metrics'
+
+- name: copy (even more) files
+  copy:
+    src: 'sites-enabled'
+    dest: '/opt/metrics/'
+
 - name: start metrics
   docker_compose:
     project_src: '/opt/metrics/'
