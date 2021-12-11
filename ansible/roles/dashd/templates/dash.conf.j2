@@ -105,3 +105,10 @@ port={{ dashd_port }}
 {% if dashd_seednode is not none and not dashd_isseednode %}
 addnode={{ dashd_seednode }}:{{ dashd_port }}
 {% endif %}
+
+{% if dashd_ismetricsnode %}
+statsenabled=1
+statshost=127.0.0.1
+statsport=8125
+blocknotify=dash-cli getmininginfo && sleep 30 && dash-cli gettxoutsetinfo
+{% endif %}

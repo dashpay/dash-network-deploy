@@ -220,6 +220,12 @@
       when: evo_services
     - role: elastic-beats
 
+- hosts: metrics_nodes
+  become: true
+  roles:
+    - role: dashd
+    - role: metrics
+
 
  # Set up fake latency on masternodes (if enabled)
 - hosts: masternodes
@@ -238,3 +244,4 @@
     - name: prune unused docker images
       shell: docker system prune -af
       tags: always
+      

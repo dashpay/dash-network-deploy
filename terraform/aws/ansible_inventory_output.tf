@@ -23,6 +23,18 @@ locals {
     )
   ]
 
+    metrics_hosts = [
+    for n in range(length(aws_instance.metrics)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.metrics.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.metrics.*.public_ip, n)
+        private_ip = element(aws_instance.metrics.*.private_ip, n)
+      }
+    )
+  ]
+
   wallet_node_hosts = [
     for n in range(length(aws_instance.dashd_wallet)) : templatefile(
       "${path.module}/templates/inventory/hostname.tpl",
@@ -91,6 +103,7 @@ locals {
         concat(
           local.web_hosts.*,
           local.logs_hosts.*,
+          local.metrics_hosts.*,
           local.wallet_node_hosts.*,
           local.seed_node_hosts.*,
           local.miner_hosts.*,
@@ -100,6 +113,7 @@ locals {
       )
       web_hosts         = join("\n", concat(aws_instance.web.*.tags.Hostname))
       logs_hosts        = join("\n", concat(aws_instance.logs.*.tags.Hostname))
+      metrics_hosts     = join("\n", concat(aws_instance.metrics.*.tags.Hostname))
       wallet_node_hosts = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
       miner_hosts       = join("\n", concat(aws_instance.miner.*.tags.Hostname))
       masternode_hosts  = join("\n", concat(aws_instance.masternode.*.tags.Hostname))

@@ -8,6 +8,7 @@ dashd_zmq: false
 dashd_listen: false
 dashd_externalip: '{{ public_ip }}'
 dashd_isseednode: '{{ dashd_externalip == dashd_seednode }}'
+dashd_ismetricsnode: '{{ dashd_externalip == dashd_metricsnode }}'
 
 dashd_private_net_prefix: 16
 dashd_private_cidr: '{{ private_ip|ipsubnet(dashd_private_net_prefix) }}'

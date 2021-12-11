@@ -1,0 +1,24 @@
+---
+
+- name: create metrics dir
+  file: path='/opt/metrics' state=directory recurse=true
+
+- name: copy files
+  template:
+    src: '{{ item }}.j2'
+    dest: '/opt/metrics/{{ item }}'
+  loop:
+    - blue-d.svg
+    - docker-compose.yml
+    - grafana.ini
+    - home.json
+    - storage-aggregation.conf
+    - storage-schemas.conf
+
+- name: start metrics
+  docker_compose:
+    project_src: '/opt/metrics/'
+    state: present
+    restarted: yes
+    pull: yes
+  register: output

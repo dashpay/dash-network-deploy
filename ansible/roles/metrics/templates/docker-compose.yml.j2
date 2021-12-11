@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  graphite:
+    image: graphiteapp/graphite-statsd
+    restart: always
+    network_mode: "host"
+    volumes:
+      - "./storage-schemas.conf:/opt/graphite/conf/storage-schemas.conf"
+      - "./storage-aggregation.conf:/opt/graphite/conf/storage-aggregation.conf"
+      - "graphite-storage:/opt/graphite/storage"
+      - "statsd-config:/opt/statsd/config"
+  grafana:
+    image: grafana/grafana
+    network_mode: "host"
+    volumes:
+      - "./grafana.ini:/etc/grafana/grafana.ini"
+      - "./blue-d.svg:/usr/share/grafana/public/img/grafana_icon.svg"
+      - "./home.json:/usr/share/grafana/public/dashboards/home.json"
+      - "grafana-storage:/var/lib/grafana"
+
+volumes:
+  grafana-storage:
+  graphite-storage:
+  statsd-config:

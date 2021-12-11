@@ -90,6 +90,9 @@ dashd_zmq_port: 29998
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
 dashd_seednode: '{{ hostvars[groups.seed_nodes[0]]["public_ip"] if groups.seed_nodes else none }}'
 
+#Metrics node stuff
+dashd_metricsnode: '{{ hostvars[groups.metrics_nodes[0]]["public_ip"] if groups.metrics_nodes else none }}'
+
 # Faucet stuff
 
 faucet_rpc_host: '{{ hostvars[groups.faucet_wallet[0]]["private_ip"] }}'

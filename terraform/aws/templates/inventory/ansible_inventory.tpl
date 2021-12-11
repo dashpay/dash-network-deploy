@@ -6,6 +6,9 @@ ${web_hosts}
 [logs_nodes]
 ${logs_hosts}
 
+[metrics_nodes]
+${metrics_hosts}
+
 [wallet_nodes]
 ${wallet_node_hosts}
 
