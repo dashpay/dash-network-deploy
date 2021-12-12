@@ -488,18 +488,6 @@ resource "aws_security_group" "metrics" {
     ]
   }
 
-  # VPN Client
-  ingress {
-    from_port   = var.metrics_port
-    to_port     = var.metrics_port
-    protocol    = "tcp"
-    description = "metrics connection"
-
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
-  }
-
   # outbound internet access
   egress {
     from_port = 0
