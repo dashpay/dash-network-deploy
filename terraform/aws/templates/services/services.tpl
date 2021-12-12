@@ -34,6 +34,11 @@ Kibana
 
 ${logs_host}:${kibana_port}
 
+Metrics
+=======
+
+${metrics_host}:3000
+
 VPN
 ===
 
