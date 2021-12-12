@@ -220,6 +220,8 @@
       when: evo_services
     - role: elastic-beats
 
+# Setup metrics node with dashd + grafana
+
 - hosts: metrics_nodes
   become: true
   roles:
@@ -244,4 +246,3 @@
     - name: prune unused docker images
       shell: docker system prune -af
       tags: always
-      
