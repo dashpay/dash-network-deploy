@@ -199,3 +199,14 @@ resource "aws_eip" "vpn" {
   }
 }
 
+resource "aws_eip" "metrics" {
+
+  count = var.metrics_enabled ? 1 : 0
+
+  instance = aws_instance.metrics[0].id
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-metrics"
+    DashNetwork = terraform.workspace
+  }
+}

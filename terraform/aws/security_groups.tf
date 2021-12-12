@@ -332,6 +332,19 @@ resource "aws_security_group" "masternode" {
     ])
   }
 
+  # Tendermint metrics
+  ingress {
+    from_port   = 26660
+    to_port     = 26660
+    protocol    = "tcp"
+    description = "Tendermint metrics"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.metrics[0].public_ip}/32",
+    ])
+  }
+
   tags = {
     Name        = "dn-${terraform.workspace}-masternode"
     DashNetwork = terraform.workspace
@@ -445,6 +458,30 @@ resource "aws_security_group" "metrics" {
     to_port     = 22
     protocol    = "tcp"
     description = "SSH"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+  #Grafana access
+    ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    description = "Grafana"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+    #Graphite from self access
+    ingress {
+    from_port   = 8085
+    to_port     = 8085
+    protocol    = -1
+    self = true
 
     cidr_blocks = [
       "0.0.0.0/0",
