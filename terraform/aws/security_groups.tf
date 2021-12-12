@@ -480,7 +480,7 @@ resource "aws_security_group" "metrics" {
     ingress {
     from_port   = 8085
     to_port     = 8085
-    protocol    = -1
+    protocol    = "tcp"
     self = true
 
     cidr_blocks = [
