@@ -400,7 +400,11 @@ indexer = "kv"
 # When true, Prometheus metrics are served under /metrics on
 # PrometheusListenAddr.
 # Check out the documentation for the list of available metrics.
+{% if dashd_metricsnode is not none %}
+prometheus = true
+{% else %}
 prometheus = false
+{% endif %}
 
 # Address to listen for Prometheus collector(s) connections
 prometheus_listen_addr = ":26660"
