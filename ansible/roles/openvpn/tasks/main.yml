@@ -29,7 +29,7 @@
     openvpn_push: "[ 'route-nopull' ] + {{openvpn_forwarded_ips}}"
     openvpn_redirect_gateway: no
 
-- name: Copy OpenVPN config to 'netwoks' dir
+- name: Copy OpenVPN config to 'networks' dir
   become: no
   vars:
     openvpn_config_path: "/tmp/ansible/{{ dash_network_name }}/{{inventory_hostname}}.ovpn"

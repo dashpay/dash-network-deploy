@@ -51,9 +51,19 @@
     pull: yes
     restarted: yes
 
-- name: Wait for Elastic Stack to be available
+- name: Wait for Elasticsearch to be available
   uri:
     url: http://localhost:9200
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+  register: response
+  until: response.status == 200
+  retries: 10
+  delay: 10
+
+- name: Wait for Kibana to be available
+  uri:
+    url: http://localhost:5601
     user: "{{ elastic_username }}"
     password: "{{ elastic_password }}"
   register: response

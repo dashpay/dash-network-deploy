@@ -1,0 +1,37 @@
+{
+  "index_patterns": [
+    "logs-core-*"
+  ],
+  "priority": 200,
+  "data_stream": { },
+  "template": {
+    "settings": {
+      "index": {
+        "lifecycle.name": "masternode-logs",
+        "number_of_shards": 3,
+        "number_of_replicas" : 0
+      }
+    },
+    "mappings": {
+      "_source": {
+        "enabled": true,
+        "includes": [],
+        "excludes": []
+      },
+      "dynamic": "runtime",
+      "numeric_detection": true,
+      "date_detection": true,
+      "properties": {
+        "event.dataset": {
+          "type": "keyword"
+        },
+        "host.name": {
+          "type": "keyword"
+        },
+        "message": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}

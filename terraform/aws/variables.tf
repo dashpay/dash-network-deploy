@@ -171,7 +171,7 @@ variable "logs_node_disk_size" {
 
 variable "logs_node_instance_type" {
   description = "Instance type of log nodes"
-  default     = "t3.medium"
+  default     = "c5a.large"
 }
 
 variable "metrics_node_root_disk_size" {
