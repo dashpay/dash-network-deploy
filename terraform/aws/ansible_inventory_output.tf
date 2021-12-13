@@ -29,7 +29,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.metrics.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.metrics.*.public_ip, n)
+        public_ip  = element(aws_eip.metrics.*.public_ip, n)
         private_ip = element(aws_instance.metrics.*.private_ip, n)
       }
     )
