@@ -220,14 +220,13 @@
       when: evo_services
     - role: elastic-beats
 
-# Setup metrics node with dashd + grafana
+# Set up metrics node with dashd + grafana
 
 - hosts: metrics_nodes
   become: true
   roles:
     - role: dashd
     - role: metrics
-
 
  # Set up fake latency on masternodes (if enabled)
 - hosts: masternodes
