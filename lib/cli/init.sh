@@ -14,10 +14,10 @@ else
     print_error "Invalid network name '$NETWORK_NAME'. Supported networks: regtest, devnet-<name>, testnet, mainnet"
 fi
 
-INVENTORY_FILE="networks/$NETWORK_NAME/$NETWORK_NAME.inventory"
-ANSIBLE_CONFIG_PATH="networks/$NETWORK_NAME/$NETWORK_NAME.yml"
-TERRAFORM_CONFIG_PATH="networks/$NETWORK_NAME/$NETWORK_NAME.tfvars"
-VPN_CONFIG_PATH="networks/$NETWORK_NAME/$NETWORK_NAME.ovpn"
+INVENTORY_FILE="networks/$NETWORK_NAME.inventory"
+ANSIBLE_CONFIG_PATH="networks/$NETWORK_NAME.yml"
+TERRAFORM_CONFIG_PATH="networks/$NETWORK_NAME.tfvars"
+VPN_CONFIG_PATH="networks/$NETWORK_NAME.ovpn"
 
 # Load configuration
 

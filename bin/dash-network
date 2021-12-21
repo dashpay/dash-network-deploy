@@ -11,8 +11,8 @@ fi
 
 # Load configuration	
 
-if [[ -f ".env" ]]; then
-    source ".env"
+if [ -f networks/.env ]; then
+    source networks/.env
 fi
 
 # Show help if command is not specified
@@ -38,7 +38,7 @@ fi
 docker run -ti --rm \
            --device /dev/net/tun \
            --cap-add=NET_ADMIN \
-           -v "$PWD:/networks" \
+           -v "$PWD/networks:/networks" \
            -v "$HOME/.aws:/root/.aws" \
            -v "$PUBLIC_KEY_PATH:$PUBLIC_KEY_PATH" \
            -v "$PRIVATE_KEY_PATH:$PRIVATE_KEY_PATH" \

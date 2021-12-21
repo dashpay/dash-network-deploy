@@ -44,7 +44,10 @@ Dash Core developers to assist in Dash Evolution development.
 
 ### Networks definition
 
-You can use `generate` command in order to create configs for your network:
+Network configuration is stored in the `networks` directory relative to your
+current path. You can maintain multiple different network definitions in the
+same directory in a flat structure. You can use the `generate` command in order
+to create configs for your network:
 
 ```bash
 dash-network generate <network_name> <masternode_count>
@@ -58,7 +61,8 @@ Ansible configuration are in the `*.yaml` file.
 file contains the majority of playbook options.
 The rest are defined in [ansible roles](https://github.com/dashpay/dash-network-deploy/tree/master/ansible/roles).
 
-Configure your credentials in the `.env` file.
+Configure your credentials in the `networks/.env` file. A template for this file
+will be generated for you if it does not yet exist.
 
 ### Using git
 
@@ -77,7 +81,7 @@ To deploy a Dash Network use the `deploy` command with a particular network name
 dash-network deploy <network_name>
 ```
 
-You may pass the `--only-infrastructure` or `--only-provisioning` option to avoid to do a particular type of work.
+You may pass the `--only-infrastructure` or `--only-provisioning` option to avoid doing a particular type of work.
 
 To destroy an available Dash Network use `destroy` command:
 

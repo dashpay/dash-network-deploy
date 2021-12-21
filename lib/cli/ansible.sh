@@ -46,7 +46,7 @@ function ansible_download_vpn_config() {
                     -b \
                     -i "../$INVENTORY_FILE" \
                     -m "fetch" \
-                    -a "src=/etc/openvpn/$NETWORK_NAME-vpn.ovpn dest=../networks/$NETWORK_NAME/$NETWORK_NAME.ovpn flat=true"
+                    -a "src=/etc/openvpn/$NETWORK_NAME-vpn.ovpn dest=../networks/$NETWORK_NAME.ovpn flat=true"
 
         cd ..
 
