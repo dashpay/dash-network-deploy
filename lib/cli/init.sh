@@ -27,6 +27,7 @@ if [ ! -f networks/.env ]; then
 
 Generating blank '.env' file... "
 
+  mkdir -p networks
   cat > networks/.env<< EOF
 # Terraform remote backend configuration https://www.terraform.io/docs/backends/types/s3.html
 TERRAFORM_S3_BUCKET=""
