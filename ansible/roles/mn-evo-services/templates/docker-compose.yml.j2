@@ -16,7 +16,7 @@ services:
   drive_abci:
     image: {{ drive_image }}
     restart: always
-    command: sh -c "sleep 15 && npm run abci"
+    command: sh -c "sleep 15 && yarn workspace @dashevo/drive abci"
     volumes:
       - drive_leveldb:/usr/src/app/db
       - {{ mn_evo_services_path }}/logs:/var/log/drive
@@ -63,7 +63,7 @@ services:
 
   dapi_api:
     image: {{ dapi_image }}
-    command: npm run api
+    command: yarn workspace @dashevo/dapi api
     restart: always
     depends_on:
       - tendermint
@@ -89,7 +89,7 @@ services:
 
   dapi_tx_filter_stream:
     image: {{ dapi_image }}
-    command: npm run tx-filter-stream
+    command: yarn workspace @dashevo/dapi tx-filter-stream
     restart: always
     ports:
       - 3006:3006
