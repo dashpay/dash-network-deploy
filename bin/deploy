@@ -13,6 +13,7 @@ Usage: deploy [options] <network_name>
 Options:
   -i        --only-infrastructure         - Only build infrastructure using Terraform
   -p        --only-provisioning           - Only provisioning using Ansible
+  -f        --force-deployment            - Force deployment of a devnet branch on a different devnet
   -a=<args> --ansible-args=<args>         - Pass extra arguments to ansible-playbook command
             --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
   -h        --help                        - Show help"
@@ -25,6 +26,9 @@ case ${i} in
     ;;
     -p|--only-provisioning)
     ONLY_PROVISIONING=1
+    ;;
+    -f|--force-deployment)
+    FORCED_DEPLOYMENT=1
     ;;
     -a=*|--ansible-args=*)
     ANSIBLE_ARGS="${i#*=}"
@@ -47,6 +51,14 @@ done
 . ./lib/cli/ansible.sh
 
 echo "Deploying $NETWORK_NAME network...";
+
+BRANCH=`git symbolic-ref --short -q HEAD`
+if [[ $BRANCH == "devnet-"* ]]; then
+    if [[ $BRANCH != $NETWORK_NAME ]] && [[ $FORCED_DEPLOYMENT != 1 ]]; then
+        echo "Wrong Devnet - Check you're in the correct branch. Use -f to force if you're sure"
+        exit 1
+    fi
+fi
 
 # Setup infrastructure using Terraform
 
