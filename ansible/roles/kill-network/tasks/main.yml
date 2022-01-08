@@ -20,6 +20,12 @@
 - name: remove all docker data
   shell: docker system prune -a -f --volumes
 
+- name: Unmount data
+  ansible.posix.mount:
+    path: /dash/elastic/data
+    state: unmounted
+  when: inventory_hostname in groups['logs_nodes']
+
 - name: delete dash home dir
   file:
       state: absent
