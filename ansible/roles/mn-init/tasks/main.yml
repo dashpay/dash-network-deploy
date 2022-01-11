@@ -1,5 +1,25 @@
 ---
 
+- name: wait for wallet sync
+  register: blockchain_status
+  command: dash-cli getblockchaininfo
+  retries: 100
+  delay: 60
+  until: blockchain_status.stdout|from_json|json_query("blocks") == blockchain_status.stdout|from_json|json_query("headers")
+
+- name: Force mnsync next
+  command: dash-cli mnsync next
+
+- name: wait for blockchain sync
+  command: dash-cli mnsync status
+  register: mnsync_status
+  retries: 100
+  delay: 60
+  until: mnsync_status.stdout|from_json|json_query("IsBlockchainSynced") == true
+
+- name: Force mnsync next (again)
+  command: dash-cli mnsync next
+
 - name: wait for wallet to sync with blockchain
   command: dash-cli mnsync status
   register: mnsync_status
