@@ -89,7 +89,7 @@ services:
 
   dapi_tx_filter_stream:
     image: {{ dapi_image }}
-    command: npm run tx-filter-stream
+    command: yarn workspace @dashevo/dapi core-streams
     restart: always
     ports:
       - 3006:3006
