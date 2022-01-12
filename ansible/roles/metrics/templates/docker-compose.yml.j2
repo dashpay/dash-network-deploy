@@ -20,8 +20,14 @@ services:
       - "./blue-d.svg:/usr/share/grafana/public/img/grafana_icon.svg"
       - "./home.json:/usr/share/grafana/public/dashboards/home.json"
       - "grafana-storage:/var/lib/grafana"
+  prometheus:
+    image: prom/prometheus
+    network_mode: "host"
+    volumes:
+      - "prometheus-storage:/prometheus"
 
 volumes:
   grafana-storage:
   graphite-storage:
   statsd-config:
+  prometheus-storage:
