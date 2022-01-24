@@ -28,10 +28,10 @@ services:
       - CORE_ZMQ_HOST={{ private_ip }}
       - CORE_ZMQ_PORT={{ dashd_zmq_port }}
       - DOCUMENT_MONGODB_URL=mongodb://drive_mongodb:27017?replicaSet=driveDocumentIndices
-      - DPNS_MASTER_PUBLIC_KEY={{ dpns_hdpubkey }}
-      - DASHPAY_MASTER_PUBLIC_KEY={{ dashpay_hdpubkey }}
-      - FEATURE_FLAGS_MASTER_PUBLIC_KEY={{ ff_hdpubkey }}
-      - MASTERNODE_REWARD_SHARES_MASTER_PUBLIC_KEY={{ mnrewardshares_hdpubkey }}
+      - DPNS_MASTER_PUBLIC_KEY={{ dpns_hd_public_key }}
+      - DASHPAY_MASTER_PUBLIC_KEY={{ dashpay_hd_public_key }}
+      - FEATURE_FLAGS_MASTER_PUBLIC_KEY={{ feature_flags_hd_public_key }}
+      - MASTERNODE_REWARD_SHARES_MASTER_PUBLIC_KEY={{ mn_reward_shares_hd_public_key }}
       - NODE_ENV={{ node_environment }}
       - LOG_STDOUT_LEVEL={{ drive_log_stdout_level }}
       - LOG_PRETTY_FILE_LEVEL={{ drive_log_pretty_file_level }}
@@ -85,7 +85,7 @@ services:
 
   dapi_tx_filter_stream:
     image: {{ dapi_image }}
-    command: yarn workspace @dashevo/dapi tx-filter-stream
+    command: yarn workspace @dashevo/dapi core-streams
     restart: always
     ports:
       - 3006:3006
