@@ -17,4 +17,3 @@
   template:
     src: 'tcpdumpd'
     dest: '/etc/logrotate.d/tcpdumpd'
-    
