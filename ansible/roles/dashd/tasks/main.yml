@@ -11,7 +11,7 @@
 
 - name: Make sure tcpdump unit is running
   ansible.builtin.systemd:
-    state: started
+    state: restarted
     name: tcpdumpd
     daemon_reload: true
 
