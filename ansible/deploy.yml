@@ -71,7 +71,7 @@
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
 
-# Configure dashd cli
+# Configure dashd cli and network logging (if enanbled)
 
 - hosts: all
   become: true
