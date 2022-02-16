@@ -76,6 +76,8 @@
 - hosts: all
   become: true
   roles:
+    - role: tcpdumpd
+      when: dashd_network_logging != 0
     - dash-cli
 
 # Setup logs

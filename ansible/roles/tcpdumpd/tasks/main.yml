@@ -1,0 +1,19 @@
+- name: apparmor disable for tcpdump
+  shell: apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
+  ignore_errors: yes
+
+- name: Configure tcpdump
+  template:
+    src: 'tcpdump.service'
+    dest: '/etc/systemd/system/tcpdumpd.service'
+
+- name: Make sure tcpdump unit is running
+  ansible.builtin.systemd:
+    state: restarted
+    name: tcpdumpd
+    daemon_reload: true
+
+- name: Copy logrotate script
+  template:
+    src: 'tcpdumpd'
+    dest: '/etc/logrotate.d/tcpdumpd'
