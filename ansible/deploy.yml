@@ -5,7 +5,7 @@
 # Remove latency on masternodes before deployment starts (if enabled)
 - hosts: masternodes
   become: true
-  roles: 
+  roles:
     -  remove-fake-latency
 
 - hosts: all
@@ -49,7 +49,6 @@
   vars:
     pip_package: python3-pip
     pip_install_packages:
-      - name: pymongo
       - name: docker
       - name: docker-compose
         version: "1.22.0"
