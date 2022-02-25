@@ -48,7 +48,6 @@
     - dapi-nginx-errors.grpc_conf
     - .env
     - dapi-envoy.yaml
-    - initiate_mongodb_replica.js
 
 - name: pull platform docker images
   command: docker-compose pull
