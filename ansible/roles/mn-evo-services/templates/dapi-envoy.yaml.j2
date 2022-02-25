@@ -17,31 +17,35 @@ static_resources:
               routes:
               - match: { prefix: "/org.dash.platform.dapi.v0.Core/subscribeToTransactionsWithProofs" }
                 route:
-                  cluster: tx_filter_stream
+                  cluster: core_streams
+                  max_grpc_timeout: 0s
+              - match: { prefix: "/org.dash.platform.dapi.v0.Core/subscribeToBlockHeadersWithChainLocks" }
+                route:
+                  cluster: core_streams
                   max_grpc_timeout: 0s
               - match: { prefix: "/org.dash.platform.dapi.v0.Core" }
                 route:
-                  cluster: core_and_platform
+                  cluster: api
                   max_grpc_timeout: 0s
               - match: { prefix: "/org.dash.platform.dapi.v0.Platform" }
                 route:
-                  cluster: core_and_platform
+                  cluster: api
                   max_grpc_timeout: 0s
               - match: { prefix: "/grpc.health.v1.Health" }
                 route:
-                  cluster: tx_filter_stream
+                  cluster: core_streams
                   max_grpc_timeout: 0s
           http_filters:
           - name: envoy.grpc_web
           - name: envoy.router
   clusters:
-  - name: core_and_platform
+  - name: api
     connect_timeout: 0.25s
     type: logical_dns
     http2_protocol_options: {}
     lb_policy: round_robin
     hosts: [{ socket_address: { address: {{ private_ip }}, port_value: 3005 }}]
-  - name: tx_filter_stream
+  - name: core_streams
     connect_timeout: 0.25s
     type: logical_dns
     http2_protocol_options: {}
