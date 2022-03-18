@@ -9,7 +9,7 @@ const allHosts = inventory.masternodes.hosts.concat(
   inventory.seed_nodes.hosts,
 );
 
-describe('Core', () => {
+describe.only('Core', () => {
   describe('All nodes', () => {
     const blockchainInfo = {};
     let maxBlockHeight = 0;
@@ -64,7 +64,7 @@ describe('Core', () => {
           expect(networkactive).to.be.equal(true);
 
           if (network.type === 'devnet') {
-            expect(subversion).to.have.string(`(${network.type}=${network.name})/`);
+            expect(subversion).to.have.string(`(${network.type}.${network.name})/`);
           }
         });
 
