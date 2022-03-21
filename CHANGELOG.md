@@ -16,6 +16,8 @@
 * generate keys for system data contracts ([#279](https://github.com/dashpay/dash-network-deploy/issues/279))
 * implement elasticsearch cluster ([#267](https://github.com/dashpay/dash-network-deploy/issues/267))
 * core traffic logs ([#280](https://github.com/dashpay/dash-network-deploy/issues/280))
+* modify compose commands to use yarn ([#274](https://github.com/dashpay/dash-network-deploy/issues/274), [#278](https://github.com/dashpay/dash-network-deploy/issues/278))
+* speed up masternodes syncing ([#277](https://github.com/dashpay/dash-network-deploy/issues/277))
 
 
 
