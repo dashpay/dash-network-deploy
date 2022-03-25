@@ -18,11 +18,6 @@ proxy-app = "tcp://drive_abci:26658"
 # A custom human readable name for this node
 moniker = "{{ inventory_hostname }}"
 
-# If this node is many blocks behind the tip of the chain, FastSync
-# allows them to catchup quickly by downloading blocks in parallel
-# and verifying their commits
-fast-sync = true
-
 # Database backend: goleveldb | cleveldb | boltdb | rocksdb | badgerdb
 # * goleveldb (github.com/syndtr/goleveldb - most popular implementation)
 #   - pure go
@@ -334,6 +329,11 @@ enable = true
 #   1) "v0" (default) - the standard block sync implementation
 #   2) "v2" - DEPRECATED, please use v0
 version = "v0"
+
+# If this node is many blocks behind the tip of the chain, FastSync
+# allows them to catchup quickly by downloading blocks in parallel
+# and verifying their commits
+fast-sync = true
 
 #######################################################
 ###         Consensus Configuration Options         ###
