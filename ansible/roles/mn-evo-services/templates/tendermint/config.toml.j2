@@ -60,6 +60,8 @@ genesis-file = "config/genesis.json"
 
 is-masternode = {% if inventory_hostname in groups.masternodes %}true{% else %}false{% endif %}
 
+{% if inventory_hostname in groups.masternodes %}mode = validator{% endif %}
+
 # Path to the JSON file containing the private key to use as a validator in the consensus protocol
 priv-validator-key-file = "config/priv_validator_key.json"
 
