@@ -35,7 +35,7 @@
                   overwrite_keys: true
                   target_prefix: ""
           - type: log
-            enabled: true
+            enabled: "{{ tenderdash_container_id.stdout | length > 0 }}"
             json.message_key: msg
             json.keys_under_root: false
             exclude_files: ['\.gz$']
@@ -112,7 +112,7 @@
                     - json.time
                   ignore_missing: true
           - type: container
-            enabled: true
+            enabled: "{{ tenderdash_container_id.stdout | length > 0 }}"
             json.message_key: _msg
             json.keys_under_root: false
             index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
