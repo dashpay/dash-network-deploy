@@ -49,6 +49,7 @@ tendermint_uid: "100"
 tendermint_gid: "1000"
 # tenderdash_chain_id:
 tenderdash_max_validators_count: 50
+tenderdash_log_level: debug
 
 # DAPI
 dapi_image: dashpay/dapi
