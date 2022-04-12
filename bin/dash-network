@@ -35,7 +35,7 @@ fi
 
 # Run container with specified command
 
-docker run -ti --rm \
+docker run -t --rm \
            --device /dev/net/tun \
            --cap-add=NET_ADMIN \
            -v "$PWD:/networks" \
