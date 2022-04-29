@@ -92,6 +92,10 @@ highsubsidyblocks=500
 highsubsidyfactor=10
 {% endif %}
 
+{% if dashd_debug == 1 %}
+logips=1
+{% endif %}
+
 rpcport={{ dashd_rpc_port }}
 rpcbind=0.0.0.0
 
