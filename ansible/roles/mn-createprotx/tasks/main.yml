@@ -40,6 +40,10 @@
     num_blocks: 1
     balance_needed: 0
 
+- name: Pause for 5 minutes to allow propogation of protx's
+  pause:
+    minutes: 5
+
 # verify
 
 - name: get list of ProTx transactions from the wallet
