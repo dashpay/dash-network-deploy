@@ -1,3 +1,26 @@
+# [0.22.0](https://github.com/dashpay/dash-network-deploy/compare/v0.21.0...v0.22.0) (2022-03-21)
+
+
+### Bug Fixes
+
+* destroy fails due to mounted elastic data ([#276](https://github.com/dashpay/dash-network-deploy/issues/276))
+* mn-init unbans all nodes every time ([#266](https://github.com/dashpay/dash-network-deploy/issues/266))
+* smoke tests ([#284](https://github.com/dashpay/dash-network-deploy/issues/284))
+* `subscribeToBlockHeadersWithChainLocks` is not reachable ([#282](https://github.com/dashpay/dash-network-deploy/issues/282))
+
+
+### Features
+
+* add core logs to elasticsearch ([#270](https://github.com/dashpay/dash-network-deploy/issues/270))
+* add devnet check ([#275](https://github.com/dashpay/dash-network-deploy/issues/275))
+* generate keys for system data contracts ([#279](https://github.com/dashpay/dash-network-deploy/issues/279))
+* implement elasticsearch cluster ([#267](https://github.com/dashpay/dash-network-deploy/issues/267))
+* core traffic logs ([#280](https://github.com/dashpay/dash-network-deploy/issues/280))
+* modify compose commands to use yarn ([#274](https://github.com/dashpay/dash-network-deploy/issues/274), [#278](https://github.com/dashpay/dash-network-deploy/issues/278))
+* speed up masternodes syncing ([#277](https://github.com/dashpay/dash-network-deploy/issues/277))
+
+
+
 # [0.21.0](https://github.com/dashpay/dash-network-deploy/compare/v0.20.0...v0.21.0) (2021-10-29)
 
 
