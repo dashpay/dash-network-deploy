@@ -1,0 +1,49 @@
+---
+
+- name: get list of ProTx transactions from the wallet
+  command: dash-cli protx list wallet true
+  register: get_protx_list_result
+
+- set_fact:
+    registered_masternode_names: []
+
+- name: get names of registered masternodes
+  set_fact:
+    registered_masternode_names: "{{ registered_masternode_names + [ item ] }}"
+  when: get_protx_list_result.stdout|from_json|json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+  with_items: '{{ groups["masternodes"] }}'
+
+- set_fact:
+    registered_masternode_protx: []
+
+- name: get list of registered masternode protx
+  include_tasks: find-protx.yml
+  vars:
+    masternode: "{{ masternodes[item] }}"
+    masternode_name: "{{ item }}"
+  with_items: '{{ registered_masternode_names }}'
+
+- name: read config from yaml file
+  include_vars: 
+    file: ../../../networks/{{ dash_network_name }}.yml # relative to this file
+    name: config
+
+- name: add protx values to config
+  set_fact:
+    config: "{{ config | combine(protx_data, recursive=True) }}"
+  vars: 
+    protx_data:
+      masternodes:
+        '{{ item }}'
+  with_items: '{{ registered_masternode_protx }}'
+
+- name: write config to yaml file
+  become: no
+  delegate_to: localhost
+  copy:
+    content: 
+      ---
+      
+
+      {{ config | to_nice_yaml }}
+    dest: ../networks/{{ dash_network_name }}.yml # relative to playbook
