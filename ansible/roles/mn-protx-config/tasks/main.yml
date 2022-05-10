@@ -41,9 +41,5 @@
   become: no
   delegate_to: localhost
   copy:
-    content: 
-      ---
-      
-
-      {{ config | to_nice_yaml }}
+    content: "---\n\n{{ config | to_nice_yaml(indent=2) }}"
     dest: ../networks/{{ dash_network_name }}.yml # relative to playbook
