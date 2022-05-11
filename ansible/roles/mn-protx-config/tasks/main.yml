@@ -23,23 +23,12 @@
     masternode_name: "{{ item }}"
   with_items: '{{ registered_masternode_names }}'
 
-- name: read config from yaml file
-  include_vars: 
-    file: ../../../networks/{{ dash_network_name }}.yml # relative to this file
-    name: config
-
-- name: add protx values to config
-  set_fact:
-    config: "{{ config | combine(protx_data, recursive=True) }}"
-  vars: 
-    protx_data:
-      masternodes:
-        '{{ item }}'
-  with_items: '{{ registered_masternode_protx }}'
-
-- name: write config to yaml file
+- name: write protx values to inventory file
   become: no
   delegate_to: localhost
-  copy:
-    content: "---\n\n{{ config | to_nice_yaml(indent=2) }}"
-    dest: ../networks/{{ dash_network_name }}.yml # relative to playbook
+  lineinfile:
+    path: ../networks/{{ dash_network_name }}.inventory # relative to playbook
+    regexp: '^({{ item.masternode }} (?!.*protx=).*)'
+    line: '\1 protx={{ item.protx }}'
+    backrefs: yes
+  with_items: '{{ registered_masternode_protx }}'
