@@ -40,7 +40,7 @@
 
 # fund
 
-- include: fund_collateral.yml
+- include_tasks: fund_collateral.yml
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
