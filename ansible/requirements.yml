@@ -14,4 +14,5 @@
   version: 1.6.1
 
 - src: elastic.beats
-  version: v7.16.0
+  version: v7.17.0
+
