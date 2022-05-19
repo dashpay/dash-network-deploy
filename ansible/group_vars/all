@@ -1,7 +1,4 @@
 ---
-# Login to AWS ECR using passed from .env AWS credentials
-aws_ecr_login: false
-
 # Install Evolution Masternode services
 evo_services: false
 

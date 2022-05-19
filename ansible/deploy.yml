@@ -62,9 +62,6 @@
           - ubuntu
     - docker-options
     - eternal-terminal
-    - role: ecr-login
-      when: aws_ecr_login
-      tags: always
 
 # Install AWS monitoring scripts
 
