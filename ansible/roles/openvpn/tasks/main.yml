@@ -1,14 +1,3 @@
-- name: Add the official OpenVPN APT key
-  apt_key:
-    url:  https://swupdate.openvpn.net/repos/repo-public.gpg
-    state: present
-
-- name: Add the official OpenVPN repository
-  apt_repository:
-    repo: 'deb https://build.openvpn.net/debian/openvpn/stable {{ ansible_lsb.codename }} main'
-    state: present
-    update_cache: yes
-
 - name: Prepare list of forwared IPs
   vars:
     openvpn_forwarded_ips: []
