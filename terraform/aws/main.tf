@@ -16,7 +16,7 @@ data "aws_ami" "ubuntu" {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-*-18.04-amd64-server-*",
+      "ubuntu/images/hvm-ssd/ubuntu-*-22.04-amd64-server-*",
     ]
   }
 
