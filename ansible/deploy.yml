@@ -54,7 +54,10 @@
         version: "1.22.0"
   roles:
     - geerlingguy.pip
-    - geerlingguy.docker
+    - role: geerlingguy.docker
+      vars:
+        docker_users:
+          - ubuntu
     - docker-options
     - eternal-terminal
     - role: ecr-login
