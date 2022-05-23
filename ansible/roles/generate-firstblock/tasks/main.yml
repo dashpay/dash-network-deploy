@@ -14,5 +14,5 @@
 - debug: var=initial_block_count
 
 - name: generate first block
-  command: dash-cli generate 1
+  command: dash-cli generatetoaddress 1 {{ miner_payment_address }}
   when: initial_block_count|int < required_block_count|int
