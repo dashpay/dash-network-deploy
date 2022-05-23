@@ -39,10 +39,9 @@
 - hosts: all
   become: true
   tasks:
-    - name: add universe repository
-      apt_repository:
-        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
-        state: present
+    - name: update apt cache
+      apt:
+        update_cache: yes
 
 - hosts: all
   become: true
@@ -50,11 +49,17 @@
     pip_package: python3-pip
     pip_install_packages:
       - name: docker
+        version: "5.0.3"
       - name: docker-compose
-        version: "1.22.0"
+        version: "1.29.2"
   roles:
     - geerlingguy.pip
-    - geerlingguy.docker
+    - role: geerlingguy.docker
+      vars:
+        docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+        docker_install_compose: false
+        docker_users:
+          - ubuntu
     - docker-options
     - eternal-terminal
     - role: ecr-login
