@@ -109,6 +109,11 @@ variable "logs_count" {
   description = "number of logging nodes to create. set to 0 to disable logging for the network"
 }
 
+variable "host_arch" {
+  description = "use amd64 (t3.*) or arm64 (t4g.*) EC2 instances"
+  default = "amd64"
+}
+
 variable "vpn_enabled" {
   default     = true
   description = "setup instance for vpn"
@@ -159,7 +164,7 @@ variable "logs_node_disk_size" {
   default     = 100
 }
 
-variable "logs_node_instance_type" {
-  description = "Instance type of log nodes"
-  default     = "c5a.large"
+variable "logs_node_instance_size" {
+  description = "Instance size of log nodes"
+  default     = "large"
 }

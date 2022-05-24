@@ -2,7 +2,7 @@
   version: 2.1.0
 
 - src: geerlingguy.docker
-  version: 4.1.0
+  version: 4.2.2
 
 - src: kyl191.openvpn
   version: v0.9.1
