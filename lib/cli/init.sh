@@ -36,8 +36,7 @@ TERRAFORM_DYNAMODB_TABLE=""
 # Absolute paths to private and public keys for SSH access to an infrastructure
 PRIVATE_KEY_PATH=""
 PUBLIC_KEY_PATH=""
-# AWS credentials are used by Terraform for creating
-# infrastructure and by Ansible for fetching images from AWS ECR.
+# AWS credentials are used by Terraform for creating infrastructure
 #
 # You should specify credentials for both
 # Ansible and Terraform or specify a particular
