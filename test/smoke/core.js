@@ -14,69 +14,67 @@ describe.only('Core', () => {
     const blockchainInfo = {};
     let maxBlockHeight = 0;
 
-    before(async function before() {
-      this.slow(allHosts * 2000);
-      this.timeout(allHosts * 3000);
-
+    describe('Collect blockchain info', () => {
       for (const hostName of allHosts) {
-        const client = createRpcClientFromConfig(hostName);
+        // eslint-disable-next-line no-loop-func
+        it(`Connect to Core on ${hostName}`, async function itFunction() {
+          this.slow(2000);
+          this.timeout(15000);
 
-        let result;
+          const client = createRpcClientFromConfig(hostName);
 
-        try {
-          ({ result } = await client.getBlockchainInfo());
-        } catch (e) {
-          // eslint-disable-next-line no-continue
-          continue;
-        }
+          const { result } = await client.getBlockchainInfo();
 
-        if (maxBlockHeight < result.blocks) {
-          maxBlockHeight = result.blocks;
-        }
+          if (maxBlockHeight < result.blocks) {
+            maxBlockHeight = result.blocks;
+          }
 
-        blockchainInfo[hostName] = result;
+          blockchainInfo[hostName] = result;
+        });
       }
     });
 
-    for (const hostName of allHosts) {
-      // eslint-disable-next-line no-loop-func
-      describe(hostName, () => {
-        let dashdClient;
+    describe('Test', () => {
+      for (const hostName of allHosts) {
+        // eslint-disable-next-line no-loop-func
+        describe(hostName, () => {
+          let dashdClient;
 
-        beforeEach(() => {
-          dashdClient = createRpcClientFromConfig(hostName);
+          before(function beforeFunction() {
+            if (!blockchainInfo[hostName]) {
+              this.skip('no blockchain info');
+            }
+
+            dashdClient = createRpcClientFromConfig(hostName);
+          });
+
+          it('should have correct network type', async function it() {
+            this.slow(2000);
+
+            const { result: { networkactive, subversion } } = await dashdClient.getNetworkInfo();
+
+            const chainNames = {
+              testnet: 'test',
+              mainnet: 'main',
+              devnet: network.name,
+              regtest: 'regtest',
+            };
+
+            expect(blockchainInfo[hostName]).to.be.not.empty();
+            expect(blockchainInfo[hostName].chain).to.equal(chainNames[network.type]);
+            expect(networkactive).to.be.equal(true);
+
+            if (network.type === 'devnet') {
+              expect(subversion).to.have.string(`(${network.type}.${network.name})/`);
+            }
+          });
+
+          it('should sync blocks', async () => {
+            expect(maxBlockHeight - blockchainInfo[hostName].blocks).to.be.below(3);
+          });
         });
-
-        it('should have correct network type', async function it() {
-          this.slow(2000);
-
-          const { result: { networkactive, subversion } } = await dashdClient.getNetworkInfo();
-
-          const chainNames = {
-            testnet: 'test',
-            mainnet: 'main',
-            devnet: network.name,
-            regtest: 'regtest',
-          };
-
-          expect(blockchainInfo[hostName]).to.be.not.empty();
-          expect(blockchainInfo[hostName].chain).to.equal(chainNames[network.type]);
-          expect(networkactive).to.be.equal(true);
-
-          if (network.type === 'devnet') {
-            expect(subversion).to.have.string(`(${network.type}.${network.name})/`);
-          }
-        });
-
-        it('should sync blocks', async () => {
-          if (!blockchainInfo[hostName]) {
-            expect.fail('Can\'t connect to Core');
-          }
-
-          expect(maxBlockHeight - blockchainInfo[hostName].blocks).to.be.below(3);
-        });
-      });
-    }
+      }
+    });
   });
 
   describe('Masternodes', () => {
