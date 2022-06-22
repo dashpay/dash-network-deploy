@@ -10,28 +10,37 @@ const allHosts = inventory.masternodes.hosts.concat(
 );
 
 describe('Core', () => {
-  describe('All nodes', () => {
+  describe.only('All nodes', () => {
+    // Set up vars and function to hold max height and mn responses
     const blockchainInfo = {};
     let maxBlockHeight = 0;
 
-    describe('Collect blockchain info', () => {
-      for (const hostName of allHosts) {
-        // eslint-disable-next-line no-loop-func
-        it(`Connect to Core on ${hostName}`, async function itFunction() {
-          this.slow(2000);
-          this.timeout(15000);
-
-          const client = createRpcClientFromConfig(hostName);
-
-          const { result } = await client.getBlockchainInfo();
-
-          if (maxBlockHeight < result.blocks) {
-            maxBlockHeight = result.blocks;
-          }
-
-          blockchainInfo[hostName] = result;
-        });
+    function updateMaxBlockHeight(result, hostName) {
+      if (maxBlockHeight < result.blocks) {
+        maxBlockHeight = result.blocks;
       }
+      blockchainInfo[hostName] = result;
+    }
+
+    before('Collect blockchain info', function func() {
+      this.timeout(30000); // set mocha timeout
+
+      const promises = [];
+      for (const hostName of allHosts) {
+        const timeout = 15000; // set individual rpc client timeout
+
+        const client = createRpcClientFromConfig(hostName);
+
+        client.setTimeout(timeout);
+
+        const requestPromise = client.getBlockchainInfo()
+          .then(({ result }) => updateMaxBlockHeight(result, hostName))
+          .catch();
+
+        promises.push(requestPromise);
+      }
+
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
     describe('Test', () => {
