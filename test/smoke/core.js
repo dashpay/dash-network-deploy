@@ -34,8 +34,7 @@ describe('Core', () => {
         client.setTimeout(timeout);
 
         const requestPromise = client.getBlockchainInfo()
-          .then(({ result }) => updateMaxBlockHeight(result, hostName))
-          .catch();
+          .then(({ result }) => updateMaxBlockHeight(result, hostName));
 
         promises.push(requestPromise);
       }
@@ -49,16 +48,16 @@ describe('Core', () => {
         describe(hostName, () => {
           let dashdClient;
 
-          before(function beforeFunction() {
-            if (!blockchainInfo[hostName]) {
-              this.skip('no blockchain info');
-            }
-
+          before(() => {
             dashdClient = createRpcClientFromConfig(hostName);
           });
 
           it('should have correct network type', async function it() {
             this.slow(2000);
+
+            if (!blockchainInfo[hostName]) {
+              expect.fail(null, null, 'no blockchain info');
+            }
 
             const { result: { networkactive, subversion } } = await dashdClient.getNetworkInfo();
 
@@ -79,6 +78,10 @@ describe('Core', () => {
           });
 
           it('should sync blocks', async () => {
+            if (!blockchainInfo[hostName]) {
+              expect.fail(null, null, 'no blockchain info');
+            }
+
             expect(maxBlockHeight - blockchainInfo[hostName].blocks).to.be.below(3);
           });
         });
