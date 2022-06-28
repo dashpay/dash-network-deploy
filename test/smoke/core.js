@@ -10,7 +10,7 @@ const allHosts = inventory.masternodes.hosts.concat(
 );
 
 describe('Core', () => {
-  describe.only('All nodes', () => {
+  describe('All nodes', () => {
     // Set up vars and function to hold max height and mn responses
     const blockchainInfo = {};
     let maxBlockHeight = 0;
