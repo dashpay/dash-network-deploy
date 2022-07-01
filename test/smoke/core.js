@@ -9,9 +9,9 @@ const allHosts = inventory.masternodes.hosts.concat(
   inventory.seed_nodes.hosts,
 );
 
-describe('Core', () => {
+describe.only('Core', () => {
   describe('All nodes', () => {
-    // Set up vars and function to hold max height and mn responses
+    // Set up vars and functions to hold max height and mn responses
     const blockchainInfo = {};
     let maxBlockHeight = 0;
 
@@ -22,8 +22,14 @@ describe('Core', () => {
       blockchainInfo[hostName] = result;
     }
 
-    before('Collect blockchain info', function func() {
-      this.timeout(30000); // set mocha timeout
+    const networkInfo = {};
+
+    function updateNetworkInfo(result, hostName) {
+      networkInfo[hostName] = result;
+    }
+
+    before('Collect blockchain and network info', function func() {
+      this.timeout(60000); // set mocha timeout
 
       const promises = [];
       for (const hostName of allHosts) {
@@ -33,10 +39,13 @@ describe('Core', () => {
 
         client.setTimeout(timeout);
 
-        const requestPromise = client.getBlockchainInfo()
+        const requestBlockchainInfoPromise = client.getBlockchainInfo()
           .then(({ result }) => updateMaxBlockHeight(result, hostName));
 
-        promises.push(requestPromise);
+        const requestNetworkInfoPromise = client.getNetworkInfo()
+          .then(({ result }) => updateNetworkInfo(result, hostName));
+
+        promises.push(requestBlockchainInfoPromise, requestNetworkInfoPromise);
       }
 
       return Promise.all(promises).catch(() => Promise.resolve());
@@ -46,20 +55,10 @@ describe('Core', () => {
       for (const hostName of allHosts) {
         // eslint-disable-next-line no-loop-func
         describe(hostName, () => {
-          let dashdClient;
-
-          before(() => {
-            dashdClient = createRpcClientFromConfig(hostName);
-          });
-
-          it('should have correct network type', async function it() {
-            this.slow(2000);
-
+          it('should have correct network type', async () => {
             if (!blockchainInfo[hostName]) {
               expect.fail(null, null, 'no blockchain info');
             }
-
-            const { result: { networkactive, subversion } } = await dashdClient.getNetworkInfo();
 
             const chainNames = {
               testnet: 'test',
@@ -70,10 +69,10 @@ describe('Core', () => {
 
             expect(blockchainInfo[hostName]).to.be.not.empty();
             expect(blockchainInfo[hostName].chain).to.equal(chainNames[network.type]);
-            expect(networkactive).to.be.equal(true);
+            expect(networkInfo[hostName].networkactive).to.be.equal(true);
 
             if (network.type === 'devnet') {
-              expect(subversion).to.have.string(`(${network.type}.${network.name})/`);
+              expect(networkInfo[hostName].subversion).to.have.string(`(${network.type}.${network.name})/`);
             }
           });
 
@@ -90,23 +89,44 @@ describe('Core', () => {
   });
 
   describe('Masternodes', () => {
+    const masternodeListInfo = {};
+
+    function updateMasternodeListInfo(result, hostName) {
+      masternodeListInfo[hostName] = result;
+    }
+
+    before('Collect masternode list info', function func() {
+      this.timeout(30000); // set mocha timeout
+
+      const promises = [];
+      for (const hostName of inventory.masternodes.hosts) {
+        const timeout = 15000; // set individual rpc client timeout
+
+        const client = createRpcClientFromConfig(hostName);
+
+        client.setTimeout(timeout);
+
+        const requestMasternodeListInfoPromise = client.masternodelist()
+          .then(({ result }) => updateMasternodeListInfo(result, hostName));
+
+        promises.push(requestMasternodeListInfoPromise);
+      }
+
+      return Promise.all(promises).catch(() => Promise.resolve());
+    });
+
     for (const hostName of inventory.masternodes.hosts) {
       describe(hostName, () => {
-        let coreClient;
+        it('should be in masternodes list', async () => {
+          if (!masternodeListInfo[hostName]) {
+            expect.fail(null, null, 'no masternode list info');
+          }
 
-        beforeEach(() => {
-          coreClient = createRpcClientFromConfig(hostName);
-        });
-
-        it('should be in masternodes list', async function it() {
-          this.slow(2000);
-
-          const { result: masternodes } = await coreClient.masternodelist();
-
-          const nodeFromList = Object.values(masternodes).find((node) => (
+          const nodeFromList = Object.values(masternodeListInfo[hostName])
+            .find((node) => (
             // eslint-disable-next-line no-underscore-dangle
-            inventory._meta.hostvars[hostName].public_ip === node.address.split(':')[0]
-          ));
+              inventory._meta.hostvars[hostName].public_ip === node.address.split(':')[0]
+            ));
 
           expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();
 
