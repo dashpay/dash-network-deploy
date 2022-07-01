@@ -15,18 +15,7 @@ describe.only('Core', () => {
     const blockchainInfo = {};
     let maxBlockHeight = 0;
 
-    function updateMaxBlockHeight(result, hostName) {
-      if (maxBlockHeight < result.blocks) {
-        maxBlockHeight = result.blocks;
-      }
-      blockchainInfo[hostName] = result;
-    }
-
     const networkInfo = {};
-
-    function updateNetworkInfo(result, hostName) {
-      networkInfo[hostName] = result;
-    }
 
     before('Collect blockchain and network info', function func() {
       this.timeout(60000); // set mocha timeout
@@ -40,10 +29,18 @@ describe.only('Core', () => {
         client.setTimeout(timeout);
 
         const requestBlockchainInfoPromise = client.getBlockchainInfo()
-          .then(({ result }) => updateMaxBlockHeight(result, hostName));
+          // eslint-disable-next-line no-loop-func
+          .then(({ result }) => {
+            if (maxBlockHeight < result.blocks) {
+              maxBlockHeight = result.blocks;
+            }
+            blockchainInfo[hostName] = result;
+          });
 
         const requestNetworkInfoPromise = client.getNetworkInfo()
-          .then(({ result }) => updateNetworkInfo(result, hostName));
+          .then(({ result }) => {
+            networkInfo[hostName] = result;
+          });
 
         promises.push(requestBlockchainInfoPromise, requestNetworkInfoPromise);
       }
@@ -51,49 +48,43 @@ describe.only('Core', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    describe('Test', () => {
-      for (const hostName of allHosts) {
-        // eslint-disable-next-line no-loop-func
-        describe(hostName, () => {
-          it('should have correct network type', async () => {
-            if (!blockchainInfo[hostName]) {
-              expect.fail(null, null, 'no blockchain info');
-            }
+    for (const hostName of allHosts) {
+      // eslint-disable-next-line no-loop-func
+      describe(hostName, () => {
+        it('should have correct network type', async () => {
+          if (!blockchainInfo[hostName]) {
+            expect.fail(null, null, 'no blockchain info');
+          }
 
-            const chainNames = {
-              testnet: 'test',
-              mainnet: 'main',
-              devnet: network.name,
-              regtest: 'regtest',
-            };
+          const chainNames = {
+            testnet: 'test',
+            mainnet: 'main',
+            devnet: network.name,
+            regtest: 'regtest',
+          };
 
-            expect(blockchainInfo[hostName]).to.be.not.empty();
-            expect(blockchainInfo[hostName].chain).to.equal(chainNames[network.type]);
-            expect(networkInfo[hostName].networkactive).to.be.equal(true);
+          expect(blockchainInfo[hostName]).to.be.not.empty();
+          expect(blockchainInfo[hostName].chain).to.equal(chainNames[network.type]);
+          expect(networkInfo[hostName].networkactive).to.be.equal(true);
 
-            if (network.type === 'devnet') {
-              expect(networkInfo[hostName].subversion).to.have.string(`(${network.type}.${network.name})/`);
-            }
-          });
-
-          it('should sync blocks', async () => {
-            if (!blockchainInfo[hostName]) {
-              expect.fail(null, null, 'no blockchain info');
-            }
-
-            expect(maxBlockHeight - blockchainInfo[hostName].blocks).to.be.below(3);
-          });
+          if (network.type === 'devnet') {
+            expect(networkInfo[hostName].subversion).to.have.string(`(${network.type}.${network.name})/`);
+          }
         });
-      }
-    });
+
+        it('should sync blocks', async () => {
+          if (!blockchainInfo[hostName]) {
+            expect.fail(null, null, 'no blockchain info');
+          }
+
+          expect(maxBlockHeight - blockchainInfo[hostName].blocks).to.be.below(3);
+        });
+      });
+    }
   });
 
   describe('Masternodes', () => {
     const masternodeListInfo = {};
-
-    function updateMasternodeListInfo(result, hostName) {
-      masternodeListInfo[hostName] = result;
-    }
 
     before('Collect masternode list info', function func() {
       this.timeout(30000); // set mocha timeout
@@ -107,7 +98,9 @@ describe.only('Core', () => {
         client.setTimeout(timeout);
 
         const requestMasternodeListInfoPromise = client.masternodelist()
-          .then(({ result }) => updateMasternodeListInfo(result, hostName));
+          .then(({ result }) => {
+            masternodeListInfo[hostName] = result;
+          });
 
         promises.push(requestMasternodeListInfoPromise);
       }
