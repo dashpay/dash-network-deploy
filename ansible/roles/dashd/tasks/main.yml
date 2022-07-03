@@ -14,10 +14,14 @@
     umask: '0002'
   register: dash_user
 
-- name: create .dashcore dir
-  file: path={{ dashd_home }}/.dashcore state=directory mode='0750' owner='{{ dashd_user }}' group='{{ dashd_group }}'
-- name: create .dashcore dir for root
-  file: path=/root/.dashcore state=directory mode='0750' owner='root' group='root'
+- name: create .dashcore directory for each user
+  file:
+    path: "{{ item.dir }}/.dashcore"
+    state: "directory"
+    mode: 0755
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+  loop: "{{ users_to_manage }}"
 
 - name: Configure dashd
   template:
