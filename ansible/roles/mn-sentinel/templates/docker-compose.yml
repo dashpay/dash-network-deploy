@@ -11,7 +11,6 @@ services:
       - RPCPASSWORD={{ dashd_rpc_password }}
       - RPCHOST={{ private_ip }}
       - RPCPORT={{ dashd_rpc_port }}
-      # Sentinel only supports mainnet and testnet at the moment
-      - NETWORK={{ 'mainnet' if dash_network == 'mainnet' else 'testnet' }}
       # Bypass scheduler
-      - SENTINEL_ARGS=-b
+      - SENTINEL_ARGS=--bypass-scheduler
+      - SENTINEL_DEBUG=1
