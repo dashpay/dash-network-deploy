@@ -90,6 +90,9 @@ llmqinstantsenddip0024=llmq_devnet
 minimumdifficultyblocks={{ dashd_minimumdifficultyblocks }}
 highsubsidyblocks=500
 highsubsidyfactor=10
+{% if dashd_powtargetspacing is defined %}
+powtargetspacing={{ dashd_powtargetspacing }}
+{% endif %}
 {% endif %}
 
 {% if dashd_debug == 1 %}
