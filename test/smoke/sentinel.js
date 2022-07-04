@@ -3,7 +3,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory } = getNetworkConfig();
 
-describe.skip('Sentinel', () => {
+describe('Sentinel', () => {
   for (const hostName of inventory.masternodes.hosts) {
     describe(hostName, () => {
       it('should be running without errors', async function it() {

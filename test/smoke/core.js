@@ -9,7 +9,7 @@ const allHosts = inventory.masternodes.hosts.concat(
   inventory.seed_nodes.hosts,
 );
 
-describe.only('Core', () => {
+describe('Core', () => {
   describe('All nodes', () => {
     // Set up vars and functions to hold max height and mn responses
     const blockchainInfo = {};
