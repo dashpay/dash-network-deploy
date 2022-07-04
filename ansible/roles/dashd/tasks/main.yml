@@ -7,19 +7,13 @@
 - name: Create dashd user
   user:
     name: '{{ dashd_user }}'
+    comment: 'Dash user'
     group: '{{ dashd_group }}'
-    append: False
     home: '{{ dashd_home }}'
+    create_home: yes
+    umask: '0002'
+  register: dash_user
 
-- name: get uid of dash user
-  shell: id -u {{ dashd_user }}
-  register: dash_user_id
-- name: get gid of dash user
-  shell: id -g {{ dashd_user }}
-  register: dash_group_id
-
-- name: create dash home/data dir
-  file: path={{ dashd_home }} state=directory mode='0750' owner='{{ dashd_user }}' group='{{ dashd_group }}'
 - name: create .dashcore dir
   file: path={{ dashd_home }}/.dashcore state=directory mode='0750' owner='{{ dashd_user }}' group='{{ dashd_group }}'
 - name: create .dashcore dir for root
@@ -45,7 +39,7 @@
     restart_policy: always
     image: '{{ dashd_image }}'
     pull: true
-    user: '{{ dash_user_id.stdout }}:{{ dash_group_id.stdout }}'
+    user: '{{ dash_user.uid }}:{{ dash_user.group }}'
     working_dir: '{{ dashd_home }}'
     volumes:
     - '{{ dashd_home }}:/dash'
