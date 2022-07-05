@@ -71,9 +71,9 @@ users_to_manage:
 - user: "root"
   group: "root"
   dir: "/root"
-- user: "dash"
-  group: "dash"
-  dir: "/dash"
+- user: "{{ dashd_user }}"
+  group: "{{ dashd_group }}"
+  dir: "{{ dashd_home }}"
 
 dashd_user: dash
 dashd_group: dash
