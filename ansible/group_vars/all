@@ -64,6 +64,17 @@ insight_port: 3001
 # DashCore Docker image
 dashd_image: dashpay/dashd
 
+users_to_manage:
+- user: "ubuntu"
+  group: "ubuntu"
+  dir: "/home/ubuntu"
+- user: "root"
+  group: "root"
+  dir: "/root"
+- user: "{{ dashd_user }}"
+  group: "{{ dashd_group }}"
+  dir: "{{ dashd_home }}"
+
 dashd_user: dash
 dashd_group: dash
 dashd_home: /dash
