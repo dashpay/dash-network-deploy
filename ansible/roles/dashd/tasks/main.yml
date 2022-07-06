@@ -23,17 +23,22 @@
     group: "{{ item.group }}"
   loop: "{{ users_to_manage }}"
 
-- name: Configure dashd
+- name: Write dash.conf file in /etc/
   template:
     src: 'dash.conf.j2'
-    dest: '{{ dashd_home }}/.dashcore/dash.conf'
-    owner: '{{ dashd_user }}'
-    group: '{{ dashd_group }}'
-    mode: '0640'
+    dest: '/etc/dash.conf'
+    owner: 'root'
+    group: 'root'
+    mode: 0644
   register: dash_config_state
 
-- name: copy configuration to root user dir to make rpc work
-  shell: cp {{ dashd_home }}/.dashcore/dash.conf /root/.dashcore/
+- name: Symlink dash.conf to user dashcore directories to make rpc work
+  file:
+    path: "{{ item.dir }}/.dashcore/dash.conf"
+    src: "/etc/dash.conf"
+    state: link
+    force: yes
+  loop: "{{ users_to_manage }}"
 
 - name: create dashd container
   docker_container:
