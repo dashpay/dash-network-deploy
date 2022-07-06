@@ -5,75 +5,76 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { variables, inventory } = getNetworkConfig();
 
 describe('DAPI', () => {
-  for (const hostName of inventory.masternodes.hosts) {
-    describe(hostName, () => {
-      let dapiClient;
+  describe('All nodes', () => {
+  // Set up vars and functions to hold DAPI responses
+    const bestBlockHash = {};
+    const status = {};
+    const dataContract = {};
+    const dataContractError = {};
 
-      beforeEach(() => {
-        dapiClient = new DAPIClient();
-      });
+    before('Collect blockhash, status and data contract info', function func() {
+      this.timeout(60000); // set mocha timeout
 
-      it('should respond data from Core', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
-          return;
-        }
-
-        this.slow(3000);
-
-        const blockHashFromDapi = await dapiClient.core.getBestBlockHash({
-          // eslint-disable-next-line no-underscore-dangle
-          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
-        });
-
-        expect(blockHashFromDapi).to.be.a('string');
-        expect(blockHashFromDapi).to.be.not.empty();
-      });
-
-      it('should respond data from Core using GRPC', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
-          return;
-        }
-
-        this.slow(3000);
-
-        const result = await dapiClient.core.getStatus({
-          // eslint-disable-next-line no-underscore-dangle
-          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`],
-        });
-
-        expect(result).to.have.a.property('version');
-        expect(result).to.have.a.property('time');
-        expect(result).to.have.a.property('status');
-        expect(result).to.have.a.property('syncProgress');
-        expect(result).to.have.a.property('chain');
-        expect(result).to.have.a.property('masternode');
-        expect(result).to.have.a.property('network');
-      });
-
-      it('should respond data from Platform', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
-          return;
-        }
-
-        this.slow(3000);
-
+      const promises = [];
+      for (const hostName of inventory.masternodes.hosts) {
+        const timeout = 15000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32).fill(1);
 
-        try {
-          await dapiClient.platform.getDataContract(unknownContractId, {
-            // eslint-disable-next-line no-underscore-dangle
-            dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_grpc_port}`],
+        const dapiClient = new DAPIClient({
+          // eslint-disable-next-line no-underscore-dangle
+          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+          timeout,
+        });
+
+        const requestBestBlockHash = dapiClient.core.getBestBlockHash()
+          // eslint-disable-next-line no-loop-func
+          .then((result) => {
+            bestBlockHash[hostName] = result;
           });
 
-          expect.fail('should respond not found');
-        } catch (e) {
-          // NOT_FOUND
-          expect(e.code).to.be.equal(5);
-        }
-      });
+        const requestStatus = dapiClient.core.getStatus()
+          // eslint-disable-next-line no-loop-func
+          .then((result) => {
+            status[hostName] = result;
+          });
+
+        const requestDataContract = dapiClient.platform.getDataContract(unknownContractId)
+          // eslint-disable-next-line no-loop-func
+          .then((result) => {
+            dataContract[hostName] = result;
+          })
+          .catch((e) => {
+            dataContractError[hostName] = e;
+          });
+
+        promises.push(requestBestBlockHash, requestStatus, requestDataContract);
+      }
+
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
-  }
+
+    for (const hostName of inventory.masternodes.hosts) {
+      describe(hostName, () => {
+        it('should return data from Core', async () => {
+          expect(bestBlockHash[hostName]).to.be.a('string');
+          expect(bestBlockHash[hostName]).to.be.not.empty();
+        });
+
+        it('should return data from Core using gRPC', async () => {
+          expect(status[hostName]).to.have.a.property('version');
+          expect(status[hostName]).to.have.a.property('time');
+          expect(status[hostName]).to.have.a.property('status');
+          expect(status[hostName]).to.have.a.property('syncProgress');
+          expect(status[hostName]).to.have.a.property('chain');
+          expect(status[hostName]).to.have.a.property('masternode');
+          expect(status[hostName]).to.have.a.property('network');
+        });
+
+        it('should return data from Platform', async () => {
+          expect(dataContract[hostName]).to.be.undefined();
+          expect(dataContractError[hostName].code).to.be.equal(5);
+        });
+      });
+    }
+  });
 });
