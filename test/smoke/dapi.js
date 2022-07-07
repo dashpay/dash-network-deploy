@@ -56,11 +56,19 @@ describe('DAPI', () => {
     for (const hostName of inventory.masternodes.hosts) {
       describe(hostName, () => {
         it('should return data from Core', async () => {
+          if (!bestBlockHash[hostName]) {
+            expect.fail(null, null, 'no dapi info');
+          }
+
           expect(bestBlockHash[hostName]).to.be.a('string');
           expect(bestBlockHash[hostName]).to.be.not.empty();
         });
 
         it('should return data from Core using gRPC', async () => {
+          if (!bestBlockHash[hostName]) {
+            expect.fail(null, null, 'no dapi info');
+          }
+
           expect(status[hostName]).to.have.a.property('version');
           expect(status[hostName]).to.have.a.property('time');
           expect(status[hostName]).to.have.a.property('status');
@@ -71,6 +79,10 @@ describe('DAPI', () => {
         });
 
         it('should return data from Platform', async () => {
+          if (!dataContractError[hostName]) {
+            expect.fail(null, null, 'no dapi error info');
+          }
+
           expect(dataContract[hostName]).to.be.undefined();
           expect(dataContractError[hostName].code).to.be.equal(5);
         });
