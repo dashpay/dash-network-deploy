@@ -14,8 +14,8 @@ describe('DAPI', () => {
     const dataContract = {};
     const dataContractError = {};
 
-    before('Collect blockhash, status and data contract info', function func() {
-      this.timeout(60000); // set mocha timeout
+    before('Collect blockhash, status and data contract info and errors', function func() {
+      this.timeout(120000); // set mocha timeout
 
       const promises = [];
       for (const hostName of inventory.masternodes.hosts) {
