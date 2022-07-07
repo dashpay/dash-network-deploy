@@ -8,7 +8,9 @@ describe('DAPI', () => {
   describe('All nodes', () => {
   // Set up vars and functions to hold DAPI responses
     const bestBlockHash = {};
+    const bestBlockHashError = {};
     const status = {};
+    const statusError = {};
     const dataContract = {};
     const dataContractError = {};
 
@@ -30,12 +32,18 @@ describe('DAPI', () => {
           // eslint-disable-next-line no-loop-func
           .then((result) => {
             bestBlockHash[hostName] = result;
+          })
+          .catch((e) => {
+            bestBlockHashError[hostName] = e;
           });
 
         const requestStatus = dapiClient.core.getStatus()
           // eslint-disable-next-line no-loop-func
           .then((result) => {
             status[hostName] = result;
+          })
+          .catch((e) => {
+            statusError[hostName] = e;
           });
 
         const requestDataContract = dapiClient.platform.getDataContract(unknownContractId)
@@ -56,8 +64,8 @@ describe('DAPI', () => {
     for (const hostName of inventory.masternodes.hosts) {
       describe(hostName, () => {
         it('should return data from Core', async () => {
-          if (!bestBlockHash[hostName]) {
-            expect.fail(null, null, 'no dapi info');
+          if (bestBlockHashError[hostName]) {
+            expect.fail(null, null, bestBlockHashError[hostName]);
           }
 
           expect(bestBlockHash[hostName]).to.be.a('string');
@@ -65,8 +73,8 @@ describe('DAPI', () => {
         });
 
         it('should return data from Core using gRPC', async () => {
-          if (!bestBlockHash[hostName]) {
-            expect.fail(null, null, 'no dapi info');
+          if (statusError[hostName]) {
+            expect.fail(null, null, statusError[hostName]);
           }
 
           expect(status[hostName]).to.have.a.property('version');
