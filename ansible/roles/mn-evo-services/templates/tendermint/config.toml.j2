@@ -43,7 +43,7 @@ db-backend = "goleveldb"
 db-dir = "data"
 
 # Output level for logging, including package level options
-log-level = "*:{{ tenderdash_log_level }}"
+log-level = "{{ tenderdash_log_level }}"
 
 # Output format: 'plain' (colored text) or 'json'
 log-format = "json"
