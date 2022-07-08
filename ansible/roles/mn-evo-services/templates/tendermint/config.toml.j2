@@ -56,6 +56,7 @@ genesis-file = "config/genesis.json"
 is-masternode = {% if inventory_hostname in groups.masternodes %}true{% else %}false{% endif %}
 
 {% if inventory_hostname in groups.masternodes %}mode = "validator"{% endif %}
+{% if inventory_hostname in groups.seed_nodes %}mode = "seed"{% endif %}
 
 # Path to the JSON file containing the private key to use for node authentication in the p2p protocol
 node-key-file = "config/node_key.json"
@@ -196,10 +197,12 @@ laddr = "tcp://0.0.0.0:26656"
 external-address = "{{ public_ip }}:26656"
 
 # Comma separated list of seed nodes to connect to
-seeds = "{% for seed in template_seeds %}{{ seed_nodes[seed].node_key.id }}@{{ hostvars[seed].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endfor %}"
+seeds = ""
 
 # Comma separated list of nodes to keep persistent connections to
 persistent-peers = ""
+
+bootstrap-peers = "{% for seed in template_seeds %}{{ seed_nodes[seed].node_key.id }}@{{ hostvars[seed].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endfor %}"
 
 # UPNP port forwarding
 upnp = false

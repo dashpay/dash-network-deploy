@@ -27,6 +27,7 @@
 - name: create Tendermint configs
   vars:
     template_seeds: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
+    template_bootstrap_peers: "{{ groups.masternodes | reject('equalto', inventory_hostname) }}"
   template:
     src: 'roles/mn-evo-services/templates/tendermint/{{ item }}.j2'
     dest: '{{ mn_evo_services_path }}/tendermint/config/{{ item }}'
