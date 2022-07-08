@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  dashcore:
+    image: {{ dashd_image }}
+    user: {{ dash_user.uid }}:{{ dash_user.group }}
+    container_name: dashd
+    restart: always
+    # TODO: use standard (bridge) networking
+    network_mode: host
+    #ports:
+    #- 0.0.0.0:{{ dashd_port }}:{{ dashd_port }}
+    #- 127.0.0.1:{{ dashd_rpc_port }}:{{ dashd_rpc_port }}
+    #- 127.0.0.1:{{ dashd_zmq_port }}:{{ dashd_zmq_port }}
+    volumes:
+    - "{{ dashd_home }}:/dash"
+    - "/etc/dash.conf:/etc/dash.conf"
+    command: ["dashd", "-conf=/etc/dash.conf", "-datadir=/dash/.dashcore"]

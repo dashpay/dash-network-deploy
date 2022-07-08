@@ -40,21 +40,28 @@
     force: yes
   loop: "{{ users_to_manage }}"
 
-- name: create dashd container
-  docker_container:
-    name: dashd
-    state: started
-    restart: '{{ dash_config_state is changed }}'
-    restart_policy: always
-    image: '{{ dashd_image }}'
-    pull: true
-    user: '{{ dash_user.uid }}:{{ dash_user.group }}'
-    working_dir: '{{ dashd_home }}'
-    volumes:
-    - '{{ dashd_home }}:/dash'
-    network_mode: host
-    command: 'dashd -conf={{ dashd_home }}/.dashcore/dash.conf -datadir={{ dashd_home }}/.dashcore'
-    container_default_behavior: compatibility
+- name: Create dashcore docker-compose dir
+  file:
+    path: '{{ dashd_compose_path }}'
+    state: directory
+    mode: 0755
+    recurse: true
+
+- name: Copy dashcore docker-compose file
+  template:
+    src: '{{ item }}.j2'
+    dest: '{{ dashd_compose_path }}/{{ item }}'
+    mode: 0644
+  loop:
+    - docker-compose.yml
+    - .env
+
+- name: Start dash core
+  docker_compose:
+    project_src: '{{ dashd_compose_path }}'
+    state: present
+    restarted: yes
+    pull: yes
 
 - name: wait for rpc to be available
   shell: dash-cli getblockchaininfo
