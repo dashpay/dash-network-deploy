@@ -196,13 +196,10 @@ laddr = "tcp://0.0.0.0:26656"
 # to figure out the address.
 external-address = "{{ public_ip }}:26656"
 
-# Comma separated list of seed nodes to connect to
-seeds = ""
-
 # Comma separated list of nodes to keep persistent connections to
 persistent-peers = ""
 
-bootstrap-peers = "{% for seed in template_seeds %}{{ seed_nodes[seed].node_key.id }}@{{ hostvars[seed].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endfor %}"
+bootstrap-peers = "{% for seed in template_bootstrap_peers %}{{ seed_nodes[seed].node_key.id }}@{{ hostvars[seed].public_ip }}:{{ tendermint_p2p_port }}{% if not loop.last %},{% endif %}{% endfor %}"
 
 # UPNP port forwarding
 upnp = false
