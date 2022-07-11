@@ -64,7 +64,7 @@
     pull: yes
 
 - name: wait for rpc to be available
-  shell: dash-cli getblockchaininfo
+  shell: dash-cli getgovernanceinfo
   register: task_result
   until: task_result.rc == 0
   retries: 5
