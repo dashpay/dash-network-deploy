@@ -7,51 +7,61 @@
 - name: Create dashd user
   user:
     name: '{{ dashd_user }}'
+    comment: 'Dash user'
     group: '{{ dashd_group }}'
-    append: False
     home: '{{ dashd_home }}'
+    create_home: yes
+    umask: '0002'
+  register: dash_user
 
-- name: get uid of dash user
-  shell: id -u {{ dashd_user }}
-  register: dash_user_id
-- name: get gid of dash user
-  shell: id -g {{ dashd_user }}
-  register: dash_group_id
+- name: create .dashcore directory for each user
+  file:
+    path: "{{ item.dir }}/.dashcore"
+    state: "directory"
+    mode: 0755
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+  loop: "{{ users_to_manage }}"
 
-- name: create dash home/data dir
-  file: path={{ dashd_home }} state=directory mode='0750' owner='{{ dashd_user }}' group='{{ dashd_group }}'
-- name: create .dashcore dir
-  file: path={{ dashd_home }}/.dashcore state=directory mode='0750' owner='{{ dashd_user }}' group='{{ dashd_group }}'
-- name: create .dashcore dir for root
-  file: path=/root/.dashcore state=directory mode='0750' owner='root' group='root'
-
-- name: Configure dashd
+- name: Write dash.conf file in /etc/
   template:
     src: 'dash.conf.j2'
-    dest: '{{ dashd_home }}/.dashcore/dash.conf'
-    owner: '{{ dashd_user }}'
-    group: '{{ dashd_group }}'
-    mode: '0640'
+    dest: '/etc/dash.conf'
+    owner: 'root'
+    group: 'root'
+    mode: 0644
   register: dash_config_state
 
-- name: copy configuration to root user dir to make rpc work
-  shell: cp {{ dashd_home }}/.dashcore/dash.conf /root/.dashcore/
+- name: Symlink dash.conf to user dashcore directories to make rpc work
+  file:
+    path: "{{ item.dir }}/.dashcore/dash.conf"
+    src: "/etc/dash.conf"
+    state: link
+    force: yes
+  loop: "{{ users_to_manage }}"
 
-- name: create dashd container
-  docker_container:
-    name: dashd
-    state: started
-    restart: '{{ dash_config_state is changed }}'
-    restart_policy: always
-    image: '{{ dashd_image }}'
-    pull: true
-    user: '{{ dash_user_id.stdout }}:{{ dash_group_id.stdout }}'
-    working_dir: '{{ dashd_home }}'
-    volumes:
-    - '{{ dashd_home }}:/dash'
-    network_mode: host
-    command: 'dashd -conf={{ dashd_home }}/.dashcore/dash.conf -datadir={{ dashd_home }}/.dashcore'
-    container_default_behavior: compatibility
+- name: Create dashcore docker-compose dir
+  file:
+    path: '{{ dashd_compose_path }}'
+    state: directory
+    mode: 0755
+    recurse: true
+
+- name: Copy dashcore docker-compose file
+  template:
+    src: '{{ item }}.j2'
+    dest: '{{ dashd_compose_path }}/{{ item }}'
+    mode: 0644
+  loop:
+    - docker-compose.yml
+    - .env
+
+- name: Start dash core
+  docker_compose:
+    project_src: '{{ dashd_compose_path }}'
+    state: present
+    restarted: yes
+    pull: yes
 
 - name: wait for rpc to be available
   shell: dash-cli getgovernanceinfo
