@@ -98,6 +98,7 @@
       dashd_zmq: true
       tags:
         - dashd
+    - role: elastic-beats
 
 - hosts: miners
   become: true
@@ -105,6 +106,7 @@
     - role: dashd
       tags:
         - dashd
+    - role: elastic-beats
 
 # Setup core on seed nodes
 
@@ -117,6 +119,7 @@
       dashd_indexes: true
       tags:
         - dashd
+    - role: elastic-beats
 
 # Setup core on masternodes
 
@@ -138,6 +141,7 @@
       tags:
         - dashd
     - mn-sentinel
+    - elastic-beats
 
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
