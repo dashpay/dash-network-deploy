@@ -171,6 +171,7 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
+    - elastic-beats
   tags:
     - web
 
