@@ -56,6 +56,26 @@
     - docker-compose.yml
     - .env
 
+- name: Configure log rotation
+  include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_use_hourly_rotation: true
+    logrotate_applications:
+      - name: core-logs
+        definitions:
+          - logs:
+              - "{{ dashd_home }}/.dashcore/{{ 'devnet-' + dash_devnet_name if dash_network == 'devnet' else 'testnet3' }}/debug.log"
+            options:
+              - rotate 7
+              - daily
+              - maxsize 1G
+              - missingok
+              - notifempty
+              - copytruncate
+              - compress
+              - delaycompress
+
 - name: Start dash core
   docker_compose:
     project_src: '{{ dashd_compose_path }}'
