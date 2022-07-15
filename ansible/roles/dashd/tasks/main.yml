@@ -65,7 +65,7 @@
       - name: core-logs
         definitions:
           - logs:
-              - "{{ dashd_home }}/.dashcore/{{ 'devnet-' + dash_devnet_name if dash_network == 'devnet' else 'testnet3' }}/debug.log"
+              - "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/debug.log"
             options:
               - rotate 7
               - daily
