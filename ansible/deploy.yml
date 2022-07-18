@@ -136,7 +136,7 @@
       tags:
         - dashd
     - mn-sentinel
-    - report
+    - mn-status-report
 
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)

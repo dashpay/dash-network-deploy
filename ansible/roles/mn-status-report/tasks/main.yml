@@ -7,8 +7,8 @@
 
 - name: Copy report generation script
   copy:
-    src: templates/report.sh
-    dest: /home/ubuntu
+    src: templates/mn-status-report.sh
+    dest: /usr/local/bin
     owner: ubuntu
     group: ubuntu
     mode: 0755
