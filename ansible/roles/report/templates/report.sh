@@ -20,18 +20,4 @@ BLOCK_COUNT=$(dash-cli getblockcount)
 BLOCK_HASH=$(dash-cli getblockhash $BLOCK_COUNT)
 
 HOSTNAME=$(hostname)
-#echo "$HOSTNAME $CORE_BUILD_VERSION $BLOCK_COUNT $BLOCK_HASH"
 echo "$HOSTNAME $CORE_BUILD_VERSION $MN_STATE $MN_POSE_PENALTY"
-
-# write template file for j2cli
-TEMPLATE_FILE_NAME="report.json.j2"
-J2TEMPLATE=$(cat<<EOF
-{
-    "dashcore_version": "{{ CORE_BUILD_VERSION }}",
-    "mn_state": "{{ MN_STATE }}",
-    "pose_penalty": {{ MN_POSE_PENALTY }}
-}
-EOF
-)
-echo "$J2TEMPLATE" > "$TEMPLATE_FILE_NAME"
-#j2 --format env "$TEMPLATE_FILE_NAME"
