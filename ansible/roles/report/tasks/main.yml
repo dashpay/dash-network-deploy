@@ -11,4 +11,4 @@
     dest: /home/ubuntu
     owner: ubuntu
     group: ubuntu
-    mode: '0755'
+    mode: 0755
