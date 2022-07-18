@@ -163,3 +163,8 @@ variable "logs_node_instance_type" {
   description = "Instance type of log nodes"
   default     = "c5a.large"
 }
+
+variable "wallet_node_instance_type" {
+  description = "Instance type of wallet nodes"
+  default     = "t3.micro"
+}
