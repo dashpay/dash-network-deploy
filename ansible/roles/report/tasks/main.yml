@@ -1,0 +1,14 @@
+---
+
+- name: Install jq
+  package:
+    name: jq
+    state: present
+
+- name: Copy report generation script
+  copy:
+    src: templates/report.sh
+    dest: /home/ubuntu
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
