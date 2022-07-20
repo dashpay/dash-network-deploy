@@ -76,6 +76,27 @@
               - compress
               - delaycompress
 
+- name: Register systemd presence
+  stat:
+    path: /lib/systemd/system
+  register: systemd_dir
+
+- name: Ensure logrotate runs hourly under systemd timer
+  lineinfile:
+    path: /lib/systemd/system/logrotate.timer
+    regexp: '^OnCalendar=hourly'
+    insertafter: '^OnCalendar=daily'
+    line: OnCalendar=hourly
+  when: systemd_dir.stat.exists
+
+- name: Enable and restart logrotate systemd timer
+  systemd:
+    name: logrotate.timer
+    state: restarted
+    enabled: yes
+    daemon_reload: true
+  when: systemd_dir.stat.exists
+
 - name: Start dash core
   docker_compose:
     project_src: '{{ dashd_compose_path }}'
