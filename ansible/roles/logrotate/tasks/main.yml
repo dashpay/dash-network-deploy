@@ -1,0 +1,29 @@
+---
+
+# Based on https://github.com/nickhammond/ansible-logrotate
+
+- name: Install logrotate package
+  package:
+    name: logrotate
+    state: present
+
+- name: Template logrotate.d configs
+  template:
+    src: logrotate.d.j2
+    dest: "/etc/logrotate.d/{{ item.name }}"
+  with_items: "{{ logrotate_options }}"
+  when: logrotate_options is defined
+
+- name: Ensure logrotate runs hourly under systemd timer
+  lineinfile:
+    path: /lib/systemd/system/logrotate.timer
+    regexp: '^OnCalendar=hourly'
+    insertafter: '^OnCalendar=daily'
+    line: OnCalendar=hourly
+
+- name: Enable and restart logrotate systemd timer
+  systemd:
+    name: logrotate.timer
+    state: restarted
+    enabled: yes
+    daemon_reload: true

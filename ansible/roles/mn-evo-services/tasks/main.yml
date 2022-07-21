@@ -12,30 +12,22 @@
     state: directory
     recurse: true
 
-- name: configure log rotation
+- configure platform log rotation
   include_role:
-    name: arillso.logrotate
+    name: logrotate
   vars:
-    logrotate_use_hourly_rotation: true
-    logrotate_applications:
+    logrotate_options:
       - name: platform-logs
-        definitions:
-          - logs:
-              - '{{ mn_evo_services_path }}/logs/*.log'
-            options:
-              - rotate 7
-              - daily
-              - maxsize 1G
-              - missingok
-              - notifempty
-              - copytruncate
-              - compress
-              - delaycompress
-
-- name: set mode to logrotate cron file
-  file:
-    path: /etc/cron.daily/logrotate
-    mode: "+x"
+        path: '{{ mn_evo_services_path }}/logs/*.log'
+        options:
+          - rotate 7
+          - daily
+          - maxsize 1G
+          - missingok
+          - notifempty
+          - copytruncate
+          - compress
+          - delaycompress
 
 - name: copy files
   template:
