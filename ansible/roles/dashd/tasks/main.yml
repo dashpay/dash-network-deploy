@@ -62,7 +62,7 @@
   vars:
     logrotate_options:
       - name: core-logs
-        path: '{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/debug.log'
+        path: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/debug.log"
         options:
           - rotate 7
           - daily

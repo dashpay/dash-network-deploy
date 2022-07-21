@@ -12,7 +12,7 @@
     state: directory
     recurse: true
 
-- configure platform log rotation
+- name: configure platform log rotation
   include_role:
     name: logrotate
   vars:
