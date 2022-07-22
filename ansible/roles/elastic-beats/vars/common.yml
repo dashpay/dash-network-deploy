@@ -1,0 +1,14 @@
+---
+
+beats_version: "{{ elastic_version }}"
+beat: filebeat
+output_conf:
+  elasticsearch:
+    hosts:
+      - "{{ hostvars['logs-1'].private_ip }}:9200"
+    username: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+logging_conf:
+  level: info
+  files:
+    rotateeverybytes: 10485760

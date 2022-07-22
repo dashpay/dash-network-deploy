@@ -6,7 +6,7 @@
 - hosts: masternodes
   become: true
   roles:
-    -  remove-fake-latency
+    - remove-fake-latency
 
 - hosts: all
   gather_facts: true
@@ -72,7 +72,7 @@
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
 
-# Configure dashd cli and network logging (if enanbled)
+# Configure dashd cli and network logging (if enabled)
 
 - hosts: all
   become: true
@@ -98,6 +98,7 @@
       dashd_zmq: true
       tags:
         - dashd
+    - elastic-beats
 
 - hosts: miners
   become: true
@@ -105,6 +106,7 @@
     - role: dashd
       tags:
         - dashd
+    - elastic-beats
 
 # Setup core on seed nodes
 
@@ -117,6 +119,7 @@
       dashd_indexes: true
       tags:
         - dashd
+    - elastic-beats
 
 # Setup core on masternodes
 
@@ -138,6 +141,7 @@
       tags:
         - dashd
     - mn-sentinel
+    - elastic-beats
 
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
@@ -167,6 +171,7 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
+    - elastic-beats
   tags:
     - web
 
