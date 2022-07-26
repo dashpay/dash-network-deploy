@@ -24,12 +24,12 @@
   run_once: true
   fetch:
     src: '{{ bundle_path }}/bundle.zip'
-    dest: /tmp/ansible/{{ dash_network_name }}/
+    dest: ~/tmp/ansible/{{ dash_network_name }}/
     flat: true
 
 - name: install certs
   unarchive:
-    src: /tmp/ansible/{{ dash_network_name }}/bundle.zip
+    src: ~/tmp/ansible/{{ dash_network_name }}/bundle.zip
     dest: '{{ certs_path }}'
     include: [ '{{ inventory_hostname }}/*', 'ca/ca.crt' ]
 
