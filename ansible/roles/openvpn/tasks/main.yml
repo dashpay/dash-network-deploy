@@ -17,9 +17,10 @@
     openvpn_set_dns: false
     openvpn_push: "[ 'route-nopull' ] + {{openvpn_forwarded_ips}}"
     openvpn_redirect_gateway: no
+    openvpn_fetch_client_configs_dir: ~/tmp/ansible/
 
 - name: Copy OpenVPN config to 'networks' dir
   become: no
   vars:
-    openvpn_config_path: "/tmp/ansible/{{ dash_network_name }}/{{inventory_hostname}}.ovpn"
+    openvpn_config_path: "~/tmp/ansible/{{ dash_network_name }}/{{inventory_hostname}}.ovpn"
   local_action: "copy src={{ openvpn_config_path }} dest=../networks/{{ dash_network_name }}.ovpn"
