@@ -35,6 +35,7 @@ function ansible_get_ip_by_host() {
 }
 
 function ansible_download_vpn_config() {
+    echo "$VPN_CONFIG_PATH"
     if [ ! -f "$VPN_CONFIG_PATH" ]; then
         echo "OpenVPN config '$VPN_CONFIG_PATH' not found. Trying to retrieve..."
 
