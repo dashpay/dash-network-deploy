@@ -11,7 +11,7 @@ function openvpn_start() {
         sudo_command='sudo'
     fi
 
-    set -ex
+    set +e
 
     ${sudo_command} openvpn --daemon \
                             --config "$VPN_CONFIG_PATH" \
@@ -43,7 +43,7 @@ function openvpn_wait_for_connect() {
         # Else sleep
         sleep 1
     done
-    echo "vpn connected!"
+
     if [[ ${i} -ge ${timeout} ]]; then
         print_error "Cannot connect to VPN"
     fi

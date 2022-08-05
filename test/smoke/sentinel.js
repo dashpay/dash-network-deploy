@@ -11,12 +11,10 @@ describe('Sentinel', () => {
 
     before('Collect container list info', function func() {
       this.timeout(120000); // set mocha timeout
-      console.log('collecting container info');
+
       const promises = [];
       for (const hostName of inventory.masternodes.hosts) {
         const timeout = 15000; // set individual docker client timeout
-        // eslint-disable-next-line no-underscore-dangle
-        console.log(`creating client for ${inventory._meta.hostvars[hostName].public_ip}`);
         const docker = new Docker({
           // eslint-disable-next-line no-underscore-dangle
           host: `http://${inventory._meta.hostvars[hostName].public_ip}`,
@@ -32,12 +30,9 @@ describe('Sentinel', () => {
 
         const requestListContainers = docker.listContainers(options)
           .then((result) => {
-            console.log(`result received for ${hostName}`);
             listContainers[hostName] = result;
           })
-          .catch((e) => {
-            console.log(e);
-          });
+          .catch(() => {});
 
         promises.push(requestListContainers);
       }
@@ -47,7 +42,6 @@ describe('Sentinel', () => {
 
     before('Collect sentinel container info', function func() {
       this.timeout(60000);
-      console.log('collecting logs info');
 
       const promises = [];
       for (const hostName of inventory.masternodes.hosts) {
@@ -56,7 +50,6 @@ describe('Sentinel', () => {
           host: `http://${inventory._meta.hostvars[hostName].public_ip}`,
           port: 2375,
         });
-        console.log(`getting logs for ${docker.getContainer(listContainers[hostName][0].Id).id}`);
         const requestLogsStream = docker.getContainer(listContainers[hostName][0].Id).logs({
           stdout: true,
           stderr: true,
@@ -65,7 +58,6 @@ describe('Sentinel', () => {
           timestamps: true,
         })
           .then((result) => {
-            console.log(`logs received for ${hostName}`);
             getContainer[hostName] = result;
           });
 
@@ -81,7 +73,6 @@ describe('Sentinel', () => {
         it('should be running without errors', async () => {
           expect(listContainers[hostName]).to.have.lengthOf(1);
           expect(listContainers[hostName][0].State).to.be.equal('running');
-          console.log(getContainer[hostName].toString('utf8'));
           expect(getContainer[hostName]).to.be.empty();
         });
       });

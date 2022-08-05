@@ -18,11 +18,6 @@ Please read README.md how to configure networks"
 
     openvpn_start
 
-    # openvpn_wait_for_connect
-
-    curl -4 ifconfig.co
-    ip a
-
     echo "Running mocha tests..."
 
     set +e
@@ -31,9 +26,9 @@ Please read README.md how to configure networks"
 
     set -e
 
-    # echo "Running karma tests..."
+    echo "Running karma tests..."
 
-    # test_run_karma
+    test_run_karma
 }
 
 function test_run_mocha() {
