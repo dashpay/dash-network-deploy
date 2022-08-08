@@ -14,16 +14,6 @@ describe('Sentinel', () => {
 
       const promises = [];
 
-      function requestLogsStream(docker, hostName) {
-        return docker.getContainer(listContainers[hostName][0].Id).logs({
-          stdout: true,
-          stderr: true,
-          follow: 0,
-          since: (Math.floor(new Date() / 1000) - 300), // logs from last 5 mins
-          timestamps: true,
-        });
-      }
-
       for (const hostName of inventory.masternodes.hosts) {
         const timeout = 15000; // set individual docker client timeout
         const docker = new Docker({
@@ -43,7 +33,13 @@ describe('Sentinel', () => {
           .then((result) => {
             listContainers[hostName] = result;
           })
-          .then(() => requestLogsStream(docker, hostName))
+          .then(() => docker.getContainer(listContainers[hostName][0].Id).logs({
+            stdout: true,
+            stderr: true,
+            follow: 0,
+            since: (Math.floor(new Date() / 1000) - 300), // logs from last 5 mins
+            timestamps: true,
+          }))
           .then((result) => {
             getContainer[hostName] = result.toString();
           })
