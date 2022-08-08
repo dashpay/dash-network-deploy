@@ -13,6 +13,17 @@ describe('Sentinel', () => {
       this.timeout(120000); // set mocha timeout
 
       const promises = [];
+
+      function requestLogsStream(docker, hostName) {
+        return docker.getContainer(listContainers[hostName][0].Id).logs({
+          stdout: true,
+          stderr: true,
+          follow: 0,
+          since: (Math.floor(new Date() / 1000) - 300), // logs from last 5 mins
+          timestamps: true,
+        });
+      }
+
       for (const hostName of inventory.masternodes.hosts) {
         const timeout = 15000; // set individual docker client timeout
         const docker = new Docker({
@@ -32,36 +43,14 @@ describe('Sentinel', () => {
           .then((result) => {
             listContainers[hostName] = result;
           })
+          .then(() => requestLogsStream(docker, hostName))
+          .then((result) => {
+            console.log(result);
+            getContainer[hostName] = result;
+          })
           .catch(() => {});
 
         promises.push(requestListContainers);
-      }
-
-      return Promise.all(promises).catch(() => Promise.resolve());
-    });
-
-    before('Collect sentinel container info', function func() {
-      this.timeout(60000);
-
-      const promises = [];
-      for (const hostName of inventory.masternodes.hosts) {
-        const docker = new Docker({
-          // eslint-disable-next-line no-underscore-dangle
-          host: `http://${inventory._meta.hostvars[hostName].public_ip}`,
-          port: 2375,
-        });
-        const requestLogsStream = docker.getContainer(listContainers[hostName][0].Id).logs({
-          stdout: true,
-          stderr: true,
-          follow: 0,
-          since: (Math.floor(new Date() / 1000) - 300), // logs from last 5 mins
-          timestamps: true,
-        })
-          .then((result) => {
-            getContainer[hostName] = result;
-          });
-
-        promises.push(requestLogsStream);
       }
 
       return Promise.all(promises).catch(() => Promise.resolve());
