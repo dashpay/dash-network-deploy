@@ -45,8 +45,7 @@ describe('Sentinel', () => {
           })
           .then(() => requestLogsStream(docker, hostName))
           .then((result) => {
-            console.log(result);
-            getContainer[hostName] = result;
+            getContainer[hostName] = result.toString();
           })
           .catch(() => {});
 
