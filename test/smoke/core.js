@@ -129,27 +129,27 @@ describe('Core', () => {
     }
   });
 
-  describe('Miners', () => {
-    for (const hostName of inventory.miners.hosts) {
-      describe(hostName, () => {
-        it('should mine blocks', async function it() {
-          if (network.type === 'mainnet') {
-            this.skip('Miners are disabled for mainnet');
-            return;
-          }
+  // describe('Miners', () => {
+  //   for (const hostName of inventory.miners.hosts) {
+  //     describe(hostName, () => {
+  //       it('should mine blocks', async function it() {
+  //         if (network.type === 'mainnet') {
+  //           this.skip('Miners are disabled for mainnet');
+  //           return;
+  //         }
 
-          this.timeout(240000);
-          this.slow(160000);
+  //         this.timeout(240000);
+  //         this.slow(160000);
 
-          const coreClient = createRpcClientFromConfig(hostName);
+  //         const coreClient = createRpcClientFromConfig(hostName);
 
-          const { result: previousHeight } = await coreClient.getBlockCount();
+  //         const { result: previousHeight } = await coreClient.getBlockCount();
 
-          const { result: { height } } = await coreClient.waitForNewBlock(230000);
+  //         const { result: { height } } = await coreClient.waitForNewBlock(230000);
 
-          expect(height).to.be.above(previousHeight, 'no new blocks');
-        });
-      });
-    }
-  });
+  //         expect(height).to.be.above(previousHeight, 'no new blocks');
+  //       });
+  //     });
+  //   }
+  // });
 });

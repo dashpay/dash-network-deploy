@@ -26,9 +26,9 @@ Please read README.md how to configure networks"
 
     set -e
 
-    echo "Running karma tests..."
+    # echo "Running karma tests..."
 
-    test_run_karma
+    # test_run_karma
 }
 
 function test_run_mocha() {
