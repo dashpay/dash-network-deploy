@@ -5,29 +5,22 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory } = getNetworkConfig();
 
 async function sendEcho(ip) {
-  const echoRequestBytes = Buffer.from('0e12050a03010203', 'hex');
-  console.log(echoRequestBytes.toString('hex'));
+  const echoRequestBytes = Buffer.from('0a0a080a0668656c6c6f21', 'hex');
 
   return new Promise((resolve, reject) => {
     const client = net.connect(26658, ip);
 
     client.on('connect', () => {
-      console.log('in connect statement');
       client.write(echoRequestBytes);
     });
 
     client.on('data', () => {
-      console.log('in data statement');
-      // console.log(data);
       client.destroy();
 
       resolve();
     });
 
-    client.on('error', () => {
-      console.log('in error statement');
-      reject(new Error('Error!'));
-    });
+    client.on('error', reject);
 
     setTimeout(() => {
       reject(new Error('Can\'t connect to ABCI port: timeout.'));
