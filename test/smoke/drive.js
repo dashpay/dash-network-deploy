@@ -5,7 +5,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory } = getNetworkConfig();
 
 async function sendEcho(ip) {
-  const echoRequestBytes = Buffer.from('0a0a080a0668656c6c6f21', 'hex');
+  const echoRequestBytes = Buffer.from('0e12050a03010203', 'hex');
 
   return new Promise((resolve, reject) => {
     const client = net.connect(26658, ip);
@@ -28,20 +28,37 @@ async function sendEcho(ip) {
   });
 }
 
-describe('Drive', () => {
-  describe('seed-1', () => {
-    it('should listen for ABCI connection', async () => {
-      // eslint-disable-next-line no-underscore-dangle
-      await sendEcho(inventory._meta.hostvars['seed-1'].public_ip);
-    });
-  });
+const allHosts = inventory.masternodes.hosts.concat(inventory.seed_nodes.hosts);
 
-  for (const hostName of inventory.masternodes.hosts) {
-    describe(hostName, () => {
-      it('should listen for ABCI connection', async () => {
+describe('Drive', () => {
+  describe('All nodes', () => {
+    const echoInfo = {};
+
+    before('Collect echo info from Drive', () => {
+      const promises = [];
+
+      for (const hostName of allHosts) {
         // eslint-disable-next-line no-underscore-dangle
-        await sendEcho(inventory._meta.hostvars[hostName].public_ip);
-      });
+        const requestEchoPromise = sendEcho(inventory._meta.hostvars[hostName].public_ip)
+          .then(() => {
+            echoInfo[hostName] = true;
+          })
+          .catch((e) => {
+            echoInfo[hostName] = e;
+          });
+
+        promises.push(requestEchoPromise);
+      }
+
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
-  }
+
+    for (const hostName of allHosts) {
+      describe(hostName, () => {
+        it('should listen for ABCI connection', () => {
+          expect(echoInfo[hostName]).to.be.true();
+        });
+      });
+    }
+  });
 });
