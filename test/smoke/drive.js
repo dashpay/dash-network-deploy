@@ -5,7 +5,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { variables, inventory } = getNetworkConfig();
 
 async function sendEcho(ip) {
-  const echoRequestBytes = Buffer.from('0e12050a03010203', 'hex');
+  const echoRequestBytes = Buffer.from('0a0a080a0668656c6c6f21', 'hex');
 
   return new Promise((resolve, reject) => {
     const client = net.connect(26658, ip);
