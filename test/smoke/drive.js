@@ -56,7 +56,9 @@ describe('Drive', () => {
     for (const hostName of allHosts) {
       describe(hostName, () => {
         it('should listen for ABCI connection', () => {
-          expect(echoInfo[hostName]).to.be.true();
+          if (echoInfo[hostName] !== true) {
+            expect.fail(echoInfo[hostName]);
+          }
         });
       });
     }
