@@ -7,8 +7,6 @@ const { variables, inventory, network } = getNetworkConfig();
 describe('Tendermint', () => {
   const masternodeStatus = {};
   const masternodeStatusError = {};
-  const masternodeStatusNodeInfo = {};
-  const masternodeStatusNetworkName = {};
 
   const masternodeNetInfo = {};
   const masternodeNetInfoError = {};
@@ -23,26 +21,16 @@ describe('Tendermint', () => {
           // eslint-disable-next-line no-underscore-dangle
           host: inventory._meta.hostvars[hostName].public_ip,
           port: variables.tendermint_rpc_port,
+          // TODO: add timeout
         });
 
         const requestTendermintStatusPromise = tendermintClient.request('status', {})
-          .then((response) => {
-            masternodeStatus[hostName] = response;
-
-            const { result: { node_info: nodeInfo }, error } = response;
+          .then(({ result, error }) => {
+            masternodeStatus[hostName] = result;
             masternodeStatusError[hostName] = error;
-            masternodeStatusNodeInfo[hostName] = nodeInfo;
-
-            let networkName = `dash-${network.name}`;
-            if (network.type === 'devnet' && variables.tenderdash_chain_id !== undefined) {
-              networkName = `dash-${variables.tenderdash_chain_id}`;
-            }
-
-            masternodeStatusNetworkName[hostName] = networkName;
           })
           .catch((e) => {
-            // eslint-disable-next-line no-console
-            console.log(e);
+            masternodeStatusError[hostName] = e;
           });
 
         const requestTendermintNetInfoPromise = tendermintClient.request('net_info', {})
@@ -53,7 +41,7 @@ describe('Tendermint', () => {
           })
           .catch((e) => {
             // eslint-disable-next-line no-console
-            console.log(e);
+            masternodeNetInfoError[hostName] = e;
           });
 
         promises.push(requestTendermintStatusPromise, requestTendermintNetInfoPromise);
@@ -64,17 +52,15 @@ describe('Tendermint', () => {
 
     before('Evaluate block hashes', () => {
       for (const hostName of inventory.masternodes.hosts) {
-        if (!masternodeStatus[hostName]) {
+        if (masternodeStatusError[hostName]) {
           // eslint-disable-next-line no-continue
           continue;
         }
 
         const {
-          result: {
-            sync_info: {
-              latest_block_height: blockHeight,
-              latest_block_hash: blockHash,
-            },
+          sync_info: {
+            latest_block_height: blockHeight,
+            latest_block_hash: blockHash,
           },
         } = masternodeStatus[hostName];
 
@@ -87,37 +73,42 @@ describe('Tendermint', () => {
     for (const hostName of inventory.masternodes.hosts) {
       describe(hostName, () => {
         it('should be connected to the network', () => {
-          if (!masternodeStatus[hostName]) {
-            expect.fail(null, null, 'no tenderdash status info');
+          if (masternodeStatusError[hostName]) {
+            expect.fail(masternodeStatusError[hostName]);
           }
 
-          expect(masternodeStatusError[hostName]).to.be.undefined();
-          expect(masternodeStatusNodeInfo[hostName]).to.deep.include({
-            network: masternodeStatusNetworkName[hostName],
+          let networkName = `dash-${network.name}`;
+          if (network.type === 'devnet' && variables.tenderdash_chain_id !== undefined) {
+            networkName = `dash-${variables.tenderdash_chain_id}`;
+          }
+
+          const { node_info: nodeInfo } = masternodeStatus[hostName];
+
+          expect(nodeInfo).to.deep.include({
+            network: networkName,
             moniker: hostName,
           });
         });
 
         it('should be connected to peers', () => {
-          if (!masternodeNetInfo[hostName]) {
-            expect.fail(null, null, 'no tenderdash net info');
+          if (masternodeNetInfoError[hostName]) {
+            expect.fail(masternodeNetInfoError[hostName]);
           }
-          expect(masternodeNetInfoError[hostName]).to.be.undefined();
+
           expect(masternodeNetInfo[hostName]).to.have.property('listening', true);
           expect(masternodeNetInfo[hostName]).to.have.property('n_peers');
           expect(parseInt(masternodeNetInfo[hostName].n_peers, 10)).to.be.greaterThan(0);
         });
 
         it('should sync blocks', () => {
-          if (!masternodeNetInfo[hostName]) {
-            expect.fail(null, null, 'no tenderdash status info');
+          if (masternodeStatusError[hostName]) {
+            expect.fail(masternodeStatusError[hostName]);
           }
+
           const {
-            result: {
-              sync_info: {
-                latest_block_height: blockHeight,
-                latest_block_hash: blockHash,
-              },
+            sync_info: {
+              latest_block_height: blockHeight,
+              latest_block_hash: blockHash,
             },
           } = masternodeStatus[hostName];
 
