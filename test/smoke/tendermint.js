@@ -21,7 +21,7 @@ describe('Tendermint', () => {
           // eslint-disable-next-line no-underscore-dangle
           host: inventory._meta.hostvars[hostName].public_ip,
           port: variables.tendermint_rpc_port,
-          // TODO: add timeout
+          // TODO: add timeout https://github.com/tedeh/jayson
         });
 
         const requestTendermintStatusPromise = tendermintClient.request('status', {})
