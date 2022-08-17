@@ -4,6 +4,46 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory, network } = getNetworkConfig();
 
+function requestTendermint(host, port, path) {
+  const tendermintClient = jaysonClient.http({
+    host,
+    port,
+  });
+
+  return new Promise((resolve, reject) => {
+    tendermintClient.on('http request', (request) => {
+      request.setTimeout(10000); // 10s
+    });
+
+    tendermintClient.on('http error', (error) => {
+      reject(error);
+    });
+
+    // In case if request timeout won't work
+    const timeout = setTimeout(() => {
+      reject(new Error(`timeout to connect to ${host}:${port}`));
+    });
+
+    tendermintClient.on('http response', () => {
+      clearTimeout(timeout);
+    });
+
+    tendermintClient.request(path, {})
+      .then(({ result, error }) => {
+        if (error) {
+          reject(new Error(error));
+
+          return;
+        }
+
+        resolve(result);
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
+}
+
 describe('Tendermint', () => {
   const masternodeStatus = {};
   const masternodeStatusError = {};
@@ -17,35 +57,27 @@ describe('Tendermint', () => {
     before('Collect tenderdash info', () => {
       const promises = [];
       for (const hostName of inventory.masternodes.hosts) {
-        const tendermintClient = jaysonClient.http({
+        const requestTendermintStatusPromise = requestTendermint(
           // eslint-disable-next-line no-underscore-dangle
-          host: inventory._meta.hostvars[hostName].public_ip,
-          port: variables.tendermint_rpc_port,
+          inventory._meta.hostvars[hostName].public_ip,
+          variables.tendermint_rpc_port,
+          'status',
+        ).then((result) => {
+          masternodeStatus[hostName] = result;
+        }).catch((error) => {
+          masternodeStatusError[hostName] = error;
         });
 
-        tendermintClient.once('http request', (req) => {
-          req.setTimeout(10000); // timeout 10 s
+        const requestTendermintNetInfoPromise = requestTendermint(
+          // eslint-disable-next-line no-underscore-dangle
+          inventory._meta.hostvars[hostName].public_ip,
+          variables.tendermint_rpc_port,
+          'net_info',
+        ).then((result) => {
+          masternodeNetInfo[hostName] = result;
+        }).catch((error) => {
+          masternodeNetInfoError[hostName] = error;
         });
-
-        const requestTendermintStatusPromise = tendermintClient.request('status', {})
-          .then(({ result, error }) => {
-            masternodeStatus[hostName] = result;
-            masternodeStatusError[hostName] = error;
-          })
-          .catch((e) => {
-            masternodeStatusError[hostName] = e;
-          });
-
-        const requestTendermintNetInfoPromise = tendermintClient.request('net_info', {})
-          // eslint-disable-next-line no-loop-func
-          .then(({ result, error }) => {
-            masternodeNetInfo[hostName] = result;
-            masternodeNetInfoError[hostName] = error;
-          })
-          .catch((e) => {
-            // eslint-disable-next-line no-console
-            masternodeNetInfoError[hostName] = e;
-          });
 
         promises.push(requestTendermintStatusPromise, requestTendermintNetInfoPromise);
       }
