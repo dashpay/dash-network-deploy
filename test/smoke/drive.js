@@ -2,7 +2,7 @@ const net = require('net');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const { variables, inventory } = getNetworkConfig();
+const { inventory } = getNetworkConfig();
 
 async function sendEcho(ip) {
   const echoRequestBytes = Buffer.from('0e12050a03010203', 'hex');
@@ -28,32 +28,39 @@ async function sendEcho(ip) {
   });
 }
 
-describe('Drive', () => {
-  describe('seed-1', () => {
-    it('should listen for ABCI connection', async function it() {
-      if (!variables.evo_services) {
-        this.skip('Evolution services are not enabled');
+const allHosts = inventory.masternodes.hosts.concat(inventory.seed_nodes.hosts);
 
-        return;
+describe('Drive', () => {
+  describe('All nodes', () => {
+    const echoInfo = {};
+
+    before('Collect echo info from Drive', () => {
+      const promises = [];
+
+      for (const hostName of allHosts) {
+        // eslint-disable-next-line no-underscore-dangle
+        const requestEchoPromise = sendEcho(inventory._meta.hostvars[hostName].public_ip)
+          .then(() => {
+            echoInfo[hostName] = true;
+          })
+          .catch((e) => {
+            echoInfo[hostName] = e;
+          });
+
+        promises.push(requestEchoPromise);
       }
 
-      // eslint-disable-next-line no-underscore-dangle
-      await sendEcho(inventory._meta.hostvars['seed-1'].public_ip);
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
-  });
 
-  for (const hostName of inventory.masternodes.hosts) {
-    describe(hostName, () => {
-      it('should listen for ABCI connection', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
-
-          return;
-        }
-
-        // eslint-disable-next-line no-underscore-dangle
-        await sendEcho(inventory._meta.hostvars[hostName].public_ip);
+    for (const hostName of allHosts) {
+      describe(hostName, () => {
+        it('should listen for ABCI connection', () => {
+          if (echoInfo[hostName] !== true) {
+            expect.fail(echoInfo[hostName]);
+          }
+        });
       });
-    });
-  }
+    }
+  });
 });
