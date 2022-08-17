@@ -11,18 +11,13 @@ function requestTendermint(host, port, path) {
   });
 
   return new Promise((resolve, reject) => {
-    tendermintClient.on('http request', (request) => {
-      request.setTimeout(10000); // 10s
-    });
-
     tendermintClient.on('http error', (error) => {
       reject(error);
     });
 
-    // In case if request timeout won't work
     const timeout = setTimeout(() => {
-      reject(new Error(`timeout to connect to ${host}:${port}`));
-    });
+      reject(new Error(`timeout connecting to ${host}:${port}`));
+    }, 10000); // 10s timeout
 
     tendermintClient.on('http response', () => {
       clearTimeout(timeout);
