@@ -81,7 +81,7 @@ describe('Tendermint', () => {
           }
 
           let networkName = `dash-${network.name}`;
-          if (network.type === 'devnet' && variables.tenderdash_chain_id !== undefined) {
+          if (variables.tenderdash_chain_id !== undefined) {
             networkName = `dash-${variables.tenderdash_chain_id}`;
           }
 
