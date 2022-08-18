@@ -45,7 +45,7 @@ resource "aws_instance" "dashd_wallet" {
   count = var.wallet_count
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.micro"
+  instance_type        = var.wallet_node_instance_type
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
