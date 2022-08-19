@@ -141,6 +141,7 @@
       tags:
         - dashd
     - mn-sentinel
+    - mn-status-report
     - elastic-beats
 
 # Generate first block on seed node

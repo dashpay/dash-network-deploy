@@ -15,4 +15,3 @@
 
 - src: elastic.beats
   version: v7.17.0
-

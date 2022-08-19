@@ -2,7 +2,7 @@
   vars:
     openvpn_forwarded_ips: []
   set_fact:
-    openvpn_forwarded_ips: "{{ openvpn_forwarded_ips }} + [ 'route {{ hostvars[item].public_ip }} 255.255.255.255' ]"
+    openvpn_forwarded_ips: "{{ openvpn_forwarded_ips + [ 'route ' + hostvars[item].public_ip + ' 255.255.255.255' ] }}"
   when: item != "vpn"
   loop: "{{ groups['all'] }}"
 
@@ -15,7 +15,7 @@
     openvpn_client_register_dns: no
     openvpn_server_hostname: "{{ public_ip }}"
     openvpn_set_dns: false
-    openvpn_push: "[ 'route-nopull' ] + {{openvpn_forwarded_ips}}"
+    openvpn_push: "{{ [ 'route-nopull' ] + openvpn_forwarded_ips }}"
     openvpn_redirect_gateway: no
     openvpn_fetch_client_configs_dir: ~/tmp/ansible/
 
