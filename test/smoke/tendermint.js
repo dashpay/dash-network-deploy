@@ -4,117 +4,156 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory, network } = getNetworkConfig();
 
+function requestTendermint(host, port, path) {
+  const tendermintClient = jaysonClient.http({
+    host,
+    port,
+  });
+
+  return new Promise((resolve, reject) => {
+    tendermintClient.on('http error', (error) => {
+      reject(error);
+    });
+
+    const timeout = setTimeout(() => {
+      reject(new Error(`timeout connecting to ${host}:${port}`));
+    }, 10000); // 10s timeout
+
+    tendermintClient.on('http response', () => {
+      clearTimeout(timeout);
+    });
+
+    tendermintClient.request(path, {})
+      .then(({ result, error }) => {
+        if (error) {
+          reject(new Error(error));
+
+          return;
+        }
+
+        resolve(result);
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
+}
+
 describe('Tendermint', () => {
-  const masternodeStatuses = {};
+  const masternodeStatus = {};
+  const masternodeStatusError = {};
 
-  for (const hostName of inventory.masternodes.hosts) {
-    describe(hostName, () => {
-      it('should be connected to the network', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
+  const masternodeNetInfo = {};
+  const masternodeNetInfoError = {};
 
-          return;
-        }
+  const blockHashes = {};
 
-        const tendermintClient = jaysonClient.http({
+  describe('All nodes', () => {
+    before('Collect tenderdash info', () => {
+      const promises = [];
+      for (const hostName of inventory.masternodes.hosts) {
+        const requestTendermintStatusPromise = requestTendermint(
           // eslint-disable-next-line no-underscore-dangle
-          host: inventory._meta.hostvars[hostName].public_ip,
-          port: variables.tendermint_rpc_port,
+          inventory._meta.hostvars[hostName].public_ip,
+          variables.tendermint_rpc_port,
+          'status',
+        ).then((result) => {
+          masternodeStatus[hostName] = result;
+        }).catch((error) => {
+          masternodeStatusError[hostName] = error;
         });
 
-        const response = await tendermintClient.request('status', {});
-
-        masternodeStatuses[hostName] = response;
-
-        const { result: { node_info: nodeInfo }, error } = response;
-
-        expect(error).to.be.undefined();
-
-        let networkName = `dash-${network.name}`;
-        if (network.type === 'devnet' && variables.tenderdash_chain_id !== undefined) {
-          networkName = `dash-${variables.tenderdash_chain_id}`;
-        }
-
-        expect(nodeInfo).to.deep.include({
-          network: networkName,
-          moniker: hostName,
-        });
-      });
-
-      it('should be connected to peers', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
-
-          return;
-        }
-
-        const tendermintClient = jaysonClient.http({
+        const requestTendermintNetInfoPromise = requestTendermint(
           // eslint-disable-next-line no-underscore-dangle
-          host: inventory._meta.hostvars[hostName].public_ip,
-          port: variables.tendermint_rpc_port,
+          inventory._meta.hostvars[hostName].public_ip,
+          variables.tendermint_rpc_port,
+          'net_info',
+        ).then((result) => {
+          masternodeNetInfo[hostName] = result;
+        }).catch((error) => {
+          masternodeNetInfoError[hostName] = error;
         });
 
-        const { result, error } = await tendermintClient.request('net_info', {});
+        promises.push(requestTendermintStatusPromise, requestTendermintNetInfoPromise);
+      }
 
-        expect(error).to.be.undefined();
-        expect(result).to.have.property('listening', true);
-        expect(result).to.have.property('n_peers');
-        expect(parseInt(result.n_peers, 10)).to.be.greaterThan(0);
-      });
+      return Promise.all(promises).catch(() => Promise.resolve());
+    });
 
-      it('should sync blocks', async function it() {
-        if (!variables.evo_services) {
-          this.skip('Evolution services are not enabled');
-
-          return;
-        }
-
-        if (!masternodeStatuses[hostName]) {
-          expect.fail('can\'t connect to node');
-        }
-
-        const blockHashes = {};
-
-        for (const host of inventory.masternodes.hosts) {
-          if (!masternodeStatuses[host]) {
-            // eslint-disable-next-line no-continue
-            continue;
-          }
-
-          const {
-            result: {
-              sync_info: {
-                latest_block_height: blockHeight,
-                latest_block_hash: blockHash,
-              },
-            },
-          } = masternodeStatuses[host];
-
-          if (!blockHashes[blockHeight]) {
-            blockHashes[blockHeight] = blockHash;
-          }
+    before('Evaluate block hashes', () => {
+      for (const hostName of inventory.masternodes.hosts) {
+        if (masternodeStatusError[hostName]) {
+          // eslint-disable-next-line no-continue
+          continue;
         }
 
         const {
-          result: {
+          sync_info: {
+            latest_block_height: blockHeight,
+            latest_block_hash: blockHash,
+          },
+        } = masternodeStatus[hostName];
+
+        if (!blockHashes[blockHeight]) {
+          blockHashes[blockHeight] = blockHash;
+        }
+      }
+    });
+
+    for (const hostName of inventory.masternodes.hosts) {
+      describe(hostName, () => {
+        it('should be connected to the network', () => {
+          if (masternodeStatusError[hostName]) {
+            expect.fail(masternodeStatusError[hostName]);
+          }
+
+          let networkName = `dash-${network.name}`;
+          if (variables.tenderdash_chain_id !== undefined) {
+            networkName = `dash-${variables.tenderdash_chain_id}`;
+          }
+
+          const { node_info: nodeInfo } = masternodeStatus[hostName];
+
+          expect(nodeInfo).to.deep.include({
+            network: networkName,
+            moniker: hostName,
+          });
+        });
+
+        it('should be connected to peers', () => {
+          if (masternodeNetInfoError[hostName]) {
+            expect.fail(masternodeNetInfoError[hostName]);
+          }
+
+          expect(masternodeNetInfo[hostName]).to.have.property('listening', true);
+          expect(masternodeNetInfo[hostName]).to.have.property('n_peers');
+          expect(parseInt(masternodeNetInfo[hostName].n_peers, 10)).to.be.greaterThan(0);
+        });
+
+        it('should sync blocks', () => {
+          if (masternodeStatusError[hostName]) {
+            expect.fail(masternodeStatusError[hostName]);
+          }
+
+          const {
             sync_info: {
               latest_block_height: blockHeight,
               latest_block_hash: blockHash,
             },
-          },
-        } = masternodeStatuses[hostName];
+          } = masternodeStatus[hostName];
 
-        expect(blockHashes[blockHeight]).to.be.equal(blockHash);
+          expect(blockHashes[blockHeight]).to.be.equal(blockHash);
 
-        const blocksCounts = Object.keys(blockHashes).map((c) => parseInt(c, 10));
-        const maxBlocksCount = Math.max(...blocksCounts);
+          const blocksCounts = Object.keys(blockHashes).map((c) => parseInt(c, 10));
+          const maxBlocksCount = Math.max(...blocksCounts);
 
-        const blocksCountDiff = maxBlocksCount - blockHeight;
+          const blocksCountDiff = maxBlocksCount - blockHeight;
 
-        if (blocksCountDiff > 3) {
-          expect.fail(`${blocksCountDiff} blocks behind`);
-        }
+          if (blocksCountDiff > 3) {
+            expect.fail(`${blocksCountDiff} blocks behind`);
+          }
+        });
       });
-    });
-  }
+    }
+  });
 });
