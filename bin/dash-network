@@ -42,4 +42,4 @@ docker run -t --rm \
            -v "$HOME/.aws:/root/.aws" \
            -v "$PUBLIC_KEY_PATH:$PUBLIC_KEY_PATH" \
            -v "$PRIVATE_KEY_PATH:$PRIVATE_KEY_PATH" \
-           dashpay/dash-network-deploy:latest-dev "$@"
+           dashpay/dash-network-deploy:"${DEPLOY_TOOL_VERSION:-latest}" "$@"
