@@ -6,16 +6,22 @@ services:
     image: "docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}"
     command: >
       bash -c '
-        if [[ ! -f /certs/bundle.zip ]]; then
-          bin/elasticsearch-certutil cert --silent --pem --keep-ca-key \
-          --in /certs/instances.yml --out /certs/bundle.zip;
-          unzip -j /certs/bundle.zip ca/ca.* -d /certs/ca;
+        if [[ ! -f /certs/ca.zip ]]; then
+          echo "Creating CA";
+          bin/elasticsearch-certutil ca --silent --pem -out /certs/ca.zip;
+          unzip /certs/ca.zip -d /certs;
         else
-          rm /certs/bundle.zip;
+          echo "Skipping CA"
+        fi;
+        if [[ ! -f /certs/certs.zip ]]; then
+          echo "Creating certs";
           bin/elasticsearch-certutil cert --silent --pem \
           --ca-cert /certs/ca/ca.crt --ca-key /certs/ca/ca.key \
-          --in /certs/instances.yml --out /certs/bundle.zip;
-          cd /certs && zip /certs/bundle.zip ca/ca.* -r;
+          --in /certs/instances.yml -out /certs/certs.zip 
+          unzip /certs/certs.zip -d /certs;
+          ls -lha
+        else
+          echo "Skipping certs";
         fi;
         chown -R 1000:0 /certs
       '
