@@ -12,7 +12,8 @@
   include_role:
     name: geerlingguy.filebeat
   vars:
-    filebeat_version: "{{ elastic_version }}"
+    filebeat_version: 8.x
+    filebeat_package: "filebeat={{ elastic_version }}"
     filebeat_inputs:
       - type: container
         enabled: true
