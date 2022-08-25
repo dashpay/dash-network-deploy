@@ -134,6 +134,6 @@
       - "{{ hostvars['logs-1'].private_ip }}:9200"
     filebeat_output_elasticsearch_auth:
       username: "{{ elastic_username }}"
-      username: "{{ elastic_password }}"
+      password: "{{ elastic_password }}"
     filebeat_enable_logging: true
     filebeat_log_level: info
