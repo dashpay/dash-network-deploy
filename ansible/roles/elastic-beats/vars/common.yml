@@ -1,14 +1,13 @@
 ---
 
-beats_version: "{{ elastic_version }}"
-beat: filebeat
-output_conf:
-  elasticsearch:
-    hosts:
-      - "{{ hostvars['logs-1'].private_ip }}:9200"
-    username: "{{ elastic_username }}"
-    password: "{{ elastic_password }}"
-logging_conf:
-  level: info
-  files:
-    rotateeverybytes: 10485760
+filebeat_version: 8.x
+filebeat_package: "filebeat={{ elastic_version }}"
+filebeat_output_logstash_enabled: false
+filebeat_output_elasticsearch_enabled: true
+filebeat_output_elasticsearch_hosts:
+  - "{{ hostvars['logs-1'].private_ip }}:9200"
+filebeat_output_elasticsearch_auth:
+  username: "{{ elastic_username }}"
+  password: "{{ elastic_password }}"
+filebeat_enable_logging: true
+filebeat_log_level: info
