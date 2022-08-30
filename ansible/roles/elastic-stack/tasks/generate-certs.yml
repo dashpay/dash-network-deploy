@@ -21,6 +21,7 @@
     project_src: '{{ bundle_path }}'
   when: templates is changed
 
-- name: Pause for 2 seconds to finish writing zip file
-  pause:
-    seconds: 2
+- name: Wait for zip file to be created
+  wait_for:
+    path: '{{ bundle_path }}/certs.zip'
+    state: present
