@@ -8,8 +8,8 @@
       - regtest
       - devnet
 
-- include: regtest_generate.yml
+- include_tasks: regtest_generate.yml
   when: dash_network in generate_networks
 
-- include: wait_for_blocks.yml
+- include_tasks: wait_for_blocks.yml
   when: dash_network not in generate_networks

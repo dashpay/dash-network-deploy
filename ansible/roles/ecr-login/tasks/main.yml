@@ -1,9 +1,0 @@
----
-
-- name: get ecr login command using environment vars
-  become: false
-  local_action: command aws ecr get-login --no-include-email
-  register: ecr_login_command
-
-- name: docker login
-  shell: "{{ ecr_login_command.stdout }}"

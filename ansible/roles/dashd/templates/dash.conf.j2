@@ -81,15 +81,22 @@ sporkkey={{ dashd_sporkkey }}
 {% elif dash_network == 'devnet' %}
 llmqchainlocks=llmq_devnet
 llmqinstantsend=llmq_devnet
+llmqinstantsenddip0024=llmq_devnet_dip0024
 
 [devnet]
-
 # First 1000 blocks should be mined with lowest difficulty (like in regtest, so it's instant)
 # and first 500 blocks are mined with a block subsidity multiplied by 10
 # this allows to register MNs immediately (DIP3 activates on block 2)
-minimumdifficultyblocks=1000
+minimumdifficultyblocks={{ dashd_minimumdifficultyblocks }}
 highsubsidyblocks=500
 highsubsidyfactor=10
+{% if dashd_powtargetspacing is defined %}
+powtargetspacing={{ dashd_powtargetspacing }}
+{% endif %}
+{% endif %}
+
+{% if dashd_debug == 1 %}
+logips=1
 {% endif %}
 
 rpcport={{ dashd_rpc_port }}

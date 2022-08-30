@@ -1,7 +1,4 @@
 ---
-# Login to AWS ECR using passed from .env AWS credentials
-aws_ecr_login: false
-
 # Install Evolution Masternode services
 evo_services: false
 
@@ -30,7 +27,7 @@ drive_image: dashpay/drive
 drive_log_stdout_level: info
 drive_log_pretty_file_level: silent
 drive_log_json_file_level: silent
-platform_drive_validator_set_llmq_type: 
+platform_drive_validator_set_llmq_type:
 
 core_llmq_types:
     1: llmq_50_60
@@ -49,6 +46,7 @@ tendermint_uid: "100"
 tendermint_gid: "1000"
 # tenderdash_chain_id:
 tenderdash_max_validators_count: 50
+tenderdash_log_level: debug
 
 # DAPI
 dapi_image: dashpay/dapi
@@ -94,8 +92,8 @@ dashd_rpc_port: 20002
 dashd_zmq_port: 29998
 
 # Example spork address/privkey. Please provide your own spork key in network config:
-# dashd_sporkaddr: 
-# dashd_sporkkey: 
+# dashd_sporkaddr:
+# dashd_sporkkey:
 
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
 dashd_seednode: '{{ hostvars[groups.seed_nodes[0]]["public_ip"] if groups.seed_nodes else none }}'

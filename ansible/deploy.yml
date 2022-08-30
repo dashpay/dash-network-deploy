@@ -6,7 +6,7 @@
 - hosts: masternodes
   become: true
   roles:
-    -  remove-fake-latency
+    - remove-fake-latency
 
 - hosts: all
   gather_facts: true
@@ -39,10 +39,9 @@
 - hosts: all
   become: true
   tasks:
-    - name: add universe repository
-      apt_repository:
-        repo: deb http://archive.ubuntu.com/ubuntu bionic universe
-        state: present
+    - name: update apt cache
+      apt:
+        update_cache: yes
 
 - hosts: all
   become: true
@@ -50,16 +49,19 @@
     pip_package: python3-pip
     pip_install_packages:
       - name: docker
+        version: "5.0.3"
       - name: docker-compose
-        version: "1.22.0"
+        version: "1.29.2"
   roles:
     - geerlingguy.pip
-    - geerlingguy.docker
+    - role: geerlingguy.docker
+      vars:
+        docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+        docker_install_compose: false
+        docker_users:
+          - ubuntu
     - docker-options
     - eternal-terminal
-    - role: ecr-login
-      when: aws_ecr_login
-      tags: always
 
 # Install AWS monitoring scripts
 
@@ -70,7 +72,7 @@
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
 
-# Configure dashd cli and network logging (if enanbled)
+# Configure dashd cli and network logging (if enabled)
 
 - hosts: all
   become: true
@@ -96,6 +98,7 @@
       dashd_zmq: true
       tags:
         - dashd
+    - elastic-beats
 
 - hosts: miners
   become: true
@@ -103,6 +106,7 @@
     - role: dashd
       tags:
         - dashd
+    - elastic-beats
 
 # Setup core on seed nodes
 
@@ -115,6 +119,7 @@
       dashd_indexes: true
       tags:
         - dashd
+    - elastic-beats
 
 # Setup core on masternodes
 
@@ -137,6 +142,7 @@
         - dashd
     - mn-sentinel
     - mn-status-report
+    - elastic-beats
 
 # Generate first block on seed node
 # so that all nodes leave IBD mode (required for mining)
@@ -166,6 +172,7 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
+    - elastic-beats
   tags:
     - web
 

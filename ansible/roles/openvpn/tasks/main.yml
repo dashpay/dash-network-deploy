@@ -1,14 +1,3 @@
-- name: Add the official OpenVPN APT key
-  apt_key:
-    url:  https://swupdate.openvpn.net/repos/repo-public.gpg
-    state: present
-
-- name: Add the official OpenVPN repository
-  apt_repository:
-    repo: 'deb https://build.openvpn.net/debian/openvpn/stable {{ ansible_lsb.codename }} main'
-    state: present
-    update_cache: yes
-
 - name: Prepare list of forwared IPs
   vars:
     openvpn_forwarded_ips: []
@@ -28,9 +17,10 @@
     openvpn_set_dns: false
     openvpn_push: "{{ [ 'route-nopull' ] + openvpn_forwarded_ips }}"
     openvpn_redirect_gateway: no
+    openvpn_fetch_client_configs_dir: ~/tmp/ansible/
 
 - name: Copy OpenVPN config to 'networks' dir
   become: no
   vars:
-    openvpn_config_path: "/tmp/ansible/{{ dash_network_name }}/{{inventory_hostname}}.ovpn"
+    openvpn_config_path: "~/tmp/ansible/{{ dash_network_name }}/{{inventory_hostname}}.ovpn"
   local_action: "copy src={{ openvpn_config_path }} dest=../networks/{{ dash_network_name }}.ovpn"

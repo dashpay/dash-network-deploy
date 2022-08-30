@@ -8,7 +8,7 @@ resource "aws_instance" "web" {
   }
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.small"
+  instance_type        = var.host_arch == "arm64" ? "t4g.small" : "t3.small"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -45,7 +45,7 @@ resource "aws_instance" "dashd_wallet" {
   count = var.wallet_count
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.wallet_node_instance_type
+  instance_type        = var.host_arch == "arm64" ? "t4g.micro" : "t3.micro"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -83,7 +83,7 @@ resource "aws_instance" "seed_node" {
   count = var.seed_count
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.medium"
+  instance_type        = var.host_arch == "arm64" ? "t4g.medium" : "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -122,7 +122,7 @@ resource "aws_instance" "miner" {
   count = var.miner_count
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.small"
+  instance_type        = var.host_arch == "arm64" ? "t4g.small" : "t3.small"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -160,7 +160,7 @@ resource "aws_instance" "masternode" {
   count = var.masternode_count
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.medium"
+  instance_type        = var.host_arch == "arm64" ? "t4g.medium" : "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -198,7 +198,7 @@ resource "aws_instance" "vpn" {
   count = var.vpn_enabled ? 1 : 0
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.nano"
+  instance_type        = var.host_arch == "arm64" ? "t4g.nano" : "t3.nano"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -230,7 +230,7 @@ resource "aws_instance" "logs" {
   count = var.logs_count
 
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.logs_node_instance_type
+  instance_type        = join(".", [var.host_arch == "arm64" ? "c6g" : "c5a", var.logs_node_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 

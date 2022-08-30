@@ -3,7 +3,7 @@
 # Requires "masternodes" and "masternode_names" variables
 
 - name: get list of banned masternode protx
-  include: find-protx.yml
+  include_tasks: find-protx.yml
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
@@ -12,7 +12,7 @@
 # unban
 
 - name: create ProUpServTx for banned masternodes
-  include: createproupservtx.yml
+  include_tasks: createproupservtx.yml
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
