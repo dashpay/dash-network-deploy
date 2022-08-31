@@ -1,6 +1,6 @@
 ---
 
-filebeat_inputs:
+filebeat_platform_inputs:
   - type: log
     enabled: "{{ tenderdash_container_id.stdout | length > 0 }}"
     json.message_key: msg

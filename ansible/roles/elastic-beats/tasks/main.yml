@@ -13,15 +13,13 @@
 
 - include_vars:
     file: core.yml
-    name: beat_conf
 
 - include_vars:
     file: platform.yml
-    name: platform_beat_conf
   when: tenderdash_container_id.stdout != ""
 
 - set_fact:
-    beat_conf: "{{ [beat_conf, platform_beat_conf] | combine(recursive=True, list_merge='append') }}"
+    filebeat_inputs: "{{ [filebeat_inputs, filebeat_platform_inputs] | community.general.lists_mergeby('index') }}"
   when: tenderdash_container_id.stdout != ""
 
 - name: set up filebeat log monitoring
