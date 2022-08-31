@@ -19,9 +19,8 @@
 - name: generate certs
   docker_compose:
     project_src: '{{ bundle_path }}'
-  when: templates is changed
+  # when: templates is changed
 
-- name: Wait for zip file to be created
-  wait_for:
-    path: '{{ bundle_path }}/certs.zip'
-    state: present
+- name: Pause for 5 seconds to finish writing zip file
+  pause:
+    seconds: 5
