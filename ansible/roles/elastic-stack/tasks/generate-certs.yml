@@ -21,6 +21,6 @@
     project_src: '{{ bundle_path }}'
   when: templates is changed
 
-- name: Pause for 2 seconds to finish writing zip file
+- name: Pause for 5 seconds to finish writing zip file
   pause:
-    seconds: 2
+    seconds: 5

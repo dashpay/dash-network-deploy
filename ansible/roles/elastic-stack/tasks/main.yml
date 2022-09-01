@@ -20,18 +20,29 @@
   run_once: true
   delegate_to: '{{ play_hosts|first }}'
 
+- name: fetch generated ca
+  run_once: true
+  fetch:
+    src: '{{ bundle_path }}/ca.zip'
+    dest: /tmp/ansible/{{ dash_network_name }}/
+    flat: true
+
 - name: fetch generated certs
   run_once: true
   fetch:
-    src: '{{ bundle_path }}/bundle.zip'
-    dest: ~/tmp/ansible/{{ dash_network_name }}/
+    src: '{{ bundle_path }}/certs.zip'
+    dest: /tmp/ansible/{{ dash_network_name }}/
     flat: true
+
+- name: install ca
+  unarchive:
+    src: /tmp/ansible/{{ dash_network_name }}/ca.zip
+    dest: '{{ certs_path }}'
 
 - name: install certs
   unarchive:
-    src: ~/tmp/ansible/{{ dash_network_name }}/bundle.zip
+    src: /tmp/ansible/{{ dash_network_name }}/certs.zip
     dest: '{{ certs_path }}'
-    include: [ '{{ inventory_hostname }}/*', 'ca/ca.crt' ]
 
 - name: copy files
   vars:
@@ -44,22 +55,45 @@
     - elasticsearch.yml
     - kibana.yml
 
-- name: start elastic services
+- name: start elastic
   docker_compose:
     project_src: '{{ elastic_path }}'
     state: present
     pull: yes
     restarted: yes
+    services:
+      - elasticsearch
 
 - name: Wait for Elasticsearch to be available
   uri:
     url: http://localhost:9200
-    user: "{{ elastic_username }}"
-    password: "{{ elastic_password }}"
+    user: '{{ elastic_username }}'
+    password: '{{ elastic_password }}'
   register: response
   until: response.status == 200
   retries: 10
   delay: 10
+
+- name: Set kibana_system password
+  run_once: true
+  uri:
+    url: http://localhost:9200/_security/user/kibana_system/_password
+    user: '{{ elastic_username }}'
+    password: '{{ elastic_password }}'
+    ca_path: '{{ certs_path }}/ca/ca.crt'
+    method: POST
+    body_format: json
+    body:
+      password: '{{ kibana_password }}'
+
+- name: start kibana
+  docker_compose:
+    project_src: '{{ elastic_path }}'
+    state: present
+    pull: yes
+    restarted: yes
+    services:
+      - kibana
 
 - name: Wait for Kibana to be available
   uri:
