@@ -19,7 +19,7 @@
 - name: generate certs
   docker_compose:
     project_src: '{{ bundle_path }}'
-  # when: templates is changed
+  when: templates is changed
 
 - name: Pause for 5 seconds to finish writing zip file
   pause:

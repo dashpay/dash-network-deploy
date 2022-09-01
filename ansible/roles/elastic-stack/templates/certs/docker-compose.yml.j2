@@ -13,16 +13,16 @@ services:
         else
           echo "Skipping CA"
         fi;
-        if [[ ! -f /certs/certs.zip ]]; then
-          echo "Creating certs";
-          bin/elasticsearch-certutil cert --silent --pem \
-          --ca-cert /certs/ca/ca.crt --ca-key /certs/ca/ca.key \
-          --in /certs/instances.yml -out /certs/certs.zip 
-          unzip /certs/certs.zip -d /certs;
-          ls -lha
-        else
-          echo "Skipping certs";
+        if [[ -f /certs/certs.zip ]]; then
+          echo "Removing existing certs";
+          rm /certs/certs.zip;
         fi;
+        echo "Creating certs";
+        bin/elasticsearch-certutil cert --silent --pem \
+        --ca-cert /certs/ca/ca.crt --ca-key /certs/ca/ca.key \
+        --in /certs/instances.yml -out /certs/certs.zip 
+        unzip /certs/certs.zip -d /certs;
+        ls -lha
         chown -R 1000:0 /certs
       '
     user: "0"
