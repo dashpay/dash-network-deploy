@@ -145,7 +145,7 @@ mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name 
 
 elastic_username: elastic
 elastic_password:
-elastic_version: 7.17.0
+elastic_version: 8.4.0
 elastic_data_block_device: /dev/nvme1n1
 kibana_encryptionkey:
 elastic_heap_size: 3g

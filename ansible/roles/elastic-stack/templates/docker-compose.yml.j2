@@ -30,6 +30,10 @@ services:
         source: {{ elastic_path }}/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
+      - type: bind
+        source: {{ certs_path }}
+        target: /usr/share/kibana/config/certs
+        read_only: true
     ports:
       - "{{ kibana_port }}:{{ kibana_port }}"
     networks:
