@@ -8,7 +8,7 @@ RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt
   && apt-get remove -y libpng-dev libjpeg-dev libfreetype6-dev \
   && rm -fr /var/cache/apt/*
 
-ENV MULTIFAUCET_COMMIT=5c625ee79be085c80f09098c6ee8213c0ef3c633
+ENV MULTIFAUCET_COMMIT=2ea5d8f2ac0966ef730ed1bd28b6606912ed7951
 RUN curl -L -o /tmp/multifaucet.tar.gz https://github.com/tuaris/multifaucet/archive/$MULTIFAUCET_COMMIT.tar.gz \
   && cd /tmp \
   && tar xzf multifaucet.tar.gz \
