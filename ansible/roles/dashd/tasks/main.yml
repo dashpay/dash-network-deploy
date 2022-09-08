@@ -56,6 +56,39 @@
     - docker-compose.yml
     - .env
 
+- name: Configure log rotation
+  include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_applications:
+      - name: core-logs
+        definitions:
+          - logs:
+              - "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/debug.log"
+            options:
+              - rotate 7
+              - daily
+              - maxsize 1G
+              - missingok
+              - notifempty
+              - copytruncate
+              - compress
+              - delaycompress
+
+- name: Ensure logrotate runs hourly under systemd timer
+  lineinfile:
+    path: /lib/systemd/system/logrotate.timer
+    regexp: '^OnCalendar=hourly'
+    insertafter: '^OnCalendar=daily'
+    line: OnCalendar=hourly
+
+- name: Enable and restart logrotate systemd timer
+  systemd:
+    name: logrotate.timer
+    state: restarted
+    enabled: yes
+    daemon_reload: true
+
 - name: Start dash core
   docker_compose:
     project_src: '{{ dashd_compose_path }}'
