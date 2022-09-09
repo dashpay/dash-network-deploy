@@ -1,14 +1,14 @@
 FROM php:5.6-apache-jessie
 
-RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list && \
-    apt-get -o Acquire::Check-Valid-Until=false update && \
-    apt-get install -y libpng12-0 libjpeg62-turbo libpng-dev libjpeg-dev libfreetype6 libfreetype6-dev \
+RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list \
+  && apt-get -o Acquire::Check-Valid-Until=false update \
+  && apt-get install -y libpng12-0 libjpeg62-turbo libpng-dev libjpeg-dev libfreetype6 libfreetype6-dev \
   && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
   && docker-php-ext-install mysqli gd \
   && apt-get remove -y libpng-dev libjpeg-dev libfreetype6-dev \
   && rm -fr /var/cache/apt/*
 
-ENV MULTIFAUCET_COMMIT=5c625ee79be085c80f09098c6ee8213c0ef3c633
+ENV MULTIFAUCET_COMMIT=2ea5d8f2ac0966ef730ed1bd28b6606912ed7951
 RUN curl -L -o /tmp/multifaucet.tar.gz https://github.com/tuaris/multifaucet/archive/$MULTIFAUCET_COMMIT.tar.gz \
   && cd /tmp \
   && tar xzf multifaucet.tar.gz \

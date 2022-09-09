@@ -34,7 +34,7 @@ $config = array(
         "spammerslapper_key" => "", // SpammerSlapper API key.
 
         // promo codes:
-        "use_promo_codes" => false, // accept promo codes
+        "use_promo_codes" => true, // accept promo codes
 
         // Donation address:
         "donation_address" => getenv("MULTIFAUCET_DONATION_ADDRESS"), // donation address to display
