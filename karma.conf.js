@@ -10,6 +10,9 @@ module.exports = (config) => {
         inventory,
         variables,
       },
+      mocha: {
+        timeout: 15000, // set timeout for mocha when running karma browser tests
+      },
     },
   });
   config.set({
