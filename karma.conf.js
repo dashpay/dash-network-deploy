@@ -24,8 +24,13 @@ module.exports = (config) => {
       optimization: {
         minimize: false,
       },
-      node: {
-        fs: 'empty',
+      resolve: {
+        fallback: {
+          fs: false,
+          crypto: require.resolve('crypto-browserify'),
+          stream: require.resolve('stream-browserify'),
+          path: false,
+        },
       },
     },
     plugins: [
