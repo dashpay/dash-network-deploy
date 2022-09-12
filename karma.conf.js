@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const getNetworkConfig = require('./lib/test/getNetworkConfig');
 
 const { inventory, variables } = getNetworkConfig();
@@ -12,7 +13,7 @@ module.exports = (config) => {
     },
   });
   config.set({
-    frameworks: ['mocha', 'chai'],
+    frameworks: ['mocha', 'chai', 'webpack'],
     files: [
       'lib/test/karma/loader.js',
     ],
@@ -32,6 +33,14 @@ module.exports = (config) => {
           path: false,
         },
       },
+      plugins: [
+        new webpack.ProvidePlugin({
+          process: 'process/browser',
+        }),
+        new webpack.ProvidePlugin({
+          Buffer: ['buffer', 'Buffer'],
+        }),
+      ],
     },
     plugins: [
       'karma-mocha',
