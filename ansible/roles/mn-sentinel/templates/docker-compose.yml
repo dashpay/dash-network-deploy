@@ -13,4 +13,3 @@ services:
       - RPCPORT={{ dashd_rpc_port }}
       # Bypass scheduler
       - SENTINEL_ARGS=--bypass-scheduler
-      - SENTINEL_DEBUG=1
