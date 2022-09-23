@@ -89,7 +89,3 @@
   vars:
     masternode_names: "{{ banned_masternode_names }}"
   when: banned_masternode_names|length > 0
-
-- name: update config with protx values
-  include_role:
-    name: mn-protx-config

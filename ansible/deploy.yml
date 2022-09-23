@@ -183,6 +183,12 @@
   roles:
     - mn-init
 
+# Update inventory with protx values
+
+- hosts: masternode_wallet
+  roles:
+    - mn-protx-config
+
 # Activate sporks
 
 - hosts: masternode_wallet
