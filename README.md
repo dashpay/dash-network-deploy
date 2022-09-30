@@ -18,7 +18,7 @@ but easier to bootstrap and with unique names. This supports having multiple in
 parallel.
 
 This is work in progress and in its initial state only meant to be used by
-Dash Core developers to assist in Dash Evolution development.
+Dash Core developers to assist in Dash Platform development.
 
 ## Installation
 
@@ -113,9 +113,9 @@ There are two commands that can be useful for debugging:
   - Example: `dash-network logs devnet-example node-1 --since 3h dashd`
 - Execute Dash Core RPC command: `dash-network dash-cli <network_name> <hostname> <rpc_command>`
 
-## Deploy Dash Evolution
+## Deploy Dash Platform
 
-In order to deploy evolution services use ansible variable:
+In order to deploy platform services use ansible variable:
 
     ```yaml
     evo_services: true
