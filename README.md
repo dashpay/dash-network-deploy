@@ -173,3 +173,35 @@ You can use the OpenVPN config generated during deployment (`<network_name>.ovpn
     ```bash
     brew install openvpn
     ```
+
+## New AWS account setup
+
+If you are running this tool for the first time in a new AWS account, some initial setup needs to be done one time:
+
+note: Please ensure you have the correct REGION and PROFILE setup in your AWS CLI configuration (`aws configure`) or use the --region and --profile flags with the AWS commands below.
+
+1. Create Terraform state S3 bucket manually:
+
+```sh
+aws s3 mb s3://bucket-name-here
+```
+
+2. Create Terraform state dynamodb lock table manually
+
+```sh
+aws dynamodb create-table \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --table-name tf-lock-table-test \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --billing-mode PROVISIONED \
+  --provisioned-throughput ReadCapacityUnits=2,WriteCapacityUnits=2 \
+  --table-class STANDARD
+```
+
+3. Route53 domain creation / delegation
+
+```sh
+aws route53 create-hosted-zone --name networks.domain.tld --caller-reference 1234567
+```
+
+Please note the values of these, as they will be needed in the network config files.
