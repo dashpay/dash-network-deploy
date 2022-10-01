@@ -20,6 +20,12 @@
   run_once: true
   delegate_to: '{{ play_hosts|first }}'
 
+- name: Create temp dir and set permissions
+  file:
+    path: /tmp/ansible/{{ dash_network_name }}
+    state: directory
+    mode: '0777'
+
 - name: fetch generated ca
   run_once: true
   fetch:
