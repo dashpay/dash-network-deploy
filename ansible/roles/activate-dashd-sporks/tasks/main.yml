@@ -28,7 +28,7 @@
 - name: set spork update command for old version
   set_fact:
     spork_command: "spork"
-  when: int(dashcore_version_int) >= 180100
+  when: int(dashcore_version_int.stdout) < 180100
 
 - name: activate non active sporks
   shell: "dash-cli {{ spork_update_command }} {{item}} 0"
