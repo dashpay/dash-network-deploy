@@ -17,7 +17,7 @@
   register: active_sporks
 
 - name: activate non active sporks
-  shell: dash-cli spork {{item}} 0
+  shell: dash-cli sporkupdate {{item}} 0
   with_items:
     - SPORK_2_INSTANTSEND_ENABLED
     - SPORK_3_INSTANTSEND_BLOCK_FILTERING
