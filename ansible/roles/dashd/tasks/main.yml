@@ -87,6 +87,7 @@
     state: present
     restarted: yes
     pull: yes
+    timeout: 30
 
 - name: wait for rpc to be available
   shell: dash-cli getgovernanceinfo
