@@ -16,22 +16,8 @@
   shell: dash-cli spork active
   register: active_sporks
 
-# TODO: ensure JQ installed
-- name: get dashcore version number
-  shell: "dash-cli getnetworkinfo | jq --raw-output .version"
-  register: dashcore_version_int
-
-- name: set default spork update command
-  set_fact:
-    spork_command: "sporkupdate"
-
-- name: set spork update command for old version
-  set_fact:
-    spork_command: "spork"
-  when: int(dashcore_version_int.stdout) < 180100
-
 - name: activate non active sporks
-  shell: "dash-cli {{ spork_update_command }} {{item}} 0"
+  shell: dash-cli sporkupdate {{item}} 0
   with_items:
     - SPORK_2_INSTANTSEND_ENABLED
     - SPORK_3_INSTANTSEND_BLOCK_FILTERING
