@@ -38,12 +38,12 @@ done
 
 echo "Destroying $NETWORK_NAME network...";
 
-if ! [ -z ${KEEP_INFRASTRUCTURE} ]; then
-    echo "Removing software and configuration and keeping infrastructure..."
-    ansible_run_playbook "destroy.yml --extra-vars target=network"
-elif ! [ -z ${DESTROY_PLATFORM} ]; then
+if ! [ -z ${DESTROY_PLATFORM} ]; then
     echo "Destroying platform and keeping core..."
-    ansible_run_playbook "destroy.yml --extra-vars target=platform"
+    ansible_run_playbook "-e target=platform destroy.yml"
+elif ! [ -z ${KEEP_INFRASTRUCTURE} ]; then
+    echo "Removing software and configuration and keeping infrastructure..."
+    ansible_run_playbook "-e target=network destroy.yml"
 else
     terraform_run_command "destroy"
     rm "networks/$NETWORK_NAME.inventory"
