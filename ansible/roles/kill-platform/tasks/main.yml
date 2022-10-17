@@ -1,0 +1,27 @@
+---
+
+- name: remove all docker containers and volumes
+  docker_compose:
+    project_src: '{{ mn_evo_services_path }}'
+    state: absent
+    remove_volumes: yes
+
+- name: delete logs dir
+  file:
+    state: absent
+    path: '{{ mn_evo_services_path }}/logs'
+
+- name: delete tendermint dir
+  file:
+    state: absent
+    path: '{{ mn_evo_services_path }}/tendermint'
+
+- name: remove any remaining docker data
+  docker_prune:
+    containers: true
+    images: true
+    images_filters:
+      dangling: false
+    networks: true
+    volumes: true
+    builder_cache: true

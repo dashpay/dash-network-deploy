@@ -10,6 +10,7 @@ Usage: destroy [options] <network_name>
 
 Options:
   -k --keep-infrastructure - Destroy Dash Network and keep infrastructure
+  -p --destroy-platform    - Destroy Dash Platform only and keep core
   -h --help                - Show help"
 
 for i in "$@"
@@ -17,6 +18,9 @@ do
 case ${i} in
     -k|--keep-infrastructure)
     KEEP_INFRASTRUCTURE=1
+    ;;
+    -p|--keep-platform)
+    DESTROY_PLATFORM=1
     ;;
     -h|--help)
         echo "$CMD_USAGE"
@@ -34,10 +38,13 @@ done
 
 echo "Destroying $NETWORK_NAME network...";
 
-if [ -z ${KEEP_INFRASTRUCTURE} ]; then
+if ! [ -z ${KEEP_INFRASTRUCTURE} ]; then
+    echo "Removing software and configuration and keeping infrastructure..."
+    ansible_run_playbook "destroy.yml --extra-vars target=network"
+elif ! [ -z ${DESTROY_PLATFORM} ]; then
+    echo "Destroying platform and keeping core..."
+    ansible_run_playbook "destroy.yml --extra-vars target=platform"
+else
     terraform_run_command "destroy"
     rm "networks/$NETWORK_NAME.inventory"
-else
-    echo "Removing software and configuration and keeping infrastructure..."
-    ansible_run_playbook "destroy.yml"
 fi
