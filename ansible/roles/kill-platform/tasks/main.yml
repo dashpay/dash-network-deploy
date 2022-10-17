@@ -6,15 +6,10 @@
     state: absent
     remove_volumes: yes
 
-- name: delete logs dir
+- name: delete platform dir
   file:
     state: absent
-    path: '{{ mn_evo_services_path }}/logs'
-
-- name: delete tendermint dir
-  file:
-    state: absent
-    path: '{{ mn_evo_services_path }}/tendermint'
+    path: '{{ mn_evo_services_path }}'
 
 - name: remove any remaining docker data
   docker_prune:
