@@ -19,7 +19,7 @@ case ${i} in
     -k|--keep-infrastructure)
     KEEP_INFRASTRUCTURE=1
     ;;
-    -p|--keep-platform)
+    -p|--destroy-platform)
     DESTROY_PLATFORM=1
     ;;
     -h|--help)
