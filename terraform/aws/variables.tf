@@ -169,7 +169,7 @@ variable "logs_node_instance_size" {
   default     = "large"
 }
 
-variable "wallet_node_instance_type" {
+variable "wallet_node_instance_size" {
   description = "Instance type of wallet nodes"
-  default     = "t3.micro"
+  default     = "micro"
 }
