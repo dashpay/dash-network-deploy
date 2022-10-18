@@ -29,7 +29,12 @@ esac
 done
 
 declare -a arr=("all" "network" "platform")
-[[ " ${arr[*]} " =~ " $TARGET " ]] && echo "Destroying $TARGET" || echo "Target not found"
+[[ " ${arr[*]} " =~ " $TARGET " ]] && echo "Destroying $TARGET" || EXIT=1
+
+if  [[ $EXIT=1 ]]; then
+    echo "Target not supported" && echo "$CMD_USAGE"
+    exit 1
+fi
 
 . ./lib/cli/init.sh
 . ./lib/cli/terraform.sh
