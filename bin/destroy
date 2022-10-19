@@ -34,7 +34,7 @@ done
 declare -a arr=("all" "network" "platform")
 [[ " ${arr[*]} " =~ " $TARGET " ]] && echo "Destroying $TARGET" || EXIT=1
 
-if  [[ $EXIT=1 ]]; then
+if [ $EXIT ]; then
     echo "Target not supported" && echo "$CMD_USAGE"
     exit 1
 fi
