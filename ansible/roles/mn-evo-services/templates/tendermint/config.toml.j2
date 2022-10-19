@@ -254,7 +254,7 @@ allow-duplicate-ip = false
 handshake-timeout = "20s"
 dial-timeout = "3s"
 
-{% if dashd_isseednode %}
+{% if inventory_hostname in groups['seed_nodes'] %}
 max-connections = 256
 {% else %}
 max-connections = 32
