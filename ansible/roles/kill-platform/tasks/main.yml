@@ -1,6 +1,6 @@
 ---
 
-- name: remove all docker containers and volumes
+- name: remove platform docker containers and volumes
   docker_compose:
     project_src: '{{ mn_evo_services_path }}'
     state: absent
