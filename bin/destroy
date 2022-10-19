@@ -48,5 +48,5 @@ if [ $TARGET == "all" ]; then
     rm "networks/$NETWORK_NAME.inventory"
 else
     echo "Removing software and configuration and keeping infrastructure..."
-    ansible_run_playbook "-e target={$TARGET} destroy.yml"
+    ansible_run_playbook "-e target=${TARGET} destroy.yml"
 fi
