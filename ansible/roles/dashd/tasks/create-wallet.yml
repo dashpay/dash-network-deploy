@@ -1,0 +1,12 @@
+---
+
+- name: create wallet
+  shell: dash-cli createwallet {{ inventory_hostname }}
+  args:
+    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ inventory_hostname }}/wallet.dat"
+
+- name: load wallet on startup
+  lineinfile:
+    path: "{{ dashd_home }}/.dashcore/dash.conf"
+    regexp: '^wallet='
+    line: wallet={{ inventory_hostname }}
