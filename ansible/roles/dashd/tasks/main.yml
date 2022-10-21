@@ -95,3 +95,6 @@
   until: task_result.rc == 0
   retries: 5
   delay: 10
+
+- import_tasks: create-wallet.yml
+  when: enable_wallet is true
