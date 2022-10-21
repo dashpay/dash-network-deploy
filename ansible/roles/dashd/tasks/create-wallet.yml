@@ -7,6 +7,6 @@
 
 - name: load wallet on startup
   lineinfile:
-    path: "{{ dashd_home }}/.dashcore/dash.conf"
+    path: "/etc/dash.conf"
     regexp: '^wallet='
     line: wallet={{ inventory_hostname }}
