@@ -27,6 +27,15 @@
     state: present
     build: yes
 
+- name: Wait for database to be available
+  community.docker.docker_container_exec:
+    container: multifaucet_db_1
+    command: mysqladmin ping -u multifaucet --password="multifaucet"
+  register: response
+  until: response.stdout == "mysqld is alive"
+  retries: 10
+  delay: 10
+
 - name: create promo codes table
   community.docker.docker_container_exec:
     container: multifaucet_db_1

@@ -10,3 +10,11 @@
     path: "/etc/dash.conf"
     regexp: '^wallet='
     line: wallet={{ inventory_hostname }}
+
+- name: restart dash core
+  docker_compose:
+    project_src: '{{ dashd_compose_path }}'
+    state: present
+    restarted: yes
+    pull: yes
+    timeout: 30
