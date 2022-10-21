@@ -1,5 +1,9 @@
 ---
 
+- name: Pause a bit more to get past annoying transient startup errors
+  pause:
+    seconds: 5
+
 - name: Configure ILM policy
   uri:
     url: "http://localhost:9200/_ilm/policy/masternode-logs"
