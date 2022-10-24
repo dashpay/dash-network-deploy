@@ -18,3 +18,7 @@
     restarted: yes
     pull: yes
     timeout: 30
+
+- name: import faucet privkey
+  when: inventory_hostname in groups['faucet_wallet']
+  shell: dash-cli importprivkey {{ faucet_privkey }}
