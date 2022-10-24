@@ -22,7 +22,7 @@ variable "insight_port" {
 }
 
 variable "insight_https_port" {
-  description = "Insight port"
+  description = "Insight HTTPS port"
   default     = 3002
 }
 
