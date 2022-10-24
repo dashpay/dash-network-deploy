@@ -21,6 +21,11 @@ variable "insight_port" {
   default     = 3001
 }
 
+variable "insight_https_port" {
+  description = "Insight port"
+  default     = 3002
+}
+
 variable "ssh_port" {
   description = "SSH port"
   default     = 22
