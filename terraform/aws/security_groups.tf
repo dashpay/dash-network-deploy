@@ -367,6 +367,18 @@ resource "aws_security_group" "elb" {
     ]
   }
 
+  # Insight Explorer
+  ingress {
+    from_port   = var.insight_https_port
+    to_port     = var.insight_https_port
+    protocol    = "tcp"
+    description = "Insight Explorer HTTPS"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
   # outbound internet access
   egress {
     from_port = 0
