@@ -122,7 +122,7 @@ resource "aws_elb" "web" {
     instance_protocol  = "http"
     lb_port            = var.insight_https_port
     lb_protocol        = "https"
-    ssl_certificate_id = "${aws_acm_certificate_validation.insight.certificate_arn}"
+    ssl_certificate_id = aws_acm_certificate_validation.insight.certificate_arn
   }
 
   health_check {
@@ -163,7 +163,7 @@ resource "aws_route53_record" "insight_validation" {
     }
   }
 
-  zone_id = "${data.aws_route53_zone.main_domain[0].zone_id}"
+  zone_id         = data.aws_route53_zone.main_domain[0].zone_id
   allow_overwrite = true
   name            = each.value.name
   records         = [each.value.record]
@@ -172,9 +172,9 @@ resource "aws_route53_record" "insight_validation" {
 }
 
 resource "aws_acm_certificate_validation" "insight" {
-  certificate_arn = "${aws_acm_certificate.insight.arn}"
+  certificate_arn         = aws_acm_certificate.insight.arn
   validation_record_fqdns = [for record in aws_route53_record.insight_validation : record.fqdn]
-} 
+}
 
 resource "aws_route53_record" "insight" {
   zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
