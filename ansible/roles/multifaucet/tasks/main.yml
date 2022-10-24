@@ -1,8 +1,5 @@
 ---
 
-- name: import multifaucet donation address
-  command: dash-cli {{ faucet_rpc_args }} importprivkey {{ faucet_privkey }}
-
 - name: create multifaucet dirs
   file: path='{{ item }}' state=directory recurse=true
   with_items:
