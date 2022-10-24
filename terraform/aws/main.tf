@@ -117,6 +117,14 @@ resource "aws_elb" "web" {
     lb_protocol       = "http"
   }
 
+  listener {
+    instance_port      = var.insight_port
+    instance_protocol  = "http"
+    lb_port            = var.insight_https_port
+    lb_protocol        = "https"
+    ssl_certificate_id = "${aws_acm_certificate_validation.insight.certificate_arn}"
+  }
+
   health_check {
     healthy_threshold   = 2
     interval            = 20
@@ -140,6 +148,27 @@ resource "aws_route53_record" "faucet" {
 
   count = length(var.main_domain) > 1 ? 1 : 0
 }
+
+resource "aws_acm_certificate" "insight" {
+  domain_name       = "insight.${var.public_network_name}.${var.main_domain}"
+  validation_method = "DNS"
+}
+
+resource "aws_route53_record" "insight_validation" {
+  name    = "${aws_acm_certificate.default.domain_validation_options.0.resource_record_name}"
+  type    = "${aws_acm_certificate.default.domain_validation_options.0.resource_record_type}"
+  zone_id = "${data.aws_route53_zone.main_domain.zone_id}"
+  records = ["${aws_acm_certificate.default.domain_validation_options.0.resource_record_value}"]
+  ttl     = "60"
+}
+
+resource "aws_acm_certificate_validation" "insight" {
+  certificate_arn = "${aws_acm_certificate.insight.arn}"
+
+  validation_record_fqdns = [
+    "${aws_route53_record.insight_validation.fqdn}",
+  ]
+} 
 
 resource "aws_route53_record" "insight" {
   zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
