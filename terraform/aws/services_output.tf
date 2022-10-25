@@ -268,16 +268,16 @@ locals {
   services = templatefile(
     "${path.module}/templates/services/services.tpl",
     {
-      masternodes     = chomp(join("\n", local.masternodes.*))
-      wallets         = chomp(join("\n", local.wallets.*))
-      seeds           = chomp(join("\n", local.seeds.*))
-      miners          = chomp(join("\n", local.miners.*))
-      elb_host        = chomp(join("\n", aws_elb.web.*.dns_name))
-      insight_port    = var.insight_port
-      kibana_port     = var.kibana_port
-      logs_host       = aws_route53_record.logs[0].name
-      vpn_host        = chomp(join("\n", aws_eip.vpn.*.public_ip))
-      vpn_port        = var.vpn_port
+      masternodes  = chomp(join("\n", local.masternodes.*))
+      wallets      = chomp(join("\n", local.wallets.*))
+      seeds        = chomp(join("\n", local.seeds.*))
+      miners       = chomp(join("\n", local.miners.*))
+      elb_host     = chomp(join("\n", aws_elb.web.*.dns_name))
+      insight_port = var.insight_port
+      kibana_port  = var.kibana_port
+      logs_host    = aws_route53_record.logs[0].name
+      vpn_host     = chomp(join("\n", aws_eip.vpn.*.public_ip))
+      vpn_port     = var.vpn_port
     }
   )
 }

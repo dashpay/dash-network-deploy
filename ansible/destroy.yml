@@ -1,5 +1,13 @@
 ---
+
 - hosts: all
   become: true
   roles:
-    - kill-network
+    - role: kill-network
+      when: target == "network"
+
+- hosts: masternodes,seed_nodes
+  become: true
+  roles:
+    - role: kill-platform
+      when: target == "platform"
