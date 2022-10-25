@@ -103,11 +103,12 @@
 
 - name: Wait for Kibana to be available
   uri:
-    url: http://localhost:5601
+    url: http://localhost:5601/api/status
     user: "{{ elastic_username }}"
     password: "{{ elastic_password }}"
+    force_basic_auth: yes
   register: response
-  until: response.status == 200
+  until: response.status == 200 and response.json.status.overall.level == "available"
   retries: 10
   delay: 10
 

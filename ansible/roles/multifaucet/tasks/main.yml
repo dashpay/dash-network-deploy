@@ -1,8 +1,5 @@
 ---
 
-- name: import multifaucet donation address
-  command: dash-cli {{ faucet_rpc_args }} importprivkey {{ faucet_privkey }}
-
 - name: create multifaucet dirs
   file: path='{{ item }}' state=directory recurse=true
   with_items:
@@ -26,6 +23,15 @@
     project_src: '{{ dashd_home }}/multifaucet'
     state: present
     build: yes
+
+- name: Wait for database to be available
+  community.docker.docker_container_exec:
+    container: multifaucet_db_1
+    command: mysqladmin ping -u multifaucet --password="multifaucet"
+  register: response
+  until: response.stdout == "mysqld is alive"
+  retries: 10
+  delay: 10
 
 - name: create promo codes table
   community.docker.docker_container_exec:

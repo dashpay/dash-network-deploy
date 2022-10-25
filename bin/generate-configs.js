@@ -6,8 +6,12 @@ const generateTerraformConfig = require('../lib/configGenerator/generateTerrafor
 async function main() {
   const [network, networkName, masternodesCount, seedsCount] = process.argv.slice(2);
 
-  await generateAnsibleConfig(network, networkName, masternodesCount, seedsCount);
-  await generateTerraformConfig(network, networkName, masternodesCount);
+  if (masternodesCount > 0 && (seedsCount === undefined || seedsCount > 0)) {
+    await generateAnsibleConfig(network, networkName, masternodesCount, seedsCount);
+    await generateTerraformConfig(network, networkName, masternodesCount);
+  } else {
+    console.error('masternodes_count and seeds_count must be positive integers');
+  }
 }
 
 main().catch(console.error);
