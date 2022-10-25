@@ -18,17 +18,16 @@ Please read README.md how to configure networks"
 
     openvpn_start
 
-    echo "Running mocha tests..."
-
+    trap 'RC=1' ERR
     set +e
 
+    echo "Running mocha tests..."
     test_run_mocha
 
-    set -e
-
     echo "Running karma tests..."
-
     test_run_karma
+
+    exit $RC
 }
 
 function test_run_mocha() {

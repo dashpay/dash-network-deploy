@@ -11,7 +11,7 @@
             {{ masternode.operator.public_key }}
             {{ masternode.owner.address }}
             0
-            {{ faucet_address }}
+            {{ miner_payment_address }}
             {{ masternode.collateral.address }}"
   register: protx
 
