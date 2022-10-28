@@ -10,14 +10,11 @@
   command: 'dash-cli {{ masternode_wallet_rpc_args }} rescanblockchain'
 
 # fund
-
+# TODO: this should run on the condition that the faucet does not already have enough balance
 - name: fund 1 coin for ProTx
   include_tasks: ./roles/mn-fund-collateral/tasks/fund_collateral.yml
   vars:
-    masternode: "{{ masternodes[item] }}"
-    masternode_name: "{{ item }}"
     amount: 1
-  with_items: '{{ masternode_names }}'
 
 - name: generate at least one block to confirm funding transactions
   include_role:

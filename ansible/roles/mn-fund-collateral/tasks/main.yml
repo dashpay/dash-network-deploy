@@ -29,6 +29,7 @@
 - debug: msg="collateral_ok_count={{ collateral_ok_count }}"
 
 # ensure faucet balance
+# TODO: this should run on the condition that the faucet does not already have enough balance
 
 - name: generate enough blocks to fund collaterals
   include_role:
@@ -42,11 +43,7 @@
 
 - include_tasks: fund_collateral.yml
   vars:
-    masternode: "{{ masternodes[item] }}"
-    masternode_name: "{{ item }}"
     amount: 1000
-  when: not vars["collateral_ok_" + item|replace("-","_")]
-  with_items: '{{ masternode_names }}'
 
 # verify
 

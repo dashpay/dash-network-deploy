@@ -1,9 +1,13 @@
 ---
 
-# Requires "masternode_name", "masternode" and "amount" variables
+- name: Populate payment targets
+  set_fact:
+    payment_targets: "{{ payment_targets|default({}) | combine( {masternodes[item].collateral.address: amount} ) }}"
+  with_items:
+    - "{{ masternode_names }}"
 
-- name: "fund collateral {{ amount }} coin(s) for {{ masternode_name }}/{{ masternode.collateral.address }}"
-  command: "dash-cli {{ faucet_rpc_args }} sendtoaddress {{ masternode.collateral.address }} {{ amount }}"
+- name: Fund {{ amount }} coin(s) to listed masternodes
+  command: "dash-cli {{ faucet_rpc_args }} sendmany \"\" '{{ payment_targets|to_json }}'"
   register: fund_result
 
 - name: wait for funding TX {{ fund_result.stdout }} to appear on MN ctrl node
