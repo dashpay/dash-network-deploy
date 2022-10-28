@@ -6,6 +6,10 @@
   with_items:
     - "{{ masternode_names }}"
 
+- name: Show list of payment targets
+  debug:
+    var: payment_targets
+
 - name: Fund {{ amount }} coin(s) to listed masternodes
   command: "dash-cli {{ faucet_rpc_args }} sendmany \"\" '{{ payment_targets|to_json }}'"
   register: fund_result
