@@ -96,6 +96,7 @@
     - role: dashd
       dashd_indexes: true
       dashd_zmq: true
+      enable_wallet: true
       tags:
         - dashd
     - elastic-beats

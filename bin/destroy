@@ -6,17 +6,20 @@ set -ea
 
 CMD_USAGE="Destroy Dash Network
 
-Usage: destroy [options] <network_name>
+Usage: destroy [options] <network_name> -t=<target>
 
 Options:
-  -k --keep-infrastructure - Destroy Dash Network and keep infrastructure
-  -h --help                - Show help"
+  -h  --help            - Show help
+  -t, --target=<target> - Specify target, currently supports:
+                          - 'all' to destroy infrastructure
+                          - 'network' to destroy all configs, keeping infrastructure 
+                          - 'platform' to destroy platform only"  
 
 for i in "$@"
 do
 case ${i} in
-    -k|--keep-infrastructure)
-    KEEP_INFRASTRUCTURE=1
+    -t*|--target=*)
+    TARGET="${i#*=}"
     ;;
     -h|--help)
         echo "$CMD_USAGE"
@@ -28,16 +31,22 @@ case ${i} in
 esac
 done
 
+declare -a arr=("all" "network" "platform")
+[[ " ${arr[*]} " =~ " $TARGET " ]] && echo "Destroying $TARGET" || EXIT=1
+
+if [ $EXIT ]; then
+    echo "Target not supported" && echo "$CMD_USAGE"
+    exit 1
+fi
+
 . ./lib/cli/init.sh
 . ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
 
-echo "Destroying $NETWORK_NAME network...";
-
-if [ -z ${KEEP_INFRASTRUCTURE} ]; then
+if [ $TARGET == "all" ]; then
     terraform_run_command "destroy"
     rm "networks/$NETWORK_NAME.inventory"
 else
     echo "Removing software and configuration and keeping infrastructure..."
-    ansible_run_playbook "destroy.yml"
+    ansible_run_playbook "-e target=${TARGET} destroy.yml"
 fi

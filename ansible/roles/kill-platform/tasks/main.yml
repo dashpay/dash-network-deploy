@@ -1,0 +1,22 @@
+---
+
+- name: remove platform docker containers and volumes
+  docker_compose:
+    project_src: '{{ mn_evo_services_path }}'
+    state: absent
+    remove_volumes: yes
+
+- name: delete platform dir
+  file:
+    state: absent
+    path: '{{ mn_evo_services_path }}'
+
+- name: remove any remaining docker data
+  docker_prune:
+    containers: true
+    images: true
+    images_filters:
+      dangling: false
+    networks: true
+    volumes: true
+    builder_cache: true

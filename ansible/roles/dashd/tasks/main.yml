@@ -60,6 +60,7 @@
   include_role:
     name: arillso.logrotate
   vars:
+    logrotate_use_hourly_rotation: true
     logrotate_applications:
       - name: core-logs
         definitions:
@@ -75,19 +76,10 @@
               - compress
               - delaycompress
 
-- name: Ensure logrotate runs hourly under systemd timer
-  lineinfile:
-    path: /lib/systemd/system/logrotate.timer
-    regexp: '^OnCalendar=hourly'
-    insertafter: '^OnCalendar=daily'
-    line: OnCalendar=hourly
-
-- name: Enable and restart logrotate systemd timer
-  systemd:
-    name: logrotate.timer
-    state: restarted
-    enabled: yes
-    daemon_reload: true
+- name: set mode to logrotate cron file
+  file:
+    path: /etc/cron.daily/logrotate
+    mode: "+x"
 
 - name: Start dash core
   docker_compose:
@@ -95,6 +87,7 @@
     state: present
     restarted: yes
     pull: yes
+    timeout: 30
 
 - name: wait for rpc to be available
   shell: dash-cli getgovernanceinfo
@@ -102,3 +95,10 @@
   until: task_result.rc == 0
   retries: 5
   delay: 10
+
+- import_tasks: create-wallet.yml
+  when: enable_wallet is true
+
+- name: import faucet privkey
+  when: inventory_hostname in groups['faucet_wallet']
+  shell: dash-cli importprivkey {{ faucet_privkey }}

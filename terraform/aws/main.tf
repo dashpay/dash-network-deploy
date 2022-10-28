@@ -117,6 +117,14 @@ resource "aws_elb" "web" {
     lb_protocol       = "http"
   }
 
+  listener {
+    instance_port      = var.insight_port
+    instance_protocol  = "http"
+    lb_port            = var.insight_https_port
+    lb_protocol        = "https"
+    ssl_certificate_id = aws_acm_certificate_validation.insight.certificate_arn
+  }
+
   health_check {
     healthy_threshold   = 2
     interval            = 20
@@ -139,6 +147,33 @@ resource "aws_route53_record" "faucet" {
   records = [aws_elb.web[count.index].dns_name]
 
   count = length(var.main_domain) > 1 ? 1 : 0
+}
+
+resource "aws_acm_certificate" "insight" {
+  domain_name       = "insight.${var.public_network_name}.${var.main_domain}"
+  validation_method = "DNS"
+}
+
+resource "aws_route53_record" "insight_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.insight.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  zone_id         = data.aws_route53_zone.main_domain[0].zone_id
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+}
+
+resource "aws_acm_certificate_validation" "insight" {
+  certificate_arn         = aws_acm_certificate.insight.arn
+  validation_record_fqdns = [for record in aws_route53_record.insight_validation : record.fqdn]
 }
 
 resource "aws_route53_record" "insight" {
