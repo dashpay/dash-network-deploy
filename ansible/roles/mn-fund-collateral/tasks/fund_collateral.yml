@@ -2,7 +2,7 @@
 
 - name: Populate payment targets
   set_fact:
-    payment_targets: "{{ payment_targets|default({}) | combine( {masternodes[item].collateral.address: amount} ) }}"
+    payment_targets: "{{ payment_targets | default( {} ) | combine( {masternodes[item].collateral.address: amount} ) }}"
   with_items:
     - "{{ masternode_names }}"
 
