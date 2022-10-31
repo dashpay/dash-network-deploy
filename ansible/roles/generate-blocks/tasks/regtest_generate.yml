@@ -1,8 +1,19 @@
 ---
 
-- name: generate fixed amount of blocks
-  shell: dash-cli {{ faucet_rpc_args }} generatetoaddress {{ num_blocks }} {{ miner_payment_address }} > /dev/null
+# Option: generate blocks
+
+- name: Get start block count
+  command: dash-cli {{ faucet_rpc_args }} getblockcount
+  register: start_block_count
   when: num_blocks|int > 0
+
+- name: generate {{ num_blocks }} block(s)
+  shell: dash-cli {{ faucet_rpc_args }} generatetoaddress {{ num_blocks }} {{ miner_payment_address }} > /dev/null && dash-cli {{ faucet_rpc_args }} getblockcount
+  when: num_blocks|int > 0
+  register: current_block_count
+  until: start_block_count.stdout|int + num_blocks|int == current_block_count.stdout|int
+  retries: 200
+  delay: 0
 
 # TODO avoid first call if not needed
 - name: generate enough blocks to have {{ balance_needed|default(0) }} coins
