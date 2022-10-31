@@ -1,17 +1,19 @@
 ---
 
-- name: Populate payment targets
-  set_fact:
-    payment_targets: "{{ payment_targets | default( {} ) | combine( {masternodes[item].collateral.address: amount} ) }}"
-  with_items:
-    - "{{ masternode_names }}"
+# Requires "payment_targets" and "amount" variables
 
-- name: Show list of payment targets
+- name: Populate payment addresses and values
+  set_fact:
+    payments: "{{ payments | default( {} ) | combine( { item: amount } ) }}"
+  with_items:
+    - '{{ payment_targets }}'
+
+- name: Show list of payments to be made
   debug:
-    var: payment_targets
+    var: payments
 
 - name: Fund {{ amount }} coin(s) to listed masternodes
-  command: "dash-cli {{ faucet_rpc_args }} sendmany \"\" '{{ payment_targets|to_json }}'"
+  command: "dash-cli {{ faucet_rpc_args }} sendmany '' '{{ payments|to_json }}'"
   register: fund_result
 
 - name: wait for funding TX {{ fund_result.stdout }} to appear on MN ctrl node
