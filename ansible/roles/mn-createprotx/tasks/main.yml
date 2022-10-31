@@ -39,7 +39,7 @@
   include_role:
     name: generate-blocks
   vars:
-    num_blocks: 15
+    num_blocks: 1
     balance_needed: 0
 
 # register
