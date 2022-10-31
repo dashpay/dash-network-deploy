@@ -50,12 +50,11 @@
     masternode_name: "{{ item }}"
   with_items: '{{ masternode_names }}'
 
-
 - name: generate at least one block to confirm protxs
   include_role:
     name: generate-blocks
   vars:
-    num_blocks: 2
+    num_blocks: 1
     balance_needed: 0
 
 # verify
