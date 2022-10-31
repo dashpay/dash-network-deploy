@@ -15,6 +15,8 @@
   retries: 200
   delay: 0
 
+# Option: generate balance
+
 # TODO avoid first call if not needed
 - name: generate enough blocks to have {{ balance_needed|default(0) }} coins
   shell: dash-cli {{ faucet_rpc_args }} generatetoaddress 10 {{ miner_payment_address }} > /dev/null && dash-cli {{ faucet_rpc_args }} getbalance
