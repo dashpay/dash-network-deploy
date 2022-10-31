@@ -9,37 +9,37 @@
 - name: rescan blockchain
   command: 'dash-cli {{ masternode_wallet_rpc_args }} rescanblockchain'
 
-# fund
+# fund fee
 
-- name: Populate payment targets
+- name: Populate fee payment targets
   set_fact:
-    target_addresses: "{{ target_addresses | default([]) + [ masternodes[item].collateral.address ] }}"
+    fee_target_addresses: "{{ fee_target_addresses | default([]) + [ masternodes[item].collateral.address ] }}"
   with_items:
     - "{{ masternode_names }}"
 
 - name: check if address contains a suitable fee utxo
-  command: "dash-cli {{ masternode_wallet_rpc_args }} listunspent 1 99999999 '{{ target_addresses|to_json }}' false '{{ maxamount|to_json }}' "
+  command: "dash-cli {{ masternode_wallet_rpc_args }} listunspent 1 99999999 '{{ fee_target_addresses|to_json }}' false '{{ maxamount|to_json }}' "
   register: funded_addresses
   vars:
     maxamount:
       maximumAmount: 1
 
-- name: Figure out which addresses still need funding
+- name: Figure out which addresses need fee funding
   set_fact:
-    fee_missing_addresses: "{{ target_addresses | difference(funded_addresses.stdout) }}"
+    fee_missing_addresses: "{{ fee_target_addresses | difference(funded_addresses.stdout) }}"
 
-- name: fund 1 coin for ProTx
+- name: fund 1 coin for ProTx fee
   include_tasks: ./roles/mn-fund-collateral/tasks/fund_collateral.yml
   vars:
     amount: 1
-    payment_targets: '{{ fee_missing_addresses }}'
-  when: fee_missing_addresses|length > 0
+    payment_targets: '{{ fee_target_addresses }}'
+  when: fee_target_addresses|length > 0
 
-- name: generate at least one block to confirm funding transactions
+- name: generate at least one block to confirm fee funding transactions
   include_role:
     name: generate-blocks
   vars:
-    num_blocks: 1
+    num_blocks: 15
     balance_needed: 0
 
 # register
