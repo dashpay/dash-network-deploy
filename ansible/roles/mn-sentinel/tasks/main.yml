@@ -1,19 +1,23 @@
 ---
 
-- name: create masternode sentinel dir
-  file: path='{{ mn_sentinel_path }}' state=directory recurse=true
+- name: Create masternode sentinel dir
+  file:
+    path: '{{ mn_sentinel_path }}'
+    state: directory
+    recurse: true
 
-- name: copy masternode sentinel docker compose
+- name: Copy masternode sentinel docker compose
   template:
     src: '{{ item }}'
     dest: '{{ mn_sentinel_path }}/{{ item }}'
+    mode: 0644
   loop:
     - docker-compose.yml
     - .env
 
-- name: start masternodes sentinel
+- name: Start masternodes sentinel
   docker_compose:
     project_src: '{{ mn_sentinel_path }}'
     state: present
-    restarted: yes
-    pull: yes
+    restarted: true
+    pull: true

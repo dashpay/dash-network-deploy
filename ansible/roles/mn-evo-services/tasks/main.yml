@@ -1,18 +1,18 @@
 ---
 
-- name: create platform services dir
+- name: Create platform services dir
   file:
     path: '{{ mn_evo_services_path }}'
     state: directory
     recurse: true
 
-- name: create platform logs dir
+- name: Create platform logs dir
   file:
     path: '{{ mn_evo_services_path }}/logs'
     state: directory
     recurse: true
 
-- name: configure log rotation
+- name: Configure log rotation
   include_role:
     name: arillso.logrotate
   vars:
@@ -42,13 +42,14 @@
   systemd:
     name: logrotate.timer
     state: restarted
-    enabled: yes
+    enabled: true
     daemon_reload: true
 
-- name: copy files
+- name: Copy files
   template:
     src: '{{ item }}.j2'
     dest: '{{ mn_evo_services_path }}/{{ item }}'
+    mode: 0644
   loop:
     - docker-compose.yml
     - dapi-nginx.conf
@@ -57,18 +58,19 @@
     - .env
     - dapi-envoy.yaml
 
-- name: pull platform docker images
-  command: docker-compose pull
-  args:
-    chdir: '{{ mn_evo_services_path }}'
+- name: Pull platform docker images
+  docker_compose:
+    project_src: '{{ mn_evo_services_path }}'
+    pull: true
 
-- import_tasks: tendermint.yml
+- name: Configure Tendermint
+  import_tasks: tendermint.yml
   vars:
-    skip_genesis: "{{ skip_tenderdash_genesis|default(false)|bool }}"
+    skip_genesis: "{{ skip_tenderdash_genesis | default(false) | bool }}"
 
-- name: start masternodes evolution services
+- name: Start masternode evolution services
   docker_compose:
     project_src: '{{ mn_evo_services_path }}'
     state: present
-    restarted: yes
-    pull: yes
+    restarted: true
+    pull: true

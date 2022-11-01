@@ -1,34 +1,41 @@
 ---
 
-- name: ensure /etc/docker exists
-  file: path=/etc/docker state=directory mode='0700' owner='root' group='root'
+- name: Ensure /etc/docker exists
+  file:
+    path: /etc/docker
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
 
-- name: create daemon.json
+- name: Create daemon.json
   template:
     src: 'daemon.json.j2'
     dest: '/etc/docker/daemon.json'
-    owner: 'root'
-    group: 'root'
-    mode: '0640'
+    owner: root
+    group: root
+    mode: 0640
   register: daemon_json_state
 
-- name: update systemd service
+- name: Update systemd service
   become: true
   copy:
-    src: "{{ item }}"
-    dest: "/lib/systemd/system/{{ item }}"
+    src: '{{ item }}'
+    dest: '/lib/systemd/system/{{ item }}'
+    mode: 0644
   loop:
-    - "docker.service"
-    - "docker.socket"
+    - 'docker.service'
+    - 'docker.socket'
   register: daemon_systemd_state
 
-- name: update upstart defaults
+- name: Update upstart defaults
   become: true
   copy:
     src: docker
     dest: /etc/default/
+    mode: 0644
 
-- name: restart docker
+- name: Restart docker
   service:
     name: docker
     state: restarted

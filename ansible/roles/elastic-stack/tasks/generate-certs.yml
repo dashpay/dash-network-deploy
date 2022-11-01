@@ -1,22 +1,23 @@
 ---
 
-- name: create certs and bundle dir
+- name: Create certs and bundle dir
   file:
     path: '{{ bundle_path }}'
     state: directory
     recurse: true
 
-- name: generate templates for certificate creation
+- name: Generate templates for certificate creation
   template:
     src: 'certs/{{ item }}.j2'
     dest: '{{ bundle_path }}/{{ item }}'
+    mode: 0644
   loop:
     - docker-compose.yml
     - instances.yml
     - .env
   register: templates
 
-- name: generate certs
+- name: Generate certs
   docker_compose:
     project_src: '{{ bundle_path }}'
   when: templates is changed

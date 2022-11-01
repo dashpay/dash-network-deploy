@@ -1,27 +1,33 @@
 ---
 
-- name: get core container id
+- name: Get core container id
   command: docker ps -aqf "name=dashd"
   register: core_container_id
+  changed_when: core_container_id.stdout | length > 0
 
-- name: get tenderdash container id
+- name: Get tenderdash container id
   command: docker ps -aqf "name=mn_evo_services_tendermint"
   register: tenderdash_container_id
+  changed_when: tenderdash_container_id.stdout | length > 0
 
-- include_vars:
+- name: Load common filebeat config
+  include_vars:
     file: common.yml
 
-- include_vars:
+- name: Load core input config
+  include_vars:
     file: core.yml
 
-- include_vars:
+- name: Load platform input config
+  include_vars:
     file: platform.yml
   when: tenderdash_container_id.stdout != ""
 
-- set_fact:
+- name: Merge input configs
+  set_fact:
     filebeat_inputs: "{{ [filebeat_inputs, filebeat_platform_inputs] | community.general.lists_mergeby('index') }}"
   when: tenderdash_container_id.stdout != ""
 
-- name: set up filebeat log monitoring
+- name: Set up filebeat log monitoring
   include_role:
     name: geerlingguy.filebeat

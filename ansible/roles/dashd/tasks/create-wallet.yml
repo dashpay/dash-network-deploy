@@ -1,20 +1,20 @@
 ---
 
-- name: create wallet
-  shell: dash-cli createwallet {{ inventory_hostname }}
+- name: Create wallet
+  command: dash-cli createwallet {{ inventory_hostname }}
   args:
     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ inventory_hostname }}/wallet.dat"
 
-- name: load wallet on startup
+- name: Load wallet on startup
   lineinfile:
-    path: "/etc/dash.conf"
+    path: '/etc/dash.conf'
     regexp: '^wallet='
     line: wallet={{ inventory_hostname }}
 
-- name: restart dash core
+- name: Restart dash core
   docker_compose:
     project_src: '{{ dashd_compose_path }}'
     state: present
-    restarted: yes
-    pull: yes
+    restarted: true
+    pull: true
     timeout: 30

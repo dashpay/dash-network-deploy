@@ -45,6 +45,7 @@
 - name: get list of ProTx transactions from the wallet
   command: dash-cli protx list wallet true
   register: get_protx_list_result
+  changed_when: get_protx_list_result.stdout | to_json | length > 0
 
 - set_fact:
     registered_masternode_names: []

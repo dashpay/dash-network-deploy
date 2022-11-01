@@ -30,14 +30,12 @@
 - name: get list of ProTx transactions from the wallet
   command: dash-cli protx list wallet true
   register: get_protx_list_result
-
-- set_fact:
-    registered_masternode_names: []
+  changed_when: get_protx_list_result.stdout | to_json | length > 0
 
 - name: get names of registered masternodes
   set_fact:
-    registered_masternode_names: "{{ registered_masternode_names|default([]) + [ item ] }}"
-  when: get_protx_list_result.stdout|from_json|json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+    registered_masternode_names: '{{ registered_masternode_names | default([]) + [ item ] }}'
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ masternode_names }}'
 
 - fail:

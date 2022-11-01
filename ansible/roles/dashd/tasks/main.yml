@@ -10,35 +10,35 @@
     comment: 'Dash user'
     group: '{{ dashd_group }}'
     home: '{{ dashd_home }}'
-    create_home: yes
+    create_home: true
     umask: '0002'
   register: dash_user
 
-- name: create .dashcore directory for each user
+- name: Create .dashcore directory for each user
   file:
-    path: "{{ item.dir }}/.dashcore"
-    state: "directory"
+    path: '{{ item.dir }}/.dashcore'
+    state: directory
     mode: 0755
-    owner: "{{ item.user }}"
-    group: "{{ item.group }}"
-  loop: "{{ users_to_manage }}"
+    owner: '{{ item.user }}'
+    group: '{{ item.group }}'
+  loop: '{{ users_to_manage }}'
 
 - name: Write dash.conf file in /etc/
   template:
-    src: 'dash.conf.j2'
-    dest: '/etc/dash.conf'
-    owner: 'root'
-    group: 'root'
+    src: dash.conf.j2
+    dest: /etc/dash.conf
+    owner: root
+    group: root
     mode: 0644
   register: dash_config_state
 
 - name: Symlink dash.conf to user dashcore directories to make rpc work
   file:
-    path: "{{ item.dir }}/.dashcore/dash.conf"
-    src: "/etc/dash.conf"
+    path: '{{ item.dir }}/.dashcore/dash.conf'
+    src: '/etc/dash.conf'
     state: link
-    force: yes
-  loop: "{{ users_to_manage }}"
+    force: true
+  loop: '{{ users_to_manage }}'
 
 - name: Create dashcore docker-compose dir
   file:
@@ -76,7 +76,7 @@
               - compress
               - delaycompress
 
-- name: set mode to logrotate cron file
+- name: Set mode to logrotate cron file
   file:
     path: /etc/cron.daily/logrotate
     mode: "+x"
@@ -85,20 +85,22 @@
   docker_compose:
     project_src: '{{ dashd_compose_path }}'
     state: present
-    restarted: yes
-    pull: yes
+    restarted: true
+    pull: true
     timeout: 30
 
-- name: wait for rpc to be available
-  shell: dash-cli getgovernanceinfo
+- name: Wait for rpc to be available
+  command: dash-cli getgovernanceinfo
   register: task_result
   until: task_result.rc == 0
   retries: 5
   delay: 10
+  changed_when: task_result.rc == 0
 
-- import_tasks: create-wallet.yml
+- name: Set up wallets
+  import_tasks: create-wallet.yml
   when: enable_wallet is true
 
-- name: import faucet privkey
+- name: Import faucet privkey
   when: inventory_hostname in groups['faucet_wallet']
-  shell: dash-cli importprivkey {{ faucet_privkey }}
+  command: dash-cli importprivkey {{ faucet_privkey }}

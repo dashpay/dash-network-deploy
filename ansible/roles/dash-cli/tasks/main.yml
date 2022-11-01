@@ -1,7 +1,21 @@
 ---
 
-- name: pull dashd image
-  shell: docker pull {{ dashd_image }}
+- name: Pull dashd image
+  docker_image:
+    name: '{{ dashd_image }}'
+    source: pull
 
-- name: copy dash-cli from docker container
-  shell: docker run --rm -v /tmp:/host-tmp {{ dashd_image }} cp /usr/local/bin/dash-cli /host-tmp/ && mv /tmp/dash-cli /usr/local/bin/dash-cli
+- name: Copy dash-cli from docker container
+  docker_container:
+    auto_remove: true
+    volumes:
+      - /tmp:/host-tmp
+    image: '{{ dashd_image }}'
+    command: cp /usr/local/bin/dash-cli /host-tmp/
+
+- name: Install dash-cli in path
+  copy:
+    remote_src: true
+    src: /tmp/dash-cli
+    dest: /usr/local/bin/dash-cli
+    mode: 0755

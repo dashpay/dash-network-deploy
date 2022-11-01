@@ -1,11 +1,14 @@
-- name: apparmor disable for tcpdump
-  shell: apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
-  ignore_errors: yes
+---
+
+- name: Apparmor disable for tcpdump
+  command: apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
+  ignore_errors: true
 
 - name: Configure tcpdump
   template:
     src: 'tcpdump.service'
     dest: '/etc/systemd/system/tcpdumpd.service'
+    mode: 0644
 
 - name: Make sure tcpdump unit is running
   ansible.builtin.systemd:
@@ -17,3 +20,4 @@
   template:
     src: 'tcpdumpd'
     dest: '/etc/logrotate.d/tcpdumpd'
+    mode: 0644

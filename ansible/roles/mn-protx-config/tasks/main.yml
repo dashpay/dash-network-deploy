@@ -1,34 +1,33 @@
 ---
 
-- name: get list of ProTx transactions from the wallet
+- name: Get list of ProTx transactions from the wallet
   command: dash-cli protx list wallet true
   register: get_protx_list_result
+  changed_when: get_protx_list_result.stdout | to_json | length > 0
 
-- set_fact:
-    registered_masternode_names: []
-
-- name: get names of registered masternodes
+- name: Get names of registered masternodes
   set_fact:
-    registered_masternode_names: "{{ registered_masternode_names + [ item ] }}"
-  when: get_protx_list_result.stdout|from_json|json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+    registered_masternode_names: "{{ registered_masternode_names | default([]) + [item] }}"
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ groups["masternodes"] }}'
 
-- set_fact:
+- name: Set empty outer scope variable for protx list
+  set_fact:
     registered_masternode_protx: []
 
-- name: get list of registered masternode protx
+- name: Get list of registered masternode protx
   include_tasks: find-protx.yml
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
   with_items: '{{ registered_masternode_names }}'
 
-- name: write protx values to inventory file
-  become: no
+- name: Write protx values to inventory file
+  become: false
   delegate_to: localhost
   lineinfile:
     path: ../networks/{{ dash_network_name }}.inventory # relative to playbook
     regexp: '^({{ item.masternode }} (?!.*protx=).*)'
     line: '\1 protx={{ item.protx }}'
-    backrefs: yes
+    backrefs: true
   with_items: '{{ registered_masternode_protx }}'

@@ -1,56 +1,44 @@
 ---
 
-- name: set swap_file variable
+- name: Set swap_file variable
   set_fact:
     swap_file: /swapfile
 
-- name: check if swap file exists
+- name: Check if swap file exists
   stat:
     path: "{{ swap_file }}"
   register: swap_file_check
 
-- name: create swap file
-  become: yes
-  become_user: root
+- name: Create swap file
   command: fallocate -l {{ swap_space }} {{ swap_file }}
   when: not swap_file_check.stat.exists
 
-- name: set permissions on swap file
-  become: yes
-  become_user: root
+- name: Set permissions on swap file
   file:
     path: "{{ swap_file }}"
     mode: 0600
 
-- name: format swap file
-  become: yes
-  become_user: root
+- name: Format swap file
   command: mkswap {{ swap_file }}
   when: not swap_file_check.stat.exists
 
-- name: add to fstab
-  become: yes
-  become_user: root
+- name: Add to fstab
   lineinfile:
     dest: /etc/fstab
     regexp: "{{ swap_file }}"
     line: "{{ swap_file }} none swap sw 0 0"
 
-- name: turn on swap
-  become: yes
-  become_user: root
-  command: swapon -a
+- name: Turn on swap
+  command: swapon -av
+  register: result
+  changed_when: '"already active" not in result.stdout'
 
-- name: set swappiness
-  become: yes
-  become_user: root
+- name: Set swappiness
   sysctl:
     name: vm.swappiness
     value: "10"
   register: swappiness
-  
-- name: reset swap usage
-  become: yes
-  become_user: root
+
+- name: Reset swap usage
   shell: swapoff -a && swapon -a
   when: swappiness.changed

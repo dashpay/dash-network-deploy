@@ -1,10 +1,10 @@
 ---
 
-- name: update hostname
+- name: Update hostname
   hostname:
     name: '{{ inventory_hostname }}'
 
-- name: ensure hostname is in /etc/hosts
+- name: Ensure hostname is in /etc/hosts
   lineinfile:
     path: /etc/hosts
     regexp: '^127\.0\.0\.1 ' # The space at the end is needed to not match something like 127.0.0.17

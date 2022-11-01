@@ -1,14 +1,18 @@
 ---
 
-- name: create multifaucet dirs
-  file: path='{{ item }}' state=directory recurse=true
+- name: Create multifaucet dirs
+  file:
+    path: '{{ item }}'
+    state: directory
+    recurse: true
   with_items:
     - '{{ dashd_home }}/multifaucet/multifaucet'
 
-- name: multifaucet config
+- name: Apply multifaucet config
   template:
     src: '{{ item }}'
     dest: '{{ dashd_home }}/multifaucet/{{ item }}'
+    mode: 0644
   with_items:
     - docker-compose.yml
     - multifaucet/Dockerfile
@@ -18,11 +22,11 @@
     - multifaucet/php.ini
     - init.sql
 
-- name: multifaucet service
+- name: Start multifaucet service
   docker_compose:
     project_src: '{{ dashd_home }}/multifaucet'
     state: present
-    build: yes
+    build: true
 
 - name: Wait for database to be available
   community.docker.docker_container_exec:
@@ -33,12 +37,18 @@
   retries: 10
   delay: 10
 
-- name: create promo codes table
+- name: Create promo codes table
   community.docker.docker_container_exec:
     container: multifaucet_db_1
-    command: mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet" -e 'CREATE TABLE IF NOT EXISTS faucet_promo_codes (id int NOT NULL, code varchar(255), minimum_payout int, maximum_payout int, PRIMARY KEY (id));'
+    command:
+      argv:
+        - mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
+        - -e 'CREATE TABLE IF NOT EXISTS faucet_promo_codes (id int NOT NULL, code varchar(255), minimum_payout int, maximum_payout int, PRIMARY KEY (id));'
 
-- name: load promo codes
+- name: Load promo codes
   community.docker.docker_container_exec:
     container: multifaucet_db_1
-    command: mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet" -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout) VALUES (1,"masternode",1000,1010);'
+    command:
+      argv:
+        - mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
+        - -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout) VALUES (1,"masternode",1000,1010);'
