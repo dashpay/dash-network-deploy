@@ -11,7 +11,7 @@
   shell: dash-cli {{ faucet_rpc_args }} generatetoaddress {{ num_blocks }} {{ miner_payment_address }} > /dev/null && dash-cli {{ faucet_rpc_args }} getblockcount
   when: num_blocks|int > 0
   register: current_block_count
-  until: start_block_count.stdout|int + num_blocks|int == current_block_count.stdout|int
+  until: current_block_count.stdout|int >= start_block_count.stdout|int + num_blocks|int
   retries: 200
   delay: 0
 
