@@ -22,7 +22,7 @@
 
 - name: Create temp dir and set permissions
   file:
-    path: /tmp/ansible/{{ dash_network_name }}
+    path: ~/tmp/ansible/{{ dash_network_name }}
     state: directory
     mode: '0777'
 
@@ -30,24 +30,24 @@
   run_once: true
   fetch:
     src: '{{ bundle_path }}/ca.zip'
-    dest: /tmp/ansible/{{ dash_network_name }}/
+    dest: ~/tmp/ansible/{{ dash_network_name }}/
     flat: true
 
 - name: fetch generated certs
   run_once: true
   fetch:
     src: '{{ bundle_path }}/certs.zip'
-    dest: /tmp/ansible/{{ dash_network_name }}/
+    dest: ~/tmp/ansible/{{ dash_network_name }}/
     flat: true
 
 - name: install ca
   unarchive:
-    src: /tmp/ansible/{{ dash_network_name }}/ca.zip
+    src: ~/tmp/ansible/{{ dash_network_name }}/ca.zip
     dest: '{{ certs_path }}'
 
 - name: install certs
   unarchive:
-    src: /tmp/ansible/{{ dash_network_name }}/certs.zip
+    src: ~/tmp/ansible/{{ dash_network_name }}/certs.zip
     dest: '{{ certs_path }}'
 
 - name: copy files
