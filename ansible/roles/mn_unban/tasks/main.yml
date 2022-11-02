@@ -1,0 +1,44 @@
+---
+
+# Requires "masternodes" and "masternode_names" variables
+
+- name: Get list of banned masternode protx
+  ansible.builtin.include_tasks: find_protx.yml
+  vars:
+    masternode: '{{ masternodes[item] }}'
+    masternode_name: '{{ item }}'
+  with_items: '{{ masternode_names }}'
+
+# unban
+
+- name: Create ProUpServTx for banned masternodes
+  ansible.builtin.include_tasks: createproupservtx.yml
+  vars:
+    masternode: '{{ masternodes[item] }}'
+    masternode_name: '{{ item }}'
+  with_items: '{{ masternode_names }}'
+
+- name: Generate at least one block to confirm protxs
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    num_blocks: 1
+    balance_needed: 0
+
+# verify
+
+- name: Get list of ProTx transactions from the wallet
+  ansible.builtin.command: dash-cli protx list wallet true
+  register: get_protx_list_result
+  changed_when: get_protx_list_result.stdout | to_json | length > 0
+
+- name: Get names of registered masternodes
+  ansible.builtin.set_fact:
+    registered_masternode_names: '{{ registered_masternode_names | default([]) + [item] }}'
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+  with_items: '{{ masternode_names }}'
+
+- name: Fail if masternodes were not successfully registered
+  ansible.builtin.fail:
+    msg: ProTX transactions were not created
+  when: masternode_names | difference(registered_masternode_names)

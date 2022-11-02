@@ -1,0 +1,12 @@
+---
+
+# Requires "masternode" and "masternode_name" variables
+
+- name: Get protx of registered masternodes
+  # ansible.builtin.debug:
+  #  var: item
+  ansible.builtin.set_fact:
+    protx_{{masternode_name | replace("-","_")}}: "{{ inner_item }}"
+  loop: "{{ get_protx_list_result.stdout | from_json | json_query(\"[?state.ownerAddress=='\" + masternode.owner.address + \"'].proTxHash\") }}"
+  loop_control:
+    loop_var: inner_item

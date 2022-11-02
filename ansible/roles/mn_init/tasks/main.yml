@@ -1,0 +1,92 @@
+---
+
+- name: Wait for wallet sync
+  register: blockchain_status
+  ansible.builtin.command: dash-cli getblockchaininfo
+  retries: 100
+  delay: 60
+  until: blockchain_status.stdout | from_json | json_query('blocks') == blockchain_status.stdout | from_json | json_query('headers')
+  changed_when: blockchain_status.stdout | length > 0
+
+- name: Force mnsync next
+  ansible.builtin.command: dash-cli mnsync next
+  register: result
+  changed_when: '"FINISHED" not in result.stdout'
+
+- name: Wait for blockchain sync
+  ansible.builtin.command: dash-cli mnsync status
+  register: mnsync_status
+  retries: 100
+  delay: 60
+  until: mnsync_status.stdout | from_json | json_query("IsBlockchainSynced") == true
+  changed_when: mnsync_status | length > 0
+
+- name: Force mnsync next (again)
+  ansible.builtin.command: dash-cli mnsync next
+  changed_when: '"FINISHED" not in result.stdout'
+
+- name: Wait for wallet to sync with blockchain
+  ansible.builtin.command: dash-cli mnsync status
+  register: mnsync_status
+  retries: 100
+  delay: 60
+  until: mnsync_status.stdout | from_json | json_query('IsSynced') == true
+  changed_when: mnsync_status.stdout | from_json | json_query('IsSynced') == true
+
+- name: Get list of ProTx transactions from the wallet
+  ansible.builtin.command: dash-cli protx list wallet true
+  register: get_protx_list_result
+  changed_when: get_protx_list_result.stdout | to_json | length > 0
+
+- name: Get names of registered masternodes
+  ansible.builtin.set_fact:
+    registered_masternode_names: "{{ registered_masternode_names | default([]) + [item] }}"
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+  with_items: '{{ groups["masternodes"] }}'
+
+- name: Registered masternodes list
+  ansible.builtin.debug:
+    var: registered_masternode_names
+
+- name: Determine new masternodes
+  ansible.builtin.set_fact:
+    new_masternode_names: "{{ groups['masternodes'] | difference(registered_masternode_names) }}"
+
+- name: New masternodes list
+  ansible.builtin.debug:
+    var: new_masternode_names
+
+- name: Get list of banned masternodes from the wallet
+  ansible.builtin.set_fact:
+    banned_masternodes_list: "{{ get_protx_list_result.stdout | from_json | json_query('[?state.PoSeBanHeight > `0`]') }}"
+
+- name: Get names of banned masternodes
+  ansible.builtin.set_fact:
+    banned_masternode_names: "{{ banned_masternode_names | default([]) + [item] }}"
+  when: banned_masternodes_list | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+  with_items: '{{ registered_masternode_names }}'
+
+- name: Banned masternodes list
+  ansible.builtin.debug:
+    var: banned_masternode_names
+
+- name: Fund collaterals for not initialized masternodes
+  ansible.builtin.include_role:
+    name: mn_fund_collateral
+  vars:
+    masternode_names: "{{ new_masternode_names }}"
+  when: new_masternode_names | length > 0
+
+- name: Create pro tx for not initialized masternodes
+  ansible.builtin.include_role:
+    name: mn_createprotx
+  vars:
+    masternode_names: "{{ new_masternode_names }}"
+  when: new_masternode_names | length > 0
+
+- name: Unban banned masternodes
+  ansible.builtin.include_role:
+    name: mn_unban
+  vars:
+    masternode_names: "{{ banned_masternode_names }}"
+  when: banned_masternode_names | length > 0

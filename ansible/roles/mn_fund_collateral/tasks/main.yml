@@ -1,0 +1,87 @@
+---
+
+# Requires "masternode_names" variable
+
+- name: Import masternode collateral private key
+  ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].collateral.private_key }} "" false'
+  with_items: '{{ masternode_names }}'
+  register: result
+  changed_when: result.rc == 0
+
+- name: Rescan blockchain
+  ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} rescanblockchain'
+  register: result
+  changed_when: result.stdout | to_json | query('stop_height') > 1
+
+# check
+
+- name: Reset collateral_ok_count
+  ansible.builtin.set_fact:
+    collateral_ok_count: 0
+
+- name: Find existing masternode collaterals
+  ansible.builtin.include_role:
+    name: mn_find_collateral
+  vars:
+    masternode: "{{ masternodes[item] }}"
+    masternode_name: "{{ item }}"
+  with_items: '{{ masternode_names }}'
+
+- name: Update collateral_all_ok
+  ansible.builtin.set_fact:
+    collateral_all_ok: "{{ collateral_ok_count | int == masternode_names | length }}"
+
+- name: Show collateral_ok_count
+  ansible.builtin.debug:
+    msg: 'collateral_ok_count={{ collateral_ok_count }}'
+
+# ensure faucet balance
+
+- name: Generate enough blocks to fund collaterals
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    num_blocks: 0
+    balance_needed: "{{ (masternode_names | length - collateral_ok_count | int) * 1000 }}"
+  when: not collateral_all_ok
+
+# fund
+
+- name: Fund masternode collaterals
+  ansible.builtin.include_tasks:
+    name: fund_collateral.yml
+  vars:
+    masternode: "{{ masternodes[item] }}"
+    masternode_name: "{{ item }}"
+    amount: 1000
+  when: not vars["collateral_ok_" + item | replace("-","_")] # Todo: update with actual individual masternode checking
+  with_items: '{{ masternode_names }}'
+
+# verify
+
+- name: Reset collateral_ok_count
+  ansible.builtin.set_fact:
+    collateral_ok_count: 0
+  when: not collateral_all_ok
+
+- name: Find existing masternode collaterals
+  ansible.builtin.include_role:
+    name: mn_find_collateral
+  vars:
+    masternode: "{{ masternodes[item] }}"
+    masternode_name: "{{ item }}"
+  when: not collateral_all_ok
+  with_items: '{{ masternode_names }}'
+
+- name: Fail if funding unsuccessful
+  ansible.builtin.fail:
+    msg: funding was not successful
+  when: not collateral_all_ok and collateral_ok_count | int != masternode_names | length
+
+- name: Generate at least one block to confirm funding transactions
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    num_blocks: 1
+    balance_needed: 0
+  when: not collateral_all_ok

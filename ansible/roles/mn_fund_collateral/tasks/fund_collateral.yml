@@ -1,0 +1,16 @@
+---
+
+# Requires "masternode_name", "masternode" and "amount" variables
+
+- name: Fund collateral coin(s) for {{ masternode_name + / + masternode.collateral.address }}
+  ansible.builtin.command: 'dash-cli {{ faucet_rpc_args }} sendtoaddress {{ masternode.collateral.address }} {{ amount }}'
+  register: fund_result
+  changed_when: fund_result.stdout | length == 64
+
+- name: Wait for MN ctrl node to confirm receipt of ProTx {{ fund_result.stdout }}
+  ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} getrawtransaction {{ fund_result.stdout }}'
+  register: check_result
+  until: check_result.rc == 0
+  retries: 10
+  delay: 5
+  changed_when: protx.stdout | length > 0

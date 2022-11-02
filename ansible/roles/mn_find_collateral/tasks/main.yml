@@ -1,0 +1,47 @@
+---
+
+# Requires "masternode" and "masternode_name" variables
+
+- name: Copy script
+  ansible.builtin.copy:
+    src: scripts/find-collateral.py
+    dest: /usr/local/bin/find-collateral.py
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Find-collateral for {{ masternode_name + / + masternode.collateral.address }}
+  ansible.builtin.command: 'find-collateral.py {{ masternode_wallet_rpc_args }} {{ masternode.collateral.address }} {{ find_protx }}'
+  register: r
+  failed_when: false
+  changed_when: r.rc
+
+- name: Update collateral_ok
+  ansible.builtin.set_fact:
+    collateral_ok: '{{ r.rc == 0 }}'
+    collateral_txid: ''
+    collateral_vout: -1
+
+- name: Update txid/vout
+  ansible.builtin.set_fact:
+    collateral_txid: '{{ r.stdout_lines[0] }}'
+    collateral_vout: '{{ r.stdout_lines[1] | int }}'
+  when: collateral_ok
+
+# Wow does this work?
+- name: Set global masternode facts
+  ansible.builtin.set_fact:
+    collateral_ok_{{masternode_name | replace("-","_")}}: "{{ collateral_ok }}"
+    collateral_txid_{{masternode_name | replace("-","_")}}: "{{ collateral_txid }}"
+    collateral_vout_{{masternode_name | replace("-","_")}}: "{{ collateral_vout }}"
+
+- name: Show masternode facts
+  ansible.builtin.debug:
+    msg: >
+      mn={{ masternode_name }} address={{ masternode.collateral.address }}
+      collateral_ok={{ collateral_ok }}, collateral_txid={{ collateral_txid }}, collateral_vout={{ collateral_vout }}
+
+- name: Update collateral_ok_count
+  ansible.builtin.set_fact:
+    collateral_ok_count: "{{ collateral_ok_count | int + 1 }}"
+  when: collateral_ok

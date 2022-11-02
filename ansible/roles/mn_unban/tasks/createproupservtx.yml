@@ -1,0 +1,21 @@
+---
+
+# Requires "masternode" and "masternode_name" variables
+
+- name: Create ProUpServTx for {{ masternode_name + / + masternode.owner.address }}
+  ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} protx update_service
+            {{ vars['protx_' + masternode_name | replace('-', '_')] }}
+            {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
+            {{ masternode.operator.private_key }}
+            ''
+            {{ masternode.collateral.address }}" # Should already be funded from registration protx
+  register: protx
+  changed_when: protx.stdout | length == 64
+
+- name: Wait for MN ctrl node to confirm receipt of ProTx {{ protx.stdout }}
+  ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} getrawtransaction {{ protx.stdout }}'
+  register: check_result
+  until: check_result.rc == 0
+  retries: 10
+  delay: 2
+  changed_when: protx.stdout | length > 0
