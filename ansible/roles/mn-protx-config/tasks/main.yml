@@ -1,22 +1,22 @@
 ---
 
 - name: Get list of ProTx transactions from the wallet
-  command: dash-cli protx list wallet true
+  ansible.builtin.command: dash-cli protx list wallet true
   register: get_protx_list_result
   changed_when: get_protx_list_result.stdout | to_json | length > 0
 
 - name: Get names of registered masternodes
-  set_fact:
+  ansible.builtin.set_fact:
     registered_masternode_names: "{{ registered_masternode_names | default([]) + [item] }}"
   when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ groups["masternodes"] }}'
 
 - name: Set empty outer scope variable for protx list
-  set_fact:
+  ansible.builtin.set_fact:
     registered_masternode_protx: []
 
 - name: Get list of registered masternode protx
-  include_tasks: find-protx.yml
+  ansible.builtin.include_tasks: find-protx.yml
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
@@ -25,7 +25,7 @@
 - name: Write protx values to inventory file
   become: false
   delegate_to: localhost
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ../networks/{{ dash_network_name }}.inventory # relative to playbook
     regexp: '^({{ item.masternode }} (?!.*protx=).*)'
     line: '\1 protx={{ item.protx }}'

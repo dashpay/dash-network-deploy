@@ -1,20 +1,20 @@
 ---
 
 - name: Pull dashd image
-  docker_image:
+  community.docker.docker_image:
     name: '{{ dashd_image }}'
     source: pull
 
 - name: Copy dash-cli from docker container
-  docker_container:
+  community.docker.docker_container:
     auto_remove: true
     volumes:
       - /tmp:/host-tmp
     image: '{{ dashd_image }}'
-    command: cp /usr/local/bin/dash-cli /host-tmp/
+    ansible.builtin.command: cp /usr/local/bin/dash-cli /host-tmp/
 
 - name: Install dash-cli in path
-  copy:
+  ansible.builtin.copy:
     remote_src: true
     src: /tmp/dash-cli
     dest: /usr/local/bin/dash-cli

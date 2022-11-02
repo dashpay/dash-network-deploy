@@ -1,12 +1,12 @@
 ---
 
 - name: Get current block height
-  command: dash-cli getblockcount
+  ansible.builtin.command: dash-cli getblockcount
   register: blocks_count
-  changed_when: blocks_count|int != 0
+  changed_when: blocks_count | int != 0
 
 - name: Activate DML by generating blocks up to height {{ spork_ready_block_height }}
-  include_role:
+  ansible.builtin.include_role:
     name: generate-blocks
   vars:
     num_blocks: "{{ spork_ready_block_height - (blocks_count.stdout | int) }}"
@@ -14,12 +14,12 @@
   when: (blocks_count.stdout | int) < spork_ready_block_height
 
 - name: Get active sporks list
-  command: dash-cli spork active
+  ansible.builtin.command: dash-cli spork active
   register: active_sporks
   changed_when: active_sporks | length > 0
 
 - name: Activate non active sporks
-  command: dash-cli sporkupdate {{ item }} 0
+  ansible.builtin.command: dash-cli sporkupdate {{ item }} 0
   with_items:
     - SPORK_2_INSTANTSEND_ENABLED
     - SPORK_3_INSTANTSEND_BLOCK_FILTERING

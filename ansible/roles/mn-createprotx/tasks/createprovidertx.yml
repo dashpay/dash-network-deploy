@@ -3,9 +3,9 @@
 # Requires "masternode" and "masternode_name" variables
 
 - name: create ProTx for {{ masternode_name }}/{{ masternode.owner.address }}
-  command: "dash-cli {{ masternode_wallet_rpc_args }} protx register
-            {{ vars['collateral_txid_' + masternode_name|replace('-','_')] }}
-            {{ vars['collateral_vout_' + masternode_name|replace('-','_')] }}
+  ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} protx register
+            {{ vars['collateral_txid_' + masternode_name | replace('-','_')] }}
+            {{ vars['collateral_vout_' + masternode_name | replace('-','_')] }}
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
             {{ masternode.owner.address }}
             {{ masternode.operator.public_key }}
@@ -16,7 +16,7 @@
   register: protx
 
 - name: wait for ProTx {{ protx.stdout }} to appear on MN ctrl node
-  command: "dash-cli {{ masternode_wallet_rpc_args }} getrawtransaction {{ protx.stdout }}"
+  ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} getrawtransaction {{ protx.stdout }}"
   register: check_result
   until: check_result.rc == 0
   retries: 10

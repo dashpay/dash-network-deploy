@@ -1,13 +1,13 @@
 - name: Prepare list of forwared IPs
   vars:
     openvpn_forwarded_ips: []
-  set_fact:
+  ansible.builtin.set_fact:
     openvpn_forwarded_ips: "{{ openvpn_forwarded_ips + ['route ' + hostvars[item].public_ip + ' 255.255.255.255'] }}"
   when: item != "vpn"
   loop: "{{ groups['all'] }}"
 
 - name: Setup OpenVPN
-  include_role:
+  ansible.builtin.include_role:
     name: kyl191.openvpn
   vars:
     clients:
@@ -22,7 +22,7 @@
 - name: Copy OpenVPN config to 'networks' dir
   become: false
   delegate_to: localhost
-  copy:
+  ansible.builtin.copy:
     src: '{{ openvpn_config_path }}'
     dest: '../networks/{{ dash_network_name }}.ovpn'
     mode: 0644

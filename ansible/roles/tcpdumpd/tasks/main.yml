@@ -1,11 +1,13 @@
 ---
 
-- name: Apparmor disable for tcpdump
-  command: apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
-  ignore_errors: true
+- name: Disable apparmor for tcpdump
+  ansible.builtin.command: apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
+  register: result
+  failed_when: result.rc !=0 or result.rc != 2
+  changed_when: result.rc == 0
 
 - name: Configure tcpdump
-  template:
+  ansible.builtin.template:
     src: 'tcpdump.service'
     dest: '/etc/systemd/system/tcpdumpd.service'
     mode: 0644
@@ -17,7 +19,7 @@
     daemon_reload: true
 
 - name: Copy logrotate script
-  template:
+  ansible.builtin.template:
     src: 'tcpdumpd'
     dest: '/etc/logrotate.d/tcpdumpd'
     mode: 0644

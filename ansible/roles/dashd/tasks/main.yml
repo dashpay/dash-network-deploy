@@ -1,11 +1,11 @@
 ---
 
 - name: Create dashd group
-  group:
+  ansible.builtin.group:
     name: '{{ dashd_group }}'
 
 - name: Create dashd user
-  user:
+  ansible.builtin.user:
     name: '{{ dashd_user }}'
     comment: 'Dash user'
     group: '{{ dashd_group }}'
@@ -15,7 +15,7 @@
   register: dash_user
 
 - name: Create .dashcore directory for each user
-  file:
+  ansible.builtin.file:
     path: '{{ item.dir }}/.dashcore'
     state: directory
     mode: 0755
@@ -24,7 +24,7 @@
   loop: '{{ users_to_manage }}'
 
 - name: Write dash.conf file in /etc/
-  template:
+  ansible.builtin.template:
     src: dash.conf.j2
     dest: /etc/dash.conf
     owner: root
@@ -33,7 +33,7 @@
   register: dash_config_state
 
 - name: Symlink dash.conf to user dashcore directories to make rpc work
-  file:
+  ansible.builtin.file:
     path: '{{ item.dir }}/.dashcore/dash.conf'
     src: '/etc/dash.conf'
     state: link
@@ -41,14 +41,14 @@
   loop: '{{ users_to_manage }}'
 
 - name: Create dashcore docker-compose dir
-  file:
+  ansible.builtin.file:
     path: '{{ dashd_compose_path }}'
     state: directory
     mode: 0755
     recurse: true
 
 - name: Copy dashcore docker-compose file
-  template:
+  ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ dashd_compose_path }}/{{ item }}'
     mode: 0644
@@ -57,7 +57,7 @@
     - .env
 
 - name: Configure log rotation
-  include_role:
+  ansible.builtin.include_role:
     name: arillso.logrotate
   vars:
     logrotate_use_hourly_rotation: true
@@ -77,12 +77,12 @@
               - delaycompress
 
 - name: Set mode to logrotate cron file
-  file:
+  ansible.builtin.file:
     path: /etc/cron.daily/logrotate
     mode: "+x"
 
 - name: Start dash core
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ dashd_compose_path }}'
     state: present
     restarted: true
@@ -90,7 +90,7 @@
     timeout: 30
 
 - name: Wait for rpc to be available
-  command: dash-cli getgovernanceinfo
+  ansible.builtin.command: dash-cli getgovernanceinfo
   register: task_result
   until: task_result.rc == 0
   retries: 5
@@ -98,9 +98,9 @@
   changed_when: task_result.rc == 0
 
 - name: Set up wallets
-  import_tasks: create-wallet.yml
+  ansible.builtin.import_tasks: create-wallet.yml
   when: enable_wallet is true
 
 - name: Import faucet privkey
   when: inventory_hostname in groups['faucet_wallet']
-  command: dash-cli importprivkey {{ faucet_privkey }}
+  ansible.builtin.command: dash-cli importprivkey {{ faucet_privkey }}

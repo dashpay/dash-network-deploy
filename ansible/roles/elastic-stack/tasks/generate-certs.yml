@@ -1,13 +1,13 @@
 ---
 
 - name: Create certs and bundle dir
-  file:
+  ansible.builtin.file:
     path: '{{ bundle_path }}'
     state: directory
     recurse: true
 
 - name: Generate templates for certificate creation
-  template:
+  ansible.builtin.template:
     src: 'certs/{{ item }}.j2'
     dest: '{{ bundle_path }}/{{ item }}'
     mode: 0644

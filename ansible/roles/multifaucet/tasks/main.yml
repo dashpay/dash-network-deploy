@@ -1,7 +1,7 @@
 ---
 
 - name: Create multifaucet dirs
-  file:
+  ansible.builtin.file:
     path: '{{ item }}'
     state: directory
     recurse: true
@@ -9,7 +9,7 @@
     - '{{ dashd_home }}/multifaucet/multifaucet'
 
 - name: Apply multifaucet config
-  template:
+  ansible.builtin.template:
     src: '{{ item }}'
     dest: '{{ dashd_home }}/multifaucet/{{ item }}'
     mode: 0644
@@ -23,7 +23,7 @@
     - init.sql
 
 - name: Start multifaucet service
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ dashd_home }}/multifaucet'
     state: present
     build: true
@@ -31,7 +31,7 @@
 - name: Wait for database to be available
   community.docker.docker_container_exec:
     container: multifaucet_db_1
-    command: mysqladmin ping -u multifaucet --password="multifaucet"
+    ansible.builtin.command: mysqladmin ping -u multifaucet --password="multifaucet"
   register: response
   until: response.stdout == "mysqld is alive"
   retries: 10
@@ -40,7 +40,7 @@
 - name: Create promo codes table
   community.docker.docker_container_exec:
     container: multifaucet_db_1
-    command:
+    ansible.builtin.command:
       argv:
         - mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
         - -e 'CREATE TABLE IF NOT EXISTS faucet_promo_codes (id int NOT NULL, code varchar(255), minimum_payout int, maximum_payout int, PRIMARY KEY (id));'
@@ -48,7 +48,7 @@
 - name: Load promo codes
   community.docker.docker_container_exec:
     container: multifaucet_db_1
-    command:
+    ansible.builtin.command:
       argv:
         - mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
         - -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout) VALUES (1,"masternode",1000,1010);'

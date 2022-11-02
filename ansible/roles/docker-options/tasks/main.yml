@@ -1,7 +1,7 @@
 ---
 
 - name: Ensure /etc/docker exists
-  file:
+  ansible.builtin.file:
     path: /etc/docker
     state: directory
     mode: 0700
@@ -9,35 +9,28 @@
     group: root
 
 - name: Create daemon.json
-  template:
+  ansible.builtin.template:
     src: 'daemon.json.j2'
     dest: '/etc/docker/daemon.json'
     owner: root
     group: root
     mode: 0640
-  register: daemon_json_state
+  notify: Restart docker
 
 - name: Update systemd service
   become: true
-  copy:
+  ansible.builtin.copy:
     src: '{{ item }}'
     dest: '/lib/systemd/system/{{ item }}'
     mode: 0644
   loop:
     - 'docker.service'
     - 'docker.socket'
-  register: daemon_systemd_state
+  notify: Restart docker
 
 - name: Update upstart defaults
   become: true
-  copy:
+  ansible.builtin.copy:
     src: docker
     dest: /etc/default/
     mode: 0644
-
-- name: Restart docker
-  service:
-    name: docker
-    state: restarted
-    daemon_reload: true
-  when: daemon_json_state is changed or daemon_systemd_state is changed

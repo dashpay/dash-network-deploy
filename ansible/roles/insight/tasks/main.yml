@@ -1,13 +1,13 @@
 ---
 
 - name: Create Insight dir
-  file:
+  ansible.builtin.file:
     path: '{{ insight_path }}'
     state: directory
     recurse: true
 
 - name: Copy files
-  template:
+  ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ insight_path }}/{{ item }}'
     mode: 0644
@@ -18,7 +18,7 @@
     - .env
 
 - name: Start Insight
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ insight_path }}'
     state: present
     restarted: true
@@ -26,9 +26,9 @@
   register: output
 
 - name: Check Insight container
-  assert:
+  ansible.builtin.assert:
     that: 'output.services.insight.insight.state.running'
 
 - name: Check Insight Proxy container
-  assert:
+  ansible.builtin.assert:
     that: 'output.services.insight_proxy.insight_proxy.state.running'

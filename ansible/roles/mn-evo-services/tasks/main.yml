@@ -1,19 +1,19 @@
 ---
 
 - name: Create platform services dir
-  file:
+  ansible.builtin.file:
     path: '{{ mn_evo_services_path }}'
     state: directory
     recurse: true
 
 - name: Create platform logs dir
-  file:
+  ansible.builtin.file:
     path: '{{ mn_evo_services_path }}/logs'
     state: directory
     recurse: true
 
 - name: Configure log rotation
-  include_role:
+  ansible.builtin.include_role:
     name: arillso.logrotate
   vars:
     logrotate_applications:
@@ -32,21 +32,21 @@
               - delaycompress
 
 - name: Ensure logrotate runs hourly under systemd timer
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /lib/systemd/system/logrotate.timer
     regexp: '^OnCalendar=hourly'
     insertafter: '^OnCalendar=daily'
     line: OnCalendar=hourly
 
 - name: Enable and restart logrotate systemd timer
-  systemd:
+  ansible.builtin.systemd:
     name: logrotate.timer
     state: restarted
     enabled: true
     daemon_reload: true
 
 - name: Copy files
-  template:
+  ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ mn_evo_services_path }}/{{ item }}'
     mode: 0644
@@ -59,17 +59,17 @@
     - dapi-envoy.yaml
 
 - name: Pull platform docker images
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ mn_evo_services_path }}'
     pull: true
 
 - name: Configure Tendermint
-  import_tasks: tendermint.yml
+  ansible.builtin.import_tasks: tendermint.yml
   vars:
     skip_genesis: "{{ skip_tenderdash_genesis | default(false) | bool }}"
 
 - name: Start masternode evolution services
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ mn_evo_services_path }}'
     state: present
     restarted: true

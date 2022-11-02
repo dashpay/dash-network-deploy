@@ -7,7 +7,7 @@
     remove_volumes: yes
 
 - name: delete platform dir
-  file:
+  ansible.builtin.file:
     state: absent
     path: '{{ mn_evo_services_path }}'
 

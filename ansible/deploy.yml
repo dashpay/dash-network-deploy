@@ -14,13 +14,13 @@
   become: true
   pre_tasks:
     - name: Check if inside AWS
-      uri:
+      ansible.builtin.uri:
         url: http://169.254.169.254/latest/meta-data
         timeout: 2
       register: aws_uri_check
       failed_when: false
     - name: Set AWS environment variable
-      set_fact:
+      ansible.builtin.set_fact:
         is_aws_environment: "{{ aws_uri_check.status == 200 }}"
   roles:
     - role: aws
@@ -40,7 +40,7 @@
   become: true
   pre_tasks:
     - name: Update apt cache
-      apt:
+      ansible.builtin.apt:
         update_cache: true
   vars:
     pip_package: python3-pip
@@ -122,12 +122,12 @@
   become: true
   pre_tasks:
     - name: Check inventory for masternodes
-      set_fact:
+      ansible.builtin.set_fact:
         masternode: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
     - name: Fail if no masternodes present
-      fail:
+      ansible.builtin.fail:
         msg: Masternode not defined in network config
       when: masternode is not defined
   roles:
@@ -196,12 +196,12 @@
   become: true
   pre_tasks:
     - name: Check inventory for masternodes
-      set_fact:
+      ansible.builtin.set_fact:
         node: "{{ seed_nodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in seed_nodes
     - name: Check inventory for seed nodes
-      fail:
+      ansible.builtin.fail:
         msg: Seed node not defined in network config
       when: node is not defined
   roles:
@@ -216,12 +216,12 @@
   become: true
   pre_tasks:
     - name: Check inventory for masternodes
-      set_fact:
+      ansible.builtin.set_fact:
         masternode: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
     - name: Fail if no masternodes present
-      fail:
+      ansible.builtin.fail:
         msg: Masternode not defined in network config
       when: masternode is not defined
   roles:
@@ -245,7 +245,7 @@
   become: true
   tasks:
     - name: Prune unused Docker images
-      docker_prune:
+      community.docker.docker_prune:
         containers: true
         images: true
         images_filters:

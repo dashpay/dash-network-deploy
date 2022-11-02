@@ -1,18 +1,18 @@
 ---
 
 - name: Create wallet
-  command: dash-cli createwallet {{ inventory_hostname }}
+  ansible.builtin.command: dash-cli createwallet {{ inventory_hostname }}
   args:
     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ inventory_hostname }}/wallet.dat"
 
 - name: Load wallet on startup
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '/etc/dash.conf'
     regexp: '^wallet='
     line: wallet={{ inventory_hostname }}
 
 - name: Restart dash core
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ dashd_compose_path }}'
     state: present
     restarted: true

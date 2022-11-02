@@ -27,6 +27,6 @@
   when: inventory_hostname in groups['logs_nodes']
 
 - name: delete dash home dir
-  file:
+  ansible.builtin.file:
       state: absent
       path: "{{ dashd_home }}/"

@@ -1,59 +1,59 @@
 ---
 
 - name: Increase VM max map count to ES minimum
-  sysctl:
+  ansible.posix.sysctl:
     name: vm.max_map_count
     value: 262144
     state: present
 
 - name: Create elastic services and certs dirs
-  file:
+  ansible.builtin.file:
     path: '{{ certs_path }}/{{ inventory_hostname }}'
     state: directory
     recurse: true
 
 - name: Partition and format data volume
-  import_tasks: volume.yml
+  ansible.builtin.import_tasks: volume.yml
 
 - name: Generate certificates on first logs node
-  import_tasks: generate-certs.yml
+  ansible.builtin.import_tasks: generate-certs.yml
   run_once: true
   delegate_to: '{{ play_hosts | first }}'
 
 - name: Create temp dir and set permissions
-  file:
+  ansible.builtin.file:
     path: '~/tmp/ansible/{{ dash_network_name }}'
     state: directory
     mode: 0777
 
 - name: Fetch generated ca
   run_once: true
-  fetch:
+  ansible.builtin.fetch:
     src: '{{ bundle_path }}/ca.zip'
     dest: '~/tmp/ansible/{{ dash_network_name }}/'
     flat: true
 
 - name: Fetch generated certs
   run_once: true
-  fetch:
+  ansible.builtin.fetch:
     src: '{{ bundle_path }}/certs.zip'
     dest: '~/tmp/ansible/{{ dash_network_name }}/'
     flat: true
 
 - name: Install CA
-  unarchive:
+  ansible.builtin.unarchive:
     src: '~/tmp/ansible/{{ dash_network_name }}/ca.zip'
     dest: '{{ certs_path }}'
 
 - name: Install certs
-  unarchive:
+  ansible.builtin.unarchive:
     src: ~/tmp/ansible/{{ dash_network_name }}/certs.zip
     dest: '{{ certs_path }}'
 
 - name: Copy files
   vars:
     template_seeds: "{{ groups.logs_nodes | reject('equalto', inventory_hostname) }}"
-  template:
+  ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ elastic_path }}/{{ item }}'
     mode: 0644
@@ -63,7 +63,7 @@
     - kibana.yml
 
 - name: Start elastic
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ elastic_path }}'
     state: present
     pull: true
@@ -72,7 +72,7 @@
       - elasticsearch
 
 - name: Wait for Elasticsearch to be available
-  uri:
+  ansible.builtin.uri:
     url: http://localhost:9200
     user: '{{ elastic_username }}'
     password: '{{ elastic_password }}'
@@ -83,7 +83,7 @@
 
 - name: Set kibana_system password
   run_once: true
-  uri:
+  ansible.builtin.uri:
     url: http://localhost:9200/_security/user/kibana_system/_password
     user: '{{ elastic_username }}'
     password: '{{ elastic_password }}'
@@ -94,7 +94,7 @@
       password: '{{ kibana_password }}'
 
 - name: Start kibana
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ elastic_path }}'
     state: present
     pull: true
@@ -103,7 +103,7 @@
       - kibana
 
 - name: Wait for Kibana to be available
-  uri:
+  ansible.builtin.uri:
     url: http://localhost:5601/api/status
     user: "{{ elastic_username }}"
     password: "{{ elastic_password }}"
@@ -114,6 +114,6 @@
   delay: 10
 
 - name: Configure Elasticsearch and Kibana
-  import_tasks: configure-cluster.yml
+  ansible.builtin.import_tasks: configure-cluster.yml
   run_once: true
   delegate_to: '{{ play_hosts | first }}'

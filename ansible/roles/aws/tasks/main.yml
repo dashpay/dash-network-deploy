@@ -1,11 +1,11 @@
 ---
 
 - name: Update hostname
-  hostname:
+  ansible.builtin.hostname:
     name: '{{ inventory_hostname }}'
 
 - name: Ensure hostname is in /etc/hosts
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/hosts
     regexp: '^127\.0\.0\.1 ' # The space at the end is needed to not match something like 127.0.0.17
     line: '127.0.0.1 localhost {{ inventory_hostname }}'

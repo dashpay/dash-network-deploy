@@ -4,7 +4,7 @@ services:
   create_certs:
     container_name: create_certs
     image: "docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}"
-    command: >
+    ansible.builtin.command: >
       bash -c '
         if [[ ! -f /certs/ca.zip ]]; then
           echo "Creating CA";

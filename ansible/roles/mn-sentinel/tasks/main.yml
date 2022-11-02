@@ -1,13 +1,13 @@
 ---
 
 - name: Create masternode sentinel dir
-  file:
+  ansible.builtin.file:
     path: '{{ mn_sentinel_path }}'
     state: directory
     recurse: true
 
 - name: Copy masternode sentinel docker compose
-  template:
+  ansible.builtin.template:
     src: '{{ item }}'
     dest: '{{ mn_sentinel_path }}/{{ item }}'
     mode: 0644
@@ -16,7 +16,7 @@
     - .env
 
 - name: Start masternodes sentinel
-  docker_compose:
+  community.docker.docker_compose:
     project_src: '{{ mn_sentinel_path }}'
     state: present
     restarted: true

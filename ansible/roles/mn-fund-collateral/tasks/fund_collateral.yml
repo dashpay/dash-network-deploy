@@ -2,12 +2,12 @@
 
 # Requires "masternode_name", "masternode" and "amount" variables
 
-- name: "fund collateral {{ amount }} coin(s) for {{ masternode_name }}/{{ masternode.collateral.address }}"
-  command: "dash-cli {{ faucet_rpc_args }} sendtoaddress {{ masternode.collateral.address }} {{ amount }}"
+- name: Fund collateral {{ amount }} coin(s) for {{ masternode_name }}/{{ masternode.collateral.address }}
+  ansible.builtin.command: 'dash-cli {{ faucet_rpc_args }} sendtoaddress {{ masternode.collateral.address }} {{ amount }}'
   register: fund_result
 
-- name: wait for funding TX {{ fund_result.stdout }} to appear on MN ctrl node
-  shell: dash-cli {{ masternode_wallet_rpc_args }} getrawtransaction {{ fund_result.stdout }}
+- name: Wait for funding TX {{ fund_result.stdout }} to appear on MN ctrl node
+  ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} getrawtransaction {{ fund_result.stdout }}'
   register: check_result
   until: check_result.rc == 0
   retries: 10
