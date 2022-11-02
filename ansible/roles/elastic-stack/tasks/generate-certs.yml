@@ -15,13 +15,4 @@
     - docker-compose.yml
     - instances.yml
     - .env
-  register: templates
-
-- name: Generate certs
-  docker_compose:
-    project_src: '{{ bundle_path }}'
-  when: templates is changed
-
-- name: Pause for 5 seconds to finish writing zip file
-  pause:
-    seconds: 5
+  notify: Generate certs
