@@ -15,4 +15,9 @@
     - docker-compose.yml
     - instances.yml
     - .env
-  notify: Generate certs
+  register: templates
+
+- name: Generate certs
+  community.docker.docker_compose:
+    project_src: '{{ bundle_path }}'
+  when: templates is changed # noqa: no-handler

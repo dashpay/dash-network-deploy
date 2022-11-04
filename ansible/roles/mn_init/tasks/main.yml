@@ -38,9 +38,13 @@
   register: get_protx_list_result
   changed_when: get_protx_list_result.stdout | to_json | length > 0
 
+- name: Initialize array for registered masternode names
+  ansible.builtin.set_fact:
+    registered_masternode_names: []
+
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
-    registered_masternode_names: "{{ registered_masternode_names | default([]) + [item] }}"
+    registered_masternode_names: '{{ registered_masternode_names + [item] }}'
   when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ groups["masternodes"] }}'
 
@@ -62,7 +66,7 @@
 
 - name: Get names of banned masternodes
   ansible.builtin.set_fact:
-    banned_masternode_names: "{{ banned_masternode_names | default([]) + [item] }}"
+    banned_masternode_names: '{{ banned_masternode_names | default([]) + [item] }}'
   when: banned_masternodes_list | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ registered_masternode_names }}'
 
@@ -74,19 +78,19 @@
   ansible.builtin.include_role:
     name: mn_fund_collateral
   vars:
-    masternode_names: "{{ new_masternode_names }}"
+    masternode_names: '{{ new_masternode_names }}'
   when: new_masternode_names | length > 0
 
 - name: Create pro tx for not initialized masternodes
   ansible.builtin.include_role:
     name: mn_createprotx
   vars:
-    masternode_names: "{{ new_masternode_names }}"
+    masternode_names: '{{ new_masternode_names }}'
   when: new_masternode_names | length > 0
 
 - name: Unban banned masternodes
   ansible.builtin.include_role:
     name: mn_unban
   vars:
-    masternode_names: "{{ banned_masternode_names }}"
+    masternode_names: '{{ banned_masternode_names }}'
   when: banned_masternode_names | length > 0

@@ -12,15 +12,15 @@
 
 - name: Load common filebeat config
   ansible.builtin.include_vars:
-    ansible.builtin.file: common.yml
+    file: common.yml
 
 - name: Load core input config
   ansible.builtin.include_vars:
-    ansible.builtin.file: core.yml
+    file: core.yml
 
 - name: Load platform input config
   ansible.builtin.include_vars:
-    ansible.builtin.file: platform.yml
+    file: platform.yml
   when: tenderdash_container_id.stdout != ""
 
 - name: Merge input configs

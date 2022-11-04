@@ -11,7 +11,7 @@
 - name: Rescan blockchain
   ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} rescanblockchain'
   register: result
-  changed_when: result.stdout | to_json | query('stop_height') > 1
+  changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
 
 # check
 
@@ -49,7 +49,7 @@
 
 - name: Fund masternode collaterals
   ansible.builtin.include_tasks:
-    name: fund_collateral.yml
+    file: fund_collateral.yml
   vars:
     masternode: "{{ masternodes[item] }}"
     masternode_name: "{{ item }}"
