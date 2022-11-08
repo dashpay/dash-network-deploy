@@ -237,7 +237,7 @@
     - role: elastic-beats
 
 
- # Set up fake latency on masternodes (if enabled)
+# Set up fake latency on masternodes (if enabled)
 - hosts: masternodes
   become: true
   roles:
