@@ -17,6 +17,7 @@
 
 - name: Wait for generated block to appear on MN ctrl node
   command: "dash-cli {{ masternode_wallet_rpc_args }} getblockcount"
+  when: num_blocks|int > 0
   register: check_result
   until: check_result.stdout|int >= current_block_count.stdout|int
   retries: 10
