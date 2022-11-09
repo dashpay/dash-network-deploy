@@ -33,7 +33,7 @@
     fee_missing_addresses: "{{ fee_target_addresses | difference(funded_addresses.stdout) }}"
 
 - name: Fund 1 coin for ProTx fee
-  ansible.builtin.include_tasks: ./roles/mn-fund-collateral/tasks/fund_collateral.yml
+  ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
   vars:
     amount: 1
     payment_targets: '{{ fee_target_addresses }}'
