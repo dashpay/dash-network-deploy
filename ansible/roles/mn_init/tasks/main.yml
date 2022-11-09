@@ -64,9 +64,13 @@
   ansible.builtin.set_fact:
     banned_masternodes_list: "{{ get_protx_list_result.stdout | from_json | json_query('[?state.PoSeBanHeight > `0`]') }}"
 
+- name: Initialize array for banned masternode names
+  ansible.builtin.set_fact:
+    banned_masternode_names: []
+
 - name: Get names of banned masternodes
   ansible.builtin.set_fact:
-    banned_masternode_names: '{{ banned_masternode_names | default([]) + [item] }}'
+    banned_masternode_names: '{{ banned_masternode_names + [item] }}'
   when: banned_masternodes_list | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ registered_masternode_names }}'
 
