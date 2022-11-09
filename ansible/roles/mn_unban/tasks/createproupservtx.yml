@@ -2,7 +2,7 @@
 
 # Requires "masternode" and "masternode_name" variables
 
-- name: Create ProUpServTx for {{ masternode_name + / + masternode.owner.address }}
+- name: Create ProUpServTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
   ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} protx update_service
             {{ vars['protx_' + masternode_name | replace('-', '_')] }}
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}

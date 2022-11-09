@@ -2,7 +2,7 @@
 
 # Requires "masternode_name", "masternode" and "amount" variables
 
-- name: Fund collateral coin(s) for {{ masternode_name + / + masternode.collateral.address }}
+- name: Fund collateral coin(s) for {{ masternode_name ~ '/' ~ masternode.collateral.address }}
   ansible.builtin.command: 'dash-cli {{ faucet_rpc_args }} sendtoaddress {{ masternode.collateral.address }} {{ amount }}'
   register: fund_result
   changed_when: fund_result.stdout | length == 64

@@ -10,7 +10,7 @@
     group: root
     mode: 0755
 
-- name: Find-collateral for {{ masternode_name + / + masternode.collateral.address }}
+- name: Find collateral for {{ masternode_name ~ '/' ~ masternode.collateral.address }}
   ansible.builtin.command: 'find-collateral.py {{ masternode_wallet_rpc_args }} {{ masternode.collateral.address }} {{ find_protx }}'
   register: r
   failed_when: false

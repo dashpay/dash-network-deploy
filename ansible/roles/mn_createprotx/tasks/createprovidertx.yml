@@ -2,7 +2,7 @@
 
 # Requires "masternode" and "masternode_name" variables
 
-- name: Create ProTx for {{ masternode_name + / + masternode.owner.address }}
+- name: Create ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
   ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} protx register
             {{ vars['collateral_txid_' + masternode_name | replace('-', '_')] }}
             {{ vars['collateral_vout_' + masternode_name | replace('-', '_')] }}
