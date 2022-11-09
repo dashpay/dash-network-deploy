@@ -28,7 +28,7 @@
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
   ansible.builtin.template:
-    src: 'roles/mn-evo-services/templates/tendermint/{{ item }}.j2'
+    src: 'roles/mn_evo_services/templates/tendermint/{{ item }}.j2'
     dest: '{{ mn_evo_services_path }}/tendermint/config/{{ item }}'
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
