@@ -81,6 +81,7 @@
     path: /etc/cron.daily/logrotate
     mode: "+x"
 
+# TODO: why does this always take exactly 30 seconds on first deploy?
 - name: Start dash core
   community.docker.docker_compose:
     project_src: '{{ dashd_compose_path }}'

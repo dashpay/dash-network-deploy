@@ -1,9 +1,29 @@
 ---
 
-- name: Generate fixed amount of blocks
-  ansible.builtin.shell: dash-cli {{ faucet_rpc_args }} generatetoaddress {{ num_blocks }} {{ miner_payment_address }} > /dev/null
-  when: num_blocks | int > 0
+# Option: generate blocks
 
+- name: Get start block count
+  ansible.builtin.command: dash-cli {{ faucet_rpc_args }} getblockcount
+  register: start_block_count
+  when: num_blocks|int > 0
+
+- name: Generate {{ num_blocks }} block(s)
+  ansible.builtin.shell: dash-cli {{ faucet_rpc_args }} generatetoaddress {{ num_blocks }} {{ miner_payment_address }} > /dev/null && dash-cli {{ faucet_rpc_args }} getblockcount
+  when: num_blocks|int > 0
+  register: current_block_count
+  until: current_block_count.stdout|int >= start_block_count.stdout|int + num_blocks|int
+  retries: 200
+  delay: 0
+
+- name: Wait for generated block to appear on MN ctrl node
+  ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} getblockcount"
+  when: num_blocks|int > 0
+  register: check_result
+  until: check_result.stdout|int >= current_block_count.stdout|int
+  retries: 10
+  delay: 2
+
+# Option: generate balance
 # TODO avoid first call if not needed
 - name: Generate enough blocks to have {{ balance_needed | default(0) }}
   ansible.builtin.shell: >
