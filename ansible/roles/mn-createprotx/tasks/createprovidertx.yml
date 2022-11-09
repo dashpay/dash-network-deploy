@@ -2,6 +2,14 @@
 
 # Requires "masternode" and "masternode_name" variables
 
+- name: Verify fee balance is ready to spend
+  ansible.builtin.command: >
+    dash-cli getaddressbalance '{"addresses": ["{{ masternode.collateral.address }}"]}'
+  retries: 10
+  delay: 1
+  register: result
+  until: result.stdout | from_json | json_query('balance_spendable') | int > 100000000000
+
 - name: create ProTx for {{ masternode_name }}/{{ masternode.owner.address }}
   command: "dash-cli {{ masternode_wallet_rpc_args }} protx register
             {{ vars['collateral_txid_' + masternode_name|replace('-','_')] }}
