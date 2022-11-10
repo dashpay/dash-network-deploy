@@ -21,7 +21,7 @@
 
 - name: Stop all docker containers
   community.docker.docker_container:
-    name: '{{ item }}'
+    name: '{{ item.Id }}'
     state: stopped
   with_items: '{{ host_info.containers }}'
 
