@@ -30,23 +30,35 @@
 
 # ensure faucet balance
 
+- name: check faucet balance
+  command: 'dash-cli {{ faucet_rpc_args }} getbalance'
+  register: faucet_balance
+
 - name: generate enough blocks to fund collaterals
   include_role:
     name: generate-blocks
   vars:
     num_blocks: 0
     balance_needed: "{{ (masternode_names|length - collateral_ok_count|int) * 1000 }}"
+  when: (not collateral_all_ok) and (faucet_balance.stdout|int < balance_needed|int)
+
+# TODO: this will fund all masternodes, not just those with missing collateral. collateral_ok_masternode_1 was partially implemented, check again later
+# https://github.com/dashpay/dash-network-deploy/blob/v0.23-dev/ansible/roles/mn-fund-collateral/tasks/main.yml#L48
+
+- name: Populate payment targets
+  set_fact:
+    uncollateralized_addresses: "{{ uncollateralized_addresses | default( [] ) + [ masternodes[item].collateral.address ] }}"
+  with_items:
+    - '{{ masternode_names }}'
   when: not collateral_all_ok
 
 # fund
 
 - include_tasks: fund_collateral.yml
   vars:
-    masternode: "{{ masternodes[item] }}"
-    masternode_name: "{{ item }}"
     amount: 1000
-  when: not vars["collateral_ok_" + item|replace("-","_")]
-  with_items: '{{ masternode_names }}'
+    payment_targets: '{{ uncollateralized_addresses }}'
+  when: not collateral_all_ok
 
 # verify
 
