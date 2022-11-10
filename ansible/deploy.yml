@@ -217,13 +217,13 @@
   pre_tasks:
     - name: Check inventory for masternodes
       ansible.builtin.set_fact:
-        masternode: "{{ masternodes[inventory_hostname] }}"
+        node: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
     - name: Fail if no masternodes present
       ansible.builtin.fail:
         msg: Masternode not defined in network config
-      when: masternode is not defined
+      when: node is not defined
   roles:
     - role: mn_evo_services
       tags:
