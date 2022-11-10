@@ -21,6 +21,8 @@
   delegate_to: '{{ play_hosts | first }}'
 
 - name: Create temp dir and set permissions
+  delegate_to: localhost
+  become: false
   ansible.builtin.file:
     path: '~/tmp/ansible/{{ dash_network_name }}'
     state: directory
