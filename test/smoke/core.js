@@ -1,7 +1,7 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const { inventory, network } = getNetworkConfig();
+const { inventory, network, variables } = getNetworkConfig();
 
 const allHosts = inventory.masternodes.hosts.concat(
   inventory.wallet_nodes.hosts,
@@ -132,22 +132,28 @@ describe('Core', () => {
   describe('Miners', () => {
     for (const hostName of inventory.miners.hosts) {
       describe(hostName, () => {
-        it('should mine blocks', async function it() {
-          if (network.type === 'mainnet') {
-            this.skip('Miners are disabled for mainnet');
-            return;
-          }
+        it('should mine blocks regularly', async () => {
+          const targetBlockTime = variables.dashd_powtargetspacing || 156;
+          const blockTimeLowerBound = targetBlockTime * 0.5;
+          const blockTimeUpperBound = targetBlockTime * 1.5;
+          const blockDelta = 10;
 
-          this.timeout(240000);
-          this.slow(160000);
-
+          // Connect and get current block count
           const coreClient = createRpcClientFromConfig(hostName);
+          const { result: blockCount } = await coreClient.getBlockCount();
 
-          const { result: previousHeight } = await coreClient.getBlockCount();
+          // Get current and delta block timestamps
+          const { result: currBlockHash } = await coreClient.getBlockHash(blockCount);
+          const { result: prevBlockHash } = await coreClient.getBlockHash(blockCount - blockDelta);
+          const { result: { time: currBlockTime } } = await coreClient.getBlock(currBlockHash);
+          const { result: { time: prevBlockTime } } = await coreClient.getBlock(prevBlockHash);
 
-          const { result: { height } } = await coreClient.waitForNewBlock(230000);
+          // Calculate mining stats
+          const averageBlockTime = (currBlockTime - prevBlockTime) / blockDelta;
+          const secondsSinceLastBlock = (new Date().getTime() - (currBlockTime * 1000)) / 1000;
 
-          expect(height).to.be.above(previousHeight, 'no new blocks');
+          expect(averageBlockTime).to.be.within(blockTimeLowerBound, blockTimeUpperBound);
+          expect(secondsSinceLastBlock).to.be.at.most(600);
         });
       });
     }
