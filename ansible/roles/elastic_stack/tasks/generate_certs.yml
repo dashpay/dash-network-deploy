@@ -25,3 +25,4 @@
 - name: Pause for 5 seconds to finish writing zip file
   ansible.builtin.pause:
     seconds: 5
+  when: templates is changed # noqa: no-handler
