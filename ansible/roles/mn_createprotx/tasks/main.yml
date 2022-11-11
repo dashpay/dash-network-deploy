@@ -23,7 +23,7 @@
 
 - name: Check if address contains a suitable fee utxo
   ansible.builtin.command: >
-    "dash-cli {{ masternode_wallet_rpc_args }} listunspent 1 99999999 '{{ fee_target_addresses | to_json }}' false '{{ maxamount | to_json }}'"
+    dash-cli {{ masternode_wallet_rpc_args }} listunspent 1 99999999 '{{ fee_target_addresses | to_json }}' false '{{ maxamount | to_json }}'
   register: funded_addresses
   changed_when: funded_addresses.stdout | from_json | length > 0
   vars:
