@@ -1,0 +1,12 @@
+---
+
+- name: Add the official ET repository
+  ansible.builtin.apt_repository:
+    repo: ppa:jgmath2000/et
+    state: present
+    update_cache: true
+
+- name: Install ET
+  ansible.builtin.package:
+    name: et
+    state: present

@@ -1,0 +1,4 @@
+---
+
+- name: Reset swap
+  ansible.builtin.shell: swapoff -a && swapon -a

@@ -1,0 +1,37 @@
+---
+
+# Based on https://hangarau.space/automatically-mounting-an-ebs-volume-using-ansible/
+
+- name: Create mountpoint
+  ansible.builtin.file:
+    path: '{{ data_path }}'
+    state: directory
+    mode: 0755
+
+- name: Create partition
+  community.general.parted:
+    device: '{{ elastic_data_block_device }}'
+    number: 1
+    label: gpt
+    name: data
+    state: present
+
+- name: Format partition
+  community.general.filesystem:
+    dev: '{{ elastic_data_block_device }}p1'
+    fstype: ext4
+
+- name: Mount partition
+  ansible.posix.mount:
+    path: '{{ data_path }}'
+    src: '{{ elastic_data_block_device }}p1'
+    fstype: ext4
+    state: mounted
+
+- name: Ensure correct permissions
+  ansible.builtin.file:
+    path: '{{ data_path }}'
+    state: directory
+    owner: ubuntu
+    group: root
+    mode: 0755

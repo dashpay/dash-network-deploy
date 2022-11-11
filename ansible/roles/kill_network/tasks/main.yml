@@ -1,0 +1,47 @@
+---
+
+- name: Disable pay-faucet
+  ansible.builtin.systemd:
+    name: 'pay-faucet'
+    state: stopped
+    enabled: false
+  failed_when: false
+
+- name: Disable dashd-generate-miner
+  ansible.builtin.systemd:
+    name: 'dashd-generate-miner'
+    state: stopped
+    enabled: false
+  failed_when: false
+
+- name: Collect list of docker services
+  community.docker.docker_host_info:
+    containers: true
+  register: host_info
+
+- name: Stop all docker containers
+  community.docker.docker_container:
+    name: '{{ item.Id }}'
+    state: stopped
+  with_items: '{{ host_info.containers }}'
+
+- name: Remove all docker data
+  community.docker.docker_prune:
+    containers: true
+    images: true
+    images_filters:
+      dangling: true
+    networks: true
+    volumes: true
+    builder_cache: true
+
+- name: Unmount data
+  ansible.posix.mount:
+    path: /dash/elastic/data
+    state: unmounted
+  when: inventory_hostname in groups['logs_nodes']
+
+- name: Delete dash home dir
+  ansible.builtin.file:
+    state: absent
+    path: "{{ dashd_home }}/"

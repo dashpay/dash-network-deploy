@@ -1,27 +1,28 @@
 ---
 
-- name: create wallet
-  shell: dash-cli createwallet {{ inventory_hostname }}
+- name: Create wallet
+  ansible.builtin.command: dash-cli createwallet {{ inventory_hostname }}
   args:
     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ inventory_hostname }}/wallet.dat"
 
-- name: load wallet on startup
-  lineinfile:
-    path: "/etc/dash.conf"
+- name: Load wallet on startup
+  ansible.builtin.lineinfile:
+    path: '/etc/dash.conf'
     regexp: '^wallet='
     line: wallet={{ inventory_hostname }}
 
-- name: restart dash core
-  docker_compose:
+- name: Restart dash core
+  community.docker.docker_compose:
     project_src: '{{ dashd_compose_path }}'
     state: present
-    restarted: yes
-    pull: yes
+    restarted: true
+    pull: true
     timeout: 30
 
-- name: wait for rpc to be available
-  shell: dash-cli getgovernanceinfo
+- name: Wait for rpc to be available
+  ansible.builtin.command: dash-cli getgovernanceinfo
   register: task_result
   until: task_result.rc == 0
   retries: 5
   delay: 10
+  changed_when: task_result.rc == 0

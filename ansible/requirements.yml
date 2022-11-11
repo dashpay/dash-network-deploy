@@ -7,18 +7,18 @@ collections:
 roles:
   - src: geerlingguy.pip
     version: 2.1.0
-  
+
   - src: geerlingguy.docker
     version: 4.2.2
-  
+
   - src: kyl191.openvpn
     version: v0.9.1
-  
+
   - src: Restless-ET.aws-scripts-mon
     version: 1.0.1
-  
+
   - src: arillso.logrotate
     version: 1.6.1
-  
+
   - src: geerlingguy.filebeat
     version: 3.4.1

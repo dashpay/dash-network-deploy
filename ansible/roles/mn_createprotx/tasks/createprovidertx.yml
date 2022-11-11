@@ -1,0 +1,34 @@
+---
+
+# Requires "masternode" and "masternode_name" variables
+
+- name: Verify fee balance is ready to spend
+  ansible.builtin.command: >
+    dash-cli getaddressbalance '{"addresses": ["{{ masternode.collateral.address }}"]}'
+  retries: 10
+  delay: 1
+  register: result
+  until: result.stdout | from_json | json_query('balance_spendable') | int > 100000000000
+  changed_when: result.stdout | length > 0
+
+- name: Create ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
+  ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} protx register
+            {{ vars['collateral_txid_' + masternode_name | replace('-', '_')] }}
+            {{ vars['collateral_vout_' + masternode_name | replace('-', '_')] }}
+            {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
+            {{ masternode.owner.address }}
+            {{ masternode.operator.public_key }}
+            {{ masternode.owner.address }}
+            0
+            {{ miner_payment_address }}
+            {{ masternode.collateral.address }}"
+  register: protx
+  changed_when: protx.stdout | length == 64
+
+- name: Wait for MN ctrl node to confirm receipt of ProTx {{ protx.stdout }}
+  ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} getrawtransaction {{ protx.stdout }}"
+  register: check_result
+  until: check_result.rc == 0
+  retries: 10
+  delay: 2
+  changed_when: protx.stdout | length > 0
