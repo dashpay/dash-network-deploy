@@ -40,6 +40,7 @@
 - name: Check faucet balance
   ansible.builtin.command: 'dash-cli {{ faucet_rpc_args }} getbalance'
   register: faucet_balance
+  changed_when: faucet_balance.stdout | int > 0
 
 - name: Generate enough blocks to fund collaterals
   ansible.builtin.include_role:
@@ -54,7 +55,7 @@
 
 - name: Populate payment targets
   ansible.builtin.set_fact:
-    uncollateralized_addresses: "{{ uncollateralized_addresses | default( [] ) + [ masternodes[item].collateral.address ] }}"
+    uncollateralized_addresses: "{{ uncollateralized_addresses | default([]) + [masternodes[item].collateral.address] }}"
   with_items:
     - '{{ masternode_names }}'
   when: not collateral_all_ok

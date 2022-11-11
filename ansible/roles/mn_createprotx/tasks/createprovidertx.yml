@@ -9,7 +9,7 @@
   delay: 1
   register: result
   until: result.stdout | from_json | json_query('balance_spendable') | int > 100000000000
-
+  changed_when: result.stdout | length > 0
 
 - name: Create ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
   ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} protx register

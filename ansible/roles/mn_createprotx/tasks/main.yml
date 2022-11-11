@@ -17,13 +17,15 @@
 
 - name: Populate fee payment targets
   ansible.builtin.set_fact:
-    fee_target_addresses: "{{ fee_target_addresses | default([]) + [ masternodes[item].collateral.address ] }}"
+    fee_target_addresses: "{{ fee_target_addresses | default([]) + [masternodes[item].collateral.address] }}"
   with_items:
     - "{{ masternode_names }}"
 
-- name: check if address contains a suitable fee utxo
-  ansible.builtin.command: "dash-cli {{ masternode_wallet_rpc_args }} listunspent 1 99999999 '{{ fee_target_addresses|to_json }}' false '{{ maxamount|to_json }}' "
+- name: Check if address contains a suitable fee utxo
+  ansible.builtin.command: >
+    "dash-cli {{ masternode_wallet_rpc_args }} listunspent 1 99999999 '{{ fee_target_addresses | to_json }}' false '{{ maxamount | to_json }}'"
   register: funded_addresses
+  changed_when: funded_addresses.stdout | from_json | length > 0
   vars:
     maxamount:
       maximumAmount: 1

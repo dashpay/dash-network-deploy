@@ -4,7 +4,7 @@
 
 - name: Populate payment addresses and values
   ansible.builtin.set_fact:
-    payments: "{{ payments | default( {} ) | combine( { item: amount } ) }}"
+    payments: "{{ payments | default({}) | combine({item: amount}) }}"
   with_items:
     - '{{ payment_targets }}'
 
@@ -12,9 +12,10 @@
   ansible.builtin.debug:
     var: payments
 
-- name: Fund {{ amount }} coin(s) to listed masternodes
-  ansible.builtin.command: "dash-cli {{ faucet_rpc_args }} sendmany '' '{{ payments|to_json }}'"
+- name: Fund listed masternodes with {{ amount }}
+  ansible.builtin.command: "dash-cli {{ faucet_rpc_args }} sendmany '' '{{ payments | to_json }}'"
   register: fund_result
+  changed_when: fund_result.stdout | length == 64
 
 - name: Wait for MN ctrl node to confirm receipt of ProTx {{ fund_result.stdout }}
   ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} getrawtransaction {{ fund_result.stdout }}'

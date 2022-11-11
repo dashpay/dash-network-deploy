@@ -24,7 +24,7 @@
   delay: 10
 
 - name: Wait for enough blocks to have {{ balance_needed | default(0) }}
-  ansible.builtin.command: dash-cli {{ faucet_rpc_args }} getbalance
+  ansible.builtin.command: 'dash-cli {{ faucet_rpc_args }} getbalance'
   when: balance_needed | float > 0
   register: balance_result
   until: balance_result.stdout | float >= balance_needed | float

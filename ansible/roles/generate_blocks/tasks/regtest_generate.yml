@@ -7,8 +7,10 @@
   register: start_block_count
   when: num_blocks|int > 0
 
-- name: Generate {{ num_blocks }} block(s)
-  ansible.builtin.shell: dash-cli {{ faucet_rpc_args }} generatetoaddress {{ num_blocks }} {{ miner_payment_address }} > /dev/null && dash-cli {{ faucet_rpc_args }} getblockcount
+- name: Generate {{ num_blocks }}
+  ansible.builtin.shell: >
+    dash-cli {{ faucet_rpc_args }} generatetoaddress {{ num_blocks }} {{ miner_payment_address }} > /dev/null &&
+    dash-cli {{ faucet_rpc_args }} getblockcount
   when: num_blocks|int > 0
   register: current_block_count
   until: current_block_count.stdout|int >= start_block_count.stdout|int + num_blocks|int
