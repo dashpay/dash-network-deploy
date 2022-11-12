@@ -18,6 +18,7 @@
     openvpn_push: "{{ ['route-nopull'] + openvpn_forwarded_ips }}"
     openvpn_redirect_gateway: false
     openvpn_fetch_client_configs_dir: ~/tmp/ansible/
+    openvpn_use_pregenerated_dh_params: true
 
 - name: Copy OpenVPN config to 'networks' dir
   become: false
