@@ -102,8 +102,8 @@
   ansible.builtin.command: dash-cli getgovernanceinfo
   register: task_result
   until: task_result.rc == 0
-  retries: 5
-  delay: 10
+  retries: 50
+  delay: 2
   changed_when: task_result.rc == 0
 
 - name: Import faucet privkey
