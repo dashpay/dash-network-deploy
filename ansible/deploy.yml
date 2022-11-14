@@ -172,18 +172,18 @@
     - web
 
 - name: Register masternodes
-  hosts: masternode_wallet
+  hosts: wallet_nodes
   become: true
   roles:
     - mn_init
 
 - name: Update inventory with protx values
-  hosts: masternode_wallet
+  hosts: dashd-wallet-1
   roles:
     - mn_protx_config
 
 - name: Activate sporks
-  hosts: masternode_wallet
+  hosts: dashd-wallet-1
   become: true
   roles:
     - role: activate_dashd_sporks

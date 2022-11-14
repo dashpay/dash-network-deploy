@@ -1,7 +1,7 @@
 ---
 
 - name: Get blockchain info
-  ansible.builtin.command: dash-cli {{ faucet_rpc_args }} getblockchaininfo
+  ansible.builtin.command: dash-cli getblockchaininfo
   when: num_blocks | int > 0
   register: getblockchaininfo_result
 
@@ -16,7 +16,7 @@
   when: num_blocks | int > 0
 
 - name: Wait for blocks
-  ansible.builtin.command: dash-cli {{ faucet_rpc_args }} getblockchaininfo
+  ansible.builtin.command: dash-cli getblockchaininfo
   when: num_blocks | int > 0
   register: getblockchaininfo_result
   until: (getblockchaininfo_result.stdout | from_json).blocks | int >= (initial_block_count | int + num_blocks | int)
@@ -24,7 +24,7 @@
   delay: 10
 
 - name: Wait for enough blocks to have {{ balance_needed | default(0) }}
-  ansible.builtin.command: 'dash-cli {{ faucet_rpc_args }} getbalance'
+  ansible.builtin.command: dash-cli getbalance
   when: balance_needed | float > 0
   register: balance_result
   until: balance_result.stdout | float >= balance_needed | float

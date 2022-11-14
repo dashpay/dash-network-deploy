@@ -17,10 +17,10 @@ services:
     build: multifaucet
     restart: always
     environment:
-      - MULTIFAUCET_PAYMENT_GW_RPC_HOST={{ faucet_rpc_host }}
-      - MULTIFAUCET_PAYMENT_GW_RPC_PORT={{ faucet_rpc_port }}
-      - MULTIFAUCET_PAYMENT_GW_RPC_USER={{ faucet_rpc_user }}
-      - MULTIFAUCET_PAYMENT_GW_RPC_PASS={{ faucet_rpc_password }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_HOST={{ wallet_rpc_host }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_PORT={{ wallet_rpc_port }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_USER={{ wallet_rpc_user }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_PASS={{ wallet_rpc_password }}
       - MULTIFAUCET_ADDRESS_VERSION=140
       - MULTIFAUCET_DONATION_ADDRESS={{ faucet_address }}
       - MULTIFAUCET_MIN_PAYOUT={{ faucet_minimum_payout }}

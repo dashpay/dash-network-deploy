@@ -1,7 +1,7 @@
 ---
 
 - name: Get list of ProTx transactions from the wallet
-  ansible.builtin.command: dash-cli protx list wallet true
+  ansible.builtin.command: dash-cli -rpcwallet={{ mno_wallet }} protx list wallet true
   register: get_protx_list_result
   changed_when: get_protx_list_result.stdout | from_json | length > 0
 

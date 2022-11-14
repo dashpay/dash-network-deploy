@@ -81,6 +81,14 @@
     path: /etc/cron.daily/logrotate
     mode: "+x"
 
+- name: Load/create faucet wallet on startup
+  ansible.builtin.lineinfile:
+    path: '/etc/dash.conf'
+    regexp: '^wallet='
+    line: wallet={{ faucet_wallet }}
+    insertafter: '[{{ dash_network }}]'
+  when: enable_wallet is true
+
 # TODO: why does this always take exactly 30 seconds on first deploy?
 - name: Start dash core
   community.docker.docker_compose:
@@ -98,18 +106,13 @@
   delay: 10
   changed_when: task_result.rc == 0
 
-- name: Set balance wallet name
-  ansible.builtin.set_fact:
-    balance_wallet: '{{ inventory_hostname }}-balance'
-
-- name: Set masternode owner wallet name
-  ansible.builtin.set_fact:
-    mno_wallet: '{{ inventory_hostname }}-mno'
-
-- name: Set up wallets
-  ansible.builtin.import_tasks: create-wallet.yml
+- name: Import faucet privkey
+  ansible.builtin.command: dash-cli -rpcwallet={{ faucet_wallet }} importprivkey {{ faucet_privkey }}
+  # changed_when:
   when: enable_wallet is true
 
-- name: Import faucet privkey
-  when: inventory_hostname in groups['wallet_nodes']
-  ansible.builtin.command: dash-cli -rpcwallet={{ balance_wallet }} importprivkey {{ faucet_privkey }}
+- name: Create mno wallet
+  ansible.builtin.command: 'dash-cli createwallet {{ mno_wallet }}'
+  when: enable_wallet is true
+  args:
+    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ mno_wallet }}/wallet.dat"
