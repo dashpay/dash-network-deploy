@@ -22,7 +22,7 @@
 - name: Force mnsync next
   ansible.builtin.command: dash-cli mnsync next
   register: result
-  changed_when: '"FINISHED" not in result.stdout'
+  changed_when: '"FINISHED" in result.stdout'
 
 - name: Wait for blockchain sync
   ansible.builtin.command: dash-cli mnsync status
@@ -34,7 +34,7 @@
 
 - name: Force mnsync next (again)
   ansible.builtin.command: dash-cli mnsync next
-  changed_when: '"FINISHED" not in result.stdout'
+  changed_when: '"FINISHED" in result.stdout'
 
 - name: Wait for wallet to sync with blockchain
   ansible.builtin.command: dash-cli mnsync status
