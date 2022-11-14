@@ -101,8 +101,8 @@ variable "masternode_count" {
 }
 
 variable "wallet_count" {
-  description = "number of wallet nodes to create. must be at least 2"
-  default     = 2
+  description = "number of wallet nodes to create. must be at least 1"
+  default     = 1
 }
 
 variable "web_count" {
