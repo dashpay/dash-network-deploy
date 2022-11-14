@@ -98,10 +98,18 @@
   delay: 10
   changed_when: task_result.rc == 0
 
+- name: Set balance wallet name
+  ansible.builtin.set_fact:
+    balance_wallet: '{{ inventory_hostname }}-balance'
+
+- name: Set masternode owner wallet name
+  ansible.builtin.set_fact:
+    mno_wallet: '{{ inventory_hostname }}-mno'
+
 - name: Set up wallets
   ansible.builtin.import_tasks: create-wallet.yml
   when: enable_wallet is true
 
 - name: Import faucet privkey
-  when: inventory_hostname in groups['faucet_wallet']
-  ansible.builtin.command: dash-cli importprivkey {{ faucet_privkey }}
+  when: inventory_hostname in groups['wallet_nodes']
+  ansible.builtin.command: dash-cli -rpcwallet={{ balance_wallet }} importprivkey {{ faucet_privkey }}
