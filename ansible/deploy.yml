@@ -178,12 +178,12 @@
     - mn_init
 
 - name: Update inventory with protx values
-  hosts: dashd-wallet-1
+  hosts: wallet_nodes
   roles:
     - mn_protx_config
 
 - name: Activate sporks
-  hosts: dashd-wallet-1
+  hosts: wallet_nodes
   become: true
   roles:
     - role: activate_dashd_sporks
