@@ -3,13 +3,13 @@
 # Requires "masternode_names" variable
 
 - name: Import masternode owner private key
-  ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ mno_wallet }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
   with_items: '{{ masternode_names }}'
   register: result
   changed_when: result.rc == 0
 
 - name: Rescan blockchain
-  ansible.builtin.command: 'dash-cli {{ masternode_wallet_rpc_args }} rescanblockchain'
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ mno_wallet }} rescanblockchain'
   register: result
   changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
 
@@ -23,7 +23,7 @@
 
 - name: Check if address contains a suitable fee utxo
   ansible.builtin.command: >
-    dash-cli {{ masternode_wallet_rpc_args }} listunspent 1 99999999 '{{ fee_target_addresses | to_json }}' false '{{ maxamount | to_json }}'
+    dash-cli -rpcwallet={{ mno_wallet }} listunspent 1 99999999 '{{ fee_target_addresses | to_json }}' false '{{ maxamount | to_json }}'
   register: funded_addresses
   changed_when: funded_addresses.stdout | from_json | length > 0
   vars:
@@ -67,7 +67,7 @@
 # verify
 
 - name: Get list of ProTx transactions from the wallet
-  ansible.builtin.command: dash-cli protx list wallet true
+  ansible.builtin.command: dash-cli -rpcwallet={{ mno_wallet }} protx list wallet true
   register: get_protx_list_result
   changed_when: get_protx_list_result.stdout | to_json | length > 0
 

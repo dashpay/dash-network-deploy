@@ -172,22 +172,23 @@
     - web
 
 - name: Register masternodes
-  hosts: masternode_wallet
+  hosts: wallet_nodes
   become: true
   roles:
     - mn_init
 
 - name: Update inventory with protx values
-  hosts: masternode_wallet
+  hosts: wallet_nodes
   roles:
     - mn_protx_config
 
 - name: Activate sporks
-  hosts: masternode_wallet
+  hosts: wallet_nodes
   become: true
   roles:
     - role: activate_dashd_sporks
       when: dash_network != "mainnet" and dash_network != "testnet"
+      delegate_to: '{{ play_hosts | first }}'
 
 # Start platform
 
