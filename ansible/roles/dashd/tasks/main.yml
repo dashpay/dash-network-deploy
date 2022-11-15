@@ -108,8 +108,9 @@
 
 - name: Import faucet privkey
   ansible.builtin.command: dash-cli -rpcwallet={{ faucet_wallet }} importprivkey {{ faucet_privkey }}
-  # changed_when:
+  register: result
   when: enable_wallet is true
+  changed_when: result.rc == 0
 
 - name: Create mno wallet
   ansible.builtin.command: 'dash-cli createwallet {{ mno_wallet }}'
