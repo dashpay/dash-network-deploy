@@ -188,6 +188,7 @@
   roles:
     - role: activate_dashd_sporks
       when: dash_network != "mainnet" and dash_network != "testnet"
+      delegate_to: '{{ play_hosts | first }}'
 
 # Start platform
 
