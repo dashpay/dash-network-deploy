@@ -1,6 +1,6 @@
 ---
 
-# Requires "masternode" and "masternode_name" variables
+# Requires "masternode" variable
 
 - name: Get protx of registered masternodes
   ansible.builtin.set_fact:
