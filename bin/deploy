@@ -52,7 +52,7 @@ done
 
 echo "Deploying $NETWORK_NAME network...";
 
-# TODO: this fails without an error if not at the HEAD of a given branch
+# TODO: this fails if not at the HEAD of a given branch
 BRANCH=`git symbolic-ref --short HEAD`
 if [[ $BRANCH == "devnet-"* ]]; then
     if [[ $BRANCH != $NETWORK_NAME ]] && [[ $FORCED_DEPLOYMENT != 1 ]]; then
