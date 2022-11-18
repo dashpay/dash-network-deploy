@@ -44,6 +44,6 @@ $config = array(
         "sitename" => "Dash Faucet", // page title, may be used by the template too
         "sitedesc" => "Dash", // page title, may be used by the template too
         "coin_code" => "DASH",
-        "template" => "default", // template to use (see the templates directory)
+        "template" => "dash-vw", // template to use (see the templates directory)
         "lang" => "en",
 );

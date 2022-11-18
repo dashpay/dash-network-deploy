@@ -6,7 +6,16 @@
     state: directory
     recurse: true
   with_items:
-    - '{{ dashd_home }}/multifaucet/multifaucet'
+    - '{{ dashd_home }}/multifaucet/config'
+
+- name: Set up multifaucet services
+  ansible.builtin.template:
+    src: '{{ item }}.j2'
+    dest: '{{ dashd_home }}/multifaucet/{{ item }}'
+    mode: 0644
+  with_items:
+    - docker-compose.yml
+    - init.sql
 
 - name: Apply multifaucet config
   ansible.builtin.template:
@@ -14,13 +23,9 @@
     dest: '{{ dashd_home }}/multifaucet/{{ item }}'
     mode: 0644
   with_items:
-    - docker-compose.yml
-    - multifaucet/Dockerfile
-    - multifaucet/db.conf.php
-    - multifaucet/wallet.conf.php
-    - multifaucet/faucet.conf.php
-    - multifaucet/php.ini
-    - init.sql
+    - config/db.conf.php
+    - config/wallet.conf.php
+    - config/faucet.conf.php
 
 - name: Start multifaucet service
   community.docker.docker_compose:

@@ -59,6 +59,9 @@ insight_image: dashpay/insight
 insight_api_image: dashpay/insight-api
 insight_port: 3001
 
+# Multifaucet
+multifaucet_image: dashpay/multifaucet:latest
+
 # DashCore Docker image
 dashd_image: dashpay/dashd
 
