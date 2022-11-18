@@ -85,7 +85,7 @@
   ansible.builtin.lineinfile:
     path: '/etc/dash.conf'
     regexp: '^wallet='
-    line: wallet={{ faucet_wallet }}
+    line: wallet={{ wallet_rpc_wallet_faucet }}
     insertafter: '[{{ dash_network }}]'
   when: enable_wallet is true
 
@@ -107,13 +107,13 @@
   changed_when: task_result.rc == 0
 
 - name: Import faucet privkey
-  ansible.builtin.command: dash-cli -rpcwallet={{ faucet_wallet }} importprivkey {{ faucet_privkey }}
+  ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} importprivkey {{ faucet_privkey }}
   register: result
   when: enable_wallet is true
   changed_when: result.rc == 0
 
 - name: Create mno wallet
-  ansible.builtin.command: 'dash-cli createwallet {{ mno_wallet }}'
+  ansible.builtin.command: 'dash-cli createwallet {{ wallet_rpc_wallet_mno }}'
   when: enable_wallet is true
   args:
-    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ mno_wallet }}/wallet.dat"
+    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_mno }}/wallet.dat"

@@ -13,6 +13,6 @@
     var: payments
 
 - name: Fund listed masternodes with {{ amount }}
-  ansible.builtin.command: "dash-cli -rpcwallet={{ faucet_wallet }} sendmany '' '{{ payments | to_json }}'"
+  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendmany '' '{{ payments | to_json }}'"
   register: fund_result
   changed_when: fund_result.stdout | length == 64

@@ -3,13 +3,13 @@
 # Requires "masternode_names" variable
 
 - name: Import masternode collateral private key
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ mno_wallet }} importprivkey {{ masternodes[item].collateral.private_key }} "" false'
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].collateral.private_key }} "" false'
   with_items: '{{ masternode_names }}'
   register: result
   changed_when: result.rc == 0
 
 - name: Rescan blockchain
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ mno_wallet }} rescanblockchain'
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} rescanblockchain'
   register: result
   changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
 
@@ -38,7 +38,7 @@
 # ensure faucet balance
 
 - name: Check faucet balance
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ faucet_wallet }} getbalance'
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} getbalance'
   register: faucet_balance
   changed_when: faucet_balance.stdout | int > 0
 

@@ -11,7 +11,7 @@
     mode: 0755
 
 - name: Find collateral for {{ masternode_name ~ '/' ~ masternode.collateral.address }}
-  ansible.builtin.command: 'find-collateral.py "-rpcwallet={{ mno_wallet }}" {{ masternode.collateral.address }} {{ find_protx }}'
+  ansible.builtin.command: 'find-collateral.py "-rpcwallet={{ wallet_rpc_wallet_mno }}" {{ masternode.collateral.address }} {{ find_protx }}'
   register: r
   failed_when: false
   changed_when: r.rc
