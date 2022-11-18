@@ -12,7 +12,7 @@ $config = array(
         // "ip_address": checks the user IP address in the payout history.
         // "wallet_address": checks the wallet address in the payout history.
         // "both": check both the IP and wallet address in the payout history.
-        "user_check" => "both",
+        "user_check" => "wallet_address",
 
         "use_captcha" => true, // require the user to enter a captcha
         "use_spammerslapper" => false, // Prevent The use of Proxies and check the IP against Blacklists
