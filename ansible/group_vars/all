@@ -105,9 +105,8 @@ wallet_rpc_host_name: '{{ hostvars[groups.wallet_nodes[0]]["inventory_hostname"]
 wallet_rpc_port: "{{ dashd_rpc_port }}"
 wallet_rpc_user: "{{ dashd_rpc_user }}"
 wallet_rpc_password: "{{ dashd_rpc_password }}"
-
-mno_wallet: "{{ wallet_rpc_host_name }}-mno"
-faucet_wallet: "{{ wallet_rpc_host_name }}-faucet"
+wallet_rpc_wallet_mno: "{{ wallet_rpc_host_name }}-mno"
+wallet_rpc_wallet_faucet: "{{ wallet_rpc_host_name }}-faucet"
 
 faucet_minimum_payout: 10
 faucet_maximum_payout: 10

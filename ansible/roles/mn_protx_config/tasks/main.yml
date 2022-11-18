@@ -6,13 +6,13 @@
   changed_when: loaded_wallets.rc == 0
 
 - name: Load mno wallet
-  ansible.builtin.command: 'dash-cli loadwallet {{ mno_wallet }}'
-  when: mno_wallet not in loaded_wallets.stdout
+  ansible.builtin.command: 'dash-cli loadwallet {{ wallet_rpc_wallet_mno }}'
+  when: wallet_rpc_wallet_mno not in loaded_wallets.stdout
   register: load_wallet
   changed_when: load_wallet.rc == 0
 
 - name: Get list of ProTx transactions from the wallet
-  ansible.builtin.command: dash-cli -rpcwallet={{ mno_wallet }} protx list wallet true
+  ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx list wallet true
   register: get_protx_list_result
   changed_when: get_protx_list_result.stdout | from_json | length > 0
 
@@ -47,6 +47,6 @@
   with_items: '{{ registered_masternode_protx }}'
 
 - name: Unload mno wallet
-  ansible.builtin.command: 'dash-cli unloadwallet {{ mno_wallet }}'
+  ansible.builtin.command: 'dash-cli unloadwallet {{ wallet_rpc_wallet_mno }}'
   register: unload_wallet
   changed_when: unload_wallet.rc == 0
