@@ -156,6 +156,9 @@ elastic_data_block_device: /dev/nvme1n1
 kibana_encryptionkey:
 elastic_heap_size: 3g
 
+elastic_compose_project_name: elastic
+elastic_path: '{{ dashd_home }}/{{ elastic_compose_project_name }}'
+
 # Fake latency stuff
 
 masternode_network_latency: false
