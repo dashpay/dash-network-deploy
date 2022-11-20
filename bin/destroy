@@ -31,7 +31,7 @@ case ${i} in
 esac
 done
 
-declare -a arr=("all" "network" "platform")
+declare -a arr=("all" "network" "platform" "logs")
 [[ " ${arr[*]} " =~ " $TARGET " ]] && echo "Destroying $TARGET" || EXIT=1
 
 if [ $EXIT ]; then

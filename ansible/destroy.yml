@@ -13,3 +13,10 @@
   roles:
     - role: kill_platform
       when: target == "platform"
+
+- name: Destroy logs
+  hosts: logs_nodes
+  become: true
+  roles:
+    - role: kill_logs
+      when: target == "logs"
