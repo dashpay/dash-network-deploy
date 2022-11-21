@@ -2,7 +2,7 @@
 
 filebeat_platform_inputs:
   - type: log
-    enabled: "{{ tenderdash_container_id.stdout | length > 0 }}"
+    enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
     json.message_key: msg
     json.keys_under_root: false
     exclude_files: ['\.gz$']
@@ -79,12 +79,12 @@ filebeat_platform_inputs:
             - json.time
           ignore_missing: true
   - type: container
-    enabled: "{{ tenderdash_container_id.stdout | length > 0 }}"
+    enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
     json.message_key: _msg
     json.keys_under_root: false
     index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - '/var/lib/docker/containers/{{ tenderdash_container_id.stdout }}*/*.log'
+      - '/var/lib/docker/containers/{{ tenderdash_host_info.containers[0].Id }}*/*.log'
     processors:
       - add_fields:
           target: event
