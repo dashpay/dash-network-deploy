@@ -1,54 +1,54 @@
 ---
 
 - name: Create dashd group
-  group:
+  ansible.builtin.group:
     name: '{{ dashd_group }}'
 
 - name: Create dashd user
-  user:
+  ansible.builtin.user:
     name: '{{ dashd_user }}'
     comment: 'Dash user'
     group: '{{ dashd_group }}'
     home: '{{ dashd_home }}'
-    create_home: yes
+    create_home: true
     umask: '0002'
   register: dash_user
 
-- name: create .dashcore directory for each user
-  file:
-    path: "{{ item.dir }}/.dashcore"
-    state: "directory"
+- name: Create .dashcore directory for each user
+  ansible.builtin.file:
+    path: '{{ item.dir }}/.dashcore'
+    state: directory
     mode: 0755
-    owner: "{{ item.user }}"
-    group: "{{ item.group }}"
-  loop: "{{ users_to_manage }}"
+    owner: '{{ item.user }}'
+    group: '{{ item.group }}'
+  loop: '{{ users_to_manage }}'
 
 - name: Write dash.conf file in /etc/
-  template:
-    src: 'dash.conf.j2'
-    dest: '/etc/dash.conf'
-    owner: 'root'
-    group: 'root'
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: /etc/dash.conf
+    owner: root
+    group: root
     mode: 0644
   register: dash_config_state
 
 - name: Symlink dash.conf to user dashcore directories to make rpc work
-  file:
-    path: "{{ item.dir }}/.dashcore/dash.conf"
-    src: "/etc/dash.conf"
+  ansible.builtin.file:
+    path: '{{ item.dir }}/.dashcore/dash.conf'
+    src: '/etc/dash.conf'
     state: link
-    force: yes
-  loop: "{{ users_to_manage }}"
+    force: true
+  loop: '{{ users_to_manage }}'
 
 - name: Create dashcore docker-compose dir
-  file:
+  ansible.builtin.file:
     path: '{{ dashd_compose_path }}'
     state: directory
     mode: 0755
     recurse: true
 
 - name: Copy dashcore docker-compose file
-  template:
+  ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ dashd_compose_path }}/{{ item }}'
     mode: 0644
@@ -57,7 +57,7 @@
     - .env
 
 - name: Configure log rotation
-  include_role:
+  ansible.builtin.include_role:
     name: arillso.logrotate
   vars:
     logrotate_use_hourly_rotation: true
@@ -76,30 +76,44 @@
               - compress
               - delaycompress
 
-- name: set mode to logrotate cron file
-  file:
+- name: Set mode to logrotate cron file
+  ansible.builtin.file:
     path: /etc/cron.daily/logrotate
     mode: "+x"
 
-# TODO: why does this always take exactly 30 seconds on first deploy?
-- name: Start dash core
-  docker_compose:
-    project_src: '{{ dashd_compose_path }}'
-    state: present
-    restarted: yes
-    pull: yes
-    timeout: 30
-
-- name: wait for rpc to be available
-  shell: dash-cli getgovernanceinfo
-  register: task_result
-  until: task_result.rc == 0
-  retries: 5
-  delay: 10
-
-- import_tasks: create-wallet.yml
+- name: Load/create faucet wallet on startup
+  ansible.builtin.lineinfile:
+    path: '/etc/dash.conf'
+    regexp: '^wallet='
+    line: wallet={{ wallet_rpc_wallet_faucet }}
+    insertafter: '[{{ dash_network }}]'
   when: enable_wallet is true
 
-- name: import faucet privkey
-  when: inventory_hostname in groups['faucet_wallet']
-  shell: dash-cli importprivkey {{ faucet_privkey }}
+# TODO: why does this always take exactly 30 seconds on first deploy?
+- name: Start dash core
+  community.docker.docker_compose:
+    project_src: '{{ dashd_compose_path }}'
+    state: present
+    restarted: true
+    pull: true
+    timeout: 30
+
+- name: Wait for rpc to be available
+  ansible.builtin.command: dash-cli getgovernanceinfo
+  register: task_result
+  until: task_result.rc == 0
+  retries: 50
+  delay: 2
+  changed_when: task_result.rc == 0
+
+- name: Import faucet privkey
+  ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} importprivkey {{ faucet_privkey }}
+  register: result
+  when: enable_wallet is true
+  changed_when: result.rc == 0
+
+- name: Create mno wallet
+  ansible.builtin.command: 'dash-cli createwallet {{ wallet_rpc_wallet_mno }}'
+  when: enable_wallet is true
+  args:
+    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_mno }}/wallet.dat"

@@ -52,7 +52,8 @@ done
 
 echo "Deploying $NETWORK_NAME network...";
 
-BRANCH=`git symbolic-ref --short -q HEAD`
+# TODO: this fails if not at the HEAD of a given branch
+BRANCH=`git symbolic-ref --short HEAD`
 if [[ $BRANCH == "devnet-"* ]]; then
     if [[ $BRANCH != $NETWORK_NAME ]] && [[ $FORCED_DEPLOYMENT != 1 ]]; then
         echo "Wrong Devnet - Check you're in the correct branch. Use -f to force if you're sure"

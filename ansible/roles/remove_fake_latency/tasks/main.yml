@@ -1,0 +1,5 @@
+---
+
+- name: Remove latency generation
+  ansible.builtin.command: tc qdisc replace dev ens5 root netem delay 0ms 0ms
+  changed_when: true

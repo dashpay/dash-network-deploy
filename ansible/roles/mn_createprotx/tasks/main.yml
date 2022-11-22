@@ -1,0 +1,83 @@
+---
+
+# Requires "masternode_names" variable
+
+- name: Import masternode owner private key
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
+  with_items: '{{ masternode_names }}'
+  register: result
+  changed_when: result.rc == 0
+
+- name: Rescan blockchain
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} rescanblockchain'
+  register: result
+  changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
+
+# fund fee
+
+- name: Populate fee payment targets
+  ansible.builtin.set_fact:
+    fee_target_addresses: "{{ fee_target_addresses | default([]) + [masternodes[item].collateral.address] }}"
+  with_items:
+    - "{{ masternode_names }}"
+
+- name: Check if address contains a suitable fee utxo
+  ansible.builtin.command: >
+    dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} listunspent 1 99999999 '{{ fee_target_addresses | to_json }}' false '{{ maxamount | to_json }}'
+  register: funded_addresses
+  changed_when: funded_addresses.stdout | from_json | length > 0
+  vars:
+    maxamount:
+      maximumAmount: 1
+
+- name: Figure out which addresses need fee funding
+  ansible.builtin.set_fact:
+    fee_missing_addresses: "{{ fee_target_addresses | difference(funded_addresses.stdout) }}"
+
+- name: Fund 1 coin for ProTx fee
+  ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
+  vars:
+    amount: 1
+    payment_targets: '{{ fee_target_addresses }}'
+  when: fee_target_addresses|length > 0
+
+- name: Generate at least one block to confirm fee funding transactions
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    num_blocks: 1
+    balance_needed: 0
+
+# register
+
+- name: Create provider registration transaction
+  ansible.builtin.include_tasks: createprovidertx.yml
+  vars:
+    masternode: "{{ masternodes[item] }}"
+    masternode_name: "{{ item }}"
+  with_items: '{{ masternode_names }}'
+
+- name: Generate at least one block to confirm protxs
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    num_blocks: 1
+    balance_needed: 0
+
+# verify
+
+- name: Get list of ProTx transactions from the wallet
+  ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx list wallet true
+  register: get_protx_list_result
+  changed_when: get_protx_list_result.stdout | to_json | length > 0
+
+- name: Get names of registered masternodes
+  ansible.builtin.set_fact:
+    registered_masternode_names: "{{ registered_masternode_names | default([]) + [item] }}"
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+  with_items: '{{ masternode_names }}'
+
+- name: Fail if masternodes were not registered
+  ansible.builtin.fail:
+    msg: ProTX transactions were not created
+  when: masternode_names | difference(registered_masternode_names)

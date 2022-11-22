@@ -1,0 +1,28 @@
+---
+
+- name: Create certs and bundle dir
+  ansible.builtin.file:
+    path: '{{ bundle_path }}'
+    state: directory
+    recurse: true
+
+- name: Generate templates for certificate creation
+  ansible.builtin.template:
+    src: 'certs/{{ item }}.j2'
+    dest: '{{ bundle_path }}/{{ item }}'
+    mode: 0644
+  loop:
+    - docker-compose.yml
+    - instances.yml
+    - .env
+  register: templates
+
+- name: Generate certs
+  community.docker.docker_compose:
+    project_src: '{{ bundle_path }}'
+  when: templates is changed # noqa: no-handler
+
+- name: Pause for 5 seconds to finish writing zip file
+  ansible.builtin.pause:
+    seconds: 5
+  when: templates is changed # noqa: no-handler

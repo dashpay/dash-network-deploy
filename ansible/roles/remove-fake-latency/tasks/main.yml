@@ -1,4 +1,0 @@
----
-
-- name: Remove latency generation
-  shell: tc qdisc replace dev ens5 root netem delay 0ms 0ms
