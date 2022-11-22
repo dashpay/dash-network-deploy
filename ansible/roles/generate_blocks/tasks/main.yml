@@ -12,7 +12,7 @@
       - devnet
 
 - name: Generate blocks
-  ansible.builtin.include_tasks: regtest_generate.yml
+  ansible.builtin.include_tasks: generate_blocks.yml
   when: dash_network in generate_networks
 
 - name: Wait for blocks

@@ -58,11 +58,6 @@
     - .env
     - dapi-envoy.yaml
 
-- name: Pull platform docker images
-  community.docker.docker_compose:
-    project_src: '{{ mn_evo_services_path }}'
-    pull: true
-
 - name: Configure Tendermint
   ansible.builtin.import_tasks: tendermint.yml
   vars:
