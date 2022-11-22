@@ -15,33 +15,17 @@
 
 # fund fee
 
-- name: Populate fee payment targets
-  ansible.builtin.set_fact:
-    fee_target_addresses: "{{ fee_target_addresses | default([]) + [masternodes[item].collateral.address] }}"
-  with_items:
-    - "{{ masternode_names }}"
+- name: Get new fee address
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} getnewaddress'
+  register: fee_address
+  changed_when: fee_address.stdout | length == 34
 
-- name: Check if address contains a suitable fee utxo
-  ansible.builtin.command: >
-    dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} listunspent 1 99999999 '{{ fee_target_addresses | to_json }}' false '{{ maxamount | to_json }}'
-  register: funded_addresses
-  changed_when: funded_addresses.stdout | from_json | length > 0
-  vars:
-    maxamount:
-      maximumAmount: 1
+- name: Fund fee address
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendtoaddress {{ fee_address.stdout }} 10'
+  register: fund_result
+  changed_when: fund_result.stdout | length == 64
 
-- name: Figure out which addresses need fee funding
-  ansible.builtin.set_fact:
-    fee_missing_addresses: "{{ fee_target_addresses | difference(funded_addresses.stdout) }}"
-
-- name: Fund 1 coin for ProTx fee
-  ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
-  vars:
-    amount: 1
-    payment_targets: '{{ fee_target_addresses }}'
-  when: fee_target_addresses|length > 0
-
-- name: Generate at least one block to confirm fee funding transactions
+- name: Generate at least one block to confirm fee funding transaction
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
