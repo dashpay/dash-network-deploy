@@ -1,14 +1,18 @@
 ---
 
 - name: Get core container id
-  ansible.builtin.command: docker ps -aqf "name=dashd"
-  register: core_container_id
-  changed_when: core_container_id.stdout | length > 0
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: dashd
+  register: core_host_info
 
 - name: Get tenderdash container id
-  ansible.builtin.command: docker ps -aqf "name=mn_evo_services_tendermint"
-  register: tenderdash_container_id
-  changed_when: tenderdash_container_id.stdout | length > 0
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: mn_evo_services_tendermint
+  register: tenderdash_host_info
 
 - name: Load common filebeat config
   ansible.builtin.include_vars:
@@ -21,12 +25,12 @@
 - name: Load platform input config
   ansible.builtin.include_vars:
     file: platform.yml
-  when: tenderdash_container_id.stdout != ""
+  when: tenderdash_host_info.containers | length > 0
 
 - name: Merge input configs
   ansible.builtin.set_fact:
     filebeat_inputs: "{{ [filebeat_inputs, filebeat_platform_inputs] | community.general.lists_mergeby('index') }}"
-  when: tenderdash_container_id.stdout != ""
+  when: tenderdash_host_info.containers | length > 0
 
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:
