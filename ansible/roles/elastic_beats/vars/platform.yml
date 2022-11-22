@@ -84,7 +84,7 @@ filebeat_platform_inputs:
     json.keys_under_root: false
     index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - '/var/lib/docker/containers/{{ tenderdash_host_info.containers[0].Id }}*/*.log'
+      - '/var/lib/docker/containers/{{ tenderdash_host_info.containers[0].Id }}/*.log'
     processors:
       - add_fields:
           target: event
