@@ -179,3 +179,8 @@ variable "wallet_node_instance_size" {
   description = "Instance type of wallet nodes"
   default     = "micro"
 }
+
+variable "zabbix_port" {
+  description = "Zabbix port"
+  default     = 10050
+}

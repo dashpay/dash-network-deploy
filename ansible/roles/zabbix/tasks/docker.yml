@@ -1,0 +1,21 @@
+---
+
+- name: Create a directory if it does not exist
+  file:
+    path: /dash/zabbix/
+    state: directory
+    mode: '0755'
+
+- name: Add compose file
+  copy:
+    src: "{{ item }}"
+    dest: "/dash/zabbix/{{ item }}"
+  with_items:
+    - docker-compose.yml
+
+- name: Start zabbix
+  docker_compose:
+    project_src: '/dash/zabbix/'
+    state: present
+    restarted: yes
+    pull: yes

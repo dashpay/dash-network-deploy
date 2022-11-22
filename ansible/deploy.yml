@@ -68,6 +68,13 @@
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
 
+- name: Install Zabbix monitoring on masternodes
+  hosts: masternodes
+  become: true
+  roles:
+    - role: zabbix
+      when: zabbix == 1
+
 # Install Dash Core
 
 - name: Configure dashd cli and network logging

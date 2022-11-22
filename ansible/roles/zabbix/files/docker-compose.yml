@@ -1,0 +1,15 @@
+version: '3.1'
+
+services:
+  zabbix-agent:
+    container_name: zabbix-agent
+    image: zabbix/zabbix-agent
+    user: root
+    restart: always
+    privileged: true
+    volumes:
+      - /var/run:/var/run
+    ports:
+      - '10050:10050'
+    environment:
+      - ZBX_SERVER_HOST=zabbix.dash.org

@@ -332,6 +332,18 @@ resource "aws_security_group" "masternode" {
     ])
   }
 
+  # Zabbix
+  ingress {
+    from_port   = var.zabbix_port
+    to_port     = var.zabbix_port
+    protocol    = "tcp"
+    description = "Zabbix"
+
+    cidr_blocks = [
+      "128.199.172.189/32",
+    ]
+  }
+
   tags = {
     Name        = "dn-${terraform.workspace}-masternode"
     DashNetwork = terraform.workspace

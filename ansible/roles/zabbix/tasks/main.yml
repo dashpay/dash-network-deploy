@@ -1,0 +1,19 @@
+---
+# file: zabbix/tasks/main.yml
+
+#Check if docker installed
+
+- name: Check if Docker is installed
+  command: docker-compose --version
+  register: docker_valid
+  ignore_errors: yes
+
+#Zabbix install w/o Docker
+
+- name: Zabbix install if docker-compose is not on host
+  import_tasks: non-docker.yml
+  when: docker_valid is failed
+
+- name: Zabbix install via docker-compose
+  import_tasks: docker.yml
+  when: docker_valid is succeeded

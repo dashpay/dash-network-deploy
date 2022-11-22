@@ -1,0 +1,29 @@
+---
+
+- name: Install zabbix agent
+  apt:
+    name:
+      - zabbix-agent
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Add zabbix key
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/zabbix/{{ item }}"
+  with_items:
+    - zabbix.psk
+
+- name: Install zabbix overrides
+  copy:
+    src: "{{ item }}.j2"
+    dest: "/etc/zabbix/zabbix_agentd.conf.d/{{ item }}"
+  with_items:
+    - overrides.conf
+
+- name: Restart zabbix agent
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: zabbix-agent
