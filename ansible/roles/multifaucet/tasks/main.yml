@@ -32,6 +32,7 @@
     project_src: '{{ dashd_home }}/multifaucet'
     state: present
     build: true
+    pull: true
 
 - name: Wait for database to be available
   community.docker.docker_container_exec:
