@@ -59,6 +59,9 @@ insight_image: dashpay/insight
 insight_api_image: dashpay/insight-api
 insight_port: 3001
 
+# Multifaucet
+multifaucet_image: dashpay/multifaucet:latest
+
 # DashCore Docker image
 dashd_image: dashpay/dashd
 
@@ -100,11 +103,14 @@ dashd_seednode: '{{ hostvars[groups.seed_nodes[0]]["public_ip"] if groups.seed_n
 
 # Faucet stuff
 
-faucet_rpc_host: '{{ hostvars[groups.faucet_wallet[0]]["private_ip"] }}'
-faucet_rpc_port: "{{ dashd_rpc_port }}"
-faucet_rpc_user: "{{ dashd_rpc_user }}"
-faucet_rpc_password: "{{ dashd_rpc_password }}"
-faucet_rpc_args: "-rpcconnect={{ faucet_rpc_host }} -rpcport={{ faucet_rpc_port }} -rpcuser={{ faucet_rpc_user }} -rpcpassword={{ faucet_rpc_password }}"
+wallet_rpc_host: '{{ hostvars[groups.wallet_nodes[0]]["private_ip"] }}'
+wallet_rpc_host_name: '{{ hostvars[groups.wallet_nodes[0]]["inventory_hostname"] }}'
+wallet_rpc_port: "{{ dashd_rpc_port }}"
+wallet_rpc_user: "{{ dashd_rpc_user }}"
+wallet_rpc_password: "{{ dashd_rpc_password }}"
+wallet_rpc_wallet_mno: "{{ wallet_rpc_host_name }}-mno"
+wallet_rpc_wallet_faucet: "{{ wallet_rpc_host_name }}-faucet"
+
 faucet_minimum_payout: 10
 faucet_maximum_payout: 10
 faucet_payout_threshold: 100
@@ -149,6 +155,9 @@ elastic_version: 8.4.0
 elastic_data_block_device: /dev/nvme1n1
 kibana_encryptionkey:
 elastic_heap_size: 3g
+
+elastic_compose_project_name: elastic
+elastic_path: '{{ dashd_home }}/{{ elastic_compose_project_name }}'
 
 # Fake latency stuff
 

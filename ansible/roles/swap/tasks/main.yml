@@ -1,56 +1,40 @@
 ---
 
-- name: set swap_file variable
-  set_fact:
+- name: Set swap_file variable
+  ansible.builtin.set_fact:
     swap_file: /swapfile
 
-- name: check if swap file exists
-  stat:
+- name: Check if swap file exists
+  ansible.builtin.stat:
     path: "{{ swap_file }}"
   register: swap_file_check
 
-- name: create swap file
-  become: yes
-  become_user: root
-  command: fallocate -l {{ swap_space }} {{ swap_file }}
+- name: Create swap file
+  ansible.builtin.command: fallocate -l {{ swap_space }} {{ swap_file }}
   when: not swap_file_check.stat.exists
 
-- name: set permissions on swap file
-  become: yes
-  become_user: root
-  file:
+- name: Set permissions on swap file
+  ansible.builtin.file:
     path: "{{ swap_file }}"
     mode: 0600
 
-- name: format swap file
-  become: yes
-  become_user: root
-  command: mkswap {{ swap_file }}
+- name: Format swap file
+  ansible.builtin.command: mkswap {{ swap_file }}
   when: not swap_file_check.stat.exists
 
-- name: add to fstab
-  become: yes
-  become_user: root
-  lineinfile:
+- name: Add to fstab
+  ansible.builtin.lineinfile:
     dest: /etc/fstab
     regexp: "{{ swap_file }}"
     line: "{{ swap_file }} none swap sw 0 0"
 
-- name: turn on swap
-  become: yes
-  become_user: root
-  command: swapon -a
+- name: Turn on swap
+  ansible.builtin.command: swapon -av
+  register: result
+  changed_when: '"already active" not in result.stdout'
 
-- name: set swappiness
-  become: yes
-  become_user: root
-  sysctl:
+- name: Set swappiness
+  ansible.posix.sysctl:
     name: vm.swappiness
     value: "10"
-  register: swappiness
-  
-- name: reset swap usage
-  become: yes
-  become_user: root
-  shell: swapoff -a && swapon -a
-  when: swappiness.changed
+  notify: Reset swap

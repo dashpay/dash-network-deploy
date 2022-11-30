@@ -1,0 +1,29 @@
+---
+
+- name: Remove elasticsearch docker containers and volumes
+  community.docker.docker_compose:
+    project_src: '{{ elastic_path }}'
+    state: absent
+    remove_volumes: false
+
+- name: Unmount data
+  ansible.posix.mount:
+    path: '{{ elastic_path }}/data'
+    state: unmounted
+  when: inventory_hostname in groups['logs_nodes']
+
+
+- name: Delete elastic dir
+  ansible.builtin.file:
+    state: absent
+    path: '{{ elastic_path }}'
+
+- name: Remove any remaining docker data
+  community.docker.docker_prune:
+    containers: true
+    images: true
+    images_filters:
+      dangling: false
+    networks: true
+    volumes: true
+    builder_cache: true

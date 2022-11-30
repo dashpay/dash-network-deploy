@@ -17,9 +17,3 @@ ${masternode_hosts}
 
 [seed_nodes]
 ${seed_hosts}
-
-[faucet_wallet]
-dashd-wallet-1
-
-[masternode_wallet]
-dashd-wallet-2

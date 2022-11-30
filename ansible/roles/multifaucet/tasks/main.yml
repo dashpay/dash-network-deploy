@@ -1,28 +1,57 @@
 ---
 
-- name: import multifaucet donation address
-  command: dash-cli {{ faucet_rpc_args }} importprivkey {{ faucet_privkey }}
-
-- name: create multifaucet dirs
-  file: path='{{ item }}' state=directory recurse=true
+- name: Create multifaucet dirs
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    recurse: true
   with_items:
-    - '{{ dashd_home }}/multifaucet/multifaucet'
+    - '{{ dashd_home }}/multifaucet/config'
 
-- name: multifaucet config
-  template:
-    src: '{{ item }}'
+- name: Set up multifaucet services
+  ansible.builtin.template:
+    src: '{{ item }}.j2'
     dest: '{{ dashd_home }}/multifaucet/{{ item }}'
+    mode: 0644
   with_items:
     - docker-compose.yml
-    - multifaucet/Dockerfile
-    - multifaucet/db.conf.php
-    - multifaucet/wallet.conf.php
-    - multifaucet/faucet.conf.php
-    - multifaucet/php.ini
     - init.sql
 
-- name: multifaucet service
-  docker_compose:
+- name: Apply multifaucet config
+  ansible.builtin.template:
+    src: '{{ item }}'
+    dest: '{{ dashd_home }}/multifaucet/{{ item }}'
+    mode: 0644
+  with_items:
+    - config/db.conf.php
+    - config/wallet.conf.php
+    - config/faucet.conf.php
+
+- name: Start multifaucet service
+  community.docker.docker_compose:
     project_src: '{{ dashd_home }}/multifaucet'
     state: present
-    build: yes
+    build: true
+
+- name: Wait for database to be available
+  community.docker.docker_container_exec:
+    container: multifaucet_db_1
+    command: mysqladmin ping -u multifaucet --password="multifaucet"
+  register: response
+  until: response.stdout == "mysqld is alive"
+  retries: 10
+  delay: 10
+
+- name: Create promo codes table
+  community.docker.docker_container_exec:
+    container: multifaucet_db_1
+    command: >
+      mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
+      -e 'CREATE TABLE IF NOT EXISTS faucet_promo_codes (id int NOT NULL, code varchar(255), minimum_payout int, maximum_payout int, PRIMARY KEY (id));'
+
+- name: Load promo codes
+  community.docker.docker_container_exec:
+    container: multifaucet_db_1
+    command: >
+      mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
+      -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout) VALUES (1,"masternode",1000,1010);'

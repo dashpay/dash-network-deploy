@@ -7,4 +7,5 @@ describe('Smoke', () => {
   require('./sentinel');
   require('./faucet');
   require('./insight');
+  require('./elastic');
 });

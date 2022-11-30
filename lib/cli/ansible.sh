@@ -20,7 +20,7 @@ function ansible_run_playbook() {
                      -e "dash_network=$NETWORK" \
                      -e "dash_devnet_name=$NETWORK_DEVNET_NAME" \
                      ${ANSIBLE_ARGS} \
-                     "$1"
+                     $@
 
     cd ..
 }

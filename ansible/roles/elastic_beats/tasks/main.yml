@@ -1,0 +1,37 @@
+---
+
+- name: Get core container id
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: dashd
+  register: core_host_info
+
+- name: Get tenderdash container id
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: mn_evo_services_tendermint
+  register: tenderdash_host_info
+
+- name: Load common filebeat config
+  ansible.builtin.include_vars:
+    file: common.yml
+
+- name: Load core input config
+  ansible.builtin.include_vars:
+    file: core.yml
+
+- name: Load platform input config
+  ansible.builtin.include_vars:
+    file: platform.yml
+  when: tenderdash_host_info.containers | length > 0
+
+- name: Merge input configs
+  ansible.builtin.set_fact:
+    filebeat_inputs: "{{ [filebeat_inputs, filebeat_platform_inputs] | community.general.lists_mergeby('index') }}"
+  when: tenderdash_host_info.containers | length > 0
+
+- name: Set up filebeat log monitoring
+  ansible.builtin.include_role:
+    name: geerlingguy.filebeat

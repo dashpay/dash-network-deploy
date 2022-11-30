@@ -1,5 +1,22 @@
 ---
-- hosts: all
+
+- name: Destroy network
+  hosts: all
   become: true
   roles:
-    - kill-network
+    - role: kill_network
+      when: target == "network"
+
+- name: Destroy platform
+  hosts: masternodes,seed_nodes
+  become: true
+  roles:
+    - role: kill_platform
+      when: target == "platform"
+
+- name: Destroy logs
+  hosts: logs_nodes
+  become: true
+  roles:
+    - role: kill_logs
+      when: target == "logs"

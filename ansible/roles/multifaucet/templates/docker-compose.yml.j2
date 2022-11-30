@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb:10.9
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=multifaucet
+      - MYSQL_DATABASE=multifaucet
+      - MYSQL_USER=multifaucet
+      - MYSQL_PASSWORD=multifaucet
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mysql:/var/lib/mysql
+
+  multifaucet:
+    image: {{ multifaucet_image }}
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - MULTIFAUCET_PAYMENT_GW_RPC_HOST={{ wallet_rpc_host }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_PORT={{ wallet_rpc_port }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_USER={{ wallet_rpc_user }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_PASS={{ wallet_rpc_password }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_WALLET={{ wallet_rpc_wallet_faucet }}
+      - MULTIFAUCET_PAYMENT_GW_RPC_ENCR=
+      - MULTIFAUCET_DB_HOST=db
+      - MULTIFAUCET_DB_NAME=multifaucet
+      - MULTIFAUCET_DB_USER=multifaucet
+      - MULTIFAUCET_DB_PASS=multifaucet
+      - MULTIFAUCET_DB_PRFX=faucet_
+      - MULTIFAUCET_ADDRESS_VERSION=140
+      - MULTIFAUCET_DONATION_ADDRESS={{ faucet_address }}
+      - MULTIFAUCET_MIN_PAYOUT={{ faucet_minimum_payout }}
+      - MULTIFAUCET_MAX_PAYOUT={{ faucet_maximum_payout }}
+      - MULTIFAUCET_PAYOUT_THRESHOLD={{ faucet_payout_threshold }}
+      - MULTIFAUCET_PAYOUT_INTERVAL={{ faucet_payout_interval }}
+    volumes:
+      - ./config:/var/www/html/config/
+    ports:
+      - 80:80
+
+volumes:
+  mysql:

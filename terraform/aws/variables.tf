@@ -21,6 +21,11 @@ variable "insight_port" {
   default     = 3001
 }
 
+variable "insight_https_port" {
+  description = "Insight HTTPS port"
+  default     = 3002
+}
+
 variable "ssh_port" {
   description = "SSH port"
   default     = 22
@@ -75,7 +80,7 @@ variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
 variable "subnet_public_cidr" {
-  type = list
+  type = list(any)
   default = [
     "10.0.16.0/20",
     "10.0.32.0/20",
@@ -95,9 +100,10 @@ variable "masternode_count" {
   default = 3
 }
 
+# TODO: add support for multiple wallets/mnos
 variable "wallet_count" {
-  description = "number of wallet nodes to create. must be at least 2"
-  default     = 2
+  description = "number of wallet nodes to create. must be at least 1"
+  default     = 1
 }
 
 variable "web_count" {
@@ -105,13 +111,13 @@ variable "web_count" {
 }
 
 variable "logs_count" {
-  default = 1
+  default     = 1
   description = "number of logging nodes to create. set to 0 to disable logging for the network"
 }
 
 variable "host_arch" {
   description = "use amd64 (t3.*) or arm64 (t4g.*) EC2 instances"
-  default = "amd64"
+  default     = "amd64"
 }
 
 variable "vpn_enabled" {
@@ -169,7 +175,7 @@ variable "logs_node_instance_size" {
   default     = "large"
 }
 
-variable "wallet_node_instance_type" {
+variable "wallet_node_instance_size" {
   description = "Instance type of wallet nodes"
-  default     = "t3.micro"
+  default     = "micro"
 }
