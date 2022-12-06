@@ -18,12 +18,12 @@
     masternode_name: '{{ item }}'
   with_items: '{{ masternode_names }}'
 
-- name: Generate at least one block to confirm protxs
-  ansible.builtin.include_role:
-    name: generate_blocks
-  vars:
-    num_blocks: 1
-    balance_needed: 0
+# - name: Generate at least one block to confirm protxs
+#   ansible.builtin.include_role:
+#     name: generate_blocks
+#   vars:
+#     num_blocks: 1
+#     balance_needed: 0
 
 # verify
 

@@ -4,7 +4,7 @@
 
 - name: Verify fee balance is ready to spend
   ansible.builtin.command: >
-    dash-cli getaddressbalance '{"addresses": ["{{ masternode.collateral.address }}"]}'
+    dash-cli getaddressbalance '{"addresses": ["yLQba5chd9NNCTMGiXCtzQgwRCfezVjaFh"]}'
   retries: 10
   delay: 1
   register: result
@@ -21,6 +21,6 @@
             {{ masternode.owner.address }}
             0
             {{ miner_payment_address }}
-            {{ masternode.collateral.address }}"
+            yLQba5chd9NNCTMGiXCtzQgwRCfezVjaFh"
   register: protx
   changed_when: protx.stdout | length == 64

@@ -91,10 +91,10 @@
     msg: funding was not successful
   when: not collateral_all_ok and collateral_ok_count | int != masternode_names | length
 
-- name: Generate at least one block to confirm funding transactions
-  ansible.builtin.include_role:
-    name: generate_blocks
-  vars:
-    num_blocks: 1
-    balance_needed: 0
-  when: not collateral_all_ok
+# - name: Generate at least one block to confirm funding transactions
+#   ansible.builtin.include_role:
+#     name: generate_blocks
+#   vars:
+#     num_blocks: 1
+#     balance_needed: 0
+#   when: not collateral_all_ok

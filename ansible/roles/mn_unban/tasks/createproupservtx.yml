@@ -8,6 +8,6 @@
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
             {{ masternode.operator.private_key }}
             ''
-            {{ masternode.collateral.address }}" # Should already be funded from registration protx
+            yLQba5chd9NNCTMGiXCtzQgwRCfezVjaFh" # Should already be funded from registration protx
   register: protx
   changed_when: protx.stdout | length == 64

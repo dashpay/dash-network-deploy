@@ -1,7 +1,7 @@
 ---
 
 # Requires "masternode_names" variable
-
+# TODO: make this idempotent, we don't need to run and rescan if the privkey is already in there
 - name: Import masternode owner private key
   ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
   with_items: '{{ masternode_names }}'
@@ -41,12 +41,12 @@
     payment_targets: '{{ fee_target_addresses }}'
   when: fee_target_addresses|length > 0
 
-- name: Generate at least one block to confirm fee funding transactions
-  ansible.builtin.include_role:
-    name: generate_blocks
-  vars:
-    num_blocks: 1
-    balance_needed: 0
+# - name: Generate at least one block to confirm fee funding transaction
+#   ansible.builtin.include_role:
+#     name: generate_blocks
+#   vars:
+#     num_blocks: 1
+#     balance_needed: 0
 
 # register
 
@@ -57,12 +57,12 @@
     masternode_name: "{{ item }}"
   with_items: '{{ masternode_names }}'
 
-- name: Generate at least one block to confirm protxs
-  ansible.builtin.include_role:
-    name: generate_blocks
-  vars:
-    num_blocks: 1
-    balance_needed: 0
+# - name: Generate at least one block to confirm protxs
+#   ansible.builtin.include_role:
+#     name: generate_blocks
+#   vars:
+#     num_blocks: 1
+#     balance_needed: 0
 
 # verify
 
