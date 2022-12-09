@@ -1,9 +1,25 @@
 {
+  "genesis_time": "{{ genesis_time }}",
   "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
-  "validator_quorum_threshold_public_key": {
-    "type": "tendermint/PubKeyBLS12381",
-    "value": "imxjukh5hRY91Mvm/sfhQp6iSnICyvKMMdhY5Sq6Ej0QJyB3vtN4UfYwvmxdzOVM"
+  "consensus_params": {
+    "block": {
+      "max_bytes": "22020096",
+      "max_gas": "-1",
+      "time_iota_ms": "5000"
+    },
+    "evidence": {
+      "max_age": "100000",
+      "max_age_num_blocks": "100000",
+      "max_age_duration": "172800000000000"
+    },
+    "validator": {
+      "pub_key_types": [
+        "bls12381"
+      ]
+    },
+    "version": {
+      "app_version": "1"
+    }
   },
-  "validator_quorum_type": {{ platform_drive_validator_set_llmq_type }},
-  "validator_quorum_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+  "validator_quorum_type": {{ platform_drive_validator_set_llmq_type }}
 }
