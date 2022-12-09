@@ -1,15 +1,15 @@
 ---
 
-- name: List loaded wallets
-  ansible.builtin.command: 'dash-cli listwallets'
-  register: loaded_wallets
-  changed_when: loaded_wallets.rc == 0
+# - name: List loaded wallets
+#   ansible.builtin.command: 'dash-cli listwallets'
+#   register: loaded_wallets
+#   changed_when: loaded_wallets.rc == 0
 
-- name: Load mno wallet
-  ansible.builtin.command: 'dash-cli loadwallet {{ wallet_rpc_wallet_mno }}'
-  when: wallet_rpc_wallet_mno not in loaded_wallets.stdout
-  register: load_wallet
-  changed_when: load_wallet.rc == 0
+# - name: Load mno wallet
+#   ansible.builtin.command: 'dash-cli loadwallet {{ wallet_rpc_wallet_mno }}'
+#   when: wallet_rpc_wallet_mno not in loaded_wallets.stdout
+#   register: load_wallet
+#   changed_when: load_wallet.rc == 0
 
 - name: Wait for wallet sync
   register: blockchain_status
@@ -110,7 +110,7 @@
     masternode_names: '{{ banned_masternode_names }}'
   when: banned_masternode_names | length > 0
 
-- name: Unload mno wallet
-  ansible.builtin.command: 'dash-cli unloadwallet {{ wallet_rpc_wallet_mno }}'
-  register: unload_wallet
-  changed_when: unload_wallet.rc == 0
+# - name: Unload mno wallet
+#   ansible.builtin.command: 'dash-cli unloadwallet {{ wallet_rpc_wallet_mno }}'
+#   register: unload_wallet
+#   changed_when: unload_wallet.rc == 0
