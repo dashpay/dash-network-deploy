@@ -112,9 +112,3 @@
   register: result
   when: enable_wallet is true
   changed_when: result.rc == 0
-
-- name: Create mno wallet
-  ansible.builtin.command: 'dash-cli createwallet {{ wallet_rpc_wallet_mno }}'
-  when: enable_wallet is true
-  args:
-    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_mno }}/wallet.dat"
