@@ -21,7 +21,7 @@
   changed_when: fee_address.stdout | length == 34
 
 - name: Fund fee address
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendtoaddress {{ fee_address.stdout }} 10'
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendtoaddress {{ fee_address.stdout }} 1'
   register: fund_result
   changed_when: fund_result.stdout | length == 64
 
