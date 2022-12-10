@@ -134,15 +134,18 @@
   ansible.builtin.set_fact:
     misconfigured_masternode_names: '{{ misconfigured_masternode_names + [item] }}'
   when: >
-    get_protx_list_result.stdout | from_json | 
-    json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']") | 
+    get_protx_list_result.stdout | from_json |
+    json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']") |
     json_query("[?state.service!='" + hostvars[item].public_ip + ":" + dashd_port | string  + "']")
   with_items: '{{ registered_masternode_names }}'
 
+# We should probably subtract the banned masternodes from this list so we don't unban twice
+# or just merge the list with banned masternodes and run proupsrv once for both lists
 - name: Misconfigured masternodes list
   ansible.builtin.debug:
     var: misconfigured_masternode_names
 
+# Probably move fund fee here and run it just once if any action of any type needs to be taken
 
 # Take action
 
