@@ -35,8 +35,6 @@
   until: mnsync_status.stdout | from_json | json_query('IsSynced') == true
   changed_when: mnsync_status.stdout | from_json | json_query('IsSynced') == true
 
-# Requires "masternode_names" variable
-
 - name: Import masternode owner private keys
   ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
   with_items: '{{ groups["masternodes"] }}'
