@@ -1,17 +1,5 @@
 ---
 
-# Requires "masternode_names" variable
-
-- name: Import masternode owner private key
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
-  with_items: '{{ masternode_names }}'
-  register: result
-  changed_when: result.rc == 0
-
-- name: Rescan blockchain
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} rescanblockchain'
-  register: result
-  changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
 
 # fund fee
 
