@@ -105,6 +105,9 @@
         - dashd
     - elastic_beats
 
+
+# Start seeds
+
 - name: Set up core on seed nodes
   hosts: seed_nodes
   become: true
@@ -117,29 +120,25 @@
         - dashd
     - elastic_beats
 
-- name: Set up core on masternodes
-  hosts: masternodes
+- name: Set up platform on seed nodes
+  hosts: seed_nodes
   become: true
   pre_tasks:
     - name: Check inventory for masternodes
       ansible.builtin.set_fact:
-        masternode: "{{ masternodes[inventory_hostname] }}"
+        node: "{{ seed_nodes[inventory_hostname] }}"
       tags: always
-      when: inventory_hostname in masternodes
-    - name: Fail if no masternodes present
+      when: inventory_hostname in seed_nodes
+    - name: Check inventory for seed nodes
       ansible.builtin.fail:
-        msg: Masternode not defined in network config
-      when: masternode is not defined
+        msg: Seed node not defined in network config
+      when: node is not defined
   roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
+    - role: mn_evo_services
       tags:
-        - dashd
-    - mn_sentinel
-    - mn_status_report
-    - elastic_beats
+        - evo
+      when: evo_services
+    - role: elastic_beats
 
 # Start network
 
