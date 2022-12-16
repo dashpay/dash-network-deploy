@@ -4,11 +4,11 @@
 
 - name: Verify fee balance is ready to spend
   ansible.builtin.command: >
-    dash-cli getaddressbalance '{"addresses": ["{{ fee_address.stdout }}"]}'
+    dash-cli getaddressbalance '{"addresses": ["{{ masternode.collateral.address }}"]}'
   retries: 10
   delay: 1
   register: result
-  until: result.stdout | from_json | json_query('balance_spendable') | int >= 100000000
+  until: result.stdout | from_json | json_query('balance_spendable') | int > 100000000000
   changed_when: result.stdout | length > 0
 
 - name: Create ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
@@ -21,6 +21,6 @@
             {{ masternode.owner.address }}
             0
             {{ miner_payment_address }}
-            {{ fee_address.stdout }}"
+            {{ masternode.collateral.address }}"
   register: protx
   changed_when: protx.stdout | length == 64

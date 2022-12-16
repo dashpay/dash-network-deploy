@@ -1,37 +1,5 @@
 ---
 
-# Requires "masternode_names" variable
-
-- name: Import masternode owner private key
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
-  with_items: '{{ masternode_names }}'
-  register: result
-  changed_when: result.rc == 0
-
-- name: Rescan blockchain
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} rescanblockchain'
-  register: result
-  changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
-
-# fund fee
-
-- name: Get new fee address
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} getnewaddress'
-  register: fee_address
-  changed_when: fee_address.stdout | length == 34
-
-- name: Fund fee address
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendtoaddress {{ fee_address.stdout }} 10'
-  register: fund_result
-  changed_when: fund_result.stdout | length == 64
-
-- name: Generate at least one block to confirm fee funding transaction
-  ansible.builtin.include_role:
-    name: generate_blocks
-  vars:
-    num_blocks: 1
-    balance_needed: 0
-
 # register
 
 - name: Create provider registration transaction
