@@ -82,11 +82,12 @@
     mode: "+x"
 
 - name: Load/create faucet wallet on startup
-  ansible.builtin.lineinfile:
+  ansible.builtin.blockinfile:
     path: '/etc/dash.conf'
-    regexp: '^wallet='
-    line: wallet={{ wallet_rpc_wallet_faucet }}
     insertafter: '[{{ dash_network }}]'
+    block: |
+      wallet={{ wallet_rpc_wallet_faucet }}
+      wallet={{ wallet_rpc_wallet_mno }}
   when: enable_wallet is true
 
 # TODO: why does this always take exactly 30 seconds on first deploy?
@@ -111,9 +112,3 @@
   register: result
   when: enable_wallet is true
   changed_when: result.rc == 0
-
-- name: Create mno wallet
-  ansible.builtin.command: 'dash-cli createwallet {{ wallet_rpc_wallet_mno }}'
-  when: enable_wallet is true
-  args:
-    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_mno }}/wallet.dat"
