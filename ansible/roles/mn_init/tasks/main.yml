@@ -57,6 +57,8 @@
   register: get_protx_list_result
   changed_when: get_protx_list_result.stdout | to_json | length > 0
 
+# Registered masternodes list
+
 - name: Initialize array for registered masternode names
   ansible.builtin.set_fact:
     registered_masternode_names: []
@@ -71,6 +73,8 @@
   ansible.builtin.debug:
     var: registered_masternode_names
 
+# New masternodes list
+
 - name: Determine new masternodes
   ansible.builtin.set_fact:
     new_masternode_names: "{{ groups['masternodes'] | difference(registered_masternode_names) }}"
@@ -78,6 +82,8 @@
 - name: New masternodes list
   ansible.builtin.debug:
     var: new_masternode_names
+
+# Banned masternodes list
 
 - name: Get list of banned masternodes from the wallet
   ansible.builtin.set_fact:
@@ -151,6 +157,9 @@
   vars:
     num_blocks: 1
     balance_needed: 0
+
+# Take action
+
 - name: Fund collaterals for not initialized masternodes
   ansible.builtin.include_role:
     name: mn_fund_collateral
