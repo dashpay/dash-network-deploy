@@ -2,7 +2,7 @@
 
 # Requires "masternodes" and "masternode_names" variables
 
-- name: Get list of banned masternode protx
+- name: Get list of masternode protx
   ansible.builtin.include_tasks: find_protx.yml
   vars:
     masternode: '{{ masternodes[item] }}'
