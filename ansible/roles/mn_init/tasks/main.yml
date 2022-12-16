@@ -129,7 +129,7 @@
 - name: Populate fee payment targets
   ansible.builtin.set_fact:
     fee_target_addresses: "{{ fee_target_addresses | default([]) + [masternodes[item].collateral.address] }}"
-  with_items: '{{ groups["masternodes"] }}'    
+  with_items: '{{ groups["masternodes"] }}'
 
 - name: Check if address contains a suitable fee utxo
   ansible.builtin.command: >
