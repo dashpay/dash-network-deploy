@@ -108,19 +108,7 @@
 
 # Start seeds
 
-- name: Set up core on seed nodes
-  hosts: seed_nodes
-  become: true
-  roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - elastic_beats
-
-- name: Set up platform on seed nodes
+- name: Set up core and platform on seed nodes
   hosts: seed_nodes
   become: true
   pre_tasks:
@@ -134,13 +122,17 @@
         msg: Seed node not defined in network config
       when: node is not defined
   roles:
+    - role: dashd
+      dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
+      tags:
+        - dashd
+    - elastic_beats
     - role: mn_evo_services
       tags:
         - evo
       when: evo_services
-    - role: elastic_beats
-
-# Start network
 
 - name: Generate first block to leave IBD mode
   hosts: seed-1
