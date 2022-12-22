@@ -255,7 +255,10 @@ handshake-timeout = "20s"
 dial-timeout = "3s"
 
 {% if inventory_hostname in groups['seed_nodes'] %}
-max-connections = 256
+max-connections = 4
+max-outgoing-connections = 2
+max-incoming-connection-time = "10s"
+incoming-connection-window = "30s"
 {% else %}
 max-connections = 32
 {% endif %}
