@@ -23,7 +23,7 @@
   "dependencies": {
     "@dashevo/dapi-client": "^0.23.0",
     "@dashevo/dashcore-lib": "~0.19.44",
-    "@dashevo/dashd-rpc": "^2.4.2",
+    "@dashevo/dashd-rpc": "dashpay/dashd-rpc#wallet-requests",
     "@dashevo/wallet-lib": "~7.23.0",
     "bls-signatures": "^0.2.5",
     "chai": "^4.3.6",
@@ -48,6 +48,7 @@
     "node-fetch": "^2.6.7",
     "node-openvpn": "github:luigiplr/node-openvpn",
     "node-polyfill-webpack-plugin": "^2.0.1",
+    "patch-package": "^6.5.0",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   }

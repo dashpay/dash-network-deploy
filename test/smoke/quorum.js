@@ -40,11 +40,11 @@ describe('Quorums', () => {
     const quorumList = {};
     const blockchainInfo = {};
     const firstQuorumInfo = {};
-    const transactionInfo = {};
-    let txid = '';
+    const memPoolEntry = {};
+    let instantsendTestTxid = '';
 
-    before('Collect chain lock and quorum list', function func() {
-      this.timeout(60000); // set mocha timeout
+    before('Collect chain lock and quorum list', () => {
+      // this.timeout(60000); // set mocha timeout
 
       const promises = [];
       for (const hostName of allHosts) {
@@ -121,36 +121,40 @@ describe('Quorums', () => {
 
       client.setTimeout(timeout);
 
-      const requestSendToAddress = client.sendToAddress(variables.faucet_address, 0.1)
+      const requestGetBalance = client.sendToAddress('dashd-wallet-1-faucet', variables.faucet_address, 0.1)
         .then(({ result }) => {
-          console.log(result);
-          txid = result;
-        })
-        .catch((e) => {
-          console.log(e); // Fails due to https://github.com/dashpay/dashd-rpc/pull/57
+          instantsendTestTxid = result;
         });
 
-      promises.push(requestSendToAddress);
+      promises.push(requestGetBalance);
 
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    // before('Collect instantsend info', () => {
-    //   const promises = [];
-    //   for (const hostName of allHosts) {
-    //     const timeout = 15000; // set individual rpc client timeout
+    before('Collect instantsend info', async () => {
+      // Wait two seconds here before checking for IS locks
+      // TODO: implement this.slow() and await IS ZMQ message to mark test response speed yellow/red
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    //     const client = createRpcClientFromConfig(hostName);
+      const promises = [];
+      for (const hostName of allHosts) {
+        const timeout = 15000; // set individual rpc client timeout
 
-    //     client.setTimeout(timeout);
+        const client = createRpcClientFromConfig(hostName);
 
-    //     const requestTransactionInfo = client.requestTransactionInfo()
-    //     // eslint-disable-next-line no-loop-func
-    //       .then(({ result }) => {
-    //         transactionInfo[hostName] = result;
-    //       });
-    //   }
-    // });
+        client.setTimeout(timeout);
+
+        const requestGetMemPoolEntry = client.getMemPoolEntry(instantsendTestTxid)
+        // eslint-disable-next-line no-loop-func
+          .then(({ result }) => {
+            memPoolEntry[hostName] = result;
+          });
+
+        promises.push(requestGetMemPoolEntry);
+      }
+
+      return Promise.all(promises).catch(() => Promise.resolve());
+    });
 
     for (const hostName of allHosts) {
       // eslint-disable-next-line no-loop-func
@@ -172,9 +176,9 @@ describe('Quorums', () => {
             .to.be.lessThanOrEqual(quorumCheckTypes[network.type].dkgInterval * 1.5);
         });
 
-        // it('should see an instantsend lock', () => {
-        //   console.log(transactionInfo[hostname]);
-        // });
+        it('should see an instantsend lock', () => {
+          expect(memPoolEntry[hostName].instantlock).to.be.true();
+        });
       });
     }
   });
