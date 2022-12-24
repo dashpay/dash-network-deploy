@@ -168,10 +168,6 @@ describe('Quorums', () => {
         });
 
         it('should see the first quorum was created recently', () => {
-          // console.log(blockCount[hostName]);
-          // console.log(firstQuorumInfo[hostName].height);
-          // console.log(blockCount[hostName] - firstQuorumInfo[hostName].height);
-          // console.log(quorumCheckTypes[network.type].dkgInterval);
           expect(blockCount[hostName] - firstQuorumInfo[hostName].height)
             .to.be.lessThanOrEqual(quorumCheckTypes[network.type].dkgInterval * 1.5);
         });
