@@ -1,7 +1,7 @@
 ---
 dashd_debug: 0
 dashd_logips: 0
-dashd_powtargetspacing: 0
+dashd_powtargetspacing: 150
 dashd_indexes: false
 
 dashd_private_net_prefix: 16
