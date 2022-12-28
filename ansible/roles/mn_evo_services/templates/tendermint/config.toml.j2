@@ -257,8 +257,8 @@ dial-timeout = "3s"
 {% if inventory_hostname in groups['seed_nodes'] %}
 max-connections = 4
 max-outgoing-connections = 2
-max-incoming-connection-time = "10s"
-incoming-connection-window = "30s"
+max-incoming-connection-time = "30s"
+incoming-connection-window = "60s"
 {% else %}
 max-connections = 32
 {% endif %}
