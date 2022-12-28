@@ -1,0 +1,103 @@
+---
+- name: Create dashmate group
+  ansible.builtin.group:
+    name: '{{ dashmate_group }}'
+    gid: '{{ dashmate_gid }}'
+
+- name: Create dashmate user
+  ansible.builtin.user:
+    name: '{{ dashmate_user }}'
+    comment: 'Dash user'
+    group: '{{ dashmate_group }}'
+    home: '{{ dashmate_home }}'
+    uid: '{{ dashmate_uid }}'
+    create_home: true
+    umask: '0002'
+
+- name: Adding dashmate to group docker
+  user:
+    name: 'dashmate'
+    groups: docker
+    append: yes
+
+- name: Create all necessary config dirs
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_uid }}'
+    group: '{{ dashmate_gid }}'
+    mode: 0750
+  loop:
+    - '{{ dashmate_home }}/.dashcore'
+    - '{{ dashmate_config_dir }}/{{ dash_network_name }}'
+    - '{{ dashmate_config_dir }}/logs/{{ dash_network_name }}'
+    - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+
+- name: Generate an OpenSSL private key
+  community.crypto.openssl_privatekey:
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+
+- name: Generate a Self Signed OpenSSL certificate
+  openssl_certificate:
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.crt'
+    privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    provider: selfsigned
+
+- name: Write config.json file in ~/.dashmate
+  vars:
+    template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
+  ansible.builtin.template:
+    src: dashmate.json.j2
+    dest: '{{ dashmate_config_dir }}/config.json'
+    owner: '{{ dashmate_uid }}'
+    group: '{{ dashmate_gid }}'
+    mode: 0644
+
+- name: Configure dash-cli
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: '{{ dashmate_home }}/.dashcore/dash.conf'
+    owner: '{{ dashmate_uid }}'
+    group: '{{ dashmate_gid }}'
+    mode: 0644
+
+- name: Install some required dependencies for yarn build
+  ansible.builtin.package:
+    name: cmake
+    state: present
+
+- name: Enable corepack
+  ansible.builtin.command: corepack enable
+  become: yes
+  become_user: root
+
+- name: Clone platform
+  ansible.builtin.command: git clone -b feat/dashd-templating https://github.com/dashpay/platform
+  become: yes
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate
+    creates: /home/dashmate/platform
+
+- name: Update yarn dependencies
+  ansible.builtin.command: yarn
+  become: yes
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform
+    creates: /home/dashmate/platform/.yarn/unplugged
+
+- name: Build dash sdk
+  ansible.builtin.command: yarn build
+  become: yes
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform/packages/js-dash-sdk
+    creates: /home/dashmate/platform/packages/js-dash-sdk/build
+
+- name: Run masternode
+  ansible.builtin.command: yarn dashmate start
+  become: yes
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform

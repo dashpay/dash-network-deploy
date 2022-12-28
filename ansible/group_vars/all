@@ -164,3 +164,11 @@ elastic_path: '{{ dashd_home }}/{{ elastic_compose_project_name }}'
 masternode_network_latency: false
 masternode_network_latency_min: 10
 masternode_network_latency_max: 100
+
+# Dashmate
+dashmate_home: /home/dashmate
+dashmate_config_dir: /home/dashmate/.dashmate
+dashmate_user: "dashmate"
+dashmate_group: "dashmate"
+dashmate_uid: "700"
+dashmate_gid: "1700"

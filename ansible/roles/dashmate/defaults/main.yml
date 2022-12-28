@@ -1,0 +1,10 @@
+---
+dashd_debug: 0
+dashd_logips: 0
+dashd_powtargetspacing: 0
+dashd_indexes: false
+
+dashd_private_net_prefix: 16
+dashd_private_cidr: '{{ private_ip | ansible.utils.ipsubnet(dashd_private_net_prefix) }}'
+
+dashd_externalip: '{{ public_ip }}'
