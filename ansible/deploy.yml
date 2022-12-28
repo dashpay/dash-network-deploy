@@ -117,10 +117,6 @@
         node: "{{ seed_nodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in seed_nodes
-    - name: Check inventory for seed nodes
-      ansible.builtin.fail:
-        msg: Seed node not defined in network config
-      when: node is not defined
   roles:
     - role: dashd
       dashd_listen: true
@@ -193,10 +189,6 @@
         node: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
-    - name: Fail if no masternodes present
-      ansible.builtin.fail:
-        msg: Masternode not defined in network config
-      when: masternode is not defined
   roles:
     - role: dashd
       dashd_listen: true
