@@ -112,7 +112,7 @@
   hosts: seed_nodes
   become: true
   pre_tasks:
-    - name: Check inventory for masternodes
+    - name: Set node variables for seed nodes
       ansible.builtin.set_fact:
         node: "{{ seed_nodes[inventory_hostname] }}"
       tags: always
@@ -183,7 +183,7 @@
   hosts: masternodes
   become: true
   pre_tasks:
-    - name: Check inventory for masternodes
+    - name: Set node variables for masternodes
       ansible.builtin.set_fact:
         node: "{{ masternodes[inventory_hostname] }}"
       tags: always
