@@ -105,31 +105,18 @@
         - dashd
     - elastic_beats
 
-- name: Set up core on seed nodes
+
+# Start seeds
+
+- name: Set up core and platform on seed nodes
   hosts: seed_nodes
   become: true
-  roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - elastic_beats
-
-- name: Set up core on masternodes
-  hosts: masternodes
-  become: true
   pre_tasks:
-    - name: Check inventory for masternodes
+    - name: Set node variables for seed nodes
       ansible.builtin.set_fact:
-        masternode: "{{ masternodes[inventory_hostname] }}"
+        node: "{{ seed_nodes[inventory_hostname] }}"
       tags: always
-      when: inventory_hostname in masternodes
-    - name: Fail if no masternodes present
-      ansible.builtin.fail:
-        msg: Masternode not defined in network config
-      when: masternode is not defined
+      when: inventory_hostname in seed_nodes
   roles:
     - role: dashd
       dashd_listen: true
@@ -137,11 +124,11 @@
       dashd_indexes: true
       tags:
         - dashd
-    - mn_sentinel
-    - mn_status_report
     - elastic_beats
-
-# Start network
+    - role: mn_evo_services
+      tags:
+        - evo
+      when: evo_services
 
 - name: Generate first block to leave IBD mode
   hosts: seed-1
@@ -190,47 +177,31 @@
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
 
-# Start platform
+# Start masternodes
 
-- name: Set up platform on seed nodes
-  hosts: seed_nodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for masternodes
-      ansible.builtin.set_fact:
-        node: "{{ seed_nodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in seed_nodes
-    - name: Check inventory for seed nodes
-      ansible.builtin.fail:
-        msg: Seed node not defined in network config
-      when: node is not defined
-  roles:
-    - role: mn_evo_services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic_beats
-
-- name: Set up platform on masternodes
+- name: Set up core and platform on masternodes
   hosts: masternodes
   become: true
   pre_tasks:
-    - name: Check inventory for masternodes
+    - name: Set node variables for masternodes
       ansible.builtin.set_fact:
         node: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
-    - name: Fail if no masternodes present
-      ansible.builtin.fail:
-        msg: Masternode not defined in network config
-      when: node is not defined
   roles:
+    - role: dashd
+      dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
+      tags:
+        - dashd
+    - mn_sentinel
     - role: mn_evo_services
       tags:
         - evo
       when: evo_services
-    - role: elastic_beats
+    - mn_status_report
+    - elastic_beats
 
 - name: Set up fake latency on masternodes
   hosts: masternodes
