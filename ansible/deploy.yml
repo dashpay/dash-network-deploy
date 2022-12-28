@@ -185,7 +185,6 @@
   pre_tasks:
     - name: Check inventory for masternodes
       ansible.builtin.set_fact:
-        masternode: "{{ masternodes[inventory_hostname] }}"
         node: "{{ masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in masternodes
