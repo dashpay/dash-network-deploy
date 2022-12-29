@@ -46,12 +46,14 @@
   ansible.builtin.file:
     path: '{{ item }}'
     state: directory
-    owner: '{{ dashmate_uid }}'
-    group: '{{ dashmate_gid }}'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    recurse: true
     mode: 0750
   loop:
-    - '{{ dashmate_home }}/.dashcore'
     - '{{ dashmate_config_dir }}/{{ dash_network_name }}'
+    - '{{ dashmate_config_dir }}/logs'
+    - '{{ dashmate_config_dir }}/ssl'
     - '{{ dashmate_config_dir }}/logs/{{ dash_network_name }}'
     - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
 
@@ -71,8 +73,8 @@
   ansible.builtin.template:
     src: dashmate.json.j2
     dest: '{{ dashmate_config_dir }}/config.json'
-    owner: '{{ dashmate_uid }}'
-    group: '{{ dashmate_gid }}'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
     mode: 0644
 
 - name: Install some required dependencies for yarn build
