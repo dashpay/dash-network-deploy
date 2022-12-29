@@ -75,7 +75,7 @@
     nodejs_version: "16.x"
 # todo use that after v24-dev release
 #    nodejs_npm_global_packages:
-#      - name: dashmate@github.com/dashpay/platform#feat/dashd-templating
+#      - name: 'dashmate@{{ dashmate_version }}'
   roles:
     - geerlingguy.nodejs
 

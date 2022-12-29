@@ -165,9 +165,6 @@
             "genesis": {
               "genesis_time": "2021-07-22T12:57:05.429Z",
               "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
-              "initial_height": "0",
-              "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height }},
-              "initial_proposal_core_chain_lock": null,
               "consensus_params": {
                 "block": {
                   "max_bytes": "22020096",
@@ -187,18 +184,6 @@
                 "version": {
                   "app_version": "1"
                 },
-                "synchrony": {
-                  "precision": "505000000",
-                  "message_delay": "12000000000"
-                },
-                "timeout": {
-                  "propose": "3000000000",
-                  "propose_delta": "500000000",
-                  "vote": "1000000000",
-                  "vote_delta": "500000000",
-                  "commit": "1000000000",
-                  "bypass_commit_timeout": false
-                }
               },
               "validator_quorum_type": {{ platform_drive_validator_set_llmq_type }}
             },

@@ -2,17 +2,39 @@
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
-    gid: '{{ dashmate_gid }}'
 
-- name: Create dashmate user
+- name: Create dashd user
   ansible.builtin.user:
     name: '{{ dashmate_user }}'
-    comment: 'Dash user'
+    comment: 'Dashmate user'
     group: '{{ dashmate_group }}'
     home: '{{ dashmate_home }}'
-    uid: '{{ dashmate_uid }}'
     create_home: true
     umask: '0002'
+
+- name: Create .dashcore directory for dashmate user
+  ansible.builtin.file:
+    path: '{{ dashmate_home }}/.dashcore'
+    state: directory
+    mode: 0755
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+
+- name: Write dash.conf file in /etc/
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: /etc/dash.conf
+    owner: root
+    group: root
+    mode: 0644
+  register: dash_config_state
+
+- name: Symlink dash.conf to user dashmate directory to make rpc work
+  ansible.builtin.file:
+    path: '{{ dashmate_home }}/.dashcore/dash.conf'
+    src: '/etc/dash.conf'
+    state: link
+    force: true
 
 - name: Adding dashmate to group docker
   user:
@@ -53,14 +75,6 @@
     group: '{{ dashmate_gid }}'
     mode: 0644
 
-- name: Configure dash-cli
-  ansible.builtin.template:
-    src: dash.conf.j2
-    dest: '{{ dashmate_home }}/.dashcore/dash.conf'
-    owner: '{{ dashmate_uid }}'
-    group: '{{ dashmate_gid }}'
-    mode: 0644
-
 - name: Install some required dependencies for yarn build
   ansible.builtin.package:
     name: cmake
@@ -72,7 +86,7 @@
   become_user: root
 
 - name: Clone platform
-  ansible.builtin.command: git clone -b feat/dashd-templating https://github.com/dashpay/platform
+  ansible.builtin.command: git clone -b {{ platform_branch }} https://github.com/dashpay/platform
   become: yes
   become_user: dashmate
   args:
