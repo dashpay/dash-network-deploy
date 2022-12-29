@@ -60,12 +60,26 @@
 - name: Generate an OpenSSL private key
   community.crypto.openssl_privatekey:
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    # dapi-envoy docker user
+    owner: 101
+    group: 101
+
+  # common name is required when loading into envoy
+- name: Generate an OpenSSL Certificate Signing Request
+  community.crypto.openssl_csr:
+    path:  '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
+    privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    common_name: '{{ inventory_hostname }}'
 
 - name: Generate a Self Signed OpenSSL certificate
-  openssl_certificate:
+  community.crypto.x509_certificate:
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.crt'
+    csr_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
     privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
     provider: selfsigned
+    # dapi-envoy docker user
+    owner: 101
+    group: 101
 
 - name: Write config.json file in ~/.dashmate
   vars:
