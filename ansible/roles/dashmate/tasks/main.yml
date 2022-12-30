@@ -93,7 +93,9 @@
 
 - name: Install some required dependencies for yarn build
   ansible.builtin.package:
-    name: cmake
+    name:
+      - cmake
+      - libzmq3-dev
     state: present
 
 - name: Enable corepack

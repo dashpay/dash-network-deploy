@@ -87,23 +87,6 @@
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
 
-- name: Prepare and run dashmate
-  hosts: masternodes
-  pre_tasks:
-    - name: Check inventory for masternodes
-      ansible.builtin.set_fact:
-        masternode: "{{ masternodes[inventory_hostname] }}"
-        node: "{{ masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in masternodes
-    - name: Fail if no masternodes present
-      ansible.builtin.fail:
-        msg: Masternode not defined in network config
-      when: masternode is not defined
-  become: true
-  roles:
-    - role: dashmate
-
 - name: Configure dashd cli and network logging
   hosts: all
   become: true
@@ -139,7 +122,6 @@
         - dashd
     - elastic_beats
 
-
 # Start seeds
 
 - name: Set up core and platform on seed nodes
@@ -151,10 +133,6 @@
         node: "{{ seed_nodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in seed_nodes
-    - name: Check inventory for seed nodes
-      ansible.builtin.fail:
-        msg: Seed node not defined in network config
-      when: node is not defined
   roles:
     - role: dashd
       dashd_listen: true
@@ -201,6 +179,19 @@
   become: true
   roles:
     - mn_init
+
+- name: Prepare and run dashmate
+  hosts: masternodes
+  pre_tasks:
+    - name: Check inventory for masternodes
+      ansible.builtin.set_fact:
+        masternode: "{{ masternodes[inventory_hostname] }}"
+        node: "{{ masternodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in masternodes
+  become: true
+  roles:
+    - role: dashmate
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
