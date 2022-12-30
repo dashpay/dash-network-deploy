@@ -40,7 +40,7 @@ describe('Quorums', () => {
     const quorumList = {};
     const blockchainInfo = {};
     const firstQuorumInfo = {};
-    const memPoolEntry = {};
+    const rawMemPool = {};
     let instantsendTestTxid = '';
 
     before('Collect chain lock and quorum list', () => {
@@ -121,7 +121,7 @@ describe('Quorums', () => {
 
       client.setTimeout(timeout);
 
-      const requestGetBalance = client.sendToAddress('dashd-wallet-1-faucet', variables.faucet_address, 0.1)
+      const requestGetBalance = client.sendToAddress(variables.faucet_address, 0.1, { wallet: 'dashd-wallet-1-faucet' })
         .then(({ result }) => {
           instantsendTestTxid = result;
         });
@@ -144,13 +144,13 @@ describe('Quorums', () => {
 
         client.setTimeout(timeout);
 
-        const requestGetMemPoolEntry = client.getMemPoolEntry(instantsendTestTxid)
+        const requestGetRawMemPool = client.getRawMemPool(true)
         // eslint-disable-next-line no-loop-func
           .then(({ result }) => {
-            memPoolEntry[hostName] = result;
+            rawMemPool[hostName] = result;
           });
 
-        promises.push(requestGetMemPoolEntry);
+        promises.push(requestGetRawMemPool);
       }
 
       return Promise.all(promises).catch(() => Promise.resolve());
@@ -173,7 +173,7 @@ describe('Quorums', () => {
         });
 
         it('should see an instantsend lock', () => {
-          expect(memPoolEntry[hostName].instantlock).to.be.true();
+          expect(rawMemPool[hostName][instantsendTestTxid].instantlock).to.be.true();
         });
       });
     }
