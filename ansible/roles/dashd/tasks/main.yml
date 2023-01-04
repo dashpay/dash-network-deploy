@@ -97,12 +97,21 @@
     dest: /usr/local/bin/dash-wallet
     mode: 0755
 
+- name: Create empty wallets dir
+  ansible.builtin.file:
+    path: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets"
+    state: directory
+    mode: 0755
+    owner: '{{ dashd_user }}'
+    group: '{{ dashd_group }}'
+  register: dashd_wallet_dir
+
 - name: Create faucet wallet
-  ansible.builtin.command: dash-wallet -wallet={{ wallet_rpc_wallet_faucet }} create
+  ansible.builtin.command: dash-wallet -wallet={{ wallet_rpc_wallet_faucet }} -datadir={{ dashd_wallet_dir.path }} create
   when: enable_wallet is true
 
 - name: Create mno wallet
-  ansible.builtin.command: dash-wallet -wallet={{ wallet_rpc_wallet_mno }} create
+  ansible.builtin.command: dash-wallet -wallet={{ wallet_rpc_wallet_mno }} -datadir={{ dashd_wallet_dir.path }} create
   when: enable_wallet is true
 
 - name: Load faucet and mno wallets on startup
