@@ -1,0 +1,51 @@
+---
+
+- name: Copy dash-wallet from docker container
+  become_user: root
+  community.docker.docker_container:
+    name: copysource
+    auto_remove: true
+    volumes:
+      - /tmp:/host-tmp
+    image: '{{ dashd_image }}'
+    command: cp /usr/local/bin/dash-wallet /host-tmp/
+
+- name: Install dash-wallet in path
+  become_user: root
+  ansible.builtin.copy:
+    remote_src: true
+    src: /tmp/dash-wallet
+    dest: /usr/local/bin/dash-wallet
+    mode: 0755
+
+- name: Create empty wallets dir
+  ansible.builtin.file:
+    path: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets"
+    state: directory
+    mode: 0755
+    owner: '{{ dashd_user }}'
+    group: '{{ dashd_group }}'
+  register: dashd_wallet_dir
+
+- name: Set network string for dash-wallet
+  ansible.builtin.set_fact:
+    dash_wallet_network_string: "{{ '-devnet=' if dash_network == 'devnet' else '-testnet' }}{{ dash_devnet_name if dash_network == 'devnet' }}"
+
+- name: Create faucet wallet
+  ansible.builtin.command: dash-wallet -datadir={{ dashd_home }}/.dashcore {{ dash_wallet_network_string }} -wallet={{ wallet_rpc_wallet_faucet }} create
+  args:
+    creates: "{{ dashd_wallet_dir.path }}/{{ wallet_rpc_wallet_faucet }}/wallet.dat"
+
+- name: Create mno wallet
+  ansible.builtin.command: dash-wallet -datadir={{ dashd_home }}/.dashcore {{ dash_wallet_network_string }} -wallet={{ wallet_rpc_wallet_mno }} create
+  args:
+    creates: "{{ dashd_wallet_dir.path }}/{{ wallet_rpc_wallet_mno }}/wallet.dat"
+
+- name: Load faucet and mno wallets on startup
+  become_user: root
+  ansible.builtin.blockinfile:
+    path: '/etc/dash.conf'
+    insertafter: '[{{ dash_network }}]'
+    block: |
+      wallet={{ wallet_rpc_wallet_faucet }}
+      wallet={{ wallet_rpc_wallet_mno }}
