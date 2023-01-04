@@ -108,18 +108,22 @@
 
 - name: Create faucet wallet
   ansible.builtin.command: dash-wallet -wallet={{ wallet_rpc_wallet_faucet }} -datadir={{ dashd_home }}/.dashcore -devnet={{ dash_devnet_name }} create
+  become_user: '{{ dashd_user }}'
   when: enable_wallet is true and dash_network == "devnet"
 
 - name: Create mno wallet
   ansible.builtin.command: dash-wallet -wallet={{ wallet_rpc_wallet_mno }} -datadir={{ dashd_home }}/.dashcore -devnet={{ dash_devnet_name }} create
+  become_user: '{{ dashd_user }}'
   when: enable_wallet is true and dash_network == "devnet"
 
 - name: Create faucet wallet
   ansible.builtin.command: dash-wallet -wallet={{ wallet_rpc_wallet_faucet }} -datadir={{ dashd_wallet_dir.path }} -testnet create
+  become_user: '{{ dashd_user }}'
   when: enable_wallet is true and dash_network == "testnet"
 
 - name: Create mno wallet
   ansible.builtin.command: dash-wallet -wallet={{ wallet_rpc_wallet_mno }} -datadir={{ dashd_wallet_dir.path }} -testnet create
+  become_user: '{{ dashd_user }}'
   when: enable_wallet is true and dash_network == "testnet"
 
 - name: Load faucet and mno wallets on startup
