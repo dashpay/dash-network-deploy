@@ -1,3 +1,156 @@
+# [0.23.0](https://github.com/dashpay/dash-network-deploy/compare/v0.23.0-dev.4...v0.23.0) (2022-12-07)
+
+### Bug Fixes
+
+* collaterals being spent when creating protx ([#400](https://github.com/dashpay/dash-network-deploy/issues/400)) ([eb57e6c](https://github.com/dashpay/dash-network-deploy/commit/eb57e6cefdd95f22644bd9be664376e277448d73))
+* deploy fails silently if current branch not at HEAD ([#393](https://github.com/dashpay/dash-network-deploy/issues/393)) ([95ed0f6](https://github.com/dashpay/dash-network-deploy/commit/95ed0f6be989e261af933129fb5c09cd061f276a))
+* double platform service startup ([#399](https://github.com/dashpay/dash-network-deploy/issues/399)) ([b414e09](https://github.com/dashpay/dash-network-deploy/commit/b414e090b007ccc6a08b07de3fb35eab2a3850f9))
+* faucet doesn't pay out ([#395](https://github.com/dashpay/dash-network-deploy/issues/395)) ([2046dcb](https://github.com/dashpay/dash-network-deploy/commit/2046dcb33ea457ceb4708f2194b76d0acc7f770e))
+* faucet shows connection error on payout ([#402](https://github.com/dashpay/dash-network-deploy/issues/402)) ([f4145d4](https://github.com/dashpay/dash-network-deploy/commit/f4145d414fecad966256dbae23e573aca52c0cd9))
+* inventory is updated twice ([#391](https://github.com/dashpay/dash-network-deploy/issues/391)) ([058cd9a](https://github.com/dashpay/dash-network-deploy/commit/058cd9a88a4e073f47d825bc52ba22864e3439a1))
+* kibana unavailable despite passing check ([#379](https://github.com/dashpay/dash-network-deploy/issues/379)) ([e7e80db](https://github.com/dashpay/dash-network-deploy/commit/e7e80db0e8c737ee12dbff6ef6a9edae3740ca84))
+* regtest_generate is confusingly named ([#397](https://github.com/dashpay/dash-network-deploy/issues/397)) ([dbb2e12](https://github.com/dashpay/dash-network-deploy/commit/dbb2e120afb35e9ee4645856aef553963fe48430))
+* add zmqpubrawblock topic to the dash.conf ([#355](https://github.com/dashpay/dash-network-deploy/issues/355)) ([bfca085](https://github.com/dashpay/dash-network-deploy/commit/bfca085c4fcfc2f6c4a7390de7fcdd3fdd0ed78e))
+* ansible.netcommon deprecation ([#344](https://github.com/dashpay/dash-network-deploy/issues/344)) ([af4bab3](https://github.com/dashpay/dash-network-deploy/commit/af4bab3b21c7574f00fc849efcf8e9cb090a88ba))
+* node type vars inconsistent with config ([#369](https://github.com/dashpay/dash-network-deploy/issues/369)) ([85fe39f](https://github.com/dashpay/dash-network-deploy/commit/85fe39fc3e95302b80d0e83f5dcaf457d047100d))
+* permission denied reading file on shared manager node ([#363](https://github.com/dashpay/dash-network-deploy/issues/363)) ([d1dc8d5](https://github.com/dashpay/dash-network-deploy/commit/d1dc8d5951512502e7b978cabe463e6f009b1724))
+* platform logs not rotated hourly ([#347](https://github.com/dashpay/dash-network-deploy/issues/347)) ([93636dd](https://github.com/dashpay/dash-network-deploy/commit/93636dd64294f3215e17242ced17a5c2e9ea727d))
+* reindex needed after restart ([#366](https://github.com/dashpay/dash-network-deploy/issues/366)) ([7720ddb](https://github.com/dashpay/dash-network-deploy/commit/7720ddbb40dd22a61c73a35f1db05acc93348966))
+* cannot attach to docker context with ubuntu key ([#298](https://github.com/dashpay/dash-network-deploy/issues/298)) ([a554f53](https://github.com/dashpay/dash-network-deploy/commit/a554f5314442637d7806253e14a1ce28edad523f))
+* drive volume mount point ([#300](https://github.com/dashpay/dash-network-deploy/issues/300)) ([df01fba](https://github.com/dashpay/dash-network-deploy/commit/df01fbaa50465c6675fd6b3ac895e3b28fe41894)), closes [#289](https://github.com/dashpay/dash-network-deploy/issues/289) [#289](https://github.com/dashpay/dash-network-deploy/issues/289)
+* failed to parse log level (*:debug) ([#321](https://github.com/dashpay/dash-network-deploy/issues/321)) ([1d548d4](https://github.com/dashpay/dash-network-deploy/commit/1d548d44f082271533d093b4b2371d7ebd0a0c82))
+* generate command not found with core 18.1.0 ([#297](https://github.com/dashpay/dash-network-deploy/issues/297)) ([b492af2](https://github.com/dashpay/dash-network-deploy/commit/b492af24422fc30b10d87ff33aa1f940f2804ad5))
+* no value can start with v ([#316](https://github.com/dashpay/dash-network-deploy/issues/316)) ([8ba1239](https://github.com/dashpay/dash-network-deploy/commit/8ba12396adf230d0a31f124d0c16ce937b0b8fe7))
+* outdated tenderdash configs ([#324](https://github.com/dashpay/dash-network-deploy/issues/324)) ([ebad5c8](https://github.com/dashpay/dash-network-deploy/commit/ebad5c8eb49d2d3b61078d706cd453fb59a71b30))
+* platform logs not present filebeat error ([#287](https://github.com/dashpay/dash-network-deploy/issues/287)) ([50b7de8](https://github.com/dashpay/dash-network-deploy/commit/50b7de88bb0588dce0c6b94344844d67c4c2ed73))
+* tests running from wrong branch ([#342](https://github.com/dashpay/dash-network-deploy/issues/342)) ([cfce703](https://github.com/dashpay/dash-network-deploy/commit/cfce703335c2c5a7516a09cf164653c11b4bf25f))
+* Use getgovinfo in RPC check ([#310](https://github.com/dashpay/dash-network-deploy/issues/310)) ([2c2b013](https://github.com/dashpay/dash-network-deploy/commit/2c2b01335032b01c73c41832ab4ccd436415b589))
+* use local directory in case of multiple users ([#330](https://github.com/dashpay/dash-network-deploy/issues/330)) ([faa9f38](https://github.com/dashpay/dash-network-deploy/commit/faa9f38358bcc8f70c09ba8e8b1c7549f14100c5))
+
+
+### Features
+
+* check recent mining performance instead of waiting for blocks ([#387](https://github.com/dashpay/dash-network-deploy/issues/387)) ([7d32585](https://github.com/dashpay/dash-network-deploy/commit/7d32585bf04bd9510367064038d0a7ac31b02765))
+* create funding transactions faster using `sendmany` ([#383](https://github.com/dashpay/dash-network-deploy/issues/383)) ([644a024](https://github.com/dashpay/dash-network-deploy/commit/644a024a940a04686bf19f955a6e724dfde373cc))
+* destroy platform ([#367](https://github.com/dashpay/dash-network-deploy/issues/367)) ([923ea7f](https://github.com/dashpay/dash-network-deploy/commit/923ea7f99c41844584efb6976fadf10fb02ebb38))
+* faucet wallet and theme updates ([#394](https://github.com/dashpay/dash-network-deploy/issues/394)) ([8b70eac](https://github.com/dashpay/dash-network-deploy/commit/8b70eaccf6109e9560a9f6155b46ba333dd3cfb9))
+* individual MN debug toggle ([#392](https://github.com/dashpay/dash-network-deploy/issues/392)) ([4cb8359](https://github.com/dashpay/dash-network-deploy/commit/4cb8359ecf28c6db9edaa17a837b9dbc30b61209))
+* insight acm certs ([#378](https://github.com/dashpay/dash-network-deploy/issues/378)) ([8520312](https://github.com/dashpay/dash-network-deploy/commit/8520312b4f65b55ba4d2586cb421931e5a78b16d))
+* logs destroy target ([#396](https://github.com/dashpay/dash-network-deploy/issues/396)) ([b4674f6](https://github.com/dashpay/dash-network-deploy/commit/b4674f6e5d8cc562005e6058da824f7c64cef9f5))
+* single wallet node for wallet and mno ([#390](https://github.com/dashpay/dash-network-deploy/issues/390)) ([f756a25](https://github.com/dashpay/dash-network-deploy/commit/f756a250aab37a6322721dbf1d90cb0d4ba8d5dc))
+* logrotate for core debug.log ([#346](https://github.com/dashpay/dash-network-deploy/issues/346)) ([68e70e2](https://github.com/dashpay/dash-network-deploy/commit/68e70e2e3b083f7f3e0069d8284eb0afde074d5f))
+* add powtargetspacing to dash.conf vars ([#315](https://github.com/dashpay/dash-network-deploy/issues/315)) ([fe39650](https://github.com/dashpay/dash-network-deploy/commit/fe396507d1caf517f49f4bd915dafce94a990116))
+* arm64 nodes ([#299](https://github.com/dashpay/dash-network-deploy/issues/299)) ([ac5715d](https://github.com/dashpay/dash-network-deploy/commit/ac5715d5e9fb4a03ee62fbe281b1d12f81c66d5a))
+* changes to support devnets with quorum rotation ([#291](https://github.com/dashpay/dash-network-deploy/issues/291)) ([1848af7](https://github.com/dashpay/dash-network-deploy/commit/1848af7f575ec6b68d938ded74eb3398f99e6c0d))
+* conditional core/platform elastic beats ([#325](https://github.com/dashpay/dash-network-deploy/issues/325)) ([726f5ef](https://github.com/dashpay/dash-network-deploy/commit/726f5ef2bd313dbe7354220daa9de525c104e887))
+* disable extra block production in tenderdash ([#339](https://github.com/dashpay/dash-network-deploy/issues/339)) ([e053e86](https://github.com/dashpay/dash-network-deploy/commit/e053e864e23777b1e284a6b2be3c38da5343add4))
+* generate second private keys for system identities ([#294](https://github.com/dashpay/dash-network-deploy/issues/294)) ([a8a40be](https://github.com/dashpay/dash-network-deploy/commit/a8a40be41f91a21992815f2755ab423c109d24fd))
+* make tenderdash log_level configurable ([#288](https://github.com/dashpay/dash-network-deploy/issues/288)) ([3892abf](https://github.com/dashpay/dash-network-deploy/commit/3892abf102dc42ab7b753f57821ff96fd94d9b75))
+* update tenderdash config for v0.8 ([#319](https://github.com/dashpay/dash-network-deploy/issues/319)) ([b350a8e](https://github.com/dashpay/dash-network-deploy/commit/b350a8e78204b5bbf17ccd1c732e4a9bd66105ff))
+* write protx values to config inventory file ([#293](https://github.com/dashpay/dash-network-deploy/issues/293)) ([44ec014](https://github.com/dashpay/dash-network-deploy/commit/44ec01412b2b178add3c568fe398d30a26b516fe))
+
+
+### Continuous integration
+
+* update deps ([#371](https://github.com/dashpay/dash-network-deploy/issues/396))
+
+
+### Performance Improvements
+
+* speedup karma tests ([#353](https://github.com/dashpay/dash-network-deploy/issues/353)) ([fd0ddb2](https://github.com/dashpay/dash-network-deploy/commit/fd0ddb2c4c99a5d3f96ad9bfe5380d3f0a85e2b7))
+
+
+
+# [0.23.0-dev.4](https://github.com/dashpay/dash-network-deploy/compare/v0.23.0-dev.3...v0.23.0-dev.4) (2022-11-25)
+
+
+### Bug Fixes
+
+* collaterals being spent when creating protx ([#400](https://github.com/dashpay/dash-network-deploy/issues/400)) ([eb57e6c](https://github.com/dashpay/dash-network-deploy/commit/eb57e6cefdd95f22644bd9be664376e277448d73))
+* deploy fails silently if current branch not at HEAD ([#393](https://github.com/dashpay/dash-network-deploy/issues/393)) ([95ed0f6](https://github.com/dashpay/dash-network-deploy/commit/95ed0f6be989e261af933129fb5c09cd061f276a))
+* double platform service startup ([#399](https://github.com/dashpay/dash-network-deploy/issues/399)) ([b414e09](https://github.com/dashpay/dash-network-deploy/commit/b414e090b007ccc6a08b07de3fb35eab2a3850f9))
+* faucet doesn't pay out ([#395](https://github.com/dashpay/dash-network-deploy/issues/395)) ([2046dcb](https://github.com/dashpay/dash-network-deploy/commit/2046dcb33ea457ceb4708f2194b76d0acc7f770e))
+* faucet shows connection error on payout ([#402](https://github.com/dashpay/dash-network-deploy/issues/402)) ([f4145d4](https://github.com/dashpay/dash-network-deploy/commit/f4145d414fecad966256dbae23e573aca52c0cd9))
+* inventory is updated twice ([#391](https://github.com/dashpay/dash-network-deploy/issues/391)) ([058cd9a](https://github.com/dashpay/dash-network-deploy/commit/058cd9a88a4e073f47d825bc52ba22864e3439a1))
+* kibana unavailable despite passing check ([#379](https://github.com/dashpay/dash-network-deploy/issues/379)) ([e7e80db](https://github.com/dashpay/dash-network-deploy/commit/e7e80db0e8c737ee12dbff6ef6a9edae3740ca84))
+* regtest_generate is confusingly named ([#397](https://github.com/dashpay/dash-network-deploy/issues/397)) ([dbb2e12](https://github.com/dashpay/dash-network-deploy/commit/dbb2e120afb35e9ee4645856aef553963fe48430))
+
+
+### Features
+
+* check recent mining performance instead of waiting for blocks ([#387](https://github.com/dashpay/dash-network-deploy/issues/387)) ([7d32585](https://github.com/dashpay/dash-network-deploy/commit/7d32585bf04bd9510367064038d0a7ac31b02765))
+* create funding transactions faster using `sendmany` ([#383](https://github.com/dashpay/dash-network-deploy/issues/383)) ([644a024](https://github.com/dashpay/dash-network-deploy/commit/644a024a940a04686bf19f955a6e724dfde373cc))
+* destroy platform ([#367](https://github.com/dashpay/dash-network-deploy/issues/367)) ([923ea7f](https://github.com/dashpay/dash-network-deploy/commit/923ea7f99c41844584efb6976fadf10fb02ebb38))
+* faucet wallet and theme updates ([#394](https://github.com/dashpay/dash-network-deploy/issues/394)) ([8b70eac](https://github.com/dashpay/dash-network-deploy/commit/8b70eaccf6109e9560a9f6155b46ba333dd3cfb9))
+* individual MN debug toggle ([#392](https://github.com/dashpay/dash-network-deploy/issues/392)) ([4cb8359](https://github.com/dashpay/dash-network-deploy/commit/4cb8359ecf28c6db9edaa17a837b9dbc30b61209))
+* insight acm certs ([#378](https://github.com/dashpay/dash-network-deploy/issues/378)) ([8520312](https://github.com/dashpay/dash-network-deploy/commit/8520312b4f65b55ba4d2586cb421931e5a78b16d))
+* logs destroy target ([#396](https://github.com/dashpay/dash-network-deploy/issues/396)) ([b4674f6](https://github.com/dashpay/dash-network-deploy/commit/b4674f6e5d8cc562005e6058da824f7c64cef9f5))
+* single wallet node for wallet and mno ([#390](https://github.com/dashpay/dash-network-deploy/issues/390)) ([f756a25](https://github.com/dashpay/dash-network-deploy/commit/f756a250aab37a6322721dbf1d90cb0d4ba8d5dc))
+
+
+
+# [0.23.0-dev.3](https://github.com/dashpay/dash-network-deploy/compare/v0.23.0-dev.2...v0.23.0-dev.3) (2022-10-19)
+
+### Continuous integration
+
+* update deps ([#371](https://github.com/dashpay/dash-network-deploy/issues/396))
+
+
+# [0.23.0-dev.2](https://github.com/dashpay/dash-network-deploy/compare/v0.22.3...v0.23.0-dev.2) (2022-10-19)
+
+
+### Bug Fixes
+
+* add zmqpubrawblock topic to the dash.conf ([#355](https://github.com/dashpay/dash-network-deploy/issues/355)) ([bfca085](https://github.com/dashpay/dash-network-deploy/commit/bfca085c4fcfc2f6c4a7390de7fcdd3fdd0ed78e))
+* ansible.netcommon deprecation ([#344](https://github.com/dashpay/dash-network-deploy/issues/344)) ([af4bab3](https://github.com/dashpay/dash-network-deploy/commit/af4bab3b21c7574f00fc849efcf8e9cb090a88ba))
+* node type vars inconsistent with config ([#369](https://github.com/dashpay/dash-network-deploy/issues/369)) ([85fe39f](https://github.com/dashpay/dash-network-deploy/commit/85fe39fc3e95302b80d0e83f5dcaf457d047100d))
+* permission denied reading file on shared manager node ([#363](https://github.com/dashpay/dash-network-deploy/issues/363)) ([d1dc8d5](https://github.com/dashpay/dash-network-deploy/commit/d1dc8d5951512502e7b978cabe463e6f009b1724))
+* platform logs not rotated hourly ([#347](https://github.com/dashpay/dash-network-deploy/issues/347)) ([93636dd](https://github.com/dashpay/dash-network-deploy/commit/93636dd64294f3215e17242ced17a5c2e9ea727d))
+* reindex needed after restart ([#366](https://github.com/dashpay/dash-network-deploy/issues/366)) ([7720ddb](https://github.com/dashpay/dash-network-deploy/commit/7720ddbb40dd22a61c73a35f1db05acc93348966))
+
+
+### Features
+
+* logrotate for core debug.log ([#346](https://github.com/dashpay/dash-network-deploy/issues/346)) ([68e70e2](https://github.com/dashpay/dash-network-deploy/commit/68e70e2e3b083f7f3e0069d8284eb0afde074d5f))
+
+
+### Performance Improvements
+
+* speedup karma tests ([#353](https://github.com/dashpay/dash-network-deploy/issues/353)) ([fd0ddb2](https://github.com/dashpay/dash-network-deploy/commit/fd0ddb2c4c99a5d3f96ad9bfe5380d3f0a85e2b7))
+
+
+
+# [0.23.0-dev.1](https://github.com/dashpay/dash-network-deploy/compare/v0.22.2...v0.23.0-dev.1) (2022-08-24)
+
+
+### Bug Fixes
+
+* cannot attach to docker context with ubuntu key ([#298](https://github.com/dashpay/dash-network-deploy/issues/298)) ([a554f53](https://github.com/dashpay/dash-network-deploy/commit/a554f5314442637d7806253e14a1ce28edad523f))
+* drive volume mount point ([#300](https://github.com/dashpay/dash-network-deploy/issues/300)) ([df01fba](https://github.com/dashpay/dash-network-deploy/commit/df01fbaa50465c6675fd6b3ac895e3b28fe41894)), closes [#289](https://github.com/dashpay/dash-network-deploy/issues/289) [#289](https://github.com/dashpay/dash-network-deploy/issues/289)
+* failed to parse log level (*:debug) ([#321](https://github.com/dashpay/dash-network-deploy/issues/321)) ([1d548d4](https://github.com/dashpay/dash-network-deploy/commit/1d548d44f082271533d093b4b2371d7ebd0a0c82))
+* generate command not found with core 18.1.0 ([#297](https://github.com/dashpay/dash-network-deploy/issues/297)) ([b492af2](https://github.com/dashpay/dash-network-deploy/commit/b492af24422fc30b10d87ff33aa1f940f2804ad5))
+* no value can start with v ([#316](https://github.com/dashpay/dash-network-deploy/issues/316)) ([8ba1239](https://github.com/dashpay/dash-network-deploy/commit/8ba12396adf230d0a31f124d0c16ce937b0b8fe7))
+* outdated tenderdash configs ([#324](https://github.com/dashpay/dash-network-deploy/issues/324)) ([ebad5c8](https://github.com/dashpay/dash-network-deploy/commit/ebad5c8eb49d2d3b61078d706cd453fb59a71b30))
+* platform logs not present filebeat error ([#287](https://github.com/dashpay/dash-network-deploy/issues/287)) ([50b7de8](https://github.com/dashpay/dash-network-deploy/commit/50b7de88bb0588dce0c6b94344844d67c4c2ed73))
+* tests running from wrong branch ([#342](https://github.com/dashpay/dash-network-deploy/issues/342)) ([cfce703](https://github.com/dashpay/dash-network-deploy/commit/cfce703335c2c5a7516a09cf164653c11b4bf25f))
+* Use getgovinfo in RPC check ([#310](https://github.com/dashpay/dash-network-deploy/issues/310)) ([2c2b013](https://github.com/dashpay/dash-network-deploy/commit/2c2b01335032b01c73c41832ab4ccd436415b589))
+* use local directory in case of multiple users ([#330](https://github.com/dashpay/dash-network-deploy/issues/330)) ([faa9f38](https://github.com/dashpay/dash-network-deploy/commit/faa9f38358bcc8f70c09ba8e8b1c7549f14100c5))
+
+
+### Features
+
+* add powtargetspacing to dash.conf vars ([#315](https://github.com/dashpay/dash-network-deploy/issues/315)) ([fe39650](https://github.com/dashpay/dash-network-deploy/commit/fe396507d1caf517f49f4bd915dafce94a990116))
+* arm64 nodes ([#299](https://github.com/dashpay/dash-network-deploy/issues/299)) ([ac5715d](https://github.com/dashpay/dash-network-deploy/commit/ac5715d5e9fb4a03ee62fbe281b1d12f81c66d5a))
+* changes to support devnets with quorum rotation ([#291](https://github.com/dashpay/dash-network-deploy/issues/291)) ([1848af7](https://github.com/dashpay/dash-network-deploy/commit/1848af7f575ec6b68d938ded74eb3398f99e6c0d))
+* conditional core/platform elastic beats ([#325](https://github.com/dashpay/dash-network-deploy/issues/325)) ([726f5ef](https://github.com/dashpay/dash-network-deploy/commit/726f5ef2bd313dbe7354220daa9de525c104e887))
+* disable extra block production in tenderdash ([#339](https://github.com/dashpay/dash-network-deploy/issues/339)) ([e053e86](https://github.com/dashpay/dash-network-deploy/commit/e053e864e23777b1e284a6b2be3c38da5343add4))
+* generate second private keys for system identities ([#294](https://github.com/dashpay/dash-network-deploy/issues/294)) ([a8a40be](https://github.com/dashpay/dash-network-deploy/commit/a8a40be41f91a21992815f2755ab423c109d24fd))
+* make tenderdash log_level configurable ([#288](https://github.com/dashpay/dash-network-deploy/issues/288)) ([3892abf](https://github.com/dashpay/dash-network-deploy/commit/3892abf102dc42ab7b753f57821ff96fd94d9b75))
+* update tenderdash config for v0.8 ([#319](https://github.com/dashpay/dash-network-deploy/issues/319)) ([b350a8e](https://github.com/dashpay/dash-network-deploy/commit/b350a8e78204b5bbf17ccd1c732e4a9bd66105ff))
+* write protx values to config inventory file ([#293](https://github.com/dashpay/dash-network-deploy/issues/293)) ([44ec014](https://github.com/dashpay/dash-network-deploy/commit/44ec01412b2b178add3c568fe398d30a26b516fe))
+
+
+
 # [0.22.0](https://github.com/dashpay/dash-network-deploy/compare/v0.21.0...v0.22.0) (2022-03-21)
 
 

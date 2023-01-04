@@ -1,7 +1,0 @@
----
-
-- name: pull dashd image
-  shell: docker pull {{ dashd_image }}
-
-- name: copy dash-cli from docker container
-  shell: docker run --rm -v /tmp:/host-tmp {{ dashd_image }} cp /usr/local/bin/dash-cli /host-tmp/ && mv /tmp/dash-cli /usr/local/bin/dash-cli

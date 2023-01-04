@@ -1,6 +1,6 @@
 {
   "name": "@dashevo/dash-network-deploy",
-  "version": "0.23.0-dev.3",
+  "version": "0.24.0-dev.1",
   "description": "Dash Network deployment tool",
   "directories": {
     "lib": "lib",
@@ -21,10 +21,10 @@
   },
   "homepage": "https://github.com/dashpay/dash-network-deploy#readme",
   "dependencies": {
-    "@dashevo/dapi-client": "^0.22.0",
-    "@dashevo/dashcore-lib": "~0.19.30",
-    "@dashevo/dashd-rpc": "^2.4.1",
-    "@dashevo/wallet-lib": "~7.22.16",
+    "@dashevo/dapi-client": "^0.23.0",
+    "@dashevo/dashcore-lib": "~0.19.44",
+    "@dashevo/dashd-rpc": "^2.4.2",
+    "@dashevo/wallet-lib": "~7.23.0",
     "@dashevo/bls": "~1.0.0-beta.2",
     "chai": "^4.3.6",
     "chai-arrays": "^2.0.0",
@@ -44,7 +44,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-webpack": "^5.0.0",
     "lodash.merge": "^4.6.2",
-    "mocha": "^10.0.0",
+    "mocha": "^10.1.0",
     "node-fetch": "^2.6.7",
     "node-openvpn": "github:luigiplr/node-openvpn",
     "node-polyfill-webpack-plugin": "^2.0.1",

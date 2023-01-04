@@ -1,0 +1,27 @@
+---
+
+- name: Copy dashd-generate-miner script
+  ansible.builtin.template:
+    src: 'dashd-generate-miner.sh.j2'
+    dest: '/usr/local/bin/dashd-generate-miner.sh'
+    owner: root
+    group: root
+    mode: 0755
+  register: service_result
+
+- name: Create dashd-generate-miner service
+  ansible.builtin.template:
+    src: 'dashd-generate-miner.service.j2'
+    dest: '/etc/systemd/system/dashd-generate-miner.service'
+    owner: root
+    group: root
+    mode: 0644
+  register: service_result
+
+- name: Enable dashd-generate-miner
+  ansible.builtin.systemd:
+    name: 'dashd-generate-miner'
+    state: restarted
+    enabled: true
+    masked: false
+    daemon_reload: '{{ service_result is changed }}'

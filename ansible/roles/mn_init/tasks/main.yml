@@ -1,0 +1,189 @@
+---
+
+# Init
+
+- name: Wait for wallet sync
+  register: blockchain_status
+  ansible.builtin.command: dash-cli getblockchaininfo
+  retries: 100
+  delay: 60
+  until: blockchain_status.stdout | from_json | json_query('blocks') == blockchain_status.stdout | from_json | json_query('headers')
+  changed_when: blockchain_status.stdout | length > 0
+
+- name: Force mnsync next
+  ansible.builtin.command: dash-cli mnsync next
+  register: result
+  changed_when: '"FINISHED" in result.stdout'
+
+- name: Wait for blockchain sync
+  ansible.builtin.command: dash-cli mnsync status
+  register: mnsync_status
+  retries: 100
+  delay: 60
+  until: mnsync_status.stdout | from_json | json_query("IsBlockchainSynced") == true
+  changed_when: mnsync_status | length > 0
+
+- name: Force mnsync next (again)
+  ansible.builtin.command: dash-cli mnsync next
+  changed_when: '"FINISHED" in result.stdout'
+
+- name: Wait for wallet to sync with blockchain
+  ansible.builtin.command: dash-cli mnsync status
+  register: mnsync_status
+  retries: 100
+  delay: 60
+  until: mnsync_status.stdout | from_json | json_query('IsSynced') == true
+  changed_when: mnsync_status.stdout | from_json | json_query('IsSynced') == true
+
+- name: Import masternode owner private key
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].owner.private_key }} "" false'
+  with_items: '{{ groups["masternodes"] }}'
+  register: result
+  changed_when: result.rc == 0
+
+- name: Import masternode collateral private keys
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].collateral.private_key }} "" false'
+  with_items: '{{ groups["masternodes"] }}'
+  register: result
+  changed_when: result.rc == 0
+
+- name: Rescan blockchain
+  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} rescanblockchain'
+  register: result
+  changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
+
+- name: Get list of ProTx transactions from the wallet
+  ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx list wallet true
+  register: get_protx_list_result
+  changed_when: get_protx_list_result.stdout | to_json | length > 0
+
+# Registered masternodes list
+
+- name: Initialize array for registered masternode names
+  ansible.builtin.set_fact:
+    registered_masternode_names: []
+
+- name: Get names of registered masternodes
+  ansible.builtin.set_fact:
+    registered_masternode_names: '{{ registered_masternode_names + [item] }}'
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+  with_items: '{{ groups["masternodes"] }}'
+
+- name: Registered masternodes list
+  ansible.builtin.debug:
+    var: registered_masternode_names
+
+# New masternodes list
+
+- name: Determine new masternodes
+  ansible.builtin.set_fact:
+    new_masternode_names: "{{ groups['masternodes'] | difference(registered_masternode_names) }}"
+
+- name: New masternodes list
+  ansible.builtin.debug:
+    var: new_masternode_names
+
+# Banned masternodes list
+
+- name: Get list of banned masternodes from the wallet
+  ansible.builtin.set_fact:
+    banned_masternodes_list: "{{ get_protx_list_result.stdout | from_json | json_query('[?state.PoSeBanHeight > `0`]') }}"
+
+- name: Initialize array for banned masternode names
+  ansible.builtin.set_fact:
+    banned_masternode_names: []
+
+- name: Get names of banned masternodes
+  ansible.builtin.set_fact:
+    banned_masternode_names: '{{ banned_masternode_names + [item] }}'
+  when: banned_masternodes_list | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+  with_items: '{{ registered_masternode_names }}'
+
+- name: Banned masternodes list
+  ansible.builtin.debug:
+    var: banned_masternode_names
+
+# Misconfigured masternode list
+
+- name: Initialize array for misconfigured masternode names
+  ansible.builtin.set_fact:
+    misconfigured_masternode_names: []
+
+- name: Get names of misconfigured masternodes
+  ansible.builtin.set_fact:
+    misconfigured_masternode_names: '{{ misconfigured_masternode_names + [item] }}'
+  when: >
+    get_protx_list_result.stdout | from_json |
+    json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']") |
+    json_query("[?state.service!='" + hostvars[item].public_ip + ":" + dashd_port | string  + "']")
+  with_items: '{{ registered_masternode_names }}'
+
+# We should probably subtract the banned masternodes from this list so we don't unban twice
+# or just merge the list with banned masternodes and run proupsrv once for both lists
+- name: Misconfigured masternodes list
+  ansible.builtin.debug:
+    var: misconfigured_masternode_names
+
+# Fund fee
+
+- name: Populate fee payment targets
+  ansible.builtin.set_fact:
+    fee_target_addresses: "{{ fee_target_addresses | default([]) + [masternodes[item].collateral.address] }}"
+  with_items: '{{ groups["masternodes"] }}'
+
+- name: Check if address contains a suitable fee utxo
+  ansible.builtin.command: >
+    dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} listunspent 1 99999999 '{{ fee_target_addresses | to_json }}' false '{{ maxamount | to_json }}'
+  register: funded_addresses
+  changed_when: funded_addresses.stdout | from_json | length > 0
+  vars:
+    maxamount:
+      maximumAmount: 1
+
+- name: Figure out which addresses need fee funding
+  ansible.builtin.set_fact:
+    fee_missing_addresses: "{{ fee_target_addresses | difference(funded_addresses.stdout) }}"
+
+- name: Fund 1 coin for ProTx fee
+  ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
+  vars:
+    amount: 1
+    payment_targets: '{{ fee_target_addresses }}'
+  when: fee_target_addresses|length > 0
+
+- name: Generate at least one block to confirm fee funding transactions
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    num_blocks: 1
+    balance_needed: 0
+
+# Take action
+
+- name: Fund collaterals for not initialized masternodes
+  ansible.builtin.include_role:
+    name: mn_fund_collateral
+  vars:
+    masternode_names: '{{ new_masternode_names }}'
+  when: new_masternode_names | length > 0
+
+- name: Create pro tx for not initialized masternodes
+  ansible.builtin.include_role:
+    name: mn_createprotx
+  vars:
+    masternode_names: '{{ new_masternode_names }}'
+  when: new_masternode_names | length > 0
+
+- name: Unban banned masternodes
+  ansible.builtin.include_role:
+    name: mn_unban
+  vars:
+    masternode_names: '{{ banned_masternode_names }}'
+  when: banned_masternode_names | length > 0
+
+- name: Update service for misconfigured masternodes
+  ansible.builtin.include_role:
+    name: mn_unban
+  vars:
+    masternode_names: '{{ misconfigured_masternode_names }}'
+  when: misconfigured_masternode_names | length > 0

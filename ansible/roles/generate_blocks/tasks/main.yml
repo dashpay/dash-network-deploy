@@ -1,0 +1,20 @@
+---
+
+- name: Fail if vars are not set properly
+  ansible.builtin.fail:
+    msg: 'num_blocks and balance_needed must always be set. set one of them to a non-zero value and the other one to zero'
+  when: num_blocks is not defined or balance_needed is not defined or (num_blocks != 0 and balance_needed != 0) or (num_blocks == 0 and balance_needed == 0)
+
+- name: Specify which networks permit generating blocks
+  ansible.builtin.set_fact:
+    generate_networks:
+      - regtest
+      - devnet
+
+- name: Generate blocks
+  ansible.builtin.include_tasks: generate_blocks.yml
+  when: dash_network in generate_networks
+
+- name: Wait for blocks
+  ansible.builtin.include_tasks: wait_for_blocks.yml
+  when: dash_network not in generate_networks
