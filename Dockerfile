@@ -67,7 +67,6 @@ RUN apt-get remove --purge -y \
     python3-setuptools \
     unzip \
     curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . .
