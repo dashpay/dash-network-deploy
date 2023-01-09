@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 LABEL maintainer="Dash Developers <dev@dash.org>"
 LABEL description="Dash Network Deployment Tool"
@@ -28,7 +28,7 @@ RUN curl -sSL https://deb.nodesource.com/setup_16.x | bash - && \
 
 # Install terraform
 
-ARG TERRAFORM_VERSION=1.0.5
+ARG TERRAFORM_VERSION=1.3.7
 
 RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
@@ -36,7 +36,7 @@ RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraf
 
 # Install Docker client
 
-ENV DOCKERVERSION=20.10.8
+ENV DOCKERVERSION=20.10.9
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
     && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
     -C /usr/local/bin docker/docker \
@@ -67,7 +67,6 @@ RUN apt-get remove --purge -y \
     python3-setuptools \
     unzip \
     curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . .

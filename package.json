@@ -1,6 +1,6 @@
 {
   "name": "@dashevo/dash-network-deploy",
-  "version": "0.24.0-dev.1",
+  "version": "0.24.0-dev.2",
   "description": "Dash Network deployment tool",
   "directories": {
     "lib": "lib",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@dashevo/dapi-client": "^0.23.0",
     "@dashevo/dashcore-lib": "~0.19.44",
-    "@dashevo/dashd-rpc": "^2.4.2",
+    "@dashevo/dashd-rpc": "^18.2.0",
     "@dashevo/wallet-lib": "~7.23.0",
     "bls-signatures": "^0.2.5",
     "chai": "^4.3.6",
