@@ -1,7 +1,7 @@
 ---
 - name: Stop dashmate
   ansible.builtin.command: yarn dashmate stop
-  become: yes
+  become: true
   become_user: dashmate
   args:
     chdir: /home/dashmate/platform
@@ -10,7 +10,7 @@
 
 - name: Reset platform
   ansible.builtin.command: yarn dashmate reset -p
-  become: yes
+  become: true
   become_user: dashmate
   args:
     chdir: /home/dashmate/platform

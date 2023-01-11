@@ -37,10 +37,10 @@
     force: true
 
 - name: Adding dashmate to group docker
-  user:
+  ansible.builtin.user:
     name: 'dashmate'
     groups: docker
-    append: yes
+    append: true
 
 - name: Create all necessary config dirs
   ansible.builtin.file:
@@ -63,13 +63,15 @@
     # dapi-envoy docker user
     owner: 101
     group: 101
+    creates: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
 
   # common name is required when loading into envoy
 - name: Generate an OpenSSL Certificate Signing Request
   community.crypto.openssl_csr:
-    path:  '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
     privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
     common_name: '{{ inventory_hostname }}'
+    creates: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
 
 - name: Generate a Self Signed OpenSSL certificate
   community.crypto.x509_certificate:
@@ -80,6 +82,7 @@
     # dapi-envoy docker user
     owner: 101
     group: 101
+    creates: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.crt'
 
 - name: Write config.json file in ~/.dashmate
   vars:
@@ -99,21 +102,22 @@
     state: present
 
 - name: Enable corepack
-  ansible.builtin.command: corepack enable
-  become: yes
+  ansible.builtin.command: corepack enable && touch /root/.corepack
+  become: true
   become_user: root
+  args:
+    creates: /root/.corepack
 
 - name: Clone platform
-  ansible.builtin.command: git clone -b {{ platform_branch }} https://github.com/dashpay/platform
-  become: yes
-  become_user: dashmate
-  args:
-    chdir: /home/dashmate
-    creates: /home/dashmate/platform
+  ansible.builtin.git:
+    repo: 'https://github.com/dashpay/platform'
+    dest: /home/dashmate/platform
+    version: '{{ platform_branch }}'
+    single_branch: true
 
 - name: Update yarn dependencies
   ansible.builtin.command: yarn
-  become: yes
+  become: true
   become_user: dashmate
   args:
     chdir: /home/dashmate/platform
@@ -121,7 +125,7 @@
 
 - name: Build dash sdk
   ansible.builtin.command: yarn build
-  become: yes
+  become: true
   become_user: dashmate
   args:
     chdir: /home/dashmate/platform/packages/js-dash-sdk
@@ -129,7 +133,9 @@
 
 - name: Run masternode
   ansible.builtin.command: yarn dashmate start
-  become: yes
+  become: true
   become_user: dashmate
   args:
     chdir: /home/dashmate/platform
+  register: dashmate_start
+  changed_when: "'Running services detected' not in dashmate_start.stdout"
