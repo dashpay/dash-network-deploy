@@ -162,12 +162,6 @@
   tags:
     - web
 
-- name: Register masternodes
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - mn_init
-
 - name: Set up wallets
   hosts: wallet_nodes
   become: true
@@ -179,6 +173,12 @@
       tags:
         - dashd
     - elastic_beats
+
+- name: Register masternodes
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - mn_init
 
 - name: Prepare and run dashmate on masternodes
   hosts: masternodes

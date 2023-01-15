@@ -31,10 +31,11 @@
 
 - name: Symlink dash.conf to user dashmate directory to make rpc work
   ansible.builtin.file:
-    path: '{{ dashmate_home }}/.dashcore/dash.conf'
+    path: '{{ item.dir }}/.dashcore/dash.conf'
     src: '/etc/dash.conf'
     state: link
     force: true
+  loop: '{{ users_to_manage }}'
 
 - name: Adding dashmate to group docker
   ansible.builtin.user:
