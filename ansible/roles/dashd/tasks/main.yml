@@ -22,6 +22,7 @@
     owner: '{{ item.user }}'
     group: '{{ item.group }}'
   loop: '{{ users_to_manage }}'
+  when: item.user != dashmate_user
 
 - name: Write dash.conf file in /etc/
   ansible.builtin.template:
@@ -39,6 +40,7 @@
     state: link
     force: true
   loop: '{{ users_to_manage }}'
+  when: item.user != dashmate_user
 
 - name: Create dashcore docker-compose dir
   ansible.builtin.file:

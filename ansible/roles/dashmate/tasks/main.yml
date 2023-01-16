@@ -29,6 +29,16 @@
     mode: 0644
   register: dash_config_state
 
+- name: Create .dashcore directory for each user
+  ansible.builtin.file:
+    path: '{{ item.dir }}/.dashcore'
+    state: directory
+    mode: 0755
+    owner: '{{ item.user }}'
+    group: '{{ item.group }}'
+  loop: '{{ users_to_manage }}'
+  when: item.user != dashd_user
+
 - name: Symlink dash.conf to user dashmate directory to make rpc work
   ansible.builtin.file:
     path: '{{ item.dir }}/.dashcore/dash.conf'
@@ -36,6 +46,7 @@
     state: link
     force: true
   loop: '{{ users_to_manage }}'
+  when: item.user != dashd_user
 
 - name: Adding dashmate to group docker
   ansible.builtin.user:
