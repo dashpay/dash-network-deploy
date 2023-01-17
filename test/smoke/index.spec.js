@@ -8,4 +8,5 @@ describe('Smoke', () => {
   require('./faucet');
   require('./insight');
   require('./elastic');
+  require('./quorum');
 });
