@@ -3,7 +3,7 @@
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
 
-- name: Create dashd user
+- name: Create dashmate user
   ansible.builtin.user:
     name: '{{ dashmate_user }}'
     comment: 'Dashmate user'
@@ -151,4 +151,4 @@
   args:
     chdir: /home/dashmate/platform
   register: dashmate_start
-  changed_when: "'Running services detected' not in dashmate_start.stdout"
+  changed_when: "'Running services detected' not in dashmate_start.stderr"
