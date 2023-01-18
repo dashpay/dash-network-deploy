@@ -82,10 +82,17 @@ You may pass the `--only-infrastructure` or `--only-provisioning` option to avoi
 To destroy an available Dash Network use `destroy` command:
 
 ```bash
-dash-network destroy <network_name>
+dash-network destroy -t=<target> <network_name>
 ```
 
-You may pass the `--keep-infrastructure` option to remove only the software and configuration while keeping the infrastructure.
+You can choose from what the layers you want to destroy with `-t` flag. It takes one of three values:
+* all (infrastructure with software)
+* network (L2+L1)
+* platform (L2)
+
+If you want to destroy network with `-t=network`, you can deploy network again almost the same, you just need to pass `-p` option to `deploy` command to skip infrastructure provisioning.
+
+If you want to destroy network with `-t=platform`, you must comment out everything except masternode and seed nodes in deploy.yml playbook and run deploy with `-p` option.
 
 ## List network services
 
