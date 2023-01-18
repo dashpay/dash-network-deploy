@@ -127,6 +127,7 @@
     dest: /home/dashmate/platform
     version: '{{ platform_branch }}'
     single_branch: true
+    depth: 1
 
 - name: Update yarn dependencies
   ansible.builtin.command: yarn
