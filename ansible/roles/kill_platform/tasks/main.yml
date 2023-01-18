@@ -6,6 +6,8 @@
   args:
     chdir: /home/dashmate/platform
   when: inventory_hostname in groups["masternodes"]
+  register: dashmate_stop
+  changed_when: "'Node is not running' in dashmate_stop.stderr"
 
 - name: Reset platform
   ansible.builtin.command: yarn dashmate reset -p

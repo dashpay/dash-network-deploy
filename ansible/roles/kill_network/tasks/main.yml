@@ -7,6 +7,8 @@
   args:
     chdir: /home/dashmate/platform
   when: inventory_hostname in groups["masternodes"]
+  register: dashmate_stop
+  changed_when: "'Node is not running' in dashmate_stop.stderr"
 
 - name: Disable pay-faucet
   ansible.builtin.systemd:
