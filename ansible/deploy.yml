@@ -60,6 +60,25 @@
     - docker_options
     - eternal_terminal
 
+- name: Setup Node.JS and NPM
+  hosts: masternodes
+  become: true
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+    - name: Install docker-compose-plugin
+      ansible.builtin.package:
+        name: docker-compose-plugin
+        state: present
+  vars:
+    nodejs_version: "16.x"
+# todo use that after v24-dev release
+#    nodejs_npm_global_packages:
+#      - name: 'dashmate@{{ dashmate_version }}'
+  roles:
+    - geerlingguy.nodejs
+
 - name: Install AWS monitoring scripts
   hosts: all
   become: true
@@ -67,8 +86,6 @@
     - role: Restless-ET.aws-scripts-mon
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
-
-# Install Dash Core
 
 - name: Configure dashd cli and network logging
   hosts: all
@@ -84,18 +101,6 @@
   roles:
     - elastic_stack
 
-- name: Set up wallets
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      enable_wallet: true
-      tags:
-        - dashd
-    - elastic_beats
-
 - name: Set up miners
   hosts: miners
   become: true
@@ -104,7 +109,6 @@
       tags:
         - dashd
     - elastic_beats
-
 
 # Start seeds
 
@@ -158,11 +162,36 @@
   tags:
     - web
 
+- name: Set up wallets
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      enable_wallet: true
+      tags:
+        - dashd
+    - elastic_beats
+
 - name: Register masternodes
   hosts: wallet_nodes
   become: true
   roles:
     - mn_init
+
+- name: Prepare and run dashmate on masternodes
+  hosts: masternodes
+  pre_tasks:
+    - name: Check inventory for masternodes
+      ansible.builtin.set_fact:
+        masternode: "{{ masternodes[inventory_hostname] }}"
+        node: "{{ masternodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in masternodes
+  become: true
+  roles:
+    - role: dashmate
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
@@ -176,32 +205,6 @@
     - role: activate_dashd_sporks
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
-
-# Start masternodes
-
-- name: Set up core and platform on masternodes
-  hosts: masternodes
-  become: true
-  pre_tasks:
-    - name: Set node variables for masternodes
-      ansible.builtin.set_fact:
-        node: "{{ masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in masternodes
-  roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - mn_sentinel
-    - role: mn_evo_services
-      tags:
-        - evo
-      when: evo_services
-    - mn_status_report
-    - elastic_beats
 
 - name: Set up fake latency on masternodes
   hosts: masternodes

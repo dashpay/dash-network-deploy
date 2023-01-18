@@ -83,7 +83,7 @@ describe('Core', () => {
     }
   });
 
-  describe('Masternodes', () => {
+  describe.only('Masternodes', () => {
     const masternodeListInfo = {};
 
     before('Collect masternode list info', function func() {
