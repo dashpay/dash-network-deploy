@@ -75,6 +75,9 @@ users_to_manage:
 - user: "{{ dashd_user }}"
   group: "{{ dashd_group }}"
   dir: "{{ dashd_home }}"
+- user: "{{ dashmate_user }}"
+  group: "{{ dashmate_group }}"
+  dir: "{{ dashmate_home }}"
 
 dashd_user: dash
 dashd_group: dash

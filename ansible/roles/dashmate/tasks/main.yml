@@ -3,7 +3,7 @@
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
 
-- name: Create dashd user
+- name: Create dashmate user
   ansible.builtin.user:
     name: '{{ dashmate_user }}'
     comment: 'Dashmate user'
@@ -29,12 +29,24 @@
     mode: 0644
   register: dash_config_state
 
+- name: Create .dashcore directory for each user
+  ansible.builtin.file:
+    path: '{{ item.dir }}/.dashcore'
+    state: directory
+    mode: 0755
+    owner: '{{ item.user }}'
+    group: '{{ item.group }}'
+  loop: '{{ users_to_manage }}'
+  when: item.user != dashd_user
+
 - name: Symlink dash.conf to user dashmate directory to make rpc work
   ansible.builtin.file:
-    path: '{{ dashmate_home }}/.dashcore/dash.conf'
+    path: '{{ item.dir }}/.dashcore/dash.conf'
     src: '/etc/dash.conf'
     state: link
     force: true
+  loop: '{{ users_to_manage }}'
+  when: item.user != dashd_user
 
 - name: Adding dashmate to group docker
   ansible.builtin.user:
@@ -63,7 +75,6 @@
     # dapi-envoy docker user
     owner: 101
     group: 101
-    creates: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
 
   # common name is required when loading into envoy
 - name: Generate an OpenSSL Certificate Signing Request
@@ -71,7 +82,6 @@
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
     privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
     common_name: '{{ inventory_hostname }}'
-    creates: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
 
 - name: Generate a Self Signed OpenSSL certificate
   community.crypto.x509_certificate:
@@ -82,7 +92,6 @@
     # dapi-envoy docker user
     owner: 101
     group: 101
-    creates: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.crt'
 
 - name: Write config.json file in ~/.dashmate
   vars:
@@ -102,18 +111,23 @@
     state: present
 
 - name: Enable corepack
-  ansible.builtin.command: corepack enable && touch /root/.corepack
+  ansible.builtin.shell: |
+    corepack enable
+    touch /root/.corepack
   become: true
   become_user: root
   args:
     creates: /root/.corepack
 
 - name: Clone platform
+  become: true
+  become_user: dashmate
   ansible.builtin.git:
     repo: 'https://github.com/dashpay/platform'
     dest: /home/dashmate/platform
     version: '{{ platform_branch }}'
     single_branch: true
+    depth: 1
 
 - name: Update yarn dependencies
   ansible.builtin.command: yarn
@@ -138,4 +152,4 @@
   args:
     chdir: /home/dashmate/platform
   register: dashmate_start
-  changed_when: "'Running services detected' not in dashmate_start.stdout"
+  changed_when: "'Running services detected' not in dashmate_start.stderr"

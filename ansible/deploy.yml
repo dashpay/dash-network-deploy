@@ -101,18 +101,6 @@
   roles:
     - elastic_stack
 
-- name: Set up wallets
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      enable_wallet: true
-      tags:
-        - dashd
-    - elastic_beats
-
 - name: Set up miners
   hosts: miners
   become: true
@@ -174,13 +162,25 @@
   tags:
     - web
 
+- name: Set up wallets
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      enable_wallet: true
+      tags:
+        - dashd
+    - elastic_beats
+
 - name: Register masternodes
   hosts: wallet_nodes
   become: true
   roles:
     - mn_init
 
-- name: Prepare and run dashmate
+- name: Prepare and run dashmate on masternodes
   hosts: masternodes
   pre_tasks:
     - name: Check inventory for masternodes
