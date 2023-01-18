@@ -7,7 +7,6 @@
   args:
     chdir: /home/dashmate/platform
   when: inventory_hostname in groups["masternodes"]
-  any_errors_fatal: true
 
 - name: Disable pay-faucet
   ansible.builtin.systemd:
