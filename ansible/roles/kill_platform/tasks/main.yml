@@ -1,15 +1,39 @@
 ---
+- name: Stop dashmate
+  ansible.builtin.command: yarn dashmate stop
+  become: true
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform
+  when: inventory_hostname in groups["masternodes"]
+  register: dashmate_stop
+  changed_when: "'Node is not running' in dashmate_stop.stderr"
+
+- name: Reset platform
+  ansible.builtin.command: yarn dashmate reset -p
+  become: true
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform
+  when: inventory_hostname in groups["masternodes"]
 
 - name: Remove platform docker containers and volumes
   community.docker.docker_compose:
     project_src: '{{ mn_evo_services_path }}'
     state: absent
     remove_volumes: false
+  when: inventory_hostname not in groups["masternodes"]
 
 - name: Delete platform dir
   ansible.builtin.file:
     state: absent
     path: '{{ mn_evo_services_path }}'
+
+- name: Delete dashmate config dir
+  ansible.builtin.file:
+    state: absent
+    path: "{{ dashmate_config_dir }}/"
+  when: inventory_hostname not in groups["masternodes"]
 
 - name: Remove any remaining docker data
   community.docker.docker_prune:
@@ -20,3 +44,4 @@
     networks: true
     volumes: true
     builder_cache: true
+  when: inventory_hostname not in groups["masternodes"]

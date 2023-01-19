@@ -1,5 +1,15 @@
 ---
 
+- name: Stop dashmate
+  ansible.builtin.command: yarn dashmate stop
+  become: true
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform
+  when: inventory_hostname in groups["masternodes"]
+  register: dashmate_stop
+  changed_when: "'Node is not running' in dashmate_stop.stderr"
+
 - name: Disable pay-faucet
   ansible.builtin.systemd:
     name: 'pay-faucet'
@@ -41,7 +51,13 @@
     state: unmounted
   when: inventory_hostname in groups['logs_nodes']
 
+- name: Delete dashmate config dir
+  ansible.builtin.file:
+    state: absent
+    path: "{{ dashmate_config_dir }}/"
+
 - name: Delete dash home dir
   ansible.builtin.file:
     state: absent
     path: "{{ dashd_home }}/"
+  when: inventory_hostname in groups["masternodes"]
