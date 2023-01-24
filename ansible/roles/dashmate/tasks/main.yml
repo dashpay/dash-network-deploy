@@ -162,14 +162,20 @@
   become_user: dashmate
   args:
     chdir: /home/dashmate/platform
+  tags:
+    - skip_ansible_lint
 
 - name: Copy echo into container
   ansible.builtin.command: docker cp /home/dashmate/platform/packages/js-drive/scripts/echo.js dash_masternode_devnet-dashmate-drive_abci-1:/platform/packages/js-drive/scripts/echo.js
   become: true
   become_user: dashmate
+  tags:
+    - skip_ansible_lint
 
 - name: Copy package.json
   ansible.builtin.command: docker cp /home/dashmate/platform/packages/js-drive/package.json dash_masternode_devnet-dashmate-drive_abci-1:/platform/packages/js-drive/package.json
   become: true
   become_user: dashmate
+  tags:
+    - skip_ansible_lint
 # ------
