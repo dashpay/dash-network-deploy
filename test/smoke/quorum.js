@@ -51,7 +51,7 @@ describe('Quorums', () => {
       const promises = [];
       for (const hostName of allHosts) {
         if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
-          const docker = getDocker(inventory._meta.hostvars[hostName].public_ip);
+          const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
 
           const promise = getContainerId(docker, 'core')
             .then((containerId) => {
@@ -118,7 +118,7 @@ describe('Quorums', () => {
       for (const hostName of allHosts) {
         if (quorumLists[hostName][quorumCheckTypes[network.type].name].length > 0) {
           if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
-            const docker = getDocker(inventory._meta.hostvars[hostName].public_ip);
+            const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
 
             const promise = execCommand(docker, containerIds[hostName],
               ['dash-cli', 'quorum', 'info',
@@ -180,7 +180,7 @@ describe('Quorums', () => {
       const promises = [];
       for (const hostName of allHosts) {
         if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
-          const docker = getDocker(inventory._meta.hostvars[hostName].public_ip);
+          const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
 
           const promise = execCommand(docker, containerIds[hostName],
             ['dash-cli', 'getrawmempool', 'true'])

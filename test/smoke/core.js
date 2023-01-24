@@ -19,7 +19,7 @@ describe('Core', () => {
 
   before('Collect masternodes container ids', async () => {
     await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
-      const docker = getDocker(`http://${inventory._meta.hostvars[hostName].public_ip}`);
+      const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
       coreContainerIds[hostName] = await getContainerId(docker, 'core');
     }));
@@ -36,7 +36,7 @@ describe('Core', () => {
       this.timeout(60000); // set mocha timeout
 
       await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
-        const docker = getDocker(`http://${inventory._meta.hostvars[hostName].public_ip}`);
+        const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
         const blockchain = await execCommand(docker, coreContainerIds[hostName],
           ['dash-cli', 'getblockchaininfo']);
@@ -114,7 +114,7 @@ describe('Core', () => {
       this.timeout(30000); // set mocha timeout
 
       await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
-        const docker = getDocker(`http://${inventory._meta.hostvars[hostName].public_ip}`);
+        const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
         masternodeListInfo[hostName] = await execCommand(docker, coreContainerIds[hostName], ['dash-cli', 'masternode', 'list']);
       }));
@@ -129,8 +129,7 @@ describe('Core', () => {
 
           const nodeFromList = Object.values(masternodeListInfo[hostName])
             .find((node) => (
-              // eslint-disable-next-line no-underscore-dangle
-              inventory._meta.hostvars[hostName].public_ip === node.address.split(':')[0]
+              inventory.meta.hostvars[hostName].public_ip === node.address.split(':')[0]
             ));
 
           expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();

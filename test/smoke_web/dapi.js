@@ -23,14 +23,13 @@ describe('DAPI', () => {
 
         const dapiAddress = {
           protocol: 'https',
-          host: inventory._meta.hostvars[hostName].public_ip,
+          host: inventory.meta.hostvars[hostName].public_ip,
           httpPort: variables.dapi_port,
           grpcPort: variables.dapi_grpc_port,
           allowSelfSignedCertificate: true,
         };
 
         const dapiClient = new DAPIClient({
-          // eslint-disable-next-line no-underscore-dangle
           dapiAddresses: [dapiAddress],
           timeout,
         });
@@ -58,14 +57,13 @@ describe('DAPI', () => {
 
         const dapiAddress = {
           protocol: 'https',
-          host: inventory._meta.hostvars[hostName].public_ip,
+          host: inventory.meta.hostvars[hostName].public_ip,
           httpPort: variables.dapi_port,
           grpcPort: variables.dapi_grpc_port,
           allowSelfSignedCertificate: true,
         };
 
         const dapiClient = new DAPIClient({
-          // eslint-disable-next-line no-underscore-dangle
           dapiAddresses: [dapiAddress],
           timeout,
         });

@@ -11,7 +11,7 @@ describe('Tendermint', () => {
 
     before('Collect tenderdash info', async () => {
       const promises = inventory.masternodes.hosts.map(async (hostName) => {
-        const docker = getDocker(inventory._meta.hostvars[hostName].public_ip);
+        const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
         const containerId = await getContainerId(docker, 'dashmate_helper');
 
         statusInfo[hostName] = await execCommand(docker, containerId,

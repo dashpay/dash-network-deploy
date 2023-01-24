@@ -7,8 +7,7 @@ const { inventory, variables } = getNetworkConfig();
 describe('Elastic', () => {
   for (const hostName of inventory.logs_nodes.hosts) {
     describe(hostName, () => {
-      // eslint-disable-next-line no-underscore-dangle
-      const logsUrl = `http://${inventory._meta.hostvars[hostName].public_ip}`;
+      const logsUrl = `http://${inventory.meta.hostvars[hostName].public_ip}`;
       const elasticPort = 9200;
       const kibanaPort = 5601;
 

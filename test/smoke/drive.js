@@ -42,8 +42,7 @@ describe('Drive', () => {
       const promises = [];
 
       for (const hostName of seedHosts) {
-        // eslint-disable-next-line no-underscore-dangle
-        const requestEchoPromise = sendEcho(inventory._meta.hostvars[hostName].public_ip)
+        const requestEchoPromise = sendEcho(inventory.meta.hostvars[hostName].public_ip)
           .then(() => {
             echoInfo[hostName] = true;
           })
@@ -55,7 +54,7 @@ describe('Drive', () => {
       }
 
       const statusPromises = masternodeHosts.map(async (hostName) => {
-        const docker = await getDocker(`http://${inventory._meta.hostvars[hostName].public_ip}`);
+        const docker = await getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
         const containerIp = await getContainerId(docker, 'dashmate_helper');
 
         statusInfo[hostName] = await execCommand(docker, containerIp,
