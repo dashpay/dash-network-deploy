@@ -48,7 +48,7 @@ describe('Sentinel', () => {
         promises.push(requestListContainers);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises).catch(console.error);
     });
 
     for (const hostName of inventory.masternodes.hosts) {

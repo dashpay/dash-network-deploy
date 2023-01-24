@@ -30,10 +30,24 @@ module.exports = (config) => {
       },
       resolve: {
         fallback: {
+          dns: false,
+          tls: false,
+          http2: false,
+          zlib: false,
           fs: false,
-          crypto: require.resolve('crypto-browserify'),
-          stream: require.resolve('stream-browserify'),
           path: false,
+          net: false,
+          os: false,
+          http: false,
+          https: false,
+          assert: require.resolve('assert/'),
+          string_decoder: require.resolve('string_decoder/'),
+          stream: require.resolve('stream-browserify'),
+          crypto: require.resolve('crypto-browserify'),
+          buffer: require.resolve('buffer/'),
+          events: require.resolve('events/'),
+          url: require.resolve('url/'),
+          util: require.resolve('util/'),
         },
       },
       plugins: [
@@ -49,7 +63,7 @@ module.exports = (config) => {
       'karma-mocha',
       'karma-mocha-reporter',
       'karma-chai',
-      'karma-firefox-launcher',
+      'karma-chrome-launcher',
       'karma-webpack',
     ],
     reporters: ['mocha'],
@@ -57,14 +71,15 @@ module.exports = (config) => {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: false,
-    browsers: ['FirefoxHeadless'],
-    singleRun: false,
-    concurrency: Infinity,
+    browsers: ['chromeWithoutSecurity'],
     customLaunchers: {
-      FirefoxHeadless: {
-        base: 'Firefox',
-        flags: ['-headless'],
+      chromeWithoutSecurity: {
+        base: 'ChromeHeadless',
+        flags: ['--ignore-certificate-errors'],
+        displayName: 'Chrome w/o security',
       },
     },
+    singleRun: false,
+    concurrency: Infinity,
   });
 };

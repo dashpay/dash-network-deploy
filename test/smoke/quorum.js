@@ -1,5 +1,6 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
+const { getDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
 const { inventory, network, variables } = getNetworkConfig();
 
@@ -37,80 +38,120 @@ describe('Quorums', () => {
     // Set up vars to hold mn responses
     const blockCount = {};
     const bestChainLock = {};
-    const quorumList = {};
+    const quorumLists = {};
     const blockchainInfo = {};
     const firstQuorumInfo = {};
     const rawMemPool = {};
+    const containerIds = {};
     let instantsendTestTxid = '';
 
-    before('Collect chain lock and quorum list', () => {
+    before('Collect chain lock and quorum list', async () => {
       // this.timeout(60000); // set mocha timeout
 
       const promises = [];
       for (const hostName of allHosts) {
-        const timeout = 15000; // set individual rpc client timeout
+        if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
+          const docker = getDocker(inventory._meta.hostvars[hostName].public_ip);
 
-        const client = createRpcClientFromConfig(hostName);
+          const promise = getContainerId(docker, 'core')
+            .then((containerId) => {
+              containerIds[hostName] = containerId;
 
-        client.setTimeout(timeout);
+              return containerId;
+            })
+            .then((containerId) => Promise.all([
+              execCommand(docker, containerId, ['dash-cli', 'getblockcount']),
+              execCommand(docker, containerId, ['dash-cli', 'getbestchainlock']),
+              execCommand(docker, containerId, ['dash-cli', 'getblockchaininfo']),
+              execCommand(docker, containerId, ['dash-cli', 'quorum', 'list']),
+            ])
+              .then(([getBlockCount, getBestChainLock, getBlockchainInfo, quorumList]) => {
+                blockCount[hostName] = getBlockCount;
+                bestChainLock[hostName] = getBestChainLock;
+                blockchainInfo[hostName] = getBlockchainInfo;
+                quorumLists[hostName] = quorumList;
+              }));
 
-        const requestBlockCountPromise = client.getBlockCount()
-          // eslint-disable-next-line no-loop-func
-          .then(({ result }) => {
-            blockCount[hostName] = result;
-          });
+          promises.push(promise);
+        } else {
+          const timeout = 15000; // set individual rpc client timeout
 
-        const requestBestChainLockPromise = client.getBestChainLock()
-          .then(({ result }) => {
-            bestChainLock[hostName] = result;
-          });
+          const client = createRpcClientFromConfig(hostName);
 
-        const requestQuorumListPromise = client.quorum('list')
-          .then(({ result }) => {
-            quorumList[hostName] = result;
-          });
+          client.setTimeout(timeout);
 
-        const requestBlockchainInfoPromise = client.getBlockchainInfo()
-          .then(({ result }) => {
-            blockchainInfo[hostName] = result;
-          });
+          const requestBlockCountPromise = client.getBlockCount()
+            // eslint-disable-next-line no-loop-func
+            .then(({ result }) => {
+              blockCount[hostName] = result;
+            });
 
-        promises.push(
-          requestBlockCountPromise,
-          requestBestChainLockPromise,
-          requestQuorumListPromise,
-          requestBlockchainInfoPromise,
-        );
+          const requestBestChainLockPromise = client.getBestChainLock()
+            .then(({ result }) => {
+              bestChainLock[hostName] = result;
+            });
+
+          const requestQuorumListPromise = client.quorum('list')
+            .then(({ result }) => {
+              quorumLists[hostName] = result;
+            });
+
+          const requestBlockchainInfoPromise = client.getBlockchainInfo()
+            .then(({ result }) => {
+              blockchainInfo[hostName] = result;
+            });
+
+          promises.push(
+            requestBlockCountPromise,
+            requestBestChainLockPromise,
+            requestQuorumListPromise,
+            requestBlockchainInfoPromise,
+          );
+        }
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises).catch(console.error);
     });
 
     before('Collect quorum info', () => {
       const promises = [];
       for (const hostName of allHosts) {
-        const timeout = 15000; // set individual rpc client timeout
+        if (quorumLists[hostName][quorumCheckTypes[network.type].name].length > 0) {
+          if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
+            const docker = getDocker(inventory._meta.hostvars[hostName].public_ip);
 
-        const client = createRpcClientFromConfig(hostName);
+            const promise = execCommand(docker, containerIds[hostName],
+              ['dash-cli', 'quorum', 'info',
+                String(quorumCheckTypes[network.type].type),
+                quorumLists[hostName][quorumCheckTypes[network.type].name][0]])
+              .then((result) => {
+                firstQuorumInfo[hostName] = result;
+              });
 
-        client.setTimeout(timeout);
+            promises.push(promise);
+          } else {
+            const timeout = 15000; // set individual rpc client timeout
 
-        if (quorumList[hostName][quorumCheckTypes[network.type].name].length > 0) {
-          const requestFirstQuorumInfo = client.quorum(
-            'info',
-            quorumCheckTypes[network.type].type,
-            quorumList[hostName][quorumCheckTypes[network.type].name][0],
-          )
-            // eslint-disable-next-line no-loop-func
-            .then(({ result }) => {
-              firstQuorumInfo[hostName] = result;
-            });
+            const client = createRpcClientFromConfig(hostName);
 
-          promises.push(requestFirstQuorumInfo);
+            client.setTimeout(timeout);
+
+            const requestFirstQuorumInfo = client.quorum(
+              'info',
+              quorumCheckTypes[network.type].type,
+              quorumLists[hostName][quorumCheckTypes[network.type].name][0],
+            )
+              // eslint-disable-next-line no-loop-func
+              .then(({ result }) => {
+                firstQuorumInfo[hostName] = result;
+              });
+
+            promises.push(requestFirstQuorumInfo);
+          }
         }
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises).catch(console.error);
     });
 
     before('Send a transaction', () => {
@@ -128,7 +169,7 @@ describe('Quorums', () => {
 
       promises.push(requestGetBalance);
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises).catch(console.error);
     });
 
     before('Collect instantsend info', async () => {
@@ -138,29 +179,41 @@ describe('Quorums', () => {
 
       const promises = [];
       for (const hostName of allHosts) {
-        const timeout = 15000; // set individual rpc client timeout
+        if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
+          const docker = getDocker(inventory._meta.hostvars[hostName].public_ip);
 
-        const client = createRpcClientFromConfig(hostName);
+          const promise = execCommand(docker, containerIds[hostName],
+            ['dash-cli', 'getrawmempool', 'true'])
+            .then((result) => {
+              rawMemPool[hostName] = result;
+            });
 
-        client.setTimeout(timeout);
+          promises.push(promise);
+        } else {
+          const timeout = 15000; // set individual rpc client timeout
 
-        const requestGetRawMemPool = client.getRawMemPool(true)
-        // eslint-disable-next-line no-loop-func
-          .then(({ result }) => {
-            rawMemPool[hostName] = result;
-          });
+          const client = createRpcClientFromConfig(hostName);
 
-        promises.push(requestGetRawMemPool);
+          client.setTimeout(timeout);
+
+          const requestGetRawMemPool = client.getRawMemPool(true)
+            // eslint-disable-next-line no-loop-func
+            .then(({ result }) => {
+              rawMemPool[hostName] = result;
+            });
+
+          promises.push(requestGetRawMemPool);
+        }
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises).catch(console.error);
     });
 
     for (const hostName of allHosts) {
       // eslint-disable-next-line no-loop-func
       describe(hostName, () => {
         it('should see quorums of the correct type', () => {
-          expect(quorumList[hostName][quorumCheckTypes[network.type].name]).to.not.be.empty();
+          expect(quorumLists[hostName][quorumCheckTypes[network.type].name]).to.not.be.empty();
         });
 
         it('should see chainlocks at the chain tip', () => {
