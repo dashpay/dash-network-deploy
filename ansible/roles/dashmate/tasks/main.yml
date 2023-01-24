@@ -145,16 +145,6 @@
     chdir: /home/dashmate/platform/packages/js-dash-sdk
     creates: /home/dashmate/platform/packages/js-dash-sdk/build
 
-- name: Run masternode
-  ansible.builtin.command: yarn dashmate start
-  become: true
-  become_user: dashmate
-  args:
-    chdir: /home/dashmate/platform
-  register: dashmate_start
-  changed_when: "'Running services detected' not in dashmate_start.stderr"
-
-# ------
 # will be removed after platform v0.24.0-dev-13 release
 - name: Set dashmate helper image
   ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image "pshenmic/dashmate_helper"
@@ -165,6 +155,16 @@
   tags:
     - skip_ansible_lint
 
+- name: Run masternode
+  ansible.builtin.command: yarn dashmate start
+  become: true
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform
+  register: dashmate_start
+  changed_when: "'Running services detected' not in dashmate_start.stderr"
+
+# will be removed after platform v0.24.0-dev-13 release
 - name: Copy echo into container
   ansible.builtin.command: docker cp /home/dashmate/platform/packages/js-drive/scripts/echo.js dash_masternode_devnet-dashmate-drive_abci-1:/platform/packages/js-drive/scripts/echo.js
   become: true
@@ -178,4 +178,3 @@
   become_user: dashmate
   tags:
     - skip_ansible_lint
-# ------

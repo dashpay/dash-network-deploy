@@ -226,7 +226,7 @@ describe('Quorums', () => {
         });
 
         it('should see an instantsend lock', () => {
-          expect(rawMemPool[hostName][instantsendTestTxid].instantlock).to.be.true();
+          expect(Boolean(rawMemPool[hostName][instantsendTestTxid].instantlock)).to.be.true();
         });
       });
     }
