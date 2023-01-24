@@ -172,6 +172,7 @@
   tags:
     - skip_ansible_lint
 
+# will be removed after platform v0.24.0-dev-13 release
 - name: Copy package.json
   ansible.builtin.command: docker cp /home/dashmate/platform/packages/js-drive/package.json dash_masternode_devnet-dashmate-drive_abci-1:/platform/packages/js-drive/package.json
   become: true
