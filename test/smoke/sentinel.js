@@ -43,7 +43,7 @@ describe('Sentinel', () => {
           .then((result) => {
             getContainer[hostName] = result.toString();
           })
-          .catch(() => {});
+          .catch(console.error);
 
         promises.push(requestListContainers);
       }
