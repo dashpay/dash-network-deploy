@@ -53,8 +53,8 @@ describe('Tendermint', () => {
             networkName = `dash-${variables.tenderdash_chain_id}`;
           }
 
-          expect(status.tenderdash.network).to.be.equal(networkName)
-          expect(status.tenderdash.moniker).to.be.equal(hostName)
+          expect(status.tenderdash.network).to.be.equal(networkName);
+          expect(status.tenderdash.moniker).to.be.equal(hostName);
         });
 
         it('should be connected to peers', () => {

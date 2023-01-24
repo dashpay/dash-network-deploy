@@ -17,9 +17,8 @@ const allHosts = inventory.masternodes.hosts
 describe('Core', () => {
   const coreContainerIds = {};
 
-  before('Collect masternodes container ids', async function func() {
+  before('Collect masternodes container ids', async () => {
     await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
-
       const docker = getDocker(`http://${inventory._meta.hostvars[hostName].public_ip}`);
 
       coreContainerIds[hostName] = await getContainerId(docker, 'core');

@@ -96,7 +96,6 @@ describe('DAPI', () => {
     for (const hostName of inventory.masternodes.hosts) {
       describe(hostName, () => {
         it('should respond with Core data via gRPC Web', () => {
-
           if (blockByHeightError[hostName]) {
             expect.fail(null, null, blockByHeightError[hostName]);
           }
