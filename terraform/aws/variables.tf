@@ -179,3 +179,8 @@ variable "wallet_node_instance_size" {
   description = "Instance type of wallet nodes"
   default     = "micro"
 }
+
+variable "volume_type" {
+  description = "Type of volume to use for block devices"
+  default = "gp3"
+}
