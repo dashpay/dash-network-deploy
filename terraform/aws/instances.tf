@@ -14,6 +14,7 @@ resource "aws_instance" "web" {
 
   root_block_device {
     volume_size = var.web_node_disk_size
+    volume_type = var.volume_type
   }
 
   vpc_security_group_ids = [
@@ -51,6 +52,7 @@ resource "aws_instance" "dashd_wallet" {
 
   root_block_device {
     volume_size = var.core_node_disk_size
+    volume_type = var.volume_type
   }
 
   vpc_security_group_ids = [
@@ -97,6 +99,7 @@ resource "aws_instance" "seed_node" {
 
   root_block_device {
     volume_size = var.mn_node_disk_size
+    volume_type = var.volume_type
   }
 
   volume_tags = {
@@ -128,6 +131,7 @@ resource "aws_instance" "miner" {
 
   root_block_device {
     volume_size = var.core_node_disk_size
+    volume_type = var.volume_type
   }
 
   vpc_security_group_ids = [
@@ -174,6 +178,7 @@ resource "aws_instance" "masternode" {
 
   root_block_device {
     volume_size = var.mn_node_disk_size
+    volume_type = var.volume_type
   }
 
   volume_tags = {
@@ -236,11 +241,13 @@ resource "aws_instance" "logs" {
 
   root_block_device {
     volume_size = var.logs_node_root_disk_size
+    volume_type = var.volume_type
   }
 
   ebs_block_device {
     volume_size = var.logs_node_disk_size
     device_name = "/dev/sdf"
+    volume_type = var.volume_type
   }
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
