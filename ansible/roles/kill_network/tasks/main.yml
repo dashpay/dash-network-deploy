@@ -55,9 +55,9 @@
   ansible.builtin.file:
     state: absent
     path: "{{ dashmate_config_dir }}/"
+  when: inventory_hostname in groups["masternodes"]
 
 - name: Delete dash home dir
   ansible.builtin.file:
     state: absent
     path: "{{ dashd_home }}/"
-  when: inventory_hostname in groups["masternodes"]
