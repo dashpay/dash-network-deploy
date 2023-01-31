@@ -53,7 +53,6 @@ tenderdash_log_level: debug
 dapi_image: dashpay/dapi
 dapi_envoy_image: envoyproxy/envoy
 dapi_port: 3000
-dapi_grpc_port: 3010
 
 # Insight
 insight_image: dashpay/insight

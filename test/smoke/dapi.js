@@ -26,7 +26,6 @@ describe('DAPI', () => {
           protocol: 'https',
           host: inventory.meta.hostvars[hostName].public_ip,
           httpPort: variables.dapi_port,
-          grpcPort: variables.dapi_grpc_port,
           allowSelfSignedCertificate: true,
         };
 
