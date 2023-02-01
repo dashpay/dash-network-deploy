@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/dashpay/dash-network-deploy#readme",
   "dependencies": {
-    "@dashevo/dapi-client": "^0.24.0-dev.12",
+     "@dashevo/dapi-client": "^0.24.0-dev.13",
     "@dashevo/dashcore-lib": "~0.19.44",
     "@dashevo/dashd-rpc": "^18.2.0",
     "@dashevo/wallet-lib": "~7.23.0",
