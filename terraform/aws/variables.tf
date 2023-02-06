@@ -16,6 +16,16 @@ variable "dashd_zmq_port" {
   default     = 29998
 }
 
+variable "faucet_port" {
+  description = "Faucet port"
+  default     = 80
+}
+
+variable "faucet_https_port" {
+  description = "Faucet HTTPS port"
+  default     = 443
+}
+
 variable "insight_port" {
   description = "Insight port"
   default     = 3001
