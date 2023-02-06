@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/dashpay/dash-network-deploy#readme",
   "dependencies": {
-    "@dashevo/dapi-client": "^0.23.0",
+    "@dashevo/dapi-client": "^0.24.0-dev.13",
     "@dashevo/dashcore-lib": "~0.19.44",
     "@dashevo/dashd-rpc": "^18.2.0",
     "@dashevo/wallet-lib": "~7.23.0",
@@ -39,7 +39,6 @@
     "karma": "^6.4.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.1",
-    "karma-firefox-launcher": "^2.1.2",
     "karma-mocha": "^2.0.0",
     "karma-mocha-reporter": "^2.2.5",
     "karma-webpack": "^5.0.0",
@@ -50,5 +49,6 @@
     "node-polyfill-webpack-plugin": "^2.0.1",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
-  }
+  },
+  "main": "index.js"
 }

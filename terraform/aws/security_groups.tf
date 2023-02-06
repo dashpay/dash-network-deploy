@@ -283,18 +283,6 @@ resource "aws_security_group" "masternode" {
     ]
   }
 
-  # DAPI GRPC
-  ingress {
-    from_port   = var.dapi_grpc_port
-    to_port     = var.dapi_grpc_port
-    protocol    = "tcp"
-    description = "DAPI Grpc"
-
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
-  }
-
   # Tendermint P2P
   ingress {
     from_port   = var.tendermint_p2p_port

@@ -34,6 +34,7 @@ core_llmq_types:
     2: llmq_400_60
     3: llmq_400_85
     4: llmq_100_67
+    5: llmq_60_75
     100: llmq_test
     101: llmq_devnet
     102: llmq_test_v17
@@ -52,7 +53,6 @@ tenderdash_log_level: debug
 dapi_image: dashpay/dapi
 dapi_envoy_image: envoyproxy/envoy
 dapi_port: 3000
-dapi_grpc_port: 3010
 
 # Insight
 insight_image: dashpay/insight

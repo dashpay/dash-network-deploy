@@ -1,15 +1,30 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const { inventory, network, variables } = getNetworkConfig();
+const { getDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
-const allHosts = inventory.masternodes.hosts.concat(
-  inventory.wallet_nodes.hosts,
-  inventory.miners.hosts,
-  inventory.seed_nodes.hosts,
-);
+const timeout = 15000; // set individual rpc client timeout
+
+const {
+  inventory,
+  network,
+  variables,
+} = getNetworkConfig();
+
+const allHosts = inventory.masternodes.hosts
+  .concat(inventory.wallet_nodes.hosts, inventory.miners.hosts, inventory.seed_nodes.hosts);
 
 describe('Core', () => {
+  const coreContainerIds = {};
+
+  before('Collect masternodes container ids', async () => {
+    await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
+      const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
+
+      coreContainerIds[hostName] = await getContainerId(docker, 'core');
+    }));
+  });
+
   describe('All nodes', () => {
     // Set up vars and functions to hold max height and mn responses
     const blockchainInfo = {};
@@ -17,35 +32,44 @@ describe('Core', () => {
 
     const networkInfo = {};
 
-    before('Collect blockchain and network info', function func() {
+    before('Collect blockchain and network info', async function func() {
       this.timeout(60000); // set mocha timeout
 
-      const promises = [];
-      for (const hostName of allHosts) {
-        const timeout = 15000; // set individual rpc client timeout
+      await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
+        const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
+        const blockchain = await execCommand(docker, coreContainerIds[hostName],
+          ['dash-cli', 'getblockchaininfo']);
+
+        if (maxBlockHeight < blockchain.blocks) {
+          maxBlockHeight = blockchain.blocks;
+        }
+
+        blockchainInfo[hostName] = blockchain;
+        networkInfo[hostName] = await execCommand(docker, coreContainerIds[hostName],
+          ['dash-cli', 'getnetworkinfo']);
+      }));
+
+      const otherHosts = allHosts.filter((hostName) => inventory
+        .masternodes.hosts.indexOf(hostName) === -1);
+
+      await Promise.all(otherHosts.map(async (hostName) => {
         const client = createRpcClientFromConfig(hostName);
 
         client.setTimeout(timeout);
 
-        const requestBlockchainInfoPromise = client.getBlockchainInfo()
-          // eslint-disable-next-line no-loop-func
-          .then(({ result }) => {
-            if (maxBlockHeight < result.blocks) {
-              maxBlockHeight = result.blocks;
-            }
-            blockchainInfo[hostName] = result;
-          });
+        const blockchainInfoResult = await client.getBlockchainInfo();
 
-        const requestNetworkInfoPromise = client.getNetworkInfo()
-          .then(({ result }) => {
-            networkInfo[hostName] = result;
-          });
+        if (maxBlockHeight < blockchainInfoResult.result.blocks) {
+          maxBlockHeight = blockchainInfoResult.result.blocks;
+        }
 
-        promises.push(requestBlockchainInfoPromise, requestNetworkInfoPromise);
-      }
+        blockchainInfo[hostName] = blockchainInfoResult.result;
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+        const networkInfoResult = await client.getNetworkInfo();
+
+        networkInfo[hostName] = networkInfoResult.result;
+      }));
     });
 
     for (const hostName of allHosts) {
@@ -83,29 +107,17 @@ describe('Core', () => {
     }
   });
 
-  describe.only('Masternodes', () => {
+  describe('Masternodes', () => {
     const masternodeListInfo = {};
 
-    before('Collect masternode list info', function func() {
+    before('Collect masternode list info', async function func() {
       this.timeout(30000); // set mocha timeout
 
-      const promises = [];
-      for (const hostName of inventory.masternodes.hosts) {
-        const timeout = 15000; // set individual rpc client timeout
+      await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
+        const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
-        const client = createRpcClientFromConfig(hostName);
-
-        client.setTimeout(timeout);
-
-        const requestMasternodeListInfoPromise = client.masternodelist()
-          .then(({ result }) => {
-            masternodeListInfo[hostName] = result;
-          });
-
-        promises.push(requestMasternodeListInfoPromise);
-      }
-
-      return Promise.all(promises).catch(() => Promise.resolve());
+        masternodeListInfo[hostName] = await execCommand(docker, coreContainerIds[hostName], ['dash-cli', 'masternode', 'list']);
+      }));
     });
 
     for (const hostName of inventory.masternodes.hosts) {
@@ -117,8 +129,7 @@ describe('Core', () => {
 
           const nodeFromList = Object.values(masternodeListInfo[hostName])
             .find((node) => (
-            // eslint-disable-next-line no-underscore-dangle
-              inventory._meta.hostvars[hostName].public_ip === node.address.split(':')[0]
+              inventory.meta.hostvars[hostName].public_ip === node.address.split(':')[0]
             ));
 
           expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();

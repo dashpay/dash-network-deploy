@@ -15,15 +15,21 @@ describe('DAPI', () => {
     const dataContract = {};
     const dataContractError = {};
 
-    before('Collect block height info', () => {
+    before('Collect block height info', async () => {
       const promises = [];
 
       for (const hostName of inventory.masternodes.hosts) {
         const timeout = 10000; // set individual dapi client timeout
 
+        const dapiAddress = {
+          protocol: 'https',
+          host: inventory.meta.hostvars[hostName].public_ip,
+          httpPort: variables.dapi_port,
+          allowSelfSignedCertificate: true,
+        };
+
         const dapiClient = new DAPIClient({
-          // eslint-disable-next-line no-underscore-dangle
-          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+          dapiAddresses: [dapiAddress],
           timeout,
         });
 
@@ -40,16 +46,23 @@ describe('DAPI', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    before('Collect block hash and contract info', () => {
+    before('Collect block hash and contract info', async () => {
       const promises = [];
 
       for (const hostName of inventory.masternodes.hosts) {
         const timeout = 10000; // set individual dapi client timeout
-        const unknownContractId = Buffer.alloc(32).fill(1);
+        const unknownContractId = Buffer.alloc(32)
+          .fill(1);
+
+        const dapiAddress = {
+          protocol: 'https',
+          host: inventory.meta.hostvars[hostName].public_ip,
+          httpPort: variables.dapi_port,
+          allowSelfSignedCertificate: true,
+        };
 
         const dapiClient = new DAPIClient({
-          // eslint-disable-next-line no-underscore-dangle
-          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+          dapiAddresses: [dapiAddress],
           timeout,
         });
 
@@ -73,7 +86,7 @@ describe('DAPI', () => {
         promises.push(requestBlockByHash, requestDataContract);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      await Promise.all(promises).catch(console.error);
     });
 
     for (const hostName of inventory.masternodes.hosts) {

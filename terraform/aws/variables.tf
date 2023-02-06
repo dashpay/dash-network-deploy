@@ -41,11 +41,6 @@ variable "dapi_port" {
   default     = 3000
 }
 
-variable "dapi_grpc_port" {
-  description = "DAPI GRPC port"
-  default     = 3010
-}
-
 variable "tendermint_p2p_port" {
   description = "Tendermint P2P port"
   default     = 26656
@@ -178,4 +173,9 @@ variable "logs_node_instance_size" {
 variable "wallet_node_instance_size" {
   description = "Instance type of wallet nodes"
   default     = "micro"
+}
+
+variable "volume_type" {
+  description = "Type of volume to use for block devices"
+  default = "gp3"
 }

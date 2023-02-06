@@ -17,8 +17,7 @@ describe('Sentinel', () => {
       for (const hostName of inventory.masternodes.hosts) {
         const timeout = 15000; // set individual docker client timeout
         const docker = new Docker({
-          // eslint-disable-next-line no-underscore-dangle
-          host: `http://${inventory._meta.hostvars[hostName].public_ip}`,
+          host: `http://${inventory.meta.hostvars[hostName].public_ip}`,
           port: 2375,
           timeout,
         });
@@ -43,12 +42,12 @@ describe('Sentinel', () => {
           .then((result) => {
             getContainer[hostName] = result.toString();
           })
-          .catch(() => {});
+          .catch(console.error);
 
         promises.push(requestListContainers);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises).catch(console.error);
     });
 
     for (const hostName of inventory.masternodes.hosts) {

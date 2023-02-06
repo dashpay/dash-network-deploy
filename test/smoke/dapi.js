@@ -22,9 +22,15 @@ describe('DAPI', () => {
         const timeout = 15000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32).fill(1);
 
+        const dapiAddress = {
+          protocol: 'https',
+          host: inventory.meta.hostvars[hostName].public_ip,
+          httpPort: variables.dapi_port,
+          allowSelfSignedCertificate: false,
+        };
+
         const dapiClient = new DAPIClient({
-          // eslint-disable-next-line no-underscore-dangle
-          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+          dapiAddresses: [dapiAddress],
           timeout,
         });
 
@@ -58,7 +64,7 @@ describe('DAPI', () => {
         promises.push(requestBestBlockHash, requestStatus, requestDataContract);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises).catch(console.error);
     });
 
     for (const hostName of inventory.masternodes.hosts) {
