@@ -4,13 +4,38 @@ const generateAnsibleConfig = require('../lib/configGenerator/generateAnsibleCon
 const generateTerraformConfig = require('../lib/configGenerator/generateTerraformConfig');
 
 async function main() {
-  const [network, networkName, masternodesAmdCount, masternodesArmCount, seedsCount] = process.argv.slice(2);
+  const [
+    network,
+    networkName,
+    masternodesAmdCount,
+    masternodesArmCount,
+    hpMasternodesAmdCount,
+    hpMasternodesArmCount,
+    seedsCount,
+  ] = process.argv.slice(2);
 
-  const masternodesCount = parseInt(masternodesArmCount) + parseInt(masternodesAmdCount);
+  const masternodesCount = parseInt(masternodesAmdCount, 10)
+    + parseInt(masternodesArmCount, 10);
 
-  if (masternodesCount > 0 && (seedsCount === undefined || seedsCount > 0)) {
-    await generateAnsibleConfig(network, networkName, masternodesCount, seedsCount);
-    await generateTerraformConfig(network, networkName, masternodesAmdCount, masternodesArmCount);
+  const hpMasternodesCount = parseInt(hpMasternodesAmdCount, 10)
+    + parseInt(hpMasternodesArmCount, 10);
+
+  if (masternodesCount + hpMasternodesCount > 0 && (seedsCount === undefined || seedsCount > 0)) {
+    await generateAnsibleConfig(
+      network,
+      networkName,
+      masternodesCount,
+      hpMasternodesCount,
+      seedsCount,
+    );
+    await generateTerraformConfig(
+      network,
+      networkName,
+      masternodesAmdCount,
+      masternodesArmCount,
+      hpMasternodesAmdCount,
+      hpMasternodesArmCount,
+    );
   } else {
     console.error('seeds_count and total masternodes_count must both be positive integers');
   }
