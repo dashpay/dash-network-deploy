@@ -40,6 +40,10 @@ if [[ -z ${HP_MASTERNODES_AMD_COUNT} ]] || [[ -z ${HP_MASTERNODES_ARM_COUNT} ]];
     print_error "HP AMD and ARM masternodes count is required (even if zero)"
 fi
 
+if [[ -z ${HP_MASTERNODES_COUNT} ]]; then
+    print_error "HP masternodes count is required"
+fi
+
 SEEDS_COUNT="1"
 
 for i in "${@:4}"
