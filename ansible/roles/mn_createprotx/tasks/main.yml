@@ -9,11 +9,12 @@
     masternode_name: "{{ item }}"
   with_items: '{{ masternode_names }}'
 
-- name: Generate at least one block to confirm protxs
+# sometimes not all protx get mined in the first block
+- name: Generate at least two blocks to confirm protxs
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
-    num_blocks: 1
+    num_blocks: 2
     balance_needed: 0
 
 # verify
