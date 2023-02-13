@@ -6,7 +6,7 @@ set -ea
 
 CMD_USAGE="Generate network configs
 
-Usage: generate <network_name> <masternodes_count> [options]
+Usage: generate <network_name> <masternodes_amd_count> <masternodes_arm_count> [options]
 
 Options:
   -s=<count> --seeds-count=<count> - Number of seed nodes on the network
@@ -23,13 +23,14 @@ esac
 done
 
 NETWORK_NAME="$1"
-MASTERNODES_COUNT="$2"
+MASTERNODES_AMD_COUNT="$2"
+MASTERNODES_ARM_COUNT="$3"
 
 if [[ -z ${NETWORK_NAME} ]]; then
     print_error "Network name is required"
 fi
 
-if [[ -z ${MASTERNODES_COUNT} ]]; then
+if [[ -z ${MASTERNODES_AMD_COUNT} ]]; then
     print_error "Masternodes count is required"
 fi
 
@@ -46,4 +47,4 @@ done
 
 . ./lib/cli/init.sh
 
-node ./bin/generate-configs.js ${NETWORK} ${NETWORK_NAME} ${MASTERNODES_COUNT} ${SEEDS_COUNT}
+node ./bin/generate-configs.js ${NETWORK} ${NETWORK_NAME} ${MASTERNODES_AMD_COUNT} ${MASTERNODES_ARM_COUNT} ${SEEDS_COUNT}

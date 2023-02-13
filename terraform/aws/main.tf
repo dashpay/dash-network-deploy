@@ -42,6 +42,23 @@ data "aws_ami" "ubuntu" {
   # Canonical
 }
 
+  data "aws_ami" "ubuntu_arm" {
+  most_recent = true
+
+  filter {
+    name = "name"
+
+    values = [
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-20220420",
+    ]
+  }
+
+  owners = [
+    "099720109477",
+  ]
+  # Canonical
+}
+
 # Create a VPC to launch our instances into
 resource "aws_vpc" "default" {
   cidr_block = var.vpc_cidr
@@ -201,8 +218,8 @@ locals {
 }
 
 resource "random_shuffle" "dns_ips" {
-  input        = concat(aws_instance.masternode.*.public_ip)
-  result_count = length(concat(aws_instance.masternode.*.public_ip)) > local.dns_record_length ? local.dns_record_length : length(concat(aws_instance.masternode.*.public_ip))
+  input        = concat(aws_instance.masternode_amd.*.public_ip)
+  result_count = length(concat(aws_instance.masternode_amd.*.public_ip)) > local.dns_record_length ? local.dns_record_length : length(concat(aws_instance.masternode_amd.*.public_ip))
 }
 
 resource "aws_route53_record" "masternodes" {

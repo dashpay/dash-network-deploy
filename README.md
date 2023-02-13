@@ -47,7 +47,7 @@ Dash Core developers to assist in Dash Platform development.
 You can use `generate` command in order to create configs for your network:
 
 ```bash
-dash-network generate <network_name> <masternode_count>
+dash-network generate <network_name> <masternode_amd_count> <masternode_arm_count>
 ``` 
 
 Terraform configuration is defined in the `*.tfvars` files.

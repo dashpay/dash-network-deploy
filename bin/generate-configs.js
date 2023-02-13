@@ -4,11 +4,11 @@ const generateAnsibleConfig = require('../lib/configGenerator/generateAnsibleCon
 const generateTerraformConfig = require('../lib/configGenerator/generateTerraformConfig');
 
 async function main() {
-  const [network, networkName, masternodesCount, seedsCount] = process.argv.slice(2);
+  const [network, networkName, masternodesAmdCount, masternodesArmCount, seedsCount] = process.argv.slice(2);
 
-  if (masternodesCount > 0 && (seedsCount === undefined || seedsCount > 0)) {
-    await generateAnsibleConfig(network, networkName, masternodesCount, seedsCount);
-    await generateTerraformConfig(network, networkName, masternodesCount);
+  if (masternodesAmdCount > 0 && (seedsCount === undefined || seedsCount > 0)) {
+    await generateAnsibleConfig(network, networkName, masternodesAmdCount, masternodesArmCount, seedsCount);
+    await generateTerraformConfig(network, networkName, masternodesAmdCount, masternodesArmCount);
   } else {
     console.error('masternodes_count and seeds_count must be positive integers');
   }
