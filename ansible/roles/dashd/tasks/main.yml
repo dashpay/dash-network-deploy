@@ -100,7 +100,7 @@
 
 # Wallet node
 - name: Create faucet wallet
-  ansible.builtin.command: 
+  ansible.builtin.command:
     cmd: dash-cli createwallet {{ wallet_rpc_wallet_faucet }}
     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_faucet }}/wallet.dat"
   register: task_result

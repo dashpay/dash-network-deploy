@@ -163,8 +163,8 @@
 - name: Set funding amount
   ansible.builtin.set_fact:
     funding_amount: |
-      {% if mn_group_name=='hp_masternodes' %}
-        {{ masternode_collaterals.hpmn | int}}
+      {% if mn_group_name == 'hp_masternodes' %}
+        {{ masternode_collaterals.hpmn | int }}
       {% else %}
         {{ masternode_collaterals.mn | int }}
       {% endif %}

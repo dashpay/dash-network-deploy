@@ -36,10 +36,11 @@
     name: generate_blocks
   vars:
     num_blocks: 0
-    balance_needed: "{{ (masternode_names | length - collateral_ok_count | int) * funding_amount / 100000  }}"
+    balance_needed: "{{ (masternode_names | length - collateral_ok_count | int) * funding_amount / 100000 }}"
   when: not collateral_all_ok and (faucet_balance.stdout | int < balance_needed | int)
 
-# TODO: this will fund all masternodes when `not collateral_all_ok`, not just those with missing collateral. collateral_ok_masternode_1 was partially implemented, check again later 
+# TODO: this will fund all masternodes when `not collateral_all_ok`, not just those with missing collateral.
+# collateral_ok_masternode_1 was partially implemented, check again later
 # https://github.com/dashpay/dash-network-deploy/blob/master/ansible/roles/mn-fund-collateral/tasks/main.yml#L48
 
 - name: Populate payment targets
