@@ -16,3 +16,10 @@
   ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendmany '' '{{ payments | to_json }}'"
   register: fund_result
   changed_when: fund_result.stdout | length == 64
+
+- name: Generate at least one block to confirm fee funding transactions
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    num_blocks: 1
+    balance_needed: 0

@@ -199,12 +199,14 @@
   hosts: wallet_nodes
   become: true
   roles:
-    - mn_init
+    - role: mn_init
+      mn_group_name: masternodes
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
   roles:
-    - mn_protx_config
+    - role: mn_protx_config
+      mn_group_name: masternodes
 
 - name: Activate sporks
   hosts: wallet_nodes
@@ -213,6 +215,19 @@
     - role: activate_dashd_sporks
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
+
+- name: Register HP masternodes
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: mn_init
+      mn_group_name: hp_masternodes
+
+- name: Update inventory with HPMN protx values
+  hosts: wallet_nodes
+  roles:
+    - role: mn_protx_config
+      mn_group_name: hp_masternodes
 
 # Start platform
 

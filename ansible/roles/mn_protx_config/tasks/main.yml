@@ -12,8 +12,8 @@
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
     registered_masternode_names: "{{ registered_masternode_names + [item] }}"
-  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
-  with_items: '{{ groups["masternodes"] }}'
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + hostvars[item][mn_group_name][item]['owner']['address'] + "']")
+  with_items: '{{ groups[mn_group_name] }}'
 
 - name: Set empty outer scope variable for protx list
   ansible.builtin.set_fact:
@@ -22,7 +22,7 @@
 - name: Get list of registered masternode protx
   ansible.builtin.include_tasks: find_protx.yml
   vars:
-    masternode: "{{ masternodes[item] }}"
+    masternode: "{{ hostvars[item][mn_group_name][item] }}"
   with_items: '{{ registered_masternode_names }}'
 
 - name: Write protx values to inventory file

@@ -11,3 +11,18 @@
             {{ masternode.collateral.address }}" # Should already be funded from registration protx
   register: protx
   changed_when: protx.stdout | length == 64
+  when: mn_group_name == "masternodes"
+
+- name: Create ProUpServTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
+  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx update_service_hpmn
+            {{ vars['protx_' + masternode_name | replace('-', '_')] }}
+            {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
+            {{ masternode.operator.private_key }}
+            {{ masternode.node_key.id }}
+            {{ tendermint_p2p_port }}
+            {{ dapi_port }}
+            ''
+            {{ masternode.collateral.address }}" # Should already be funded from registration protx
+  register: protx
+  changed_when: protx.stdout | length == 64
+  when: mn_group_name == "hp_masternodes"

@@ -41,8 +41,8 @@ core_llmq_types:
 
 # Tendermint
 tendermint_image: dashpay/tenderdash
-tendermint_p2p_port: 26656
-tendermint_rpc_port: 26657
+tendermint_p2p_port: 26658
+tendermint_rpc_port: 26659
 tendermint_uid: "100"
 tendermint_gid: "1000"
 # tenderdash_chain_id:
@@ -53,7 +53,7 @@ tenderdash_log_level: debug
 dapi_image: dashpay/dapi
 dapi_envoy_image: envoyproxy/envoy
 dapi_port: 3000
-dapi_grpc_port: 3010
+# dapi_grpc_port: 3010
 
 # Insight
 insight_image: dashpay/insight
@@ -139,6 +139,10 @@ masternode_wallet_rpc_port: "{{ dashd_rpc_port }}"
 masternode_wallet_rpc_user: "{{ dashd_rpc_user }}"
 masternode_wallet_rpc_password: "{{ dashd_rpc_password }}"
 masternode_wallet_rpc_args: "-rpcconnect={{ masternode_wallet_rpc_host }} -rpcport={{ masternode_wallet_rpc_port }} -rpcuser={{ masternode_wallet_rpc_user }} -rpcpassword={{ masternode_wallet_rpc_password }}"
+
+masternode_collaterals:
+  mn: 100000000
+  hpmn: 400000000
 
 # Disk space allocated for swap file on each host
 swap_space: 2G
