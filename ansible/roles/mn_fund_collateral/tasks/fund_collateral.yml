@@ -21,9 +21,9 @@
   register: fund_result
   changed_when: fund_result.stdout | length == 64
 
-- name: Generate at least two blocks to confirm funding transactions
+- name: Generate at least one block to confirm transactions
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
-    num_blocks: 2
+    num_blocks: 1
     balance_needed: 0
