@@ -34,6 +34,10 @@
   when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
   with_items: '{{ masternode_names }}'
 
+- name: List of registered masternodes
+  ansible.builtin.debug:
+    var: registered_masternode_names
+
 - name: Fail if masternodes were not registered
   ansible.builtin.fail:
     msg: ProTX transactions were not created
