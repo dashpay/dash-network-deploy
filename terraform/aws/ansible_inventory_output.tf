@@ -83,7 +83,7 @@ locals {
     )
   ]
 
-  masternode_hosts = concat(local.masternode_arm_hosts, local.masternode_amd_hosts)
+  masternode_hosts = concat(local.masternode_amd_hosts, local.masternode_arm_hosts)
 
   vpn = [
     for n in range(var.vpn_enabled ? 1 : 0) : templatefile(
