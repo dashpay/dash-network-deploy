@@ -182,7 +182,7 @@ variable "wallet_node_instance_size" {
 
 variable "volume_type" {
   description = "Type of volume to use for block devices"
-  default = "gp3"
+  default     = "gp3"
 }
 
 variable "masternode_amd_count" {

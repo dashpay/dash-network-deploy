@@ -152,8 +152,8 @@ locals {
       }
     )
   ]
-    #Add arm masternodes to the list...
-    masternodes_arm = [
+
+  masternodes_arm = [
     for n in range(length(aws_instance.masternode_arm)) : templatefile(
       "${path.module}/templates/services/node.tpl",
       {

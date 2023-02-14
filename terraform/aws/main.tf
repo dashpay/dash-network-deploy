@@ -26,7 +26,7 @@ data "aws_ami" "ubuntu_amd" {
   # Canonical
 }
 
-  data "aws_ami" "ubuntu_arm" {
+data "aws_ami" "ubuntu_arm" {
   most_recent = true
 
   filter {

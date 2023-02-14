@@ -71,7 +71,7 @@ locals {
     )
   ]
 
-    masternode_arm_hosts = [
+  masternode_arm_hosts = [
     for n in range(length(aws_instance.masternode_arm)) : templatefile(
       "${path.module}/templates/inventory/hostname.tpl",
       {
