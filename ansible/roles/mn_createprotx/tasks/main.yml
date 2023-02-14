@@ -19,6 +19,11 @@
 
 # verify
 
+
+- name: Initialize array for registered masternodes
+  ansible.builtin.set_fact:
+    registered_masternode_names: []
+
 - name: Get list of ProTx transactions from the wallet
   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx list wallet true
   register: get_protx_list_result
@@ -26,7 +31,7 @@
 
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
-    registered_masternode_names: '{{ registered_masternode_names | default([]) + [item] }}'
+    registered_masternode_names: '{{ registered_masternode_names + [item] }}'
   when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ masternode_names }}'
 

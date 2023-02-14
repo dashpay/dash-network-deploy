@@ -2,6 +2,10 @@
 
 # Requires "payment_targets" and "amount" variables
 
+- name: Initialize array for payments
+  ansible.builtin.set_fact:
+    payments: []
+
 - name: Populate payment addresses and values
   ansible.builtin.set_fact:
     payments: "{{ payments | default({}) | combine({item: amount}) }}"

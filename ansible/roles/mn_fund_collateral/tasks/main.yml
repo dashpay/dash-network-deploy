@@ -43,9 +43,13 @@
 # collateral_ok_masternode_1 was partially implemented, check again later
 # https://github.com/dashpay/dash-network-deploy/blob/master/ansible/roles/mn-fund-collateral/tasks/main.yml#L48
 
+- name: Initialize array for uncollateralized addresses
+  ansible.builtin.set_fact:
+    uncollateralized_addresses: []
+
 - name: Populate payment targets
   ansible.builtin.set_fact:
-    uncollateralized_addresses: "{{ uncollateralized_addresses | default([]) + [hostvars[item][mn_group_name][item]['collateral']['address']] }}"
+    uncollateralized_addresses: "{{ uncollateralized_addresses + [hostvars[item][mn_group_name][item]['collateral']['address']] }}"
   with_items:
     - '{{ masternode_names }}'
   when: not collateral_all_ok

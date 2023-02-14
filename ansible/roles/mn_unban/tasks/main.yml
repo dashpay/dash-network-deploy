@@ -32,9 +32,13 @@
   register: get_protx_list_result
   changed_when: get_protx_list_result.stdout | to_json | length > 0
 
+- name: Initialize array for registered masternodes
+  ansible.builtin.set_fact:
+    registered_masternode_names: []
+
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
-    registered_masternode_names: '{{ registered_masternode_names | default([]) + [item] }}'
+    registered_masternode_names: '{{ registered_masternode_names + [item] }}'
   when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
   with_items: '{{ masternode_names }}'
 
