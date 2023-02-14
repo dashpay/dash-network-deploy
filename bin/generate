@@ -30,8 +30,8 @@ if [[ -z ${NETWORK_NAME} ]]; then
     print_error "Network name is required"
 fi
 
-if [[ -z ${MASTERNODES_AMD_COUNT} ]]; then
-    print_error "Masternodes count is required"
+if [ -z ${MASTERNODES_AMD_COUNT} ] || [ -z ${MASTERNODES_ARM_COUNT} ]; then
+    print_error "AMD and ARM masternodes count is required (even if zero)"
 fi
 
 SEEDS_COUNT="1"
