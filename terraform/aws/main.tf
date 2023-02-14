@@ -9,30 +9,14 @@ data "aws_availability_zones" "available" {
   state         = "available"
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "ubuntu_amd" {
   most_recent = true
 
   filter {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-*-22.04-*-server-*",
-    ]
-  }
-
-  filter {
-    name = "architecture"
-
-    values = [
-      var.host_arch == "arm64" ? "arm64" : "x86_64"
-    ]
-  }
-
-  filter {
-    name = "virtualization-type"
-
-    values = [
-      "hvm",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-2023*",
     ]
   }
 
@@ -49,7 +33,7 @@ data "aws_ami" "ubuntu" {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-20220420",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-2023*",
     ]
   }
 
