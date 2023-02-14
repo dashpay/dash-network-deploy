@@ -32,7 +32,7 @@
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
     registered_masternode_names: '{{ registered_masternode_names + [item] }}'
-  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + [hostvars[item][mn_group_name][item]['owner']['address'] + "']")
   with_items: '{{ masternode_names }}'
 
 - name: Fail if masternodes were not registered
