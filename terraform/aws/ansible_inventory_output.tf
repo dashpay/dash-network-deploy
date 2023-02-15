@@ -59,17 +59,31 @@ locals {
     )
   ]
 
-  masternode_hosts = [
-    for n in range(length(aws_instance.masternode)) : templatefile(
+  masternode_amd_hosts = [
+    for n in range(length(aws_instance.masternode_amd)) : templatefile(
       "${path.module}/templates/inventory/hostname.tpl",
       {
         index      = n + 1
-        name       = element(aws_instance.masternode.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.masternode.*.public_ip, n)
-        private_ip = element(aws_instance.masternode.*.private_ip, n)
+        name       = element(aws_instance.masternode_amd.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.masternode_amd.*.public_ip, n)
+        private_ip = element(aws_instance.masternode_amd.*.private_ip, n)
       }
     )
   ]
+
+  masternode_arm_hosts = [
+    for n in range(length(aws_instance.masternode_arm)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.masternode_arm.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.masternode_arm.*.public_ip, n)
+        private_ip = element(aws_instance.masternode_arm.*.private_ip, n)
+      }
+    )
+  ]
+
+  masternode_hosts = concat(local.masternode_amd_hosts, local.masternode_arm_hosts)
 
   vpn = [
     for n in range(var.vpn_enabled ? 1 : 0) : templatefile(
@@ -102,7 +116,7 @@ locals {
       logs_hosts        = join("\n", concat(aws_instance.logs.*.tags.Hostname))
       wallet_node_hosts = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
       miner_hosts       = join("\n", concat(aws_instance.miner.*.tags.Hostname))
-      masternode_hosts  = join("\n", concat(aws_instance.masternode.*.tags.Hostname))
+      masternode_hosts  = join("\n", concat(aws_instance.masternode_amd.*.tags.Hostname), concat(aws_instance.masternode_arm.*.tags.Hostname))
       seed_hosts        = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
     }
   )

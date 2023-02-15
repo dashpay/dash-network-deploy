@@ -95,11 +95,11 @@ locals {
     }
   )
 
-  masternodes = [
-    for n in range(length(aws_instance.masternode)) : templatefile(
+  masternodes_amd = [
+    for n in range(length(aws_instance.masternode_amd)) : templatefile(
       "${path.module}/templates/services/node.tpl",
       {
-        name = "masternode-${n + 1}"
+        name = "masternode-amd-${n + 1}"
         external_services = replace(
           chomp(
             join(
@@ -114,7 +114,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.masternode.*.public_ip, n),
+          element(aws_instance.masternode_amd.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
@@ -131,7 +131,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.masternode.*.public_ip, n),
+          element(aws_instance.masternode_amd.*.public_ip, n),
         )
         service_logs = chomp(
           join(
@@ -152,6 +152,66 @@ locals {
       }
     )
   ]
+
+  masternodes_arm = [
+    for n in range(length(aws_instance.masternode_arm)) : templatefile(
+      "${path.module}/templates/services/node.tpl",
+      {
+        name = "masternode-arm-${n + 1}"
+        external_services = replace(
+          chomp(
+            join(
+              "",
+              [
+                local.service_ssh,
+                local.service_core_p2p,
+                local.service_dapi,
+                local.service_dapi_grpc,
+                local.service_tendermint_p2p,
+              ],
+            ),
+          ),
+          "{{ip}}",
+          element(aws_instance.masternode_arm.*.public_ip, n),
+        )
+        internal_services = replace(
+          chomp(
+            join(
+              "",
+              [
+                local.service_tendermint_rpc,
+                local.service_core_rpc,
+                local.service_core_zmq,
+                local.service_drive,
+                local.service_insight,
+                local.service_docker,
+              ],
+            ),
+          ),
+          "{{ip}}",
+          element(aws_instance.masternode_arm.*.public_ip, n),
+        )
+        service_logs = chomp(
+          join(
+            "\n",
+            [
+              "   - dashd",
+              "   - dapi_api",
+              "   - dapi_tx_filter_stream",
+              "   - dapi_nginx",
+              "   - dapi_envoy",
+              "   - drive_abci",
+              "   - tendermint",
+              "   - sentinel",
+              "   - insight",
+            ],
+          ),
+        )
+      }
+    )
+  ]
+
+  masternodes = concat(local.masternodes_arm, local.masternodes_amd) #Magic...
 
   wallets = [
     for n in range(length(aws_instance.dashd_wallet)) : templatefile(

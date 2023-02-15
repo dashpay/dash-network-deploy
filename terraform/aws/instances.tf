@@ -7,8 +7,8 @@ resource "aws_instance" "web" {
     user = "ubuntu"
   }
 
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.host_arch == "arm64" ? "t4g.small" : "t3.small"
+  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  instance_type        = var.main_host_arch == "arm64" ? "t4g.small" : "t3.small"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -45,8 +45,8 @@ resource "aws_instance" "web" {
 resource "aws_instance" "dashd_wallet" {
   count = var.wallet_count
 
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = join(".", [var.host_arch == "arm64" ? "t4g" : "t3", var.wallet_node_instance_size])
+  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  instance_type        = join(".", [var.main_host_arch == "arm64" ? "t4g" : "t3", var.wallet_node_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -84,8 +84,8 @@ resource "aws_instance" "dashd_wallet" {
 resource "aws_instance" "seed_node" {
   count = var.seed_count
 
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.host_arch == "arm64" ? "t4g.medium" : "t3.medium"
+  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  instance_type        = var.main_host_arch == "arm64" ? "t4g.medium" : "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -124,8 +124,8 @@ resource "aws_instance" "seed_node" {
 resource "aws_instance" "miner" {
   count = var.miner_count
 
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.host_arch == "arm64" ? "t4g.small" : "t3.small"
+  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  instance_type        = var.main_host_arch == "arm64" ? "t4g.small" : "t3.small"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -159,12 +159,12 @@ resource "aws_instance" "miner" {
 
 }
 
-# masternodes
-resource "aws_instance" "masternode" {
-  count = var.masternode_count
+# masternodes (amd)
+resource "aws_instance" "masternode_amd" {
+  count = var.masternode_amd_count
 
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.host_arch == "arm64" ? "t4g.medium" : "t3.medium"
+  ami                  = data.aws_ami.ubuntu_amd.id
+  instance_type        = "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -199,11 +199,51 @@ resource "aws_instance" "masternode" {
 
 }
 
+# masternodes (arm)
+resource "aws_instance" "masternode_arm" {
+  count = var.masternode_arm_count
+
+  ami                  = data.aws_ami.ubuntu_arm.id
+  instance_type        = "t4g.medium"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.dashd_public.id,
+    aws_security_group.masternode.id,
+  ]
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  root_block_device {
+    volume_size = var.mn_node_disk_size
+    volume_type = var.volume_type
+  }
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_amd_count + 1}"
+    Hostname    = "masternode-${count.index + var.masternode_amd_count + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_amd_count + 1}"
+    Hostname    = "masternode-${count.index + var.masternode_amd_count + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
+}
+
 resource "aws_instance" "vpn" {
   count = var.vpn_enabled ? 1 : 0
 
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.host_arch == "arm64" ? "t4g.nano" : "t3.nano"
+  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  instance_type        = var.main_host_arch == "arm64" ? "t4g.nano" : "t3.nano"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -234,8 +274,8 @@ resource "aws_instance" "vpn" {
 resource "aws_instance" "logs" {
   count = var.logs_count
 
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = join(".", [var.host_arch == "arm64" ? "c6g" : "c5a", var.logs_node_instance_size])
+  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  instance_type        = join(".", [var.main_host_arch == "arm64" ? "c6g" : "c5a", var.logs_node_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 

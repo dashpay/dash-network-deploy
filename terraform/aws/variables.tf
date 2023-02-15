@@ -115,9 +115,9 @@ variable "logs_count" {
   description = "number of logging nodes to create. set to 0 to disable logging for the network"
 }
 
-variable "host_arch" {
-  description = "use amd64 (t3.*) or arm64 (t4g.*) EC2 instances"
-  default     = "amd64"
+variable "main_host_arch" {
+  description = "use amd64 (t3.*) or arm64 (t4g.*) EC2 instances for non-masternodes"
+  default     = "arm64"
 }
 
 variable "vpn_enabled" {
@@ -182,5 +182,13 @@ variable "wallet_node_instance_size" {
 
 variable "volume_type" {
   description = "Type of volume to use for block devices"
-  default = "gp3"
+  default     = "gp3"
+}
+
+variable "masternode_amd_count" {
+  default = 3
+}
+
+variable "masternode_arm_count" {
+  default = 3
 }
