@@ -9,8 +9,8 @@
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
+    generate: blocks
     num_blocks: "{{ spork_ready_block_height - (blocks_count.stdout | int) }}"
-    balance_needed: 0
   when: (blocks_count.stdout | int) < spork_ready_block_height
 
 - name: Get active sporks list

@@ -2,19 +2,85 @@
 
 - name: Fail if vars are not set properly
   ansible.builtin.fail:
-    msg: 'num_blocks and balance_needed must always be set. set one of them to a non-zero value and the other one to zero'
-  when: num_blocks is not defined or balance_needed is not defined or (num_blocks != 0 and balance_needed != 0) or (num_blocks == 0 and balance_needed == 0)
-
+    msg: 'num_blocks, balance_needed or txid_list must always be set according to the value of generate'
+  when: >
+    generate is blocks and num_blocks is not defined or
+    generate is balance and target_balance is not defined or
+    generate is confirmations and txid_list is not defined
+  
 - name: Specify which networks permit generating blocks
   ansible.builtin.set_fact:
     generate_networks:
       - regtest
       - devnet
 
-- name: Generate blocks
-  ansible.builtin.include_tasks: generate_blocks.yml
-  when: dash_network in generate_networks
+- name: Get start block count
+  ansible.builtin.command: dash-cli getblockcount
+  register: start_block_count
+  when: num_blocks | int > 0
 
-- name: Wait for blocks
-  ansible.builtin.include_tasks: wait_for_blocks.yml
-  when: dash_network not in generate_networks
+- name: Show start block count
+  ansible.builtin.debug:
+    var: start_block_count.stdout
+
+# Option: blocks
+
+- name: Generate {{ num_blocks ~ 'blocks' }}
+  ansible.builtin.shell: >
+    dash-cli generatetoaddress {{ num_blocks }} {{ miner_payment_address }} > /dev/null &&
+    dash-cli getblockcount
+  when: generate is blocks and dash_network in generate_networks
+  register: getblockcount_result
+  until: getblockcount_result.stdout | int >= start_block_count.stdout | int + num_blocks | int
+  retries: 200
+  delay: 0
+
+- name: Wait for {{ num_blocks ~ 'blocks' }}
+  ansible.builtin.command: dash-cli getblockcount
+  when: generate is blocks and dash_network not in generate_networks
+  register: getblockcount_result
+  until: getblockcount_result.stdout | int >= start_block_count | int + num_blocks | int
+  retries: 200
+  delay: 10
+
+# Option: balance
+
+- name: Generate enough blocks to have {{ target_balance | default(0) ~ 'Dash' }}
+  ansible.builtin.shell: >
+    dash-cli generatetoaddress 10 {{ miner_payment_address }} > /dev/null &&
+    dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} getbalance
+  when: generate is balance and dash_network in generate_networks
+  register: getbalance_result
+  until: getbalance_result.stdout | float >= target_balance | float
+  retries: 200
+  delay: 0
+
+- name: Wait for enough blocks to have {{ target_balance | default(0) ~ 'Dash' }}
+  ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} getbalance
+  when: generate is balance and dash_network not in generate_networks
+  register: getbalance_result
+  until: getbalance_result.stdout | float >= target_balance | float
+  retries: 200
+  delay: 10
+
+# Option: confirmations
+
+- name: Generate blocks until confirmations exist for {{ txid_list | length ~ 'transactions' }}
+  ansible.builtin.shell: >
+    dash-cli generatetoaddress 10 {{ miner_payment_address }} > /dev/null &&
+    dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} gettransaction dash-cli {{ item }}
+  when: generate is confirmations and dash_network in generate_networks
+  register: gettransaction_result
+  until: gettransaction_result.stdout | from_json | json_query('confirmations') >= 1
+  with_items: txid_list
+  retries: 200
+  delay: 0
+
+- name: Wait for blocks until confirmations exist for {{ txid_list | length ~ 'transactions' }}
+  ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} gettransaction {{ item }}
+  when: generate is confirmations and dash_network not in generate_networks
+  register: gettransaction_result
+  until: gettransaction_result.stdout | from_json | json_query('confirmations') >= 1
+  with_items: txid_list
+  retries: 200
+  delay: 10

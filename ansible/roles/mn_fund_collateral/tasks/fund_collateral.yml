@@ -25,5 +25,5 @@
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
+    generate: blocks
     num_blocks: 1
-    balance_needed: 0
