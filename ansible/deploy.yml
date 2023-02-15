@@ -203,6 +203,12 @@
   roles:
     - role: mn_init
       mn_group_name: masternodes
+      # mnlist: {{ hp_masternodes }}
+      # then mnlist.masternode.owner.address or something?
+      # basically move the variable name change up here and not through all the files
+      # or rename yml vars to mn and hpmn, load into var called masternode
+      # nice.
+      # then run performance tests
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
