@@ -28,8 +28,6 @@ async function sendEcho(ip) {
   });
 }
 
-const allHosts = inventory.masternodes.hosts.concat(inventory.seed_nodes.hosts);
-
 describe('Drive', () => {
   describe('All nodes', () => {
     const echoInfo = {};
@@ -37,7 +35,7 @@ describe('Drive', () => {
     before('Collect echo info from Drive', () => {
       const promises = [];
 
-      for (const hostName of allHosts) {
+      for (const hostName of inventory.hp_masternodes.hosts) {
         // eslint-disable-next-line no-underscore-dangle
         const requestEchoPromise = sendEcho(inventory._meta.hostvars[hostName].public_ip)
           .then(() => {

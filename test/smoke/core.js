@@ -3,7 +3,9 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory, network, variables } = getNetworkConfig();
 
-const allHosts = inventory.masternodes.hosts.concat(
+const allMasternodes = inventory.masternodes.hosts.concat(inventory.hp_masternodes.hosts);
+
+const allHosts = allMasternodes.concat(
   inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
   inventory.seed_nodes.hosts,
@@ -90,7 +92,7 @@ describe('Core', () => {
       this.timeout(30000); // set mocha timeout
 
       const promises = [];
-      for (const hostName of inventory.masternodes.hosts) {
+      for (const hostName of allMasternodes) {
         const timeout = 15000; // set individual rpc client timeout
 
         const client = createRpcClientFromConfig(hostName);
@@ -108,9 +110,9 @@ describe('Core', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of inventory.masternodes.hosts) {
+    for (const hostName of allMasternodes) {
       describe(hostName, () => {
-        it('should be in masternodes list', async () => {
+        it('should be in masternodes list with correct type', async () => {
           if (!masternodeListInfo[hostName]) {
             expect.fail(null, null, 'no masternode list info');
           }
@@ -121,8 +123,10 @@ describe('Core', () => {
               inventory._meta.hostvars[hostName].public_ip === node.address.split(':')[0]
             ));
 
-          expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();
+          const masternodeType = hostName.startsWith('hp-') ? 'HighPerformance' : 'Regular';
 
+          expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();
+          expect(nodeFromList.type).to.be.equal(masternodeType);
           expect(nodeFromList.status).to.be.equal('ENABLED');
         });
       });

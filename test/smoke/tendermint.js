@@ -39,6 +39,8 @@ function requestTendermint(host, port, path) {
   });
 }
 
+const allHosts = inventory.hp_masternodes.hosts.concat(inventory.seed_nodes.hosts);
+
 describe('Tendermint', () => {
   const masternodeStatus = {};
   const masternodeStatusError = {};
@@ -51,7 +53,7 @@ describe('Tendermint', () => {
   describe('All nodes', () => {
     before('Collect tenderdash info', () => {
       const promises = [];
-      for (const hostName of inventory.masternodes.hosts) {
+      for (const hostName of allHosts) {
         const requestTendermintStatusPromise = requestTendermint(
           // eslint-disable-next-line no-underscore-dangle
           inventory._meta.hostvars[hostName].public_ip,
@@ -81,7 +83,7 @@ describe('Tendermint', () => {
     });
 
     before('Evaluate block hashes', () => {
-      for (const hostName of inventory.masternodes.hosts) {
+      for (const hostName of allHosts) {
         if (masternodeStatusError[hostName]) {
           // eslint-disable-next-line no-continue
           continue;
@@ -100,7 +102,7 @@ describe('Tendermint', () => {
       }
     });
 
-    for (const hostName of inventory.masternodes.hosts) {
+    for (const hostName of allHosts) {
       describe(hostName, () => {
         it('should be connected to the network', () => {
           if (masternodeStatusError[hostName]) {
