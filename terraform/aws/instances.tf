@@ -221,14 +221,14 @@ resource "aws_instance" "masternode_arm" {
   }
 
   volume_tags = {
-    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_arm_count + 1}"
-    Hostname    = "masternode-${count.index + var.masternode_arm_count + 1}"
+    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_amd_count + 1}"
+    Hostname    = "masternode-${count.index + var.masternode_amd_count + 1}"
     DashNetwork = terraform.workspace
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_arm_count + 1}"
-    Hostname    = "masternode-${count.index + var.masternode_arm_count + 1}"
+    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_amd_count + 1}"
+    Hostname    = "masternode-${count.index + var.masternode_amd_count + 1}"
     DashNetwork = terraform.workspace
   }
 
@@ -239,7 +239,7 @@ resource "aws_instance" "masternode_arm" {
 }
 
 resource "aws_instance" "hp_masternode_amd" {
-  count = var.hp_masternode_count
+  count = var.hp_masternode_amd_count
 
   ami                  = data.aws_ami.ubuntu_amd.id
   instance_type        = "t3.medium"
@@ -279,7 +279,7 @@ resource "aws_instance" "hp_masternode_amd" {
 
 
 resource "aws_instance" "hp_masternode_arm" {
-  count = var.hp_masternode_count
+  count = var.hp_masternode_arm_count
 
   ami                  = data.aws_ami.ubuntu_arm.id
   instance_type        = "t4g.medium"
@@ -300,14 +300,14 @@ resource "aws_instance" "hp_masternode_arm" {
   }
 
   volume_tags = {
-    Name        = "dn-${terraform.workspace}-hp-masternode-${count.index + 1}"
-    Hostname    = "hp-masternode-${count.index + 1}"
+    Name        = "dn-${terraform.workspace}-hp-masternode-${count.index + var.hp_masternode_amd_count + 1}"
+    Hostname    = "hp-masternode-${count.index + var.hp_masternode_amd_count + 1}"
     DashNetwork = terraform.workspace
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-hp-masternode-${count.index + 1}"
-    Hostname    = "hp-masternode-${count.index + 1}"
+    Name        = "dn-${terraform.workspace}-hp-masternode-${count.index + var.hp_masternode_amd_count + 1}"
+    Hostname    = "hp-masternode-${count.index + var.hp_masternode_amd_count + 1}"
     DashNetwork = terraform.workspace
   }
 

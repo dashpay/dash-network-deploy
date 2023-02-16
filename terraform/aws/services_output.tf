@@ -189,7 +189,7 @@ locals {
     )
   ]
 
-  masternodes = concat(local.masternodes_arm, local.masternodes_amd) #Magic...
+  masternodes = concat(local.masternodes_amd, local.masternodes_arm) #Magic...
 
   hp_masternodes_amd = [
     for n in range(length(aws_instance.hp_masternode_amd)) : templatefile(
@@ -306,6 +306,8 @@ locals {
       }
     )
   ]
+
+  hp_masternodes = concat(local.hp_masternodes_amd, local.hp_masternodes_arm) #Magic...
 
   wallets = [
     for n in range(length(aws_instance.dashd_wallet)) : templatefile(

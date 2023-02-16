@@ -109,6 +109,8 @@ locals {
     )
   ]
 
+  hp_masternode_hosts = concat(local.hp_masternode_amd_hosts, local.hp_masternode_arm_hosts)
+
   vpn = [
     for n in range(var.vpn_enabled ? 1 : 0) : templatefile(
       "${path.module}/templates/inventory/hostname.tpl",
