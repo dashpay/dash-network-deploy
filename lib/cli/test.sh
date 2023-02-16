@@ -49,8 +49,7 @@ function test_run_mocha() {
     done
 
     # Run mocha tests
-
-    NODE_TLS_REJECT_UNAUTHORIZED="0" node_modules/.bin/_mocha ${MOCHA_ARGUMENTS} ${test_types_string}
+    node_modules/.bin/_mocha ${MOCHA_ARGUMENTS} ${test_types_string}
 }
 
 function test_run_karma() {
