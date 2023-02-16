@@ -5,8 +5,8 @@
 - name: Create provider registration transaction
   ansible.builtin.include_tasks: createprovidertx.yml
   vars:
-    masternode: '{{ hostvars[item][mn_group_name][item] }}'
-    masternode_name: '{{ item }}'
+    masternode: "{{ mnlist[item] }}"
+    masternode_name: "{{ item }}"
   with_items: '{{ masternode_names }}'
 
 - name: Generate at least one block to confirm protxs
@@ -29,8 +29,8 @@
 
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
-    registered_masternode_names: '{{ registered_masternode_names + [item] }}'
-  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + hostvars[item][mn_group_name][item].owner.address + "']")
+    registered_masternode_names: "{{ registered_masternode_names + [item] }}"
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
   with_items: '{{ masternode_names }}'
 
 - name: Fail if masternodes were not registered

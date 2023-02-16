@@ -15,7 +15,7 @@
             {{ masternode.collateral.address }}"
   register: protx
   changed_when: protx.stdout | length == 64
-  when: mn_group_name == "masternodes"
+  when: 'masternode_name is not match ("hp*")'
 
 - name: Create HP ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
   ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx register_hpmn
@@ -33,4 +33,4 @@
             {{ masternode.collateral.address }}"
   register: protx
   changed_when: protx.stdout | length == 64
-  when: mn_group_name == "hp_masternodes"
+  when: 'masternode_name is match ("hp*")'

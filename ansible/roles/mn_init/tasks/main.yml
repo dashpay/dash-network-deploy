@@ -38,15 +38,15 @@
 # Make this more idempotent with `getaddressinfo`
 - name: Import masternode owner private key
   ansible.builtin.command:
-    cmd: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ hostvars[item][mn_group_name][item]['owner']['private_key'] }} \"\" false"
-  with_items: '{{ groups[mn_group_name] }}'
+    cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ mnlist[item].owner.private_key }} "" false'
+  with_items: '{{ mnlist }}'
   register: result
   changed_when: result.rc == 0
 
 - name: Import masternode collateral private keys
   ansible.builtin.command:
-    cmd: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ hostvars[item][mn_group_name][item]['collateral']['private_key'] }} \"\" false"
-  with_items: '{{ groups[mn_group_name] }}'
+    cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ mnlist[item].collateral.private_key }} "" false'
+  with_items: '{{ mnlist }}'
   register: result
   changed_when: result.rc == 0
 
@@ -70,8 +70,8 @@
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
     registered_masternode_names: '{{ registered_masternode_names + [item] }}'
-  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + hostvars[item][mn_group_name][item]['owner']['address'] + "']")
-  with_items: '{{ groups[mn_group_name] }}'
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
+  with_items: '{{ mnlist }}'
 
 - name: Registered masternodes list
   ansible.builtin.debug:
@@ -81,7 +81,7 @@
 
 - name: Determine new masternodes
   ansible.builtin.set_fact:
-    new_masternode_names: "{{ groups[mn_group_name] | difference(registered_masternode_names) }}"
+    new_masternode_names: "{{ mnlist | difference(registered_masternode_names) }}"
 
 - name: New masternodes list
   ansible.builtin.debug:
@@ -100,7 +100,7 @@
 - name: Get names of banned masternodes
   ansible.builtin.set_fact:
     banned_masternode_names: '{{ banned_masternode_names + [item] }}'
-  when: banned_masternodes_list | json_query("[?state.ownerAddress=='" + hostvars[item][mn_group_name][item]['owner']['address'] + "']")
+  when: banned_masternodes_list | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
   with_items: '{{ registered_masternode_names }}'
 
 - name: Banned masternodes list
@@ -118,7 +118,7 @@
     misconfigured_masternode_names: '{{ misconfigured_masternode_names + [item] }}'
   when: >
     get_protx_list_result.stdout | from_json |
-    json_query("[?state.ownerAddress=='" + hostvars[item][mn_group_name][item]['owner']['address'] + "']") |
+    json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']") |
     json_query("[?state.service!='" + hostvars[item].public_ip + ":" + dashd_port | string  + "']")
   with_items: '{{ registered_masternode_names }}'
 
@@ -136,8 +136,8 @@
 
 - name: Populate fee payment targets
   ansible.builtin.set_fact:
-    fee_target_addresses: "{{ fee_target_addresses + [hostvars[item][mn_group_name][item]['collateral']['address']] }}"
-  with_items: '{{ groups[mn_group_name] }}'
+    fee_target_addresses: "{{ fee_target_addresses + [mnlist[item].collateral.address] }}"
+  with_items: '{{ mnlist }}'
 
 - name: Check if address contains a suitable fee utxo
   ansible.builtin.command: >
@@ -157,13 +157,13 @@
   vars:
     amount: 1
     payment_targets: '{{ fee_missing_addresses }}'
-  when: fee_missing_addresses|length > 0
+  when: fee_missing_addresses | length > 0
 
 # Isn't there some nicer way to do this with a map?
 - name: Set funding amount
   ansible.builtin.set_fact:
     funding_amount: |
-      {% if mn_group_name == 'hp_masternodes' %}
+      {% if register == 'hpmn' %}
         {{ masternode_collaterals.hpmn | int }}
       {% else %}
         {{ masternode_collaterals.mn | int }}

@@ -202,32 +202,28 @@
   become: true
   roles:
     - role: mn_init
-      mn_group_name: masternodes
-      # mnlist: {{ hp_masternodes }}
-      # then mnlist.masternode.owner.address or something?
-      # basically move the variable name change up here and not through all the files
-      # or rename yml vars to mn and hpmn, load into var called masternode
-      # nice.
-      # then run performance tests
+      mnlist: "{{ masternodes }}"
+      register: 'mn'
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
   roles:
     - role: mn_protx_config
-      mn_group_name: masternodes
+      mnlist: "{{ masternodes }}"
 
 - name: Register HP masternodes
   hosts: wallet_nodes
   become: true
   roles:
     - role: mn_init
-      mn_group_name: hp_masternodes
+      mnlist: "{{ hp_masternodes }}"
+      register: 'hpmn'
 
 - name: Update inventory with HPMN protx values
   hosts: wallet_nodes
   roles:
     - role: mn_protx_config
-      mn_group_name: hp_masternodes
+      mnlist: "{{ hp_masternodes }}"
 
 - name: Activate sporks
   hosts: wallet_nodes

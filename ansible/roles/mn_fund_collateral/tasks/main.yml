@@ -12,7 +12,7 @@
   ansible.builtin.include_role:
     name: mn_find_collateral
   vars:
-    masternode: "{{ hostvars[item][mn_group_name][item] }}"
+    masternode: "{{ mnlist[item] }}"
     masternode_name: "{{ item }}"
   with_items: '{{ masternode_names }}'
 
@@ -49,7 +49,7 @@
 
 - name: Populate payment targets
   ansible.builtin.set_fact:
-    uncollateralized_addresses: "{{ uncollateralized_addresses + [hostvars[item][mn_group_name][item]['collateral']['address']] }}"
+    uncollateralized_addresses: "{{ uncollateralized_addresses + [mnlist[item].collateral.address] }}"
   with_items:
     - '{{ masternode_names }}'
   when: not collateral_all_ok
@@ -71,11 +71,12 @@
     collateral_ok_count: 0
   when: not collateral_all_ok
 
+# TODO: we can probably derive the masternode_name from masternode, no need to pass both vars
 - name: Find existing masternode collaterals
   ansible.builtin.include_role:
     name: mn_find_collateral
   vars:
-    masternode: "{{ hostvars[item][mn_group_name][item] }}"
+    masternode: "{{ mnlist[item] }}"
     masternode_name: "{{ item }}"
   when: not collateral_all_ok
   with_items: '{{ masternode_names }}'

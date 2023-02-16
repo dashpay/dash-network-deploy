@@ -5,7 +5,7 @@
 - name: Get list of masternode protx
   ansible.builtin.include_tasks: find_protx.yml
   vars:
-    masternode: '{{ hostvars[item][mn_group_name][item] }}'
+    masternode: '{{ mnlist[item] }}'
     masternode_name: '{{ item }}'
   with_items: '{{ masternode_names }}'
 
@@ -14,7 +14,7 @@
 - name: Create ProUpServTx for banned masternodes
   ansible.builtin.include_tasks: createproupservtx.yml
   vars:
-    masternode: '{{ hostvars[item][mn_group_name][item] }}'
+    masternode: '{{ mnlist[item] }}'
     masternode_name: '{{ item }}'
   with_items: '{{ masternode_names }}'
 

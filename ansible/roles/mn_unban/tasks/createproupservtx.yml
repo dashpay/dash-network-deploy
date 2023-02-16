@@ -11,7 +11,7 @@
             {{ masternode.collateral.address }}" # Should already be funded from registration protx
   register: protx
   changed_when: protx.stdout | length == 64
-  when: mn_group_name == "masternodes"
+  when: 'masternode_name is not match ("hp*")'
 
 - name: Create ProUpServTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
   ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx update_service_hpmn
@@ -25,4 +25,4 @@
             {{ masternode.collateral.address }}" # Should already be funded from registration protx
   register: protx
   changed_when: protx.stdout | length == 64
-  when: mn_group_name == "hp_masternodes"
+  when: 'masternode_name is match ("hp*")'
