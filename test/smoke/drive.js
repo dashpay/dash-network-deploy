@@ -51,7 +51,7 @@ describe('Drive', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of allHosts) {
+    for (const hostName of inventory.hp_masternodes.hosts) {
       describe(hostName, () => {
         it('should listen for ABCI connection', () => {
           if (echoInfo[hostName] !== true) {
