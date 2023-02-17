@@ -25,7 +25,7 @@
     "@dashevo/dashcore-lib": "~0.19.44",
     "@dashevo/dashd-rpc": "^18.2.0",
     "@dashevo/wallet-lib": "~7.23.2",
-    "@dashevo/bls": "~1.0.0-beta.4",
+    "@dashevo/bls": "~1.2.6",
     "chai": "^4.3.6",
     "chai-arrays": "^2.0.0",
     "chai-as-promised": "^7.1.1",
