@@ -203,53 +203,6 @@ locals {
               [
                 local.service_ssh,
                 local.service_core_p2p,
-              ],
-            ),
-          ),
-          "{{ip}}",
-          element(aws_instance.masternode.*.public_ip, n),
-        )
-        internal_services = replace(
-          chomp(
-            join(
-              "",
-              [
-                local.service_core_rpc,
-                local.service_core_zmq,
-                local.service_insight,
-                local.service_docker,
-              ],
-            ),
-          ),
-          "{{ip}}",
-          element(aws_instance.masternode.*.public_ip, n),
-        )
-        service_logs = chomp(
-          join(
-            "\n",
-            [
-              "   - dashd",
-              "   - sentinel",
-              "   - insight",
-            ],
-          ),
-        )
-      }
-    )
-  ]
-
-  hp_masternodes = [
-    for n in range(length(aws_instance.hp_masternode)) : templatefile(
-      "${path.module}/templates/services/node.tpl",
-      {
-        name = "hp-masternode-${n + 1}"
-        external_services = replace(
-          chomp(
-            join(
-              "",
-              [
-                local.service_ssh,
-                local.service_core_p2p,
                 local.service_dapi,
                 local.service_dapi_grpc,
                 local.service_tendermint_p2p,
