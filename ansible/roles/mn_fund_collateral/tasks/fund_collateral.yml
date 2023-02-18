@@ -21,9 +21,9 @@
   register: fund_result
   changed_when: fund_result.stdout | length == 64
 
-- name: Generate at least one block to confirm transactions
+- name: Produce blocks until funding transaction is confirmed
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
-    generate: blocks
-    num_blocks: 1
+    generate: confirmations
+    txid_list: "{{ [fund_result.stdout] }}"
