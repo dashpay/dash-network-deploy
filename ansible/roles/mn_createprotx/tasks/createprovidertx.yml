@@ -2,8 +2,10 @@
 
 # Requires "masternode" and "masternode_name" variables
 
-- name: Create ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
-  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx register
+
+- name: Pre-load command for masternode protx
+  ansible.builtin.set_fact:
+    protx_command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx register
             {{ vars['collateral_txid_' + masternode_name | replace('-', '_')] }}
             {{ vars['collateral_vout_' + masternode_name | replace('-', '_')] }}
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
@@ -13,12 +15,11 @@
             0
             {{ miner_payment_address }}
             {{ masternode.collateral.address }}"
-  register: protx
-  changed_when: protx.stdout | length == 64
   when: 'masternode_name is not match ("hp*")'
 
-- name: Create HP ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
-  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx register_hpmn
+- name: Pre-load command for HP masternode protx
+  ansible.builtin.set_fact:
+    protx_command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx register_hpmn
             {{ vars['collateral_txid_' + masternode_name | replace('-', '_')] }}
             {{ vars['collateral_vout_' + masternode_name | replace('-', '_')] }}
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
@@ -31,10 +32,13 @@
             {{ tendermint_p2p_port }}
             {{ dapi_port }}
             {{ masternode.collateral.address }}"
+  when: 'masternode_name is match ("hp*")'
+
+- name: Create ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
+  ansible.builtin.command: "{{ protx_command }}"
   register: protx
   changed_when: protx.stdout | length == 64
-  when: 'masternode_name is match ("hp*")'
 
 - name: Add resulting txid to list
   ansible.builtin.set_fact:
-    created_protx_list: "{{ created_protx_list + [ protx ] }}"
+    created_protx_list: "{{ created_protx_list + [ protx.stdout ] }}"

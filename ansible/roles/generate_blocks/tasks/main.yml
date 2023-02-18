@@ -53,7 +53,7 @@
   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} gettransaction {{ item }}
   when: generate == 'confirmations'
   register: gettransaction_result
-  until: (gettransaction_result.stdout | from_json | json_query('confirmations') ) >= 1
+  until: gettransaction_result.stdout | from_json | json_query('confirmations') >= 1
   with_items: "{{ txid_list }}"
   retries: 200
   delay: 10
