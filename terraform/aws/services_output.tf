@@ -253,7 +253,6 @@ locals {
                 local.service_ssh,
                 local.service_core_p2p,
                 local.service_dapi,
-                local.service_dapi_grpc,
                 local.service_tendermint_p2p,
               ],
             ),
