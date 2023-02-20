@@ -3,6 +3,11 @@ Masternodes
 
 ${masternodes}
 
+HP masternodes
+==============
+
+${hp_masternodes}
+
 Wallets
 =======
 

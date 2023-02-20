@@ -96,7 +96,19 @@ variable "miner_count" {
   default = 1
 }
 
-variable "masternode_count" {
+variable "masternode_amd_count" {
+  default = 3
+}
+
+variable "masternode_arm_count" {
+  default = 3
+}
+
+variable "hp_masternode_amd_count" {
+  default = 3
+}
+
+variable "hp_masternode_arm_count" {
   default = 3
 }
 
@@ -183,12 +195,4 @@ variable "wallet_node_instance_size" {
 variable "volume_type" {
   description = "Type of volume to use for block devices"
   default     = "gp3"
-}
-
-variable "masternode_amd_count" {
-  default = 3
-}
-
-variable "masternode_arm_count" {
-  default = 3
 }

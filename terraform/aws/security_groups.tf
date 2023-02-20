@@ -240,9 +240,9 @@ resource "aws_security_group" "logs" {
 }
 
 # dashd node accessible from the public internet
-resource "aws_security_group" "masternode" {
-  name        = "${terraform.workspace}-masternode"
-  description = "masternode"
+resource "aws_security_group" "hp_masternode" {
+  name        = "${terraform.workspace}-hp-masternode"
+  description = "hp masternode"
   vpc_id      = aws_vpc.default.id
 
   # Insight API access
@@ -333,7 +333,7 @@ resource "aws_security_group" "masternode" {
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-masternode"
+    Name        = "dn-${terraform.workspace}-hp-masternode"
     DashNetwork = terraform.workspace
   }
 }

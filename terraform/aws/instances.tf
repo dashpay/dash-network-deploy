@@ -92,7 +92,7 @@ resource "aws_instance" "seed_node" {
   vpc_security_group_ids = [
     aws_security_group.default.id,
     aws_security_group.dashd_public.id,
-    aws_security_group.masternode.id,
+    aws_security_group.hp_masternode.id,
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
@@ -164,14 +164,13 @@ resource "aws_instance" "masternode_amd" {
   count = var.masternode_amd_count
 
   ami                  = data.aws_ami.ubuntu_amd.id
-  instance_type        = "t3.medium"
+  instance_type        = "t3.small"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
     aws_security_group.dashd_public.id,
-    aws_security_group.masternode.id,
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
@@ -199,9 +198,88 @@ resource "aws_instance" "masternode_amd" {
 
 }
 
+
 # masternodes (arm)
 resource "aws_instance" "masternode_arm" {
   count = var.masternode_arm_count
+
+  ami                  = data.aws_ami.ubuntu_arm.id
+  instance_type        = "t4g.small"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.dashd_public.id,
+  ]
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  root_block_device {
+    volume_size = var.mn_node_disk_size
+    volume_type = var.volume_type
+  }
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_amd_count + 1}"
+    Hostname    = "masternode-${count.index + var.masternode_amd_count + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_amd_count + 1}"
+    Hostname    = "masternode-${count.index + var.masternode_amd_count + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
+}
+
+resource "aws_instance" "hp_masternode_amd" {
+  count = var.hp_masternode_amd_count
+
+  ami                  = data.aws_ami.ubuntu_amd.id
+  instance_type        = "t3.medium"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.dashd_public.id,
+    aws_security_group.hp_masternode.id,
+  ]
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  root_block_device {
+    volume_size = var.mn_node_disk_size
+    volume_type = var.volume_type
+  }
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-hp-masternode-${count.index + 1}"
+    Hostname    = "hp-masternode-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-hp-masternode-${count.index + 1}"
+    Hostname    = "hp-masternode-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
+}
+
+
+resource "aws_instance" "hp_masternode_arm" {
+  count = var.hp_masternode_arm_count
 
   ami                  = data.aws_ami.ubuntu_arm.id
   instance_type        = "t4g.medium"
@@ -211,7 +289,7 @@ resource "aws_instance" "masternode_arm" {
   vpc_security_group_ids = [
     aws_security_group.default.id,
     aws_security_group.dashd_public.id,
-    aws_security_group.masternode.id,
+    aws_security_group.hp_masternode.id,
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
@@ -222,14 +300,14 @@ resource "aws_instance" "masternode_arm" {
   }
 
   volume_tags = {
-    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_amd_count + 1}"
-    Hostname    = "masternode-${count.index + var.masternode_amd_count + 1}"
+    Name        = "dn-${terraform.workspace}-hp-masternode-${count.index + var.hp_masternode_amd_count + 1}"
+    Hostname    = "hp-masternode-${count.index + var.hp_masternode_amd_count + 1}"
     DashNetwork = terraform.workspace
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-masternode-${count.index + var.masternode_amd_count + 1}"
-    Hostname    = "masternode-${count.index + var.masternode_amd_count + 1}"
+    Name        = "dn-${terraform.workspace}-hp-masternode-${count.index + var.hp_masternode_amd_count + 1}"
+    Hostname    = "hp-masternode-${count.index + var.hp_masternode_amd_count + 1}"
     DashNetwork = terraform.workspace
   }
 
@@ -238,6 +316,7 @@ resource "aws_instance" "masternode_arm" {
   }
 
 }
+
 
 resource "aws_instance" "vpn" {
   count = var.vpn_enabled ? 1 : 0
