@@ -61,7 +61,7 @@
     - eternal_terminal
 
 - name: Setup Node.JS and NPM
-  hosts: masternodes
+  hosts: hp_masternodes
   become: true
   pre_tasks:
     - name: Update apt cache
