@@ -6,7 +6,7 @@
   become_user: dashmate
   args:
     chdir: /home/dashmate/platform
-  when: inventory_hostname in groups["masternodes"]
+  when: inventory_hostname in groups["hp_masternodes"]
   register: dashmate_stop
   changed_when: "'Node is not running' in dashmate_stop.stderr"
 
@@ -55,7 +55,7 @@
   ansible.builtin.file:
     state: absent
     path: "{{ dashmate_config_dir }}/"
-  when: inventory_hostname in groups["masternodes"]
+  when: inventory_hostname in groups["hp_masternodes"]
 
 - name: Delete dash home dir
   ansible.builtin.file:
