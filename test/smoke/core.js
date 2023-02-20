@@ -1,18 +1,18 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
+const { inventory, network, variables } = getNetworkConfig();
 const { getDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
 const timeout = 15000; // set individual rpc client timeout
 
-const {
-  inventory,
-  network,
-  variables,
-} = getNetworkConfig();
+const allMasternodes = inventory.masternodes.hosts.concat(inventory.hp_masternodes.hosts);
 
-const allHosts = inventory.masternodes.hosts
-  .concat(inventory.wallet_nodes.hosts, inventory.miners.hosts, inventory.seed_nodes.hosts);
+const allHosts = allMasternodes.concat(
+  inventory.wallet_nodes.hosts,
+  inventory.miners.hosts,
+  inventory.seed_nodes.hosts,
+);
 
 describe('Core', () => {
   const coreContainerIds = {};
@@ -120,9 +120,9 @@ describe('Core', () => {
       }));
     });
 
-    for (const hostName of inventory.masternodes.hosts) {
+    for (const hostName of allMasternodes) {
       describe(hostName, () => {
-        it('should be in masternodes list', async () => {
+        it('should be in masternodes list with correct type', async () => {
           if (!masternodeListInfo[hostName]) {
             expect.fail(null, null, 'no masternode list info');
           }
@@ -132,8 +132,10 @@ describe('Core', () => {
               inventory.meta.hostvars[hostName].public_ip === node.address.split(':')[0]
             ));
 
-          expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();
+          const masternodeType = hostName.startsWith('hp-') ? 'HighPerformance' : 'Regular';
 
+          expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();
+          expect(nodeFromList.type).to.be.equal(masternodeType);
           expect(nodeFromList.status).to.be.equal('ENABLED');
         });
       });

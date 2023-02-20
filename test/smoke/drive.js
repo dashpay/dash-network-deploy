@@ -9,30 +9,6 @@ const { getDocker, execCommand, getContainerId } = require('../../lib/test/docke
 const seedHosts = inventory.seed_nodes.hosts;
 const masternodeHosts = inventory.masternodes.hosts;
 
-async function sendEcho(ip) {
-  const echoRequestBytes = Buffer.from('0a0a080a0668656c6c6f21', 'hex');
-
-  return new Promise((resolve, reject) => {
-    const client = net.connect(26658, ip);
-
-    client.on('connect', () => {
-      client.write(echoRequestBytes);
-    });
-
-    client.on('data', () => {
-      client.destroy();
-
-      resolve();
-    });
-
-    client.on('error', reject);
-
-    setTimeout(() => {
-      reject(new Error('Can\'t connect to ABCI port: timeout.'));
-    }, 2000);
-  });
-}
-
 describe('Drive', () => {
   describe('All nodes', () => {
     const echoInfo = {};
@@ -53,7 +29,7 @@ describe('Drive', () => {
         promises.push(requestEchoPromise);
       }
 
-      const statusPromises = masternodeHosts.map(async (hostName) => {
+      const statusPromises = inventory.hp_masternodes.hosts.map(async (hostName) => {
         const docker = await getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
         const containerIp = await getContainerId(docker, 'dashmate_helper');
 

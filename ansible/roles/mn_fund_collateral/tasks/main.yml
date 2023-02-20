@@ -2,17 +2,6 @@
 
 # Requires "masternode_names" variable
 
-- name: Import masternode collateral private key
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ masternodes[item].collateral.private_key }} "" false'
-  with_items: '{{ masternode_names }}'
-  register: result
-  changed_when: result.rc == 0
-
-- name: Rescan blockchain
-  ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} rescanblockchain'
-  register: result
-  changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
-
 # check
 
 - name: Reset collateral_ok_count
@@ -23,7 +12,7 @@
   ansible.builtin.include_role:
     name: mn_find_collateral
   vars:
-    masternode: "{{ masternodes[item] }}"
+    masternode: "{{ mnlist[item] }}"
     masternode_name: "{{ item }}"
   with_items: '{{ masternode_names }}'
 
@@ -47,15 +36,20 @@
     name: generate_blocks
   vars:
     num_blocks: 0
-    balance_needed: "{{ (masternode_names | length - collateral_ok_count | int) * 1000 }}"
+    balance_needed: "{{ (masternode_names | length - collateral_ok_count | int) * (funding_amount | int / 100000) | int }}"
   when: not collateral_all_ok and (faucet_balance.stdout | int < balance_needed | int)
 
-# TODO: this will fund all masternodes, not just those with missing collateral. collateral_ok_masternode_1 was partially implemented, check again later
-# https://github.com/dashpay/dash-network-deploy/blob/v0.23-dev/ansible/roles/mn-fund-collateral/tasks/main.yml#L48
+# TODO: this will fund all masternodes when `not collateral_all_ok`, not just those with missing collateral.
+# collateral_ok_masternode_1 was partially implemented, check again later
+# https://github.com/dashpay/dash-network-deploy/blob/master/ansible/roles/mn-fund-collateral/tasks/main.yml#L48
+
+- name: Initialize array for uncollateralized addresses
+  ansible.builtin.set_fact:
+    uncollateralized_addresses: []
 
 - name: Populate payment targets
   ansible.builtin.set_fact:
-    uncollateralized_addresses: "{{ uncollateralized_addresses | default([]) + [masternodes[item].collateral.address] }}"
+    uncollateralized_addresses: "{{ uncollateralized_addresses + [mnlist[item].collateral.address] }}"
   with_items:
     - '{{ masternode_names }}'
   when: not collateral_all_ok
@@ -66,7 +60,7 @@
   ansible.builtin.include_tasks:
     file: fund_collateral.yml
   vars:
-    amount: 1000
+    amount: "{{ (funding_amount | int / 100000) | int }}"
     payment_targets: '{{ uncollateralized_addresses }}'
   when: not collateral_all_ok
 
@@ -77,11 +71,12 @@
     collateral_ok_count: 0
   when: not collateral_all_ok
 
+# TODO: we can probably derive the masternode_name from masternode, no need to pass both vars
 - name: Find existing masternode collaterals
   ansible.builtin.include_role:
     name: mn_find_collateral
   vars:
-    masternode: "{{ masternodes[item] }}"
+    masternode: "{{ mnlist[item] }}"
     masternode_name: "{{ item }}"
   when: not collateral_all_ok
   with_items: '{{ masternode_names }}'
@@ -90,11 +85,3 @@
   ansible.builtin.fail:
     msg: funding was not successful
   when: not collateral_all_ok and collateral_ok_count | int != masternode_names | length
-
-- name: Generate at least one block to confirm funding transactions
-  ansible.builtin.include_role:
-    name: generate_blocks
-  vars:
-    num_blocks: 1
-    balance_needed: 0
-  when: not collateral_all_ok

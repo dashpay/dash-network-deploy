@@ -18,7 +18,7 @@ describe('DAPI', () => {
       this.timeout(120000); // set mocha timeout
 
       const promises = [];
-      for (const hostName of inventory.masternodes.hosts) {
+      for (const hostName of inventory.hp_masternodes.hosts) {
         const timeout = 15000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32).fill(1);
 
@@ -67,7 +67,7 @@ describe('DAPI', () => {
       return Promise.all(promises).catch(console.error);
     });
 
-    for (const hostName of inventory.masternodes.hosts) {
+    for (const hostName of inventory.hp_masternodes.hosts) {
       describe(hostName, () => {
         it('should return data from Core', async () => {
           if (bestBlockHashError[hostName]) {

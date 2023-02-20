@@ -9,30 +9,31 @@ data "aws_availability_zones" "available" {
   state         = "available"
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "ubuntu_amd" {
   most_recent = true
 
   filter {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-*-22.04-*-server-*",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-2023*",
     ]
   }
 
+  owners = [
+    "099720109477",
+  ]
+  # Canonical
+}
+
+data "aws_ami" "ubuntu_arm" {
+  most_recent = true
+
   filter {
-    name = "architecture"
+    name = "name"
 
     values = [
-      var.host_arch == "arm64" ? "arm64" : "x86_64"
-    ]
-  }
-
-  filter {
-    name = "virtualization-type"
-
-    values = [
-      "hvm",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-2023*",
     ]
   }
 
@@ -201,8 +202,8 @@ locals {
 }
 
 resource "random_shuffle" "dns_ips" {
-  input        = concat(aws_instance.masternode.*.public_ip)
-  result_count = length(concat(aws_instance.masternode.*.public_ip)) > local.dns_record_length ? local.dns_record_length : length(concat(aws_instance.masternode.*.public_ip))
+  input        = concat(aws_instance.masternode_amd.*.public_ip, aws_instance.masternode_arm.*.public_ip)
+  result_count = length(concat(aws_instance.masternode_amd.*.public_ip, aws_instance.masternode_arm.*.public_ip)) > local.dns_record_length ? local.dns_record_length : length(concat(aws_instance.masternode_amd.*.public_ip, aws_instance.masternode_arm.*.public_ip))
 }
 
 resource "aws_route53_record" "masternodes" {

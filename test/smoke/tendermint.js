@@ -1,16 +1,86 @@
+const { client: jaysonClient } = require('jayson/promise');
+
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { getDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
 const { variables, inventory, network } = getNetworkConfig();
 
+function requestTendermint(host, port, path) {
+  const tendermintClient = jaysonClient.http({
+    host,
+    port,
+  });
+
+  return new Promise((resolve, reject) => {
+    tendermintClient.on('http error', (error) => {
+      reject(error);
+    });
+
+    const timeout = setTimeout(() => {
+      reject(new Error(`timeout connecting to ${host}:${port}`));
+    }, 10000); // 10s timeout
+
+    tendermintClient.on('http response', () => {
+      clearTimeout(timeout);
+    });
+
+    tendermintClient.request(path, {})
+      .then(({ result, error }) => {
+        if (error) {
+          reject(new Error(error));
+
+          return;
+        }
+
+        resolve(result);
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
+}
+
 describe('Tendermint', () => {
+  const masternodeStatus = {};
+  const masternodeStatusError = {};
+
+  const masternodeNetInfo = {};
+  const masternodeNetInfoError = {};
+
   const blockHashes = {};
 
   describe('All nodes', () => {
     const statusInfo = {};
 
-    before('Collect tenderdash info', async () => {
-      const promises = inventory.masternodes.hosts.map(async (hostName) => {
+    before('Collect tenderdash info', () => {
+      const promises = [];
+      for (const hostName of allHosts) {
+        const requestTendermintStatusPromise = requestTendermint(
+          // eslint-disable-next-line no-underscore-dangle
+          inventory._meta.hostvars[hostName].public_ip,
+          variables.tendermint_rpc_port,
+          'status',
+        ).then((result) => {
+          masternodeStatus[hostName] = result;
+        }).catch((error) => {
+          masternodeStatusError[hostName] = error;
+        });
+
+        const requestTendermintNetInfoPromise = requestTendermint(
+          // eslint-disable-next-line no-underscore-dangle
+          inventory._meta.hostvars[hostName].public_ip,
+          variables.tendermint_rpc_port,
+          'net_info',
+        ).then((result) => {
+          masternodeNetInfo[hostName] = result;
+        }).catch((error) => {
+          masternodeNetInfoError[hostName] = error;
+        });
+
+        promises.push(requestTendermintStatusPromise, requestTendermintNetInfoPromise);
+      }
+
+      const promisez = inventory.masternodes.hosts.map(async (hostName) => {
         const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
         const containerId = await getContainerId(docker, 'dashmate_helper');
 
@@ -18,7 +88,7 @@ describe('Tendermint', () => {
           ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
       });
 
-      return Promise.all(promises).catch(console.error);
+      return Promise.all(promisez).catch(console.error);
     });
 
     before('Evaluate block hashes', () => {
@@ -39,7 +109,7 @@ describe('Tendermint', () => {
       }
     });
 
-    for (const hostName of inventory.masternodes.hosts) {
+    for (const hostName of allHosts) {
       describe(hostName, () => {
         it('should be connected to the network', () => {
           const status = statusInfo[hostName];
