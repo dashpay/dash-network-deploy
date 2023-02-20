@@ -160,29 +160,6 @@
     - mn_status_report
     - elastic_beats
 
-- name: Set up core on HP masternodes
-  hosts: hp_masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for HP masternodes
-      ansible.builtin.set_fact:
-        masternode: "{{ hp_masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in hp_masternodes
-    - name: Fail if no HP masternodes present
-      ansible.builtin.fail:
-        msg: HP masternode not defined in network config
-      when: masternode is not defined
-  roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - mn_sentinel
-    - mn_status_report
-    - elastic_beats
 
 # Start network
 
