@@ -22,7 +22,9 @@
     project_src: '{{ mn_evo_services_path }}'
     state: absent
     remove_volumes: false
-  when: inventory_hostname not in groups["hp_masternodes"]
+  when:
+    - inventory_hostname not in groups["hp_masternodes"]
+    - inventory_hostname not in groups["masternodes"]
 
 - name: Delete platform dir
   ansible.builtin.file:
