@@ -43,9 +43,9 @@
           "privateKey": {% if dashd_sporkkey is defined %}"{{ dashd_sporkkey }}"{% else %}null{% endif %}
         },
         "masternode": {
-          "enable": {% if masternode is defined %}true{% else %}false{% endif %},
+          "enable": {% if node is defined %}true{% else %}false{% endif %},
           "operator": {
-            "privateKey": {% if masternode is defined%}"{{ masternode.operator.private_key }}"{% else %}null{% endif %}
+            "privateKey": {% if node is defined%}"{{ node.operator.private_key }}"{% else %}null{% endif %}
           }
         },
         "miner": {
