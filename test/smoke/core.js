@@ -8,11 +8,13 @@ const timeout = 15000; // set individual rpc client timeout
 
 const allMasternodes = inventory.masternodes.hosts.concat(inventory.hp_masternodes.hosts);
 
-const allHosts = allMasternodes.concat(
+const ansibleHosts = inventory.masternodes.hosts(
   inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
   inventory.seed_nodes.hosts,
 );
+
+const allHosts = inventory.hp_masternodes.hosts.concat(ansibleHosts)
 
 describe('Core', () => {
   const coreContainerIds = {};
@@ -35,7 +37,7 @@ describe('Core', () => {
     before('Collect blockchain and network info', async function func() {
       this.timeout(60000); // set mocha timeout
 
-      await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
+      await Promise.all(inventory.hp_masternodes.hosts.map(async (hostName) => {
         const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
         const blockchain = await execCommand(docker, coreContainerIds[hostName],
@@ -50,10 +52,7 @@ describe('Core', () => {
           ['dash-cli', 'getnetworkinfo']);
       }));
 
-      const otherHosts = allHosts.filter((hostName) => inventory
-        .masternodes.hosts.indexOf(hostName) === -1);
-
-      await Promise.all(otherHosts.map(async (hostName) => {
+      await Promise.all(ansibleHosts.map(async (hostName) => {
         const client = createRpcClientFromConfig(hostName);
 
         client.setTimeout(timeout);
@@ -112,15 +111,33 @@ describe('Core', () => {
 
     before('Collect masternode list info', async function func() {
       this.timeout(30000); // set mocha timeout
+      const promises = [];
 
-      await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
+      await Promise.all(inventory.hp_masternodes.hosts.map(async (hostName) => {
         const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
         masternodeListInfo[hostName] = await execCommand(docker, coreContainerIds[hostName], ['dash-cli', 'masternode', 'list']);
       }));
+
+      for (const hostName of ansibleHosts) {
+        const timeout = 15000; // set individual rpc client timeout
+
+        const client = createRpcClientFromConfig(hostName);
+
+        client.setTimeout(timeout);
+
+        const requestMasternodeListInfoPromise = client.masternodelist()
+          .then(({ result }) => {
+            masternodeListInfo[hostName] = result;
+          });
+
+        promises.push(requestMasternodeListInfoPromise);
+      }
+
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of allMasternodes) {
+    for (const hostName of allHosts) {
       describe(hostName, () => {
         it('should be in masternodes list with correct type', async () => {
           if (!masternodeListInfo[hostName]) {

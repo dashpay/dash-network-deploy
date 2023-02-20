@@ -46,7 +46,7 @@
     pip_package: python3-pip
     pip_install_packages:
       - name: docker
-        version: "5.0.3"
+        version: "6.0.1"
       - name: docker-compose
         version: "1.29.2"
   roles:
