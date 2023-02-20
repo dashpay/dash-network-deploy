@@ -5,6 +5,9 @@ const { getDocker, execCommand, getContainerId } = require('../../lib/test/docke
 
 const { variables, inventory, network } = getNetworkConfig();
 
+const ansibleHosts = inventory.seed_nodes.hosts;
+const dashmateHosts = inventory.hp_masternodes.hosts;
+
 function requestTendermint(host, port, path) {
   const tendermintClient = jaysonClient.http({
     host,
@@ -54,7 +57,8 @@ describe('Tendermint', () => {
 
     before('Collect tenderdash info', () => {
       const promises = [];
-      for (const hostName of allHosts) {
+
+      for (const hostName of ansibleHosts) {
         const requestTendermintStatusPromise = requestTendermint(
           // eslint-disable-next-line no-underscore-dangle
           inventory._meta.hostvars[hostName].public_ip,
@@ -80,7 +84,7 @@ describe('Tendermint', () => {
         promises.push(requestTendermintStatusPromise, requestTendermintNetInfoPromise);
       }
 
-      const promisez = inventory.masternodes.hosts.map(async (hostName) => {
+      const dashmatePromises = dashmateHosts.map(async (hostName) => {
         const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
         const containerId = await getContainerId(docker, 'dashmate_helper');
 
@@ -88,11 +92,24 @@ describe('Tendermint', () => {
           ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
       });
 
-      return Promise.all(promisez).catch(console.error);
+      return Promise.all(promises.concat(dashmatePromises)).catch(console.error);
     });
 
     before('Evaluate block hashes', () => {
-      for (const hostName of inventory.masternodes.hosts) {
+      for (const hostName of ansibleHosts) {
+        const {
+          sync_info: {
+            latest_block_height: blockHeight,
+            latest_block_hash: blockHash,
+          },
+        } = masternodeStatus[hostName];
+
+        if (!blockHashes[blockHeight]) {
+          blockHashes[blockHeight] = blockHash;
+        }
+      }
+
+      for (const hostName of dashmateHosts) {
         const status = statusInfo[hostName];
 
         if (!status) {
@@ -109,7 +126,63 @@ describe('Tendermint', () => {
       }
     });
 
-    for (const hostName of allHosts) {
+    for (const hostName of ansibleHosts) {
+      describe(hostName, () => {
+        it('should be connected to the network', () => {
+          if (masternodeStatusError[hostName]) {
+            expect.fail(masternodeStatusError[hostName]);
+          }
+
+          let networkName = `dash-${network.name}`;
+          if (variables.tenderdash_chain_id !== undefined) {
+            networkName = `dash-${variables.tenderdash_chain_id}`;
+          }
+
+          const { node_info: nodeInfo } = masternodeStatus[hostName];
+
+          expect(nodeInfo).to.deep.include({
+            network: networkName,
+            moniker: hostName,
+          });
+        });
+
+        it('should be connected to peers', () => {
+          if (masternodeNetInfoError[hostName]) {
+            expect.fail(masternodeNetInfoError[hostName]);
+          }
+
+          expect(masternodeNetInfo[hostName]).to.have.property('listening', true);
+          expect(masternodeNetInfo[hostName]).to.have.property('n_peers');
+          expect(parseInt(masternodeNetInfo[hostName].n_peers, 10)).to.be.greaterThan(0);
+        });
+
+        it('should sync blocks', () => {
+          if (masternodeStatusError[hostName]) {
+            expect.fail(masternodeStatusError[hostName]);
+          }
+
+          const {
+            sync_info: {
+              latest_block_height: blockHeight,
+              latest_block_hash: blockHash,
+            },
+          } = masternodeStatus[hostName];
+
+          expect(blockHashes[blockHeight]).to.be.equal(blockHash);
+
+          const blocksCounts = Object.keys(blockHashes).map((c) => parseInt(c, 10));
+          const maxBlocksCount = Math.max(...blocksCounts);
+
+          const blocksCountDiff = maxBlocksCount - blockHeight;
+
+          if (blocksCountDiff > 3) {
+            expect.fail(`${blocksCountDiff} blocks behind`);
+          }
+        });
+      });
+    }
+
+    for (const hostName of dashmateHosts) {
       describe(hostName, () => {
         it('should be connected to the network', () => {
           const status = statusInfo[hostName];
