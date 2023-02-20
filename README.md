@@ -133,7 +133,7 @@ You can use the OpenVPN config generated during deployment (`<network_name>.ovpn
     git clone https://github.com/dashpay/dash-network-deploy.git
     ```
 
-2. Install Ansible (v2.11.4+) and Terraform (v1.0.5+) per instructions provided on the official websites:
+2. Install Ansible (v2.11.4+) and Terraform (v1.3.0+) per instructions provided on the official websites:
 
     * [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
     * [Terraform](https://www.terraform.io/intro/getting-started/install.html)
