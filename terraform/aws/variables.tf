@@ -112,10 +112,6 @@ variable "hp_masternode_arm_count" {
   default = 3
 }
 
-variable "hp_masternode_count" {
-  default = 3
-}
-
 # TODO: add support for multiple wallets/mnos
 variable "wallet_count" {
   description = "number of wallet nodes to create. must be at least 1"
