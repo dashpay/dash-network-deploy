@@ -242,26 +242,6 @@
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
 
-- name: Set up platform on HP masternodes
-  hosts: hp_masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for HP masternodes
-      ansible.builtin.set_fact:
-        node: "{{ hp_masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in hp_masternodes
-    - name: Fail if no hp masternodes present
-      ansible.builtin.fail:
-        msg: HP masternode not defined in network config
-      when: node is not defined
-  roles:
-    - role: mn_evo_services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic_beats
-
 - name: Set up core and platform on HP masternodes
   hosts: hp_masternodes
   pre_tasks:
