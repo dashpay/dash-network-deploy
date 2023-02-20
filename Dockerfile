@@ -28,7 +28,7 @@ RUN curl -sSL https://deb.nodesource.com/setup_16.x | bash - && \
 
 # Install terraform
 
-ARG TERRAFORM_VERSION=1.3.7
+ARG TERRAFORM_VERSION=1.3.9
 
 RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
@@ -36,7 +36,7 @@ RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraf
 
 # Install Docker client
 
-ENV DOCKERVERSION=20.10.9
+ENV DOCKERVERSION=23.0.1
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
     && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
     -C /usr/local/bin docker/docker \
