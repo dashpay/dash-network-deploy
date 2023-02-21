@@ -8,7 +8,7 @@
       when: target == "network"
 
 - name: Destroy platform
-  hosts: masternodes,seed_nodes
+  hosts: hp_masternodes,masternodes,seed_nodes
   become: true
   roles:
     - role: kill_platform
