@@ -27,3 +27,4 @@
   vars:
     generate: confirmations
     txid_list: "{{ [fund_result.stdout] }}"
+    tx_source: "{{ wallet_rpc_wallet_faucet }}"

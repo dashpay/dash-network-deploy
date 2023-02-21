@@ -50,7 +50,7 @@
 # Option: confirmations
 
 - name: Wait for a confirmation for {{ txid_list | length ~ ' transaction(s)' }}
-  ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} gettransaction {{ item }}
+  ansible.builtin.command: dash-cli -rpcwallet={{ tx_source }} gettransaction {{ item }}
   when: generate == 'confirmations'
   register: gettransaction_result
   until: gettransaction_result.stdout | from_json | json_query('confirmations') >= 1

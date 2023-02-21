@@ -19,6 +19,7 @@
   vars:
     generate: confirmations
     txid_list: "{{ created_protx_list }}"
+    tx_source: "{{ wallet_rpc_wallet_mno }}"
 
 # verify
 
