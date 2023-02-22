@@ -153,12 +153,9 @@
               "format": "plain"
             },
             "moniker": "{{ inventory_hostname }}",
-            "nodeKey": {
+            "node": {
               "id": "{{ node.node_key.id }}",
-              "priv_key": {
-                "type": "tendermint/PrivKeyEd25519",
-                "value": "{{ node.node_key.private_key }}"
-              }
+              "key": "{{ node.node_key.private_key }}"
             },
             "genesis": {
               "genesis_time": "2021-07-22T12:57:05.429Z",
@@ -185,8 +182,7 @@
                 }
               },
               "validator_quorum_type": {{ platform_drive_validator_set_llmq_type }}
-            },
-            "nodeId": "{{ node.node_key.id }}"
+            }
           }
         },
         "dpns": {
@@ -224,14 +220,14 @@
           "contract": {
            "id": "4fJLR2GYTPFdomuTVvNy3VRrvWgvkKPzqehEBpNf2nk6"
           },
-          "masterPublicKey": null,
-          "secondPublicKey": null
+          "masterPublicKey": "{{ withdrawals_master_public_key }}",
+          "secondPublicKey": "{{ withdrawals_second_public_key }}"
         }
       },
       "dashmate": {
         "helper": {
           "docker": {
-            "image": "dashpay/dashmate-helper:0.24-dev"
+            "image": "pshenmic/dashmate_helper"
           }
         }
       },
