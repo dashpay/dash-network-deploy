@@ -68,4 +68,4 @@
     state: stopped
     enabled: false
     masked: false
-  when: generate == 'confirmations' and dash_network in generate_networks
+  when: dash_network in generate_networks
