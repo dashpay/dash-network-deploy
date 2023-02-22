@@ -19,6 +19,8 @@
 - name: Get start block count
   ansible.builtin.command: dash-cli getblockcount
   register: start_block_count
+  changed_when: false
+  failed_when: start_block_count.rc != 0
 
 # Start mining
 
