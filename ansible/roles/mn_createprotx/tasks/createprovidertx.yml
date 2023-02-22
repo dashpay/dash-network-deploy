@@ -4,7 +4,7 @@
 
 - name: Create ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
   ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx
-            {% if masternode_name is match ('hp*') %} register_hpmn {% else %} register {% endif %}
+            {% if masternode_name is match('hp*') %} register_hpmn {% else %} register {% endif %}
             {{ vars['collateral_txid_' + masternode_name | replace('-', '_')] }}
             {{ vars['collateral_vout_' + masternode_name | replace('-', '_')] }}
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
@@ -13,7 +13,7 @@
             {{ masternode.owner.address }}
             0
             {{ miner_payment_address }}
-            {% if masternode_name is match ('hp*') %}
+            {% if masternode_name is match('hp*') %}
             {{ masternode.node_key.id }}
             {{ tendermint_p2p_port }}
             {{ dapi_port }}
@@ -24,4 +24,4 @@
 
 - name: Add resulting txid to list
   ansible.builtin.set_fact:
-    created_protx_list: "{{ created_protx_list + [ protx.stdout ] }}"
+    created_protx_list: "{{ created_protx_list + [protx.stdout] }}"

@@ -9,7 +9,7 @@
     (generate == 'blocks' and num_blocks is not defined) or
     (generate == 'balance' and target_balance is not defined) or
     (generate == 'confirmations' and txid_list is not defined)
-  
+
 - name: Specify which networks permit generating blocks
   ansible.builtin.set_fact:
     generate_networks:

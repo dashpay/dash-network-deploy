@@ -24,4 +24,4 @@
     state: restarted
     enabled: true
     masked: false
-    daemon_reload: '{{ service_result is changed }}'
+    daemon_reload: '{{ service_result.changed }}'

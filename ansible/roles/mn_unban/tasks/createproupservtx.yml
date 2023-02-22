@@ -29,4 +29,4 @@
 
 - name: Add resulting txid to list
   ansible.builtin.set_fact:
-    created_protx_list: "{{ created_protx_list + [ protx ] }}"
+    created_protx_list: "{{ created_protx_list + [protx] }}"
