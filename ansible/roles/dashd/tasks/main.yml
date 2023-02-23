@@ -82,7 +82,7 @@
     mode: "+x"
 
 - name: Check if wallet exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_faucet }}/wallet.dat"
   register: wallet_exists
 
