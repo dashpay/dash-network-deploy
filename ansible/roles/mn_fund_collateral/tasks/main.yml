@@ -36,7 +36,7 @@
     name: generate_blocks
   vars:
     generate: balance
-    target_balance: "{{ (masternode_names | length - collateral_ok_count | int) * (funding_amount | int / 100000) | int }}"
+    target_balance: "{{ (masternode_names | length - collateral_ok_count | int) * funding_amount | int }}"
   when: not collateral_all_ok and (faucet_balance.stdout | int < target_balance | int)
 
 # TODO: this will fund all masternodes when `not collateral_all_ok`, not just those with missing collateral.
@@ -60,7 +60,7 @@
   ansible.builtin.include_tasks:
     file: fund_collateral.yml
   vars:
-    amount: "{{ (funding_amount | int / 100000) | int }}"
+    amount: "{{ funding_amount }}"
     payment_targets: '{{ uncollateralized_addresses }}'
   when: not collateral_all_ok
 
