@@ -159,16 +159,6 @@
     payment_targets: '{{ fee_missing_addresses }}'
   when: fee_missing_addresses | length > 0
 
-# Isn't there some nicer way to do this with a map?
-- name: Set funding amount
-  ansible.builtin.set_fact:
-    funding_amount: |
-      {% if register == 'hpmn' %}
-        {{ masternode_collaterals.hpmn | int }}
-      {% else %}
-        {{ masternode_collaterals.mn | int }}
-      {% endif %}
-
 # Take action
 
 - name: Fund collaterals for not initialized masternodes

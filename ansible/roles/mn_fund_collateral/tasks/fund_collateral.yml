@@ -16,7 +16,7 @@
   ansible.builtin.debug:
     var: payments
 
-- name: Fund listed masternodes with {{ amount }}
+- name: Fund listed masternodes with {{ amount ~ ' Dash'}}
   ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendmany '' '{{ payments | to_json }}'"
   register: fund_result
   changed_when: fund_result.stdout | length == 64

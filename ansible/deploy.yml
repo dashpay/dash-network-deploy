@@ -203,7 +203,7 @@
   roles:
     - role: mn_init
       mnlist: "{{ masternodes }}"
-      register: 'mn'
+      funding_amount: "{{ masternode_collaterals.mn | int }}"
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
@@ -217,7 +217,7 @@
   roles:
     - role: mn_init
       mnlist: "{{ hp_masternodes }}"
-      register: 'hpmn'
+      funding_amount: "{{ masternode_collaterals.hpmn | int }}"
 
 - name: Update inventory with HPMN protx values
   hosts: wallet_nodes
