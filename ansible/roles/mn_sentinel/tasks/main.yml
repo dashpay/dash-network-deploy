@@ -10,7 +10,7 @@
   ansible.builtin.template:
     src: '{{ item }}'
     dest: '{{ mn_sentinel_path }}/{{ item }}'
-    mode: 0644
+    mode: "0644"
   loop:
     - docker-compose.yml
     - .env

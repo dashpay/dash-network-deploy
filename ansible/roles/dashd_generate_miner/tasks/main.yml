@@ -6,7 +6,7 @@
     dest: '/usr/local/bin/dashd-generate-miner.sh'
     owner: root
     group: root
-    mode: 0755
+    mode: "0755"
   register: service_result
 
 - name: Create dashd-generate-miner service
@@ -15,7 +15,7 @@
     dest: '/etc/systemd/system/dashd-generate-miner.service'
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   register: service_result
 
 - name: Enable dashd-generate-miner
