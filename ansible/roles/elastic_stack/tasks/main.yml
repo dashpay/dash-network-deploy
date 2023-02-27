@@ -26,7 +26,7 @@
   ansible.builtin.file:
     path: '~/tmp/ansible/{{ dash_network_name }}'
     state: directory
-    mode: 0777
+    mode: "0777"
 
 - name: Fetch generated ca
   run_once: true
@@ -58,7 +58,7 @@
   ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ elastic_path }}/{{ item }}'
-    mode: 0644
+    mode: "0644"
   loop:
     - docker-compose.yml
     - elasticsearch.yml

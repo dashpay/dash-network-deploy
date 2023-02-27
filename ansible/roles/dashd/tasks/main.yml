@@ -18,7 +18,7 @@
   ansible.builtin.file:
     path: '{{ item.dir }}/.dashcore'
     state: directory
-    mode: 0755
+    mode: "0755"
     owner: '{{ item.user }}'
     group: '{{ item.group }}'
   loop: '{{ users_to_manage }}'
@@ -29,7 +29,7 @@
     dest: /etc/dash.conf
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   register: dash_config_state
 
 - name: Symlink dash.conf to user dashcore directories to make rpc work
@@ -44,14 +44,14 @@
   ansible.builtin.file:
     path: '{{ dashd_compose_path }}'
     state: directory
-    mode: 0755
+    mode: "0755"
     recurse: true
 
 - name: Copy dashcore docker-compose file
   ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ dashd_compose_path }}/{{ item }}'
-    mode: 0644
+    mode: "0644"
   loop:
     - docker-compose.yml
     - .env

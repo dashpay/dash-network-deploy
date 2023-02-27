@@ -12,7 +12,7 @@
   ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ dashd_home }}/multifaucet/{{ item }}'
-    mode: 0644
+    mode: "0644"
   with_items:
     - docker-compose.yml
     - init.sql
@@ -21,7 +21,7 @@
   ansible.builtin.template:
     src: '{{ item }}'
     dest: '{{ dashd_home }}/multifaucet/{{ item }}'
-    mode: 0644
+    mode: "0644"
   with_items:
     - config/db.conf.php
     - config/wallet.conf.php

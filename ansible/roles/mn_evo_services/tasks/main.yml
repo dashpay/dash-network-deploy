@@ -49,7 +49,7 @@
   ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ mn_evo_services_path }}/{{ item }}'
-    mode: 0644
+    mode: "0644"
   loop:
     - docker-compose.yml
     - dapi-nginx.conf
