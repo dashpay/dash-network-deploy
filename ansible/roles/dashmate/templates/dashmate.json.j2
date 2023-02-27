@@ -129,7 +129,7 @@
               "image": "{{ tendermint_image }}"
             },
             "p2p": {
-               "port": 26656,
+               "port": {{ tendermint_p2p_port }},
                "persistentPeers": [],
                "seeds": [
                {% for seed in template_bootstrap_peers %}

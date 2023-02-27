@@ -43,7 +43,7 @@ variable "dapi_port" {
 
 variable "tendermint_p2p_port" {
   description = "Tendermint P2P port"
-  default     = 26656
+  default     = 26659
 }
 
 variable "tendermint_rpc_port" {
