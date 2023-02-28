@@ -164,12 +164,12 @@ variable "core_node_disk_size" {
 
 variable "mn_node_disk_size" {
   description = "Disk size of masternodes"
-  default     = 30
+  default     = 20
 }
 
-variable "web_node_disk_size" {
-  description = "Disk size of web nodes"
-  default     = 50
+variable "hpmn_node_disk_size" {
+  description = "Disk size of HP masternodes"
+  default     = 30
 }
 
 variable "logs_node_root_disk_size" {
