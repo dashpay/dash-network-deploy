@@ -11,6 +11,10 @@
 
 # unban
 
+- name: Initialize array for created protx
+  ansible.builtin.set_fact:
+    created_protx_list: []
+
 - name: Create ProUpServTx for banned masternodes
   ansible.builtin.include_tasks: createproupservtx.yml
   vars:
@@ -22,8 +26,9 @@
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
-    num_blocks: 1
-    balance_needed: 0
+    generate: confirmations
+    txid_list: "{{ created_protx_list }}"
+    tx_source: "{{ wallet_rpc_wallet_mno }}"
 
 # verify
 

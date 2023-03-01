@@ -6,7 +6,7 @@
   ansible.builtin.file:
     path: '{{ data_path }}'
     state: directory
-    mode: 0755
+    mode: "0755"
 
 - name: Create partition
   community.general.parted:
@@ -34,4 +34,4 @@
     state: directory
     owner: ubuntu
     group: root
-    mode: 0755
+    mode: "0755"

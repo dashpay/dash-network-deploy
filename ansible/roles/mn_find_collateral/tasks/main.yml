@@ -8,7 +8,7 @@
     dest: /usr/local/bin/find-collateral.py
     owner: root
     group: root
-    mode: 0755
+    mode: "0755"
 
 - name: Find collateral for {{ masternode_name ~ '/' ~ masternode.collateral.address }}
   ansible.builtin.command:

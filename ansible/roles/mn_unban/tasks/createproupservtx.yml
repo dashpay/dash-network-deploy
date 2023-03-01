@@ -26,3 +26,7 @@
   register: protx
   changed_when: protx.stdout | length == 64
   when: 'masternode_name is match ("hp*")'
+
+- name: Add resulting txid to list
+  ansible.builtin.set_fact:
+    created_protx_list: "{{ created_protx_list + [protx] }}"
