@@ -153,10 +153,14 @@
               "format": "plain"
             },
             "moniker": "{{ inventory_hostname }}",
-            "node": {
+            "nodeKey": {
               "id": "{{ node.node_key.id }}",
-              "key": "{{ node.node_key.private_key }}"
+              "priv_key": {
+                "type": "tendermint/PrivKeyEd25519",
+                "value": "{{ node.node_key.private_key }}"
+              }
             },
+            "nodeId": "{{ node.node_key.id }}",
             "genesis": {
               "genesis_time": "2021-07-22T12:57:05.429Z",
               "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
