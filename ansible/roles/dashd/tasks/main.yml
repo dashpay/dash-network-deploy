@@ -61,6 +61,13 @@
     name: arillso.logrotate
   vars:
     logrotate_use_hourly_rotation: true
+    logrotate_options:
+      - weekly
+      - rotate 4
+      - create
+      - dateext
+      - dateformat -%Y%m%d-%s
+      - su root syslog
     logrotate_applications:
       - name: core-logs
         definitions:
