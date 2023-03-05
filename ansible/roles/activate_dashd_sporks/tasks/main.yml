@@ -27,5 +27,4 @@
     - SPORK_17_QUORUM_DKG_ENABLED
     - SPORK_19_CHAINLOCKS_ENABLED
     - SPORK_21_QUORUM_ALL_CONNECTED
-    - SPORK_23_QUORUM_POSE
   when: not (active_sporks.stdout | from_json)[item]
