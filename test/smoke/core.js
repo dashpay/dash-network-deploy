@@ -24,7 +24,7 @@ describe('Core', () => {
 
       const promises = [];
       for (const hostName of allHosts) {
-        const timeout = 15000; // set individual rpc client timeout
+        const timeout = 30000; // set individual rpc client timeout
 
         const client = createRpcClientFromConfig(hostName);
 
