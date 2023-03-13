@@ -99,6 +99,15 @@ dashd_zmq_port: 29998
 # dashd_sporkaddr:
 # dashd_sporkkey:
 
+sporks:
+  SPORK_2_INSTANTSEND_ENABLED: true
+  SPORK_3_INSTANTSEND_BLOCK_FILTERING: true
+  SPORK_9_SUPERBLOCKS_ENABLED: true
+  SPORK_17_QUORUM_DKG_ENABLED: true
+  SPORK_19_CHAINLOCKS_ENABLED: true
+  SPORK_21_QUORUM_ALL_CONNECTED: true
+  SPORK_23_QUORUM_POSE: false
+
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
 dashd_seednode: '{{ hostvars[groups.seed_nodes[0]]["public_ip"] if groups.seed_nodes else none }}'
 

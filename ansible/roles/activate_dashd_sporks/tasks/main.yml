@@ -18,13 +18,22 @@
   register: active_sporks
   changed_when: active_sporks | length > 0
 
+- name: Process active sporks list
+  ansible.builtin.set_fact:
+    active_sporks_list: '{{ (active_sporks_list | default([])) + [item.key] }}'
+  when: item.value
+  with_dict: '{{ active_sporks.stdout | from_json }}'
+
+- name: Prepare target sporks list
+  ansible.builtin.set_fact:
+    target_sporks: '{{ (target_sporks | default([])) + [item.key] }}'
+  when: item.value
+  with_dict: '{{ sporks }}'
+
+- name: Prepare list of sporks to be activated
+  ansible.builtin.set_fact:
+    activate_sporks: '{{ target_sporks | difference(active_sporks_list) }}'
+
 - name: Activate non active sporks
   ansible.builtin.command: dash-cli sporkupdate {{ item }} 0
-  with_items:
-    - SPORK_2_INSTANTSEND_ENABLED
-    - SPORK_3_INSTANTSEND_BLOCK_FILTERING
-    - SPORK_9_SUPERBLOCKS_ENABLED
-    - SPORK_17_QUORUM_DKG_ENABLED
-    - SPORK_19_CHAINLOCKS_ENABLED
-    - SPORK_21_QUORUM_ALL_CONNECTED
-  when: not (active_sporks.stdout | from_json)[item]
+  with_items: '{{ activate_sporks }}'
