@@ -233,6 +233,13 @@
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
 
+- name: Create governance proposals
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: generate_proposals
+      when: dash_network != "mainnet" and governance_proposal_count > 0
+
 # Start platform
 
 - name: Set up platform on seed nodes
