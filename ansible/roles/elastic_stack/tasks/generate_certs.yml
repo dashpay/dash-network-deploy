@@ -22,7 +22,7 @@
     project_src: '{{ bundle_path }}'
   when: templates is changed # noqa: no-handler
 
-- name: Pause for 5 seconds to finish writing zip file
+- name: Pause for 10 seconds to finish writing zip file
   ansible.builtin.pause:
-    seconds: 5
+    seconds: 10
   when: templates is changed # noqa: no-handler
