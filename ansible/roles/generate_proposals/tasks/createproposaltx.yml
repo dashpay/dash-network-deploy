@@ -1,0 +1,85 @@
+---
+
+- name: Get governance info
+  ansible.builtin.command: 'dash-cli getgovernanceinfo'
+  register: governance_info_result
+  changed_when: true
+
+- name: Get superblock budget
+  ansible.builtin.command: 'dash-cli getsuperblockbudget {{ (governance_info_result.stdout | from_json).nextsuperblock }}'
+  register: superblock_budget_result
+  changed_when: true
+
+- name: Set proposal start time
+  ansible.builtin.set_fact:
+    proposal_start_time: "{{ ansible_date_time.epoch }}"
+
+- name: Prepare list of proposals to create
+  ansible.builtin.set_fact:
+    proposals: '{{ (proposals | default([])) +
+      [
+        {
+          "name": "deploy-tool-proposal-" + item | string,
+          "payment_address": faucet_address,
+          "payment_amount": superblock_budget_result.stdout | int | random(2),
+          "url": "https://www.dash.org",
+          "start_epoch": proposal_start_time | int,
+          "end_epoch": proposal_start_time | int + 86400,
+          "type": 1
+        }
+      ]
+      }}'
+  loop: "{{ range(0, new_proposal_count | int, 1) }}"
+  tags:
+    - skip_ansible_lint
+
+- name: Convert YAML to minified proposal JSON
+  ansible.builtin.set_fact:
+    proposal_json: "{{ (proposal_json | default([])) + [(item | to_json(separators=(',',':')))] }}"
+  with_items: "{{ proposals }}"
+  tags:
+    - skip_ansible_lint
+
+- name: Encode JSON to HEX
+  ansible.builtin.shell: "echo -n '{{ item }}' | od -t x1 -A n | sed 's/ *//g' | tr -d '\n'"
+  with_items: "{{ proposal_json }}"
+  register: proposal_hex_result
+  tags:
+    - skip_ansible_lint
+
+- name: Prepare list of proposal HEX values
+  ansible.builtin.set_fact:
+    proposal_hex: "{{ (proposal_hex | default([])) + [item.stdout] }}"
+  with_items: "{{ proposal_hex_result.results }}"
+
+- name: Prepare governance object
+  ansible.builtin.command: >
+    dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} gobject prepare 0 1 {{ proposal_start_time | int }} {{ item }}
+  with_items: "{{ proposal_hex }}"
+  register: gobject_prepare_result
+
+- name: Prepare list of fee txids
+  ansible.builtin.set_fact:
+    gobject_prepare: "{{ (gobject_prepare | default([])) + [item.stdout] }}"
+  with_items: "{{ gobject_prepare_result.results }}"
+
+- name: Combine lists for submit command
+  ansible.builtin.set_fact:
+    proposal_objects: "{{ dict(proposal_hex | zip(gobject_prepare)) | dict2items(key_name='data_hex', value_name='fee_txid') }}"
+
+- name: Debug data array
+  ansible.builtin.debug:
+    var: proposal_objects
+
+- name: Generate blocks
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    generate: blocks
+    num_blocks: 10
+
+- name: Submit proposal
+  ansible.builtin.command: >
+    dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} gobject submit 0 1 {{ proposal_start_time | int }} {{ item.data_hex }} {{ item.fee_txid }}
+  with_items: "{{ proposal_objects }}"
+  register: gobject_submit_result

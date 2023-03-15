@@ -238,7 +238,7 @@
   become: true
   roles:
     - role: generate_proposals
-      when: dash_network != "mainnet" and governance_proposal_count > 0
+      when: governance_proposal_count > 0
 
 # Start platform
 

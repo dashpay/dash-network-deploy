@@ -1,15 +1,5 @@
 ---
 
-- name: Get governance info
-  ansible.builtin.command: 'dash-cli getgovernanceinfo'
-  register: governance_info_result
-  changed_when: true
-
-- name: Get superblock budget
-  ansible.builtin.command: 'dash-cli getsuperblockbudget {{ (governance_info_result.stdout | from_json).nextsuperblock }}'
-  register: superblock_budget_result
-  changed_when: true
-
 - name: Get governance object count
   ansible.builtin.command: 'dash-cli gobject count'
   register: gobject_count_result
@@ -19,40 +9,6 @@
   ansible.builtin.set_fact:
     new_proposal_count: '{{ governance_proposal_count - (gobject_count_result.stdout | from_json).proposals }}'
 
-- name: Prepare list of proposals to create
-  ansible.builtin.set_fact:
-    new_proposals: '{{ (new_proposals | default([])) + 
-      [
-        {
-          "name": "deploy-proposal-" + item | string,
-          "payment_address": faucet_address,
-          "payment_amount": superblock_budget_result.stdout | random,
-          "url": "https://www.dash.org",
-          "start_epoch": ansible_date_time.epoch,
-          "end_epoch": 1636750000,
-          "type": 1
-        }
-      ]
-      }}'
-  loop: "{{ range(0, new_proposal_count | int, 1) }}"
-
-- name: JSON encode
-  ansible.builtin.set_fact:
-    new_proposal_json: "{{ (new_proposal_json | default([])) + [(item | to_json(separators=(',',':')))] }}"
-  with_items: "{{ new_proposals }}"
-  tags:
-    - skip_ansible_lint
-
-- name: HEX encode
-  ansible.builtin.shell: "echo -n {{ item }} | od -t x1 -A n | sed 's/ *//g' | tr -d '\n'"
-  with_items: "{{ new_proposal_json }}"
-  register: new_proposal_hex_result
-
-- name: HEX array
-  ansible.builtin.set_fact:
-    new_proposal_hex: "{{ (new_proposal_hex | default([])) + [item.stdout] }}"
-  with_items: "{{ new_proposal_hex_result.results }}"
-
-- name: Debug array
-  ansible.builtin.debug:
-    var: new_proposal_hex
+- name: Create proposals
+  ansible.builtin.include_tasks: createproposaltx.yml
+  when: new_proposal_count | int > 0
