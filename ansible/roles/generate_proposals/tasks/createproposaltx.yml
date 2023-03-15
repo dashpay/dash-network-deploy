@@ -67,10 +67,6 @@
   ansible.builtin.set_fact:
     proposal_objects: "{{ dict(proposal_hex | zip(gobject_prepare)) | dict2items(key_name='data_hex', value_name='fee_txid') }}"
 
-- name: Debug data array
-  ansible.builtin.debug:
-    var: proposal_objects
-
 - name: Generate blocks
   ansible.builtin.include_role:
     name: generate_blocks
