@@ -73,7 +73,7 @@
     name: generate_blocks
   vars:
     generate: blocks
-    num_blocks: 10
+    num_blocks: 1
 
 - name: Submit proposal
   ansible.builtin.command: >
