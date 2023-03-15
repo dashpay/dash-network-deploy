@@ -57,6 +57,7 @@
     dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} gobject prepare 0 1 {{ proposal_start_time | int }} {{ item }}
   with_items: "{{ proposal_hex }}"
   register: gobject_prepare_result
+  changed_when: gobject_prepare_result.rc == 0
 
 - name: Prepare list of fee txids
   ansible.builtin.set_fact:
@@ -79,3 +80,4 @@
     dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} gobject submit 0 1 {{ proposal_start_time | int }} {{ item.data_hex }} {{ item.fee_txid }}
   with_items: "{{ proposal_objects }}"
   register: gobject_submit_result
+  changed_when: gobject_submit_result.rc == 0
