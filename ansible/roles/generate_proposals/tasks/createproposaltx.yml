@@ -81,3 +81,10 @@
   with_items: "{{ proposal_objects }}"
   register: gobject_submit_result
   changed_when: gobject_submit_result.rc == 0
+
+- name: Generate blocks
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    generate: blocks
+    num_blocks: 1
