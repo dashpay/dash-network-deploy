@@ -144,6 +144,10 @@ masternode_collaterals:
   mn: 1000
   hpmn: 4000
 
+# Proposal stuff
+
+governance_proposal_count: 2
+
 # Disk space allocated for swap file on each host
 swap_space: 2G
 
