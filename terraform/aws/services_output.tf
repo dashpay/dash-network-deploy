@@ -55,14 +55,6 @@ locals {
     }
   )
 
-  service_dapi_grpc = templatefile(
-    "${path.module}/templates/services/service.tpl",
-    {
-      name = "DAPI GRPC"
-      port = var.dapi_grpc_port
-    }
-  )
-
   service_drive = templatefile(
     "${path.module}/templates/services/service.tpl",
     {
