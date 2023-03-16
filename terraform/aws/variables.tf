@@ -51,11 +51,6 @@ variable "dapi_port" {
   default     = 3000
 }
 
-variable "dapi_grpc_port" {
-  description = "DAPI GRPC port"
-  default     = 3010
-}
-
 variable "tendermint_p2p_port" {
   description = "Tendermint P2P port"
   default     = 26656
