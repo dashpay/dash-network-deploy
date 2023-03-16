@@ -12,3 +12,19 @@
 - name: Create proposals
   ansible.builtin.include_tasks: createproposaltx.yml
   when: new_proposal_count | int > 0
+
+- name: Get list of proposals
+  ansible.builtin.command: 'dash-cli gobject list'
+  register: gobject_list_result
+  changed_when: gobject_list_result.rc == 0
+
+- name: Prepare list of proposal txids
+  ansible.builtin.set_fact:
+    proposal_list: "{{ (proposal_list | default([])) + [item] }}"
+  with_items: "{{ gobject_list_result.stdout }}"
+
+- name: Vote yes on all proposals
+  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} gobject vote-many {{ item }} funding yes"
+  with_items: "{{ proposal_list }}"
+  register: gobject_vote_result
+  changed_when: gobject_vote_result.rc == 0
