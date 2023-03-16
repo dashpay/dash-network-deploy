@@ -18,13 +18,8 @@
   register: gobject_list_result
   changed_when: gobject_list_result.rc == 0
 
-- name: Prepare list of proposal txids
-  ansible.builtin.set_fact:
-    proposal_list: "{{ (proposal_list | default([])) + [item] }}"
-  with_items: "{{ gobject_list_result.stdout }}"
-
 - name: Vote yes on all proposals
   ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} gobject vote-many {{ item }} funding yes"
-  with_items: "{{ proposal_list }}"
+  with_items: "{{ gobject_list_result.stdout }}"
   register: gobject_vote_result
   changed_when: gobject_vote_result.rc == 0
