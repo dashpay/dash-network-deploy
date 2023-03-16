@@ -24,7 +24,7 @@
           "payment_amount": superblock_budget_result.stdout | int | random(2),
           "url": "https://www.dash.org",
           "start_epoch": proposal_start_time | int,
-          "end_epoch": proposal_start_time | int + 86400,
+          "end_epoch": proposal_start_time | int + 604800,
           "type": 1
         }
       ]
