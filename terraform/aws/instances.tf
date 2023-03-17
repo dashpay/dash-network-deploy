@@ -13,7 +13,7 @@ resource "aws_instance" "web" {
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   root_block_device {
-    volume_size = var.web_node_disk_size
+    volume_size = var.core_node_disk_size
     volume_type = var.volume_type
   }
 
@@ -98,7 +98,7 @@ resource "aws_instance" "seed_node" {
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
-    volume_size = var.mn_node_disk_size
+    volume_size = var.hpmn_node_disk_size
     volume_type = var.volume_type
   }
 
@@ -255,7 +255,7 @@ resource "aws_instance" "hp_masternode_amd" {
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
-    volume_size = var.mn_node_disk_size
+    volume_size = var.hpmn_node_disk_size
     volume_type = var.volume_type
   }
 
@@ -295,7 +295,7 @@ resource "aws_instance" "hp_masternode_arm" {
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
-    volume_size = var.mn_node_disk_size
+    volume_size = var.hpmn_node_disk_size
     volume_type = var.volume_type
   }
 
