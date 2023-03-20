@@ -134,9 +134,12 @@
   register: task_result
   when: enable_wallet is true
 
-
 - name: Import faucet privkey
   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} importprivkey {{ faucet_privkey }}
   register: result
   when: enable_wallet is true
   changed_when: result.rc == 0
+
+- name: Start CoinJoin mixing
+  ansible.builtin.include_tasks: coinjoin.yml
+  when: coinjoin_wallet_count | int > 0
