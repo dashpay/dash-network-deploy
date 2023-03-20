@@ -173,7 +173,7 @@ describe('Quorums', () => {
         });
 
         it('should see an instantsend lock', () => {
-          expect(rawMemPool[hostName][instantsendTestTxid].instantlock).to.be.true();
+          expect(rawMemPool[hostName][instantsendTestTxid].instantlock).to.equal('true');
         });
       });
     }
