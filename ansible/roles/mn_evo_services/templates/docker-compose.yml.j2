@@ -23,6 +23,8 @@ services:
       - FEATURE_FLAGS_SECOND_PUBLIC_KEY={{ feature_flags_hd_second_public_key }}
       - MASTERNODE_REWARD_SHARES_MASTER_PUBLIC_KEY={{ mn_reward_shares_hd_master_public_key }}
       - MASTERNODE_REWARD_SHARES_SECOND_PUBLIC_KEY={{ mn_reward_shares_hd_second_public_key }}
+      - WITHDRAWALS_MASTER_PUBLIC_KEY={{ withdrawals_hd_master_public_key }}
+      - WITHDRAWALS_SECOND_PUBLIC_KEY={{ withdrawals_hd_second_public_key }}
       - NODE_ENV={{ node_environment }}
       - LOG_STDOUT_LEVEL={{ drive_log_stdout_level }}
       - LOG_PRETTY_FILE_LEVEL={{ drive_log_pretty_file_level }}
