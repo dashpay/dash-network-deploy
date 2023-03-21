@@ -30,10 +30,12 @@ module.exports = (config) => {
       },
       resolve: {
         fallback: {
-          fs: false,
           crypto: require.resolve('crypto-browserify'),
-          stream: require.resolve('stream-browserify'),
+          fs: false,
+          http: require.resolve('stream-http'),
+          https: require.resolve('https-browserify'),
           path: false,
+          stream: require.resolve('stream-browserify'),
         },
       },
       plugins: [
