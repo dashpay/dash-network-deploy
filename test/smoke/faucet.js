@@ -5,7 +5,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory } = getNetworkConfig();
 
 describe('Faucet', () => {
-  for (const hostName of inventory.web.hosts) {
+  for (const hostName of inventory.web?.hosts ?? []) {
     describe(hostName, () => {
       it('should respond positive balance', async () => {
         // eslint-disable-next-line no-underscore-dangle

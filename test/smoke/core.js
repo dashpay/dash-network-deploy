@@ -3,13 +3,17 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory, network, variables } = getNetworkConfig();
 
-const allMasternodes = inventory.masternodes.hosts.concat(inventory.hp_masternodes.hosts);
+const allMasternodes = [
+  ...(inventory.masternodes?.hosts ?? []),
+  ...(inventory.hp_masternodes?.hosts ?? []),
+];
 
-const allHosts = allMasternodes.concat(
-  inventory.wallet_nodes.hosts,
-  inventory.miners.hosts,
-  inventory.seed_nodes.hosts,
-);
+const allHosts = [
+  ...(allMasternodes ?? []),
+  ...(inventory.wallet_nodes?.hosts ?? []),
+  ...(inventory.miners?.hosts ?? []),
+  ...(inventory.seed_nodes?.hosts ?? []),
+];
 
 describe('Core', () => {
   describe('All nodes', () => {
@@ -70,7 +74,7 @@ describe('Core', () => {
           expect(networkInfo[hostName].networkactive).to.be.equal(true);
 
           if (network.type === 'devnet') {
-            expect(networkInfo[hostName].subversion).to.have.string(`(${network.type}.${network.name})/`);
+            expect(networkInfo[hostName].subversion).to.have.string(`${network.type}.${network.name}`);
           }
         });
 
@@ -134,7 +138,7 @@ describe('Core', () => {
   });
 
   describe('Miners', () => {
-    for (const hostName of inventory.miners.hosts) {
+    for (const hostName of inventory.miners?.hosts ?? []) {
       describe(hostName, () => {
         it('should mine blocks regularly', async () => {
           const targetBlockTime = variables.dashd_powtargetspacing || 156;

@@ -5,7 +5,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory, variables } = getNetworkConfig();
 
 describe('Elastic', () => {
-  for (const hostName of inventory.logs_nodes.hosts) {
+  for (const hostName of inventory.logs_nodes?.hosts ?? []) {
     describe(hostName, () => {
       // eslint-disable-next-line no-underscore-dangle
       const logsUrl = `http://${inventory._meta.hostvars[hostName].public_ip}`;
