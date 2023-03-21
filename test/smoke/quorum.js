@@ -3,11 +3,12 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory, network, variables } = getNetworkConfig();
 
-const allHosts = inventory.masternodes.hosts.concat(
-  inventory.wallet_nodes.hosts,
-  inventory.miners.hosts,
-  inventory.seed_nodes.hosts,
-);
+const allHosts = [
+  ...(inventory.masternodes?.hosts ?? []),
+  ...(inventory.wallet_nodes?.hosts ?? []),
+  ...(inventory.miners?.hosts ?? []),
+  ...(inventory.seed_nodes?.hosts ?? []),
+];
 
 const quorumCheckTypes = {
   testnet: {

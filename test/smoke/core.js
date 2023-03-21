@@ -8,11 +8,12 @@ const allMasternodes = [
   ...(inventory.hp_masternodes?.hosts ?? []),
 ];
 
-const allHosts = allMasternodes.concat(
-  inventory.wallet_nodes.hosts,
-  inventory.miners.hosts,
-  inventory.seed_nodes.hosts,
-);
+const allHosts = [
+  ...(allMasternodes ?? []),
+  ...(inventory.wallet_nodes?.hosts ?? []),
+  ...(inventory.miners?.hosts ?? []),
+  ...(inventory.seed_nodes?.hosts ?? []),
+];
 
 describe('Core', () => {
   describe('All nodes', () => {
@@ -137,7 +138,7 @@ describe('Core', () => {
   });
 
   describe('Miners', () => {
-    for (const hostName of inventory.miners.hosts) {
+    for (const hostName of inventory.miners?.hosts ?? []) {
       describe(hostName, () => {
         it('should mine blocks regularly', async () => {
           const targetBlockTime = variables.dashd_powtargetspacing || 156;

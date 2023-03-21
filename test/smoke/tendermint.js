@@ -39,7 +39,10 @@ function requestTendermint(host, port, path) {
   });
 }
 
-const allHosts = inventory.hp_masternodes.hosts.concat(inventory.seed_nodes.hosts);
+const allHosts = [
+  ...(inventory.hp_masternodes?.hosts ?? []),
+  ...(inventory.seed_nodes?.hosts ?? []),
+];
 
 describe('Tendermint', () => {
   const masternodeStatus = {};
