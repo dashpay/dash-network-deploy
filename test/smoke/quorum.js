@@ -5,10 +5,18 @@ const { getDocker, execCommand, getContainerId } = require('../../lib/test/docke
 const { inventory, network, variables } = getNetworkConfig();
 
 const allHosts = inventory.masternodes.hosts.concat(
+  inventory.hp_masternodes.hosts,
   inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
   inventory.seed_nodes.hosts,
 );
+
+const ansibleHosts = inventory.masternodes.hosts.concat(
+  inventory.wallet_nodes.hosts,
+  inventory.miners.hosts,
+  inventory.seed_nodes.hosts,
+);
+const dashmateHosts = inventory.hp_masternodes.hosts;
 
 const quorumCheckTypes = {
   testnet: {
@@ -49,65 +57,66 @@ describe('Quorums', () => {
       // this.timeout(60000); // set mocha timeout
 
       const promises = [];
-      for (const hostName of allHosts) {
-        if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
-          const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
 
-          const promise = getContainerId(docker, 'core')
-            .then((containerId) => {
-              containerIds[hostName] = containerId;
+      for (const hostName of ansibleHosts) {
+        const timeout = 15000; // set individual rpc client timeout
 
-              return containerId;
-            })
-            .then((containerId) => Promise.all([
-              execCommand(docker, containerId, ['dash-cli', 'getblockcount']),
-              execCommand(docker, containerId, ['dash-cli', 'getbestchainlock']),
-              execCommand(docker, containerId, ['dash-cli', 'getblockchaininfo']),
-              execCommand(docker, containerId, ['dash-cli', 'quorum', 'list']),
-            ])
-              .then(([getBlockCount, getBestChainLock, getBlockchainInfo, quorumList]) => {
-                blockCount[hostName] = getBlockCount;
-                bestChainLock[hostName] = getBestChainLock;
-                blockchainInfo[hostName] = getBlockchainInfo;
-                quorumLists[hostName] = quorumList;
-              }));
+        const client = createRpcClientFromConfig(hostName);
 
-          promises.push(promise);
-        } else {
-          const timeout = 15000; // set individual rpc client timeout
+        client.setTimeout(timeout);
 
-          const client = createRpcClientFromConfig(hostName);
+        const requestBlockCountPromise = client.getBlockCount()
+          // eslint-disable-next-line no-loop-func
+          .then(({ result }) => {
+            blockCount[hostName] = result;
+          });
 
-          client.setTimeout(timeout);
+        const requestBestChainLockPromise = client.getBestChainLock()
+          .then(({ result }) => {
+            bestChainLock[hostName] = result;
+          });
 
-          const requestBlockCountPromise = client.getBlockCount()
-            // eslint-disable-next-line no-loop-func
-            .then(({ result }) => {
-              blockCount[hostName] = result;
-            });
+        const requestQuorumListPromise = client.quorum('list')
+          .then(({ result }) => {
+            quorumLists[hostName] = result;
+          });
 
-          const requestBestChainLockPromise = client.getBestChainLock()
-            .then(({ result }) => {
-              bestChainLock[hostName] = result;
-            });
+        const requestBlockchainInfoPromise = client.getBlockchainInfo()
+          .then(({ result }) => {
+            blockchainInfo[hostName] = result;
+          });
 
-          const requestQuorumListPromise = client.quorum('list')
-            .then(({ result }) => {
-              quorumLists[hostName] = result;
-            });
+        promises.push(
+          requestBlockCountPromise,
+          requestBestChainLockPromise,
+          requestQuorumListPromise,
+          requestBlockchainInfoPromise,
+        );
+      }
 
-          const requestBlockchainInfoPromise = client.getBlockchainInfo()
-            .then(({ result }) => {
-              blockchainInfo[hostName] = result;
-            });
+      for (const hostName of dashmateHosts) {
+        const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
 
-          promises.push(
-            requestBlockCountPromise,
-            requestBestChainLockPromise,
-            requestQuorumListPromise,
-            requestBlockchainInfoPromise,
-          );
-        }
+        const promise = getContainerId(docker, 'core')
+          .then((containerId) => {
+            containerIds[hostName] = containerId;
+
+            return containerId;
+          })
+          .then((containerId) => Promise.all([
+            execCommand(docker, containerId, ['dash-cli', 'getblockcount']),
+            execCommand(docker, containerId, ['dash-cli', 'getbestchainlock']),
+            execCommand(docker, containerId, ['dash-cli', 'getblockchaininfo']),
+            execCommand(docker, containerId, ['dash-cli', 'quorum', 'list']),
+          ])
+            .then(([getBlockCount, getBestChainLock, getBlockchainInfo, quorumList]) => {
+              blockCount[hostName] = getBlockCount;
+              bestChainLock[hostName] = getBestChainLock;
+              blockchainInfo[hostName] = getBlockchainInfo;
+              quorumLists[hostName] = quorumList;
+            }));
+
+        promises.push(promise);
       }
 
       return Promise.all(promises).catch(console.error);
@@ -115,40 +124,48 @@ describe('Quorums', () => {
 
     before('Collect quorum info', () => {
       const promises = [];
-      for (const hostName of allHosts) {
-        if (quorumLists[hostName][quorumCheckTypes[network.type].name].length > 0) {
-          if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
-            const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
 
-            const promise = execCommand(docker, containerIds[hostName],
-              ['dash-cli', 'quorum', 'info',
-                String(quorumCheckTypes[network.type].type),
-                quorumLists[hostName][quorumCheckTypes[network.type].name][0]])
-              .then((result) => {
-                firstQuorumInfo[hostName] = result;
-              });
-
-            promises.push(promise);
-          } else {
-            const timeout = 15000; // set individual rpc client timeout
-
-            const client = createRpcClientFromConfig(hostName);
-
-            client.setTimeout(timeout);
-
-            const requestFirstQuorumInfo = client.quorum(
-              'info',
-              quorumCheckTypes[network.type].type,
-              quorumLists[hostName][quorumCheckTypes[network.type].name][0],
-            )
-              // eslint-disable-next-line no-loop-func
-              .then(({ result }) => {
-                firstQuorumInfo[hostName] = result;
-              });
-
-            promises.push(requestFirstQuorumInfo);
-          }
+      for (const hostName of ansibleHosts) {
+        if (quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
+          continue;
         }
+
+        const timeout = 15000; // set individual rpc client timeout
+
+        const client = createRpcClientFromConfig(hostName);
+
+        client.setTimeout(timeout);
+
+        const requestFirstQuorumInfo = client.quorum(
+          'info',
+          quorumCheckTypes[network.type].type,
+          quorumLists[hostName][quorumCheckTypes[network.type].name][0],
+        )
+          // eslint-disable-next-line no-loop-func
+          .then(({ result }) => {
+            firstQuorumInfo[hostName] = result;
+          });
+
+        promises.push(requestFirstQuorumInfo);
+      }
+
+      for (const hostName of dashmateHosts) {
+        if (quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
+          console.log('skip')
+          continue;
+        }
+
+        const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
+
+        const promise = execCommand(docker, containerIds[hostName],
+          ['dash-cli', 'quorum', 'info',
+            String(quorumCheckTypes[network.type].type),
+            quorumLists[hostName][quorumCheckTypes[network.type].name][0]])
+          .then((result) => {
+            firstQuorumInfo[hostName] = result;
+          });
+
+        promises.push(promise);
       }
 
       return Promise.all(promises).catch(console.error);
@@ -178,32 +195,33 @@ describe('Quorums', () => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const promises = [];
-      for (const hostName of allHosts) {
-        if (inventory.masternodes.hosts.indexOf(hostName) !== -1) {
-          const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
 
-          const promise = execCommand(docker, containerIds[hostName],
-            ['dash-cli', 'getrawmempool', 'true'])
-            .then((result) => {
-              rawMemPool[hostName] = result;
-            });
+      for(const hostName of ansibleHosts) {
+        const timeout = 15000; // set individual rpc client timeout
 
-          promises.push(promise);
-        } else {
-          const timeout = 15000; // set individual rpc client timeout
+        const client = createRpcClientFromConfig(hostName);
 
-          const client = createRpcClientFromConfig(hostName);
+        client.setTimeout(timeout);
 
-          client.setTimeout(timeout);
+        const requestGetRawMemPool = client.getRawMemPool(true)
+          // eslint-disable-next-line no-loop-func
+          .then(({ result }) => {
+            rawMemPool[hostName] = result;
+          });
 
-          const requestGetRawMemPool = client.getRawMemPool(true)
-            // eslint-disable-next-line no-loop-func
-            .then(({ result }) => {
-              rawMemPool[hostName] = result;
-            });
+        promises.push(requestGetRawMemPool);
+      }
 
-          promises.push(requestGetRawMemPool);
-        }
+      for (const hostName of dashmateHosts) {
+        const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
+
+        const promise = execCommand(docker, containerIds[hostName],
+          ['dash-cli', 'getrawmempool', 'true'])
+          .then((result) => {
+            rawMemPool[hostName] = result;
+          });
+
+        promises.push(promise);
       }
 
       return Promise.all(promises).catch(console.error);

@@ -8,7 +8,7 @@ const timeout = 15000; // set individual rpc client timeout
 
 const allMasternodes = inventory.masternodes.hosts.concat(inventory.hp_masternodes.hosts);
 
-const ansibleHosts = inventory.masternodes.hosts(
+const ansibleHosts = inventory.masternodes.hosts.concat(
   inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
   inventory.seed_nodes.hosts,
@@ -20,7 +20,7 @@ describe('Core', () => {
   const coreContainerIds = {};
 
   before('Collect masternodes container ids', async () => {
-    await Promise.all(inventory.masternodes.hosts.map(async (hostName) => {
+    await Promise.all(inventory.hp_masternodes.hosts.map(async (hostName) => {
       const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
       coreContainerIds[hostName] = await getContainerId(docker, 'core');
@@ -137,7 +137,7 @@ describe('Core', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of allHosts) {
+    for (const hostName of allMasternodes) {
       describe(hostName, () => {
         it('should be in masternodes list with correct type', async () => {
           if (!masternodeListInfo[hostName]) {

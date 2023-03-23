@@ -88,8 +88,12 @@ describe('Tendermint', () => {
         const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
         const containerId = await getContainerId(docker, 'dashmate_helper');
 
-        statusInfo[hostName] = await execCommand(docker, containerId,
-          ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
+        try {
+          statusInfo[hostName] = await execCommand(docker, containerId,
+            ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
+        } catch (e) {
+          console.error(`Failed to get status on node ${hostName}: ${e}`)
+        }
       });
 
       return Promise.all(promises.concat(dashmatePromises)).catch(console.error);

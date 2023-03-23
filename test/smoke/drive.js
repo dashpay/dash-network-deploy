@@ -55,10 +55,15 @@ describe('Drive', () => {
 
       const statusPromises = inventory.hp_masternodes.hosts.map(async (hostName) => {
         const docker = await getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
-        const containerIp = await getContainerId(docker, 'dashmate_helper');
 
-        statusInfo[hostName] = await execCommand(docker, containerIp,
-          ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
+        const containerId = await getContainerId(docker, 'dashmate_helper');
+
+        try {
+          statusInfo[hostName] = await execCommand(docker, containerId,
+            ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
+        } catch (e) {
+          console.log('Failed to fetch status on node ' + hostName);
+        }
       });
 
       return Promise.all([...promises, ...statusPromises]).catch(console.error);
@@ -74,7 +79,7 @@ describe('Drive', () => {
       });
     }
 
-    for (const hostName of masternodeHosts) {
+    for (const hostName of inventory.hp_masternodes.hosts) {
       describe(hostName, () => {
         it('drive status should be green', () => {
           const { drive } = statusInfo[hostName];

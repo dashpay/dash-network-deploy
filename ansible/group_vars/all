@@ -175,6 +175,7 @@ masternode_network_latency_max: 100
 # Dashmate
 dashmate_home: /home/dashmate
 dashmate_config_dir: /home/dashmate/.dashmate
+dashmate_logs_dir: /opt/dashmate_logs
 dashmate_user: "dashmate"
 dashmate_group: "dashmate"
 dashmate_uid: "700"
