@@ -69,6 +69,43 @@
     - '{{ dashmate_config_dir }}/logs/{{ dash_network_name }}'
     - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
 
+- name: Create logs dir
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    recurse: true
+    mode: 0644
+  loop:
+    - '{{ dashmate_logs_dir }}'
+
+- name: Configure log rotation
+  ansible.builtin.include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_applications:
+      - name: platform-logs
+        definitions:
+          - logs:
+              - '{{ dashmate_config_dir }}/logs/{{ dash_network_name }}/*.log'
+            options:
+              - rotate 7
+              - daily
+              - maxsize 1G
+              - missingok
+              - notifempty
+              - copytruncate
+              - compress
+              - delaycompress
+
+- name: Ensure logrotate runs hourly under systemd timer
+  ansible.builtin.lineinfile:
+    path: /lib/systemd/system/logrotate.timer
+    regexp: '^OnCalendar=hourly'
+    insertafter: '^OnCalendar=daily'
+    line: OnCalendar=hourly
+
 - name: Generate an OpenSSL private key
   community.crypto.openssl_privatekey:
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'

@@ -8,7 +8,7 @@ filebeat_platform_inputs:
     exclude_files: ['\.gz$']
     index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - "{{ mn_evo_services_path }}/logs/drive-json*.log*"
+      - "{{ dashmate_logs_dir }}/drive-json*.log*"
     processors:
       - timestamp:
           field: json.time

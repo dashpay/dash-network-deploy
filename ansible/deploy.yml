@@ -257,6 +257,7 @@
       when: inventory_hostname in hp_masternodes
   roles:
     - role: dashmate
+    - role: elastic_beats
 
 - name: Set up fake latency on masternodes
   hosts: masternodes
