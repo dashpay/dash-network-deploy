@@ -6,15 +6,17 @@ const { getDocker, execCommand, getContainerId } = require('../../lib/test/docke
 
 const timeout = 15000; // set individual rpc client timeout
 
-const allMasternodes = inventory.masternodes.hosts.concat(inventory.hp_masternodes.hosts);
+const allMasternodes = [
+  ...(inventory.masternodes?.hosts ?? []),
+  ...(inventory.hp_masternodes?.hosts ?? []),
+];
 
-const ansibleHosts = inventory.masternodes.hosts.concat(
-  inventory.wallet_nodes.hosts,
-  inventory.miners.hosts,
-  inventory.seed_nodes.hosts,
-);
-
-const allHosts = inventory.hp_masternodes.hosts.concat(ansibleHosts)
+const allHosts = [
+  ...(allMasternodes ?? []),
+  ...(inventory.wallet_nodes?.hosts ?? []),
+  ...(inventory.miners?.hosts ?? []),
+  ...(inventory.seed_nodes?.hosts ?? []),
+];
 
 describe('Core', () => {
   const coreContainerIds = {};
@@ -91,7 +93,7 @@ describe('Core', () => {
           expect(networkInfo[hostName].networkactive).to.be.equal(true);
 
           if (network.type === 'devnet') {
-            expect(networkInfo[hostName].subversion).to.have.string(`(${network.type}.${network.name})/`);
+            expect(networkInfo[hostName].subversion).to.have.string(`${network.type}.${network.name}`);
           }
         });
 
@@ -111,6 +113,7 @@ describe('Core', () => {
 
     before('Collect masternode list info', async function func() {
       this.timeout(30000); // set mocha timeout
+
       const promises = [];
 
       await Promise.all(inventory.hp_masternodes.hosts.map(async (hostName) => {
@@ -160,7 +163,7 @@ describe('Core', () => {
   });
 
   describe('Miners', () => {
-    for (const hostName of inventory.miners.hosts) {
+    for (const hostName of inventory.miners?.hosts ?? []) {
       describe(hostName, () => {
         it('should mine blocks regularly', async () => {
           const targetBlockTime = variables.dashd_powtargetspacing || 156;

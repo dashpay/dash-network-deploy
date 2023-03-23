@@ -5,7 +5,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory, variables } = getNetworkConfig();
 
 describe('Insight', () => {
-  for (const hostName of inventory.web.hosts) {
+  for (const hostName of inventory.web?.hosts ?? []) {
     describe(hostName, () => {
       const insightUrl = `http://${inventory.meta.hostvars[hostName].public_ip}`
                           + `:${variables.insight_port}`;

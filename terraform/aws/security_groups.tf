@@ -331,12 +331,24 @@ resource "aws_security_group" "elb" {
   name   = "${terraform.workspace}-elb"
   vpc_id = aws_vpc.default.id
 
-  # HTTP access from anywhere
+  # Faucet
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = var.faucet_port
+    to_port     = var.faucet_port
     protocol    = "tcp"
-    description = "HTTP"
+    description = "Faucet"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+  # Faucet HTTPS
+  ingress {
+    from_port   = var.faucet_https_port
+    to_port     = var.faucet_https_port
+    protocol    = "tcp"
+    description = "Faucet HTTPS"
 
     cidr_blocks = [
       "0.0.0.0/0",
@@ -355,7 +367,7 @@ resource "aws_security_group" "elb" {
     ]
   }
 
-  # Insight Explorer
+  # Insight Explorer HTTPS
   ingress {
     from_port   = var.insight_https_port
     to_port     = var.insight_https_port

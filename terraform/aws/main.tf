@@ -105,10 +105,18 @@ resource "aws_elb" "web" {
   ]
 
   listener {
-    instance_port     = 80
+    instance_port     = var.faucet_port
     instance_protocol = "http"
-    lb_port           = 80
+    lb_port           = var.faucet_port
     lb_protocol       = "http"
+  }
+
+  listener {
+    instance_port     = var.faucet_port
+    instance_protocol = "http"
+    lb_port           = var.faucet_https_port
+    lb_protocol       = "https"
+    ssl_certificate_id = aws_acm_certificate_validation.faucet.certificate_arn
   }
 
   listener {
@@ -138,6 +146,33 @@ resource "aws_elb" "web" {
     Name        = "dn-${terraform.workspace}-web"
     DashNetwork = terraform.workspace
   }
+}
+
+resource "aws_acm_certificate" "faucet" {
+  domain_name       = "faucet.${var.public_network_name}.${var.main_domain}"
+  validation_method = "DNS"
+}
+
+resource "aws_route53_record" "faucet_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.faucet.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  zone_id         = data.aws_route53_zone.main_domain[0].zone_id
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+}
+
+resource "aws_acm_certificate_validation" "faucet" {
+  certificate_arn         = aws_acm_certificate.faucet.arn
+  validation_record_fqdns = [for record in aws_route53_record.faucet_validation : record.fqdn]
 }
 
 resource "aws_route53_record" "faucet" {
@@ -202,8 +237,27 @@ locals {
 }
 
 resource "random_shuffle" "dns_ips" {
-  input        = concat(aws_instance.masternode_amd.*.public_ip, aws_instance.masternode_arm.*.public_ip)
-  result_count = length(concat(aws_instance.masternode_amd.*.public_ip, aws_instance.masternode_arm.*.public_ip)) > local.dns_record_length ? local.dns_record_length : length(concat(aws_instance.masternode_amd.*.public_ip, aws_instance.masternode_arm.*.public_ip))
+  input        = concat(
+    aws_instance.masternode_amd.*.public_ip,
+    aws_instance.masternode_arm.*.public_ip,
+    aws_instance.hp_masternode_amd.*.public_ip,
+    aws_instance.hp_masternode_arm.*.public_ip
+  )
+  result_count = length(
+    concat(
+      aws_instance.masternode_amd.*.public_ip,
+      aws_instance.masternode_arm.*.public_ip,
+      aws_instance.hp_masternode_amd.*.public_ip,
+      aws_instance.hp_masternode_arm.*.public_ip
+    )
+  ) > local.dns_record_length ? local.dns_record_length : length(
+    concat(
+      aws_instance.masternode_amd.*.public_ip,
+      aws_instance.masternode_arm.*.public_ip,
+      aws_instance.hp_masternode_amd.*.public_ip,
+      aws_instance.hp_masternode_arm.*.public_ip
+    )
+  )
 }
 
 resource "aws_route53_record" "masternodes" {

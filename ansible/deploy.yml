@@ -112,8 +112,6 @@
         - dashd
     - elastic_beats
 
-# Start seeds
-
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
   become: true
@@ -211,8 +209,7 @@
   roles:
     - role: mn_init
       mnlist: "{{ masternodes }}"
-      register: 'mn'
-
+      funding_amount: "{{ masternode_collaterals.mn | int }}"
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
@@ -226,7 +223,7 @@
   roles:
     - role: mn_init
       mnlist: "{{ hp_masternodes }}"
-      register: 'hpmn'
+      funding_amount: "{{ masternode_collaterals.hpmn | int }}"
 
 - name: Update inventory with HPMN protx values
   hosts: wallet_nodes
@@ -242,15 +239,22 @@
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
 
+- name: Create governance proposals
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: generate_proposals
+      when: governance_proposal_count > 0
+
 - name: Set up core and platform on HP masternodes
   hosts: hp_masternodes
+  become: true
   pre_tasks:
     - name: Check inventory for HP masternodes
       ansible.builtin.set_fact:
         node: "{{ hp_masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in hp_masternodes
-  become: true
   roles:
     - role: dashmate
 

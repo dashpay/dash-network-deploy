@@ -1,0 +1,25 @@
+---
+
+- name: Get governance object count
+  ansible.builtin.command: 'dash-cli gobject count'
+  register: gobject_count_result
+  changed_when: true
+
+- name: Figure out if we need to create more proposals
+  ansible.builtin.set_fact:
+    new_proposal_count: '{{ governance_proposal_count - (gobject_count_result.stdout | from_json).proposals }}'
+
+- name: Create proposals
+  ansible.builtin.include_tasks: createproposaltx.yml
+  when: new_proposal_count | int > 0
+
+- name: Get list of proposals
+  ansible.builtin.command: 'dash-cli gobject list'
+  register: gobject_list_result
+  changed_when: gobject_list_result.rc == 0
+
+- name: Vote yes on all proposals
+  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} gobject vote-many {{ item }} funding yes"
+  with_items: "{{ gobject_list_result.stdout }}"
+  register: gobject_vote_result
+  changed_when: gobject_vote_result.rc == 0

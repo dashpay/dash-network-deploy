@@ -3,7 +3,10 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory } = getNetworkConfig();
 
-const allMasternodes = inventory.masternodes.hosts.concat(inventory.hp_masternodes.hosts);
+const allMasternodes = [
+  ...(inventory.masternodes?.hosts ?? []),
+  ...(inventory.hp_masternodes?.hosts ?? []),
+];
 
 describe('Sentinel', () => {
   describe('All nodes', () => {

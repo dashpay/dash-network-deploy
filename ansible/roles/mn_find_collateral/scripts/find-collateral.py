@@ -6,7 +6,7 @@ import json
 
 rpcargs = sys.argv[1]
 mn_address = sys.argv[2]
-coin = sys.argv[3]
+coin = int(sys.argv[3]) * 100000
 find_protx = sys.argv[4] == 'True'
 
 blockchaininfo_s = subprocess.run("dash-cli %s getblockchaininfo" % (rpcargs), shell=True, check=True, stdout=subprocess.PIPE).stdout.decode("utf-8")
@@ -33,7 +33,7 @@ utxos = unspent
 for u in addressutxos:
     e = {
         "txid": u.get('txid'),
-        "amount": u.get('satoshis') / int(coin),
+        "amount": u.get('satoshis') / coin,
         "vout": u.get('outputIndex'),
         "confirmations": tipHeight - u.get('height')
     }

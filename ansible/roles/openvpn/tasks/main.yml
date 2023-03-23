@@ -26,6 +26,6 @@
   ansible.builtin.copy:
     src: '{{ openvpn_config_path }}'
     dest: '../networks/{{ dash_network_name }}.ovpn'
-    mode: 0644
+    mode: "0644"
   vars:
     openvpn_config_path: '~/tmp/ansible/{{ dash_network_name }}/{{ inventory_hostname }}.ovpn'

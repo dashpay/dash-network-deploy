@@ -196,7 +196,7 @@ describe('Quorums', () => {
 
       const promises = [];
 
-      for(const hostName of ansibleHosts) {
+      for (const hostName of ansibleHosts) {
         const timeout = 15000; // set individual rpc client timeout
 
         const client = createRpcClientFromConfig(hostName);
@@ -244,7 +244,7 @@ describe('Quorums', () => {
         });
 
         it('should see an instantsend lock', () => {
-          expect(Boolean(rawMemPool[hostName][instantsendTestTxid].instantlock)).to.be.true();
+          expect(rawMemPool[hostName][instantsendTestTxid].instantlock).to.equal('true');
         });
       });
     }

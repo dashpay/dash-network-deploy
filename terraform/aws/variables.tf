@@ -16,6 +16,16 @@ variable "dashd_zmq_port" {
   default     = 29998
 }
 
+variable "faucet_port" {
+  description = "Faucet port"
+  default     = 80
+}
+
+variable "faucet_https_port" {
+  description = "Faucet HTTPS port"
+  default     = 443
+}
+
 variable "insight_port" {
   description = "Insight port"
   default     = 3001
@@ -159,12 +169,12 @@ variable "core_node_disk_size" {
 
 variable "mn_node_disk_size" {
   description = "Disk size of masternodes"
-  default     = 30
+  default     = 20
 }
 
-variable "web_node_disk_size" {
-  description = "Disk size of web nodes"
-  default     = 50
+variable "hpmn_node_disk_size" {
+  description = "Disk size of HP masternodes"
+  default     = 30
 }
 
 variable "logs_node_root_disk_size" {

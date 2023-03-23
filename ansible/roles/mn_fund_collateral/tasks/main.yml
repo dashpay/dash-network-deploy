@@ -35,13 +35,11 @@
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
-    num_blocks: 0
-    balance_needed: "{{ (masternode_names | length - collateral_ok_count | int) * (funding_amount | int / 100000) | int }}"
-  when: not collateral_all_ok and (faucet_balance.stdout | int < balance_needed | int)
+    generate: balance
+    target_balance: "{{ (masternode_names | length - collateral_ok_count | int) * funding_amount | int }}"
+  when: not collateral_all_ok and (faucet_balance.stdout | int < target_balance | int)
 
-# TODO: this will fund all masternodes when `not collateral_all_ok`, not just those with missing collateral.
-# collateral_ok_masternode_1 was partially implemented, check again later
-# https://github.com/dashpay/dash-network-deploy/blob/master/ansible/roles/mn-fund-collateral/tasks/main.yml#L48
+# fund
 
 - name: Initialize array for uncollateralized addresses
   ansible.builtin.set_fact:
@@ -50,17 +48,14 @@
 - name: Populate payment targets
   ansible.builtin.set_fact:
     uncollateralized_addresses: "{{ uncollateralized_addresses + [mnlist[item].collateral.address] }}"
-  with_items:
-    - '{{ masternode_names }}'
-  when: not collateral_all_ok
-
-# fund
+  with_items: '{{ masternode_names }}'
+  when: not vars["collateral_ok_" + item|replace("-","_")]
 
 - name: Fund masternode collaterals
   ansible.builtin.include_tasks:
     file: fund_collateral.yml
   vars:
-    amount: "{{ (funding_amount | int / 100000) | int }}"
+    amount: "{{ funding_amount }}"
     payment_targets: '{{ uncollateralized_addresses }}'
   when: not collateral_all_ok
 

@@ -3,7 +3,8 @@
 # Requires "masternode" and "masternode_name" variables
 
 - name: Create ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
-  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx register
+  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx
+            {% if masternode_name is match('hp*') %} register_hpmn {% else %} register {% endif %}
             {{ vars['collateral_txid_' + masternode_name | replace('-', '_')] }}
             {{ vars['collateral_vout_' + masternode_name | replace('-', '_')] }}
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
@@ -12,25 +13,15 @@
             {{ masternode.owner.address }}
             0
             {{ miner_payment_address }}
-            {{ masternode.collateral.address }}"
-  register: protx
-  changed_when: protx.stdout | length == 64
-  when: 'masternode_name is not match ("hp*")'
-
-- name: Create HP ProTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
-  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx register_hpmn
-            {{ vars['collateral_txid_' + masternode_name | replace('-', '_')] }}
-            {{ vars['collateral_vout_' + masternode_name | replace('-', '_')] }}
-            {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
-            {{ masternode.owner.address }}
-            {{ masternode.operator.public_key }}
-            {{ masternode.owner.address }}
-            0
-            {{ miner_payment_address }}
+            {% if masternode_name is match('hp*') %}
             {{ masternode.node_key.id }}
             {{ tendermint_p2p_port }}
             {{ dapi_port }}
+            {% endif %}
             {{ masternode.collateral.address }}"
   register: protx
   changed_when: protx.stdout | length == 64
-  when: 'masternode_name is match ("hp*")'
+
+- name: Add resulting txid to list
+  ansible.builtin.set_fact:
+    created_protx_list: "{{ created_protx_list + [protx.stdout] }}"

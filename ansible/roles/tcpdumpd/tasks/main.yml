@@ -10,7 +10,7 @@
   ansible.builtin.template:
     src: 'tcpdump.service'
     dest: '/etc/systemd/system/tcpdumpd.service'
-    mode: 0644
+    mode: "0644"
 
 - name: Make sure tcpdump unit is running
   ansible.builtin.systemd:
@@ -22,4 +22,4 @@
   ansible.builtin.template:
     src: 'tcpdumpd'
     dest: '/etc/logrotate.d/tcpdumpd'
-    mode: 0644
+    mode: "0644"

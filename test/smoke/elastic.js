@@ -5,7 +5,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory, variables } = getNetworkConfig();
 
 describe('Elastic', () => {
-  for (const hostName of inventory.logs_nodes.hosts) {
+  for (const hostName of inventory.logs_nodes?.hosts ?? []) {
     describe(hostName, () => {
       const logsUrl = `http://${inventory.meta.hostvars[hostName].public_ip}`;
       const elasticPort = 9200;

@@ -13,7 +13,7 @@ resource "aws_instance" "web" {
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   root_block_device {
-    volume_size = var.web_node_disk_size
+    volume_size = var.core_node_disk_size
     volume_type = var.volume_type
   }
 
@@ -98,7 +98,7 @@ resource "aws_instance" "seed_node" {
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
-    volume_size = var.mn_node_disk_size
+    volume_size = var.hpmn_node_disk_size
     volume_type = var.volume_type
   }
 
@@ -255,7 +255,7 @@ resource "aws_instance" "hp_masternode_amd" {
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
-    volume_size = var.mn_node_disk_size
+    volume_size = var.hpmn_node_disk_size
     volume_type = var.volume_type
   }
 
@@ -295,7 +295,7 @@ resource "aws_instance" "hp_masternode_arm" {
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   root_block_device {
-    volume_size = var.mn_node_disk_size
+    volume_size = var.hpmn_node_disk_size
     volume_type = var.volume_type
   }
 
@@ -354,7 +354,7 @@ resource "aws_instance" "logs" {
   count = var.logs_count
 
   ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
-  instance_type        = join(".", [var.main_host_arch == "arm64" ? "c6g" : "c5a", var.logs_node_instance_size])
+  instance_type        = join(".", ["x2gd", var.logs_node_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
