@@ -71,14 +71,12 @@
 
 - name: Create logs dir
   ansible.builtin.file:
-    path: '{{ item }}'
+    path: '{{ dashmate_logs_dir }}'
     state: directory
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     recurse: true
-    mode: 0644
-  loop:
-    - '{{ dashmate_logs_dir }}'
+    mode: 0755
 
 - name: Configure log rotation
   ansible.builtin.include_role:
@@ -88,7 +86,7 @@
       - name: platform-logs
         definitions:
           - logs:
-              - '{{ dashmate_config_dir }}/logs/{{ dash_network_name }}/*.log'
+              - '{{ dashmate_logs_dir }}/*.log'
             options:
               - rotate 7
               - daily

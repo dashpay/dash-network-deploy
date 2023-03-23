@@ -37,6 +37,12 @@
     path: "{{ dashmate_config_dir }}/"
   when: inventory_hostname in groups["hp_masternodes"]
 
+- name: Delete dashmate logs dir
+  ansible.builtin.file:
+    state: absent
+    path: "{{ dashmate_logs_dir }}/"
+  when: inventory_hostname in groups["hp_masternodes"]
+
 - name: Remove any remaining docker data
   community.docker.docker_prune:
     containers: true
