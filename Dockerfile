@@ -3,34 +3,37 @@ FROM ubuntu:22.04
 LABEL maintainer="Dash Developers <dev@dash.org>"
 LABEL description="Dash Network Deployment Tool"
 
-# Install build utils
+# Install build utils and Firefox deps
 
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    bzip2 \
     ca-certificates \
     curl \
-    unzip \
+    git \
+    gnupg \
+    libasound2 \
+    libdbus-glib-1-2 \
+    libgtk-3-0 \
+    libx11-xcb1 \
+    libxtst6 \
+    openvpn \
     python3-pip \
     python3-setuptools \
-    git \
-    openvpn \
     software-properties-common \
-    gnupg \
-    firefox \
-    ssh
+    ssh \
+    unzip
 
 # Install Node.JS
 
 RUN curl -sSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     nodejs
 
 # Install terraform
 
 ARG TERRAFORM_VERSION=1.3.9
-
-RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+RUN curl -fsSLO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
@@ -38,9 +41,16 @@ RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraf
 
 ENV DOCKERVERSION=23.0.1
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
-    && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
-    -C /usr/local/bin docker/docker \
+    && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 -C /usr/local/bin docker/docker \
     && rm docker-${DOCKERVERSION}.tgz
+
+# Install Firefox
+
+ENV FIREFOX_VERSION=111.0.1
+RUN curl -fsSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 \
+    && tar xjvf firefox-${FIREFOX_VERSION}.tar.bz2 -C /opt \
+    && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
+    && rm firefox-${FIREFOX_VERSION}.tar.bz2
 
 # Copy dash-cli form dashd image
 
