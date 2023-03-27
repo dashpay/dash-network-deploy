@@ -48,12 +48,12 @@ variable "drive_port" {
 
 variable "dapi_port" {
   description = "DAPI port"
-  default     = 3000
+  default     = 1443
 }
 
 variable "tendermint_p2p_port" {
   description = "Tendermint P2P port"
-  default     = 26659
+  default     = 36656
 }
 
 variable "tendermint_rpc_port" {

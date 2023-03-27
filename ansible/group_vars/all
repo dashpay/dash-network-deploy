@@ -41,7 +41,7 @@ core_llmq_types:
 
 # Tendermint
 tendermint_image: dashpay/tenderdash
-tendermint_p2p_port: 26659
+tendermint_p2p_port: 36656
 tendermint_rpc_port: 26660
 tendermint_uid: "100"
 tendermint_gid: "1000"
@@ -52,7 +52,7 @@ tenderdash_log_level: debug
 # DAPI
 dapi_image: dashpay/dapi
 dapi_envoy_image: envoyproxy/envoy
-dapi_port: 3000
+dapi_port: 1443
 
 # Insight
 insight_image: dashpay/insight
