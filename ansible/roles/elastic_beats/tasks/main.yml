@@ -7,12 +7,26 @@
       name: dashd
   register: core_host_info
 
+- name: Get dashmate core container id
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: core
+  register: dashmate_core_host_info
+
 - name: Get tenderdash container id
   community.docker.docker_host_info:
     containers: true
     containers_filters:
       name: mn_evo_services_tendermint
   register: tenderdash_host_info
+
+- name: Get dashmate tenderdash container id
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: drive_tenderdash
+  register: dashmate_tenderdash_host_info
 
 - name: Load common filebeat config
   ansible.builtin.include_vars:
@@ -21,11 +35,17 @@
 - name: Load core input config
   ansible.builtin.include_vars:
     file: core.yml
+  when: dashmate_tenderdash_host_info.containers | length == 0
 
 - name: Load platform input config
   ansible.builtin.include_vars:
     file: platform.yml
   when: tenderdash_host_info.containers | length > 0
+
+- name: Load dashmate input config
+  ansible.builtin.include_vars:
+    file: platform.yml
+  when: dashmate_tenderdash_host_info.containers | length > 0
 
 - name: Merge input configs
   ansible.builtin.set_fact:

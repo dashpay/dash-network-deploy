@@ -128,11 +128,11 @@
       dashd_indexes: true
       tags:
         - dashd
-    - elastic_beats
     - role: mn_evo_services
       tags:
         - evo
       when: evo_services
+    - elastic_beats
 
 - name: Set up core on masternodes
   hosts: masternodes
