@@ -1,4 +1,5 @@
 ---
+
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
@@ -180,11 +181,35 @@
     chdir: /home/dashmate/platform/packages/js-dash-sdk
     creates: /home/dashmate/platform/packages/js-dash-sdk/build
 
-- name: Run masternode
+# Check if dashmate is running and set var
+
+- name: Check if dashmate is already running
+  ansible.builtin.command: yarn dashmate status --format=json
+  become: true
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform
+  register: dashmate_status
+  ignore_errors: true
+
+# Restart dashmate if already running
+- name: Restart dashmate services
+  ansible.builtin.command: yarn dashmate restart
+  become: true
+  become_user: dashmate
+  args:
+    chdir: /home/dashmate/platform
+  register: dashmate_start
+  when: dashmate_status.rc == 0
+  # changed_when: "'Running services detected' not in dashmate_start.stderr"
+
+# Start if not already running
+- name: Start dashmate services
   ansible.builtin.command: yarn dashmate start
   become: true
   become_user: dashmate
   args:
     chdir: /home/dashmate/platform
   register: dashmate_start
-  changed_when: "'Running services detected' not in dashmate_start.stderr"
+  when: dashmate_status.rc == 1
+  # changed_when: "'Running services detected' not in dashmate_start.stderr"
