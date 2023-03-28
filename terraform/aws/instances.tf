@@ -1,3 +1,8 @@
+resource "aws_eip" "my_eip" {
+  instance = null
+  count = var.hp_masternode_arm_count
+}
+
 resource "aws_instance" "web" {
   count = var.web_count
 
@@ -285,6 +290,7 @@ resource "aws_instance" "hp_masternode_arm" {
   instance_type        = "t4g.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
+  associate_public_ip_address = false
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -315,6 +321,13 @@ resource "aws_instance" "hp_masternode_arm" {
     ignore_changes = [ami]
   }
 
+}
+
+resource "aws_eip_association" "my_eip_assoc" {
+  count = var.hp_masternode_arm_count
+
+  instance_id   = aws_instance.hp_masternode_arm[count.index].id
+  allocation_id = aws_eip.my_eip[count.index].id
 }
 
 
