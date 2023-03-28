@@ -2,7 +2,7 @@
 
 - name: Merge user lists
   ansible.builtin.set_fact:
-    users_to_manage: "{{ [users_to_manage, users] | community.general.lists_mergeby('index') }}"
+    users_to_manage: "{{ users_to_manage + users }}"
   when: users is defined
 
 - name: Pull dashd image
@@ -42,6 +42,8 @@
     owner: root
     group: root
     mode: "0644"
+- debug:
+    var: users
 
 - name: Symlink dash.conf to user dashmate directory to make rpc work
   ansible.builtin.file:
