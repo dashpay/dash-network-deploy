@@ -28,10 +28,6 @@
     recurse: true
     mode: 0750
   loop:
-    - '{{ dashmate_config_dir }}/{{ dash_network_name }}'
-    - '{{ dashmate_config_dir }}/logs'
-    - '{{ dashmate_config_dir }}/ssl'
-    - '{{ dashmate_config_dir }}/logs/{{ dash_network_name }}'
     - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
 
 - name: Create logs dir
@@ -119,7 +115,7 @@
   args:
     creates: /root/.corepack
 
-- name: Clone platform
+- name: Clone dashmate source
   become: true
   become_user: dashmate
   ansible.builtin.git:
@@ -129,7 +125,7 @@
     single_branch: true
     depth: 1
 
-- name: Update yarn dependencies
+- name: Install Yarn dependencies
   ansible.builtin.command: yarn
   become: true
   become_user: dashmate
@@ -137,7 +133,7 @@
     chdir: {{ dashmate_source_dir }}
     creates: {{ dashmate_source_dir }}/.yarn/unplugged
 
-- name: Build platform
+- name: Build source
   ansible.builtin.command: yarn build
   become: true
   become_user: dashmate

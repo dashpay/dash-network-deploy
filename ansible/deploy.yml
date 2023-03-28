@@ -104,15 +104,16 @@
   hosts: miners
   become: true
   roles:
-    - role: dashd
-      tags:
-        - dashd
-    - elastic_beats
     - role: dash_cli
       users:
         - user: "{{ dashd_user }}"
           group: "{{ dashd_group }}"
           dir: "{{ dashd_home }}"
+    - role: dashd
+      tags:
+        - dashd
+    - elastic_beats
+
 
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
