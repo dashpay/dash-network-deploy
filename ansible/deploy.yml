@@ -113,7 +113,6 @@
         - user: "{{ dashd_user }}"
           group: "{{ dashd_group }}"
           dir: "{{ dashd_home }}"
-      additional_users: '{{ dashd_user }}'
 
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
