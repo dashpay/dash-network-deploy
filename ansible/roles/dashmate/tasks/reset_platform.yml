@@ -5,4 +5,4 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
+    chdir: '{{ dashmate_source_dir }}'
