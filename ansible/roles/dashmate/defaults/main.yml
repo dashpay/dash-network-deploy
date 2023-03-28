@@ -3,8 +3,9 @@
 platform_branch: register-hpmn
 
 dashmate_home: /home/dashmate
-dashmate_config_dir: '{{ dashmate_config_dir }}/.dashmate'
+dashmate_config_dir: '{{ dashmate_home }}/.dashmate'
 dashmate_logs_dir: /var/log/dashmate
+dashmate_source_dir: '{{ dashmate_home }}/platform'
 dashmate_user: "dashmate"
 dashmate_group: "dashmate"
 dashmate_uid: "700"
