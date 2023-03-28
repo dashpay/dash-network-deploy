@@ -71,6 +71,7 @@
         "devnetName": "{{ dash_devnet_name }}"
       },
       "platform": {
+        "enable": {% if dashmate_platform_enable %}true{% else %}false{% endif %},
         "dapi": {
           "envoy": {
             "docker": {

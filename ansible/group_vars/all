@@ -184,3 +184,4 @@ dashmate_user: "dashmate"
 dashmate_group: "dashmate"
 dashmate_uid: "700"
 dashmate_gid: "1700"
+dashmate_platform_enable: true
