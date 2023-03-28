@@ -330,6 +330,9 @@ resource "aws_eip_association" "my_eip_assoc" {
   allocation_id = aws_eip.my_eip[count.index].id
 }
 
+output "hp_masternode_arm_eip" {
+  value = aws_eip.my_eip.*.public_ip
+}
 
 resource "aws_instance" "vpn" {
   count = var.vpn_enabled ? 1 : 0
