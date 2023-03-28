@@ -1,6 +1,6 @@
 ---
 # for development
-platform_branch: register-hpmn
+platform_branch: v0.24-dev
 
 dashmate_home: /home/dashmate
 dashmate_config_dir: '{{ dashmate_home }}/.dashmate'
