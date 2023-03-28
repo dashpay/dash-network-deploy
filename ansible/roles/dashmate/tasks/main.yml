@@ -173,7 +173,7 @@
     chdir: /home/dashmate/platform
     creates: /home/dashmate/platform/.yarn/unplugged
 
-- name: Build dash sdk
+- name: Build platform
   ansible.builtin.command: yarn build
   become: true
   become_user: dashmate
