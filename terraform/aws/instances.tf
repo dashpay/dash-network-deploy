@@ -1,6 +1,11 @@
-resource "aws_eip" "my_eip" {
+resource "aws_eip" "hpmn_arm_eip" {
   instance = null
   count = var.hp_masternode_arm_count
+}
+
+resource "aws_eip" "hpmn_amd_eip" {
+  instance = null
+  count = var.hp_masternode_amd_count
 }
 
 resource "aws_instance" "web" {
@@ -250,6 +255,7 @@ resource "aws_instance" "hp_masternode_amd" {
   instance_type        = "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
+  associate_public_ip_address = false
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -323,16 +329,29 @@ resource "aws_instance" "hp_masternode_arm" {
 
 }
 
-resource "aws_eip_association" "my_eip_assoc" {
+resource "aws_eip_association" "arm_eip_assoc" {
   count = var.hp_masternode_arm_count
 
   instance_id   = aws_instance.hp_masternode_arm[count.index].id
-  allocation_id = aws_eip.my_eip[count.index].id
+  allocation_id = aws_eip.hpmn_arm_eip[count.index].id
 }
 
-output "hp_masternode_arm_eip" {
-  value = aws_eip.my_eip.*.public_ip
+resource "aws_eip_association" "amd_eip_assoc" {
+  count = var.hp_masternode_amd_count
+
+  instance_id   = aws_instance.hp_masternode_amd[count.index].id
+  allocation_id = aws_eip.hpmn_amd_eip[count.index].id
 }
+
+
+output "hp_masternode_arm_eip" {
+  value = aws_eip.hpmn_arm_eip.*.public_ip
+}
+
+output "hp_masternode_amd_eip" {
+  value = aws_eip.hpmn_amd_eip.*.public_ip
+}
+
 
 resource "aws_instance" "vpn" {
   count = var.vpn_enabled ? 1 : 0
