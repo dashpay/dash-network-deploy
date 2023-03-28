@@ -10,4 +10,4 @@ dashd_private_cidr: '{{ private_ip | ansible.utils.ipsubnet(dashd_private_net_pr
 dashd_externalip: '{{ public_ip }}'
 
 # for development
-platform_branch: feat/dashmate-devnet-core19
+platform_branch: register-hpmn
