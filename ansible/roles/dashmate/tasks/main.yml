@@ -19,14 +19,6 @@
     groups: docker
     append: true
 
-- name: Write dash.conf file in /etc/
-  ansible.builtin.template:
-    src: dash.conf.j2
-    dest: /etc/dash.conf
-    owner: root
-    group: root
-    mode: "0644"
-
 - name: Create all necessary config dirs
   ansible.builtin.file:
     path: '{{ item }}'

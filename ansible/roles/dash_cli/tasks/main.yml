@@ -35,6 +35,14 @@
     group: '{{ item.group }}'
   loop: '{{ users_to_manage }}'
 
+- name: Write dash.conf file in /etc/
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: /etc/dash.conf
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Symlink dash.conf to user dashmate directory to make rpc work
   ansible.builtin.file:
     path: '{{ item.dir }}/.dashcore/dash.conf'
