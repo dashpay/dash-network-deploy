@@ -120,7 +120,7 @@
   become_user: dashmate
   ansible.builtin.git:
     repo: 'https://github.com/dashpay/platform'
-    dest: {{ dashmate_source_dir }}
+    dest: '{{ dashmate_source_dir }}'
     version: '{{ platform_branch }}'
     single_branch: true
     depth: 1
@@ -130,16 +130,16 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
-    creates: {{ dashmate_source_dir }}/.yarn/unplugged
+    chdir: '{{ dashmate_source_dir }}'
+    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
 - name: Build source
   ansible.builtin.command: yarn build
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}/packages/js-dash-sdk
-    creates: {{ dashmate_source_dir }}/packages/js-dash-sdk/build
+    chdir: '{{ dashmate_source_dir }}/packages/js-dash-sdk'
+    creates: '{{ dashmate_source_dir }}/packages/js-dash-sdk/build'
 
 # Check if dashmate is running and set var
 
@@ -148,7 +148,7 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
+    chdir: '{{ dashmate_source_dir }}'
   register: dashmate_status
   ignore_errors: true
 
@@ -158,7 +158,7 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
+    chdir: '{{ dashmate_source_dir }}'
   register: dashmate_start
   when: dashmate_status.rc == 0
   # changed_when: "'Running services detected' not in dashmate_start.stderr"
@@ -169,7 +169,7 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
+    chdir: '{{ dashmate_source_dir }}'
   register: dashmate_start
   when: dashmate_status.rc == 1
   # changed_when: "'Running services detected' not in dashmate_start.stderr"
