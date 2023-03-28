@@ -42,7 +42,7 @@ core_llmq_types:
 # Tendermint
 tendermint_image: dashpay/tenderdash
 tendermint_p2p_port: 36656
-tendermint_rpc_port: 26660
+tendermint_rpc_port: 36657
 tendermint_uid: "100"
 tendermint_gid: "1000"
 # tenderdash_chain_id:
