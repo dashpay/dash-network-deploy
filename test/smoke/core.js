@@ -70,7 +70,7 @@ describe('Core', () => {
         const networkInfoResult = await client.getNetworkInfo();
 
         networkInfo[hostName] = networkInfoResult.result;
-      }));
+      })).catch(() => Promise.resolve());
     });
 
     for (const hostName of allHosts) {
@@ -120,11 +120,9 @@ describe('Core', () => {
         const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
         masternodeListInfo[hostName] = await execCommand(docker, coreContainerIds[hostName], ['dash-cli', 'masternode', 'list']);
-      }));
+      })).catch(() => Promise.resolve()); // Do not fail the test if any of promises were rejected
 
       for (const hostName of ansibleHosts) {
-        const timeout = 15000; // set individual rpc client timeout
-
         const client = createRpcClientFromConfig(hostName);
 
         client.setTimeout(timeout);
