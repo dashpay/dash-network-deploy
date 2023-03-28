@@ -26,15 +26,6 @@
     dest: /usr/local/bin/dash-cli
     mode: "0755"
 
-- name: Write dash.conf file in /etc/
-  ansible.builtin.template:
-    src: dash.conf.j2
-    dest: /etc/dash.conf
-    owner: root
-    group: root
-    mode: 0644
-  register: dash_config_state
-
 - name: Create .dashcore directory for each user
   ansible.builtin.file:
     path: '{{ item.dir }}/.dashcore'
@@ -43,7 +34,6 @@
     owner: '{{ item.user }}'
     group: '{{ item.group }}'
   loop: '{{ users_to_manage }}'
-  when: item.user != dashd_user
 
 - name: Symlink dash.conf to user dashmate directory to make rpc work
   ansible.builtin.file:
@@ -52,4 +42,3 @@
     state: link
     force: true
   loop: '{{ users_to_manage }}'
-  when: item.user != dashd_user
