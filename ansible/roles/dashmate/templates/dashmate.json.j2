@@ -31,7 +31,7 @@
           "user": "{{ dashd_rpc_user }}",
           "password": "{{ dashd_rpc_password }}",
           "allowIps": [
-            "{{ dashd_private_cidr }}",
+            "{{ {{ private_ip | ansible.utils.ipsubnet(16) }} }}",
             "127.0.0.0",
             "172.16.0.0/12",
             "192.168.0.0/16",
@@ -60,8 +60,8 @@
           }
         },
         "debug": {{ dashd_debug }},
-        "logIps": {{ dashd_logips }},
-        "indexes": {{ dashd_indexes | lower }},
+        "logIps": 0,
+        "indexes": true,
         "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
         "powTargetSpacing": {{ dashd_powtargetspacing }},
         "reindex": {
@@ -232,7 +232,7 @@
           }
         }
       },
-      "externalIp": "{{ dashd_externalip }}",
+      "externalIp": "{{ public_ip }}",
       "network": "devnet",
       "environment": "production"
     }
