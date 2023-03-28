@@ -87,15 +87,12 @@
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
 
-# Install Dash Core CLI
-
-- name: Configure dashd cli and network logging
+- name: Configure tcpdump on hosts
   hosts: all
   become: true
   roles:
     - role: tcpdumpd
       when: dashd_network_logging != 0
-    - dash_cli
 
 - name: Setup logs
   hosts: logs_nodes
@@ -111,6 +108,12 @@
       tags:
         - dashd
     - elastic_beats
+    - role: dash_cli
+      users:
+        - user: "{{ dashd_user }}"
+          group: "{{ dashd_group }}"
+          dir: "{{ dashd_home }}"
+      additional_users: '{{ dashd_user }}'
 
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
@@ -128,6 +131,11 @@
       dashd_indexes: true
       tags:
         - dashd
+    - role: dash_cli
+      users:
+        - user: "{{ dashd_user }}"
+          group: "{{ dashd_group }}"
+          dir: "{{ dashd_home }}"
     - role: mn_evo_services
       tags:
         - evo
@@ -154,6 +162,11 @@
       dashd_indexes: true
       tags:
         - dashd
+    - role: dash_cli
+      users:
+        - user: "{{ dashd_user }}"
+          group: "{{ dashd_group }}"
+          dir: "{{ dashd_home }}"
     - mn_sentinel
     - mn_status_report
     - elastic_beats
@@ -199,6 +212,11 @@
       enable_wallet: true
       tags:
         - dashd
+    - role: dash_cli
+      users:
+        - user: "{{ dashd_user }}"
+          group: "{{ dashd_group }}"
+          dir: "{{ dashd_home }}"
     - elastic_beats
 
 # Register masternodes and set sporks
@@ -257,6 +275,11 @@
       when: inventory_hostname in hp_masternodes
   roles:
     - role: dashmate
+    - role: dash_cli
+      users:
+        - user: "{{ dashmate_user }}"
+          group: "{{ dashmate_group }}"
+          dir: "{{ dashmate_home }}"
     - role: elastic_beats
 
 - name: Set up fake latency on masternodes

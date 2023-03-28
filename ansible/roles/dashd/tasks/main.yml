@@ -14,34 +14,6 @@
     umask: '0002'
   register: dash_user
 
-- name: Create .dashcore directory for each user
-  ansible.builtin.file:
-    path: '{{ item.dir }}/.dashcore'
-    state: directory
-    mode: "0755"
-    owner: '{{ item.user }}'
-    group: '{{ item.group }}'
-  loop: '{{ users_to_manage }}'
-  when: item.user != dashmate_user
-
-- name: Write dash.conf file in /etc/
-  ansible.builtin.template:
-    src: dash.conf.j2
-    dest: /etc/dash.conf
-    owner: root
-    group: root
-    mode: "0644"
-  register: dash_config_state
-
-- name: Symlink dash.conf to user dashcore directories to make rpc work
-  ansible.builtin.file:
-    path: '{{ item.dir }}/.dashcore/dash.conf'
-    src: '/etc/dash.conf'
-    state: link
-    force: true
-  loop: '{{ users_to_manage }}'
-  when: item.user != dashmate_user
-
 - name: Create dashcore docker-compose dir
   ansible.builtin.file:
     path: '{{ dashd_compose_path }}'
