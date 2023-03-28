@@ -148,7 +148,7 @@ You can use the OpenVPN config generated during deployment (`<network_name>.ovpn
 3. Ensure Python netaddr and jmespath package is installed locally
 
     ```bash
-    pip install -U netaddr jmespath
+    pip install -U netaddr jmespath ansible-lint
     ```
 
     * Note: You may need to run the above command with "pip2" instead of "pip" if
