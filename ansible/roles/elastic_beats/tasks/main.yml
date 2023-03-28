@@ -35,7 +35,7 @@
 - name: Load core input config
   ansible.builtin.include_vars:
     file: core.yml
-  when: dashmate_tenderdash_host_info.containers | length == 0
+#  when: dashmate_tenderdash_host_info.containers | length == 0
 
 #- name: Load platform input config
 #  ansible.builtin.include_vars:
@@ -47,10 +47,10 @@
 #    file: platform.yml
 #  when: dashmate_tenderdash_host_info.containers | length > 0
 
-- name: Merge input configs
-  ansible.builtin.set_fact:
-    filebeat_inputs: "{{ [filebeat_inputs, filebeat_platform_inputs] | community.general.lists_mergeby('index') }}"
-  when: tenderdash_host_info.containers | length > 0
+#- name: Merge input configs
+#  ansible.builtin.set_fact:
+#    filebeat_inputs: "{{ [filebeat_inputs, filebeat_platform_inputs] | community.general.lists_mergeby('index') }}"
+#  when: tenderdash_host_info.containers | length > 0
 
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:
