@@ -78,7 +78,7 @@
               "image": "{{ dapi_envoy_image }}"
             },
             "http": {
-              "port": 3000
+              "port": {{ dapi_port }}
             },
             "rateLimiter": {
               "maxTokens": 300,
