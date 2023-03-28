@@ -240,16 +240,19 @@ resource "random_shuffle" "dns_ips" {
   input        = concat(
     aws_instance.masternode_amd.*.public_ip,
     aws_instance.masternode_arm.*.public_ip,
+    aws_eip.my_eip.*.public_ip
   )
   result_count = length(
     concat(
       aws_instance.masternode_amd.*.public_ip,
       aws_instance.masternode_arm.*.public_ip,
+      aws_eip.my_eip.*.public_ip
     )
   ) > local.dns_record_length ? local.dns_record_length : length(
     concat(
       aws_instance.masternode_amd.*.public_ip,
       aws_instance.masternode_arm.*.public_ip,
+      aws_eip.my_eip.*.public_ip
     )
   )
 }
