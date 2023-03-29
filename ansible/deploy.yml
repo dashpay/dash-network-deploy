@@ -60,6 +60,25 @@
     - docker_options
     - eternal_terminal
 
+- name: Setup Node.JS and NPM
+  hosts: hp_masternodes
+  become: true
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+    - name: Install docker-compose-plugin
+      ansible.builtin.package:
+        name: docker-compose-plugin
+        state: present
+  vars:
+    nodejs_version: "16.x"
+# todo use that after v24-dev release
+#    nodejs_npm_global_packages:
+#      - name: 'dashmate@{{ dashmate_version }}'
+  roles:
+    - geerlingguy.nodejs
+
 - name: Install AWS monitoring scripts
   hosts: all
   become: true
@@ -68,15 +87,12 @@
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
 
-# Install Dash Core
-
-- name: Configure dashd cli and network logging
+- name: Configure tcpdump
   hosts: all
   become: true
   roles:
     - role: tcpdumpd
       when: dashd_network_logging != 0
-    - dash_cli
 
 - name: Setup logs
   hosts: logs_nodes
@@ -84,37 +100,37 @@
   roles:
     - elastic_stack
 
-- name: Set up wallets
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      enable_wallet: true
-      tags:
-        - dashd
-    - elastic_beats
-
 - name: Set up miners
   hosts: miners
   become: true
   roles:
+    - role: dash_cli
     - role: dashd
       tags:
         - dashd
     - elastic_beats
 
-- name: Set up core on seed nodes
+- name: Set up core and platform on seed nodes
   hosts: seed_nodes
   become: true
+  pre_tasks:
+    - name: Set node variables for seed nodes
+      ansible.builtin.set_fact:
+        node: "{{ seed_nodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in seed_nodes
   roles:
+    - role: dash_cli
     - role: dashd
       dashd_listen: true
       dashd_zmq: true
       dashd_indexes: true
       tags:
         - dashd
+    - role: mn_evo_services
+      tags:
+        - evo
+      when: evo_services
     - elastic_beats
 
 - name: Set up core on masternodes
@@ -131,6 +147,7 @@
         msg: Masternode not defined in network config
       when: masternode is not defined
   roles:
+    - role: dash_cli
     - role: dashd
       dashd_listen: true
       dashd_zmq: true
@@ -141,29 +158,6 @@
     - mn_status_report
     - elastic_beats
 
-- name: Set up core on HP masternodes
-  hosts: hp_masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for HP masternodes
-      ansible.builtin.set_fact:
-        masternode: "{{ hp_masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in hp_masternodes
-    - name: Fail if no HP masternodes present
-      ansible.builtin.fail:
-        msg: HP masternode not defined in network config
-      when: masternode is not defined
-  roles:
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - mn_sentinel
-    - mn_status_report
-    - elastic_beats
 
 # Start network
 
@@ -186,6 +180,7 @@
   become: true
   roles:
     - multifaucet
+    - role: dash_cli
     - role: dashd
       dashd_indexes: true
       dashd_zmq: true
@@ -194,6 +189,19 @@
     - elastic_beats
   tags:
     - web
+
+- name: Set up wallets
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: dash_cli
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      enable_wallet: true
+      tags:
+        - dashd
+    - elastic_beats
 
 # Register masternodes and set sporks
 
@@ -240,29 +248,7 @@
     - role: generate_proposals
       when: governance_proposal_count > 0
 
-# Start platform
-
-- name: Set up platform on seed nodes
-  hosts: seed_nodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for masternodes
-      ansible.builtin.set_fact:
-        node: "{{ seed_nodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in seed_nodes
-    - name: Check inventory for seed nodes
-      ansible.builtin.fail:
-        msg: Seed node not defined in network config
-      when: node is not defined
-  roles:
-    - role: mn_evo_services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic_beats
-
-- name: Set up platform on HP masternodes
+- name: Set up core and platform on HP masternodes
   hosts: hp_masternodes
   become: true
   pre_tasks:
@@ -271,15 +257,9 @@
         node: "{{ hp_masternodes[inventory_hostname] }}"
       tags: always
       when: inventory_hostname in hp_masternodes
-    - name: Fail if no hp masternodes present
-      ansible.builtin.fail:
-        msg: HP masternode not defined in network config
-      when: node is not defined
   roles:
-    - role: mn_evo_services
-      tags:
-        - evo
-      when: evo_services
+    - role: dash_cli
+    - role: dashmate
     - role: elastic_beats
 
 - name: Set up fake latency on masternodes

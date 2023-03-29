@@ -11,6 +11,9 @@ roles:
   - src: geerlingguy.docker
     version: 6.1.0
 
+  - src: geerlingguy.nodejs
+    version: 6.1.0
+
   - src: kyl191.openvpn
     version: v0.9.1
 

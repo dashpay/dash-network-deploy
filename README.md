@@ -14,8 +14,7 @@ After deployment your DashCore instances will join those networks.
 
 `regtest` and `devnet-*` networks are for testing purposes.
 Devnets are like regular Dash networks (`mainnet` and `testnet`)
-but easier to bootstrap and with unique names. This supports having multiple in
-parallel.
+but easier to bootstrap and with unique names. This supports maintaining multiple in parallel.
 
 This is work in progress and in its initial state only meant to be used by
 Dash Core developers to assist in Dash Platform development.
@@ -44,16 +43,16 @@ Dash Core developers to assist in Dash Platform development.
 
 ### Networks definition
 
-You can use `generate` command in order to create configs for your network:
+You can use the `generate` command to generate configs for your network:
 
 ```bash
-dash-network generate <network_name> <masternode_amd_count> <masternode_arm_count>
+dash-network generate <network_name> <masternodes_amd_count> <masternodes_arm_count> <hp_masternodes_amd_count> <hp_masternodes_arm_count>
 ``` 
 
 Terraform configuration is defined in the `*.tfvars` files.
 See [variables.tf](https://github.com/dashpay/dash-network-deploy/blob/master/terraform/aws/variables.tf) for all available options.
 
-Ansible configuration are in the `*.yaml` file.
+Ansible configuration is stored in the `*.yml` file. The 
 [group_vars/all](https://github.com/dashpay/dash-network-deploy/blob/master/ansible/group_vars/all)
 file contains the majority of playbook options.
 The rest are defined in [ansible roles](https://github.com/dashpay/dash-network-deploy/tree/master/ansible/roles).
@@ -71,21 +70,28 @@ Please don't forget to include the following in your `.gitignore`:
 
 ## Deployment
 
-To deploy a Dash Network use the `deploy` command with a particular network name:
+To deploy a Dash Network, use the `deploy` command with a particular network name:
 
 ```bash
 dash-network deploy <network_name>
 ```
 
-You may pass the `--only-infrastructure` or `--only-provisioning` option to avoid to do a particular type of work.
+You may pass the `--only-infrastructure` or `--only-provisioning` option to target either infrastructure or software provisioning workflows.
 
-To destroy an available Dash Network use `destroy` command:
+To destroy an available Dash Network, use the `destroy` command:
 
 ```bash
-dash-network destroy <network_name>
+dash-network destroy -t=<target> <network_name>
 ```
 
-You may pass the `--keep-infrastructure` option to remove only the software and configuration while keeping the infrastructure.
+You can use the `-t` flag to choose which logical network components you want to destroy. It takes one of three values:
+* all (infrastructure with software)
+* network (L2+L1)
+* platform (L2 only)
+
+Destroying only the network with `-t=network` allows you to redeploy the network in almost the same state by passing the `-p` option to the `deploy` command to skip infrastructure provisioning.
+
+Destroying only the L2 platform components with `-t=platform` means you must comment out everything except roles which target masternodes and seed nodes in the `deploy.yml` playbook, and run the deployment again with the `-p` option.
 
 ## List network services
 
@@ -102,7 +108,7 @@ dash-network test <network_name>
 ```
 
 You may pass the `--type` option to run only particular tests (`smoke`, `e2e`).
-It is possible to specify several types using comma delimiter.
+It is possible to specify several types using a comma delimiter.
 
 ## Debugging
 
@@ -115,7 +121,7 @@ There are two commands that can be useful for debugging:
 
 ## Deploy Dash Platform
 
-In order to deploy platform services use ansible variable:
+In order to deploy platform services, use the ansible variable:
 
     ```yaml
     evo_services: true
@@ -141,11 +147,8 @@ You can use the OpenVPN config generated during deployment (`<network_name>.ovpn
 3. Ensure Python netaddr and jmespath package is installed locally
 
     ```bash
-    pip install -U netaddr jmespath
+    pip install -U netaddr jmespath ansible-lint
     ```
-
-    * Note: You may need to run the above command with "pip2" instead of "pip" if
-      your default Python installation is version 3 (e.g. OSX + Homebrew).
 
 4. Install pre-requisite Ansible roles
 

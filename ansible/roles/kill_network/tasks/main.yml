@@ -41,6 +41,12 @@
     state: unmounted
   when: inventory_hostname in groups['logs_nodes']
 
+- name: Delete dashmate files
+  ansible.builtin.import_role:
+    name: dashmate
+    tasks_from: delete_files
+  when: inventory_hostname in groups["hp_masternodes"]
+
 - name: Delete dash home dir
   ansible.builtin.file:
     state: absent
