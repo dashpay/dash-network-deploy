@@ -17,6 +17,10 @@ describe('DAPI', () => {
     before('Collect blockhash, status and data contract info and errors', function func() {
       this.timeout(120000); // set mocha timeout
 
+      if (variables.dashmate_platform_enable === false) {
+        this.skip('platform is disabled for this network');
+      }
+
       const promises = [];
       for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
         const timeout = 15000; // set individual dapi client timeout
@@ -64,7 +68,7 @@ describe('DAPI', () => {
         promises.push(requestBestBlockHash, requestStatus, requestDataContract);
       }
 
-      return Promise.all(promises).catch(console.error);
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
     for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
