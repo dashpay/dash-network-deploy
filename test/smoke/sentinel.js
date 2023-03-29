@@ -46,13 +46,12 @@ describe('Sentinel', () => {
           }))
           .then((result) => {
             getContainer[hostName] = result.toString();
-          })
-          .catch(console.error);
+          });
 
         promises.push(requestListContainers);
       }
 
-      return Promise.all(promises).catch(console.error);
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
     for (const hostName of allMasternodes) {

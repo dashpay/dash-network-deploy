@@ -193,7 +193,7 @@ describe('Quorums', () => {
 
       promises.push(requestGetBalance);
 
-      return Promise.all(promises).catch(console.error);
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
     before('Collect instantsend info', async () => {
@@ -231,7 +231,7 @@ describe('Quorums', () => {
         promises.push(promise);
       }
 
-      return Promise.all(promises).catch(console.error);
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
     for (const hostName of allHosts) {
