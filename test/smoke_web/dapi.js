@@ -15,7 +15,11 @@ describe('DAPI', () => {
     const dataContract = {};
     const dataContractError = {};
 
-    before('Collect block height info', async () => {
+    before('Collect block height info', async function collect() {
+      if (variables.dashmate_platform_enable === false) {
+        this.skip('platform is disabled for this network');
+      }
+
       const promises = [];
 
       for (const hostName of inventory.masternodes.hosts) {
