@@ -105,15 +105,10 @@
   become: true
   roles:
     - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - role: dashd
       tags:
         - dashd
     - elastic_beats
-
 
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
@@ -126,10 +121,6 @@
       when: inventory_hostname in seed_nodes
   roles:
     - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - role: dashd
       dashd_listen: true
       dashd_zmq: true
@@ -157,10 +148,6 @@
       when: masternode is not defined
   roles:
     - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - role: dashd
       dashd_listen: true
       dashd_zmq: true
@@ -194,10 +181,6 @@
   roles:
     - multifaucet
     - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - role: dashd
       dashd_indexes: true
       dashd_zmq: true
@@ -212,10 +195,6 @@
   become: true
   roles:
     - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - role: dashd
       dashd_indexes: true
       dashd_zmq: true

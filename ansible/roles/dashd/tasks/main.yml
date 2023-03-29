@@ -30,6 +30,17 @@
     group: root
     mode: "0644"
 
+- name: Configure users for dash-cli
+  ansible.builtin.include_role:
+    name: dash_cli
+    tasks_from: configure_users
+  vars:
+    dashd_user_dict:
+      user: '{{ dashd_user }}'
+      group: '{{ dashd_group }}'
+      dir: '{{ dashd_home }}'
+    users: '{{ system_users + [dashd_user_dict] }}'
+
 - name: Create dashcore docker-compose dir
   ansible.builtin.file:
     path: '{{ dashd_compose_path }}'

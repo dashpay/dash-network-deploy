@@ -65,7 +65,7 @@ multifaucet_image: dashpay/multifaucet:latest
 # DashCore Docker image
 dashd_image: dashpay/dashd
 
-users_to_manage:
+system_users:
 - user: "ubuntu"
   group: "ubuntu"
   dir: "/home/ubuntu"
