@@ -22,7 +22,7 @@ describe('DAPI', () => {
 
       const promises = [];
 
-      for (const hostName of inventory.masternodes.hosts) {
+      for (const hostName of inventory.hp_masternodes.hosts) {
         const timeout = 10000; // set individual dapi client timeout
 
         const dapiAddress = {
@@ -53,7 +53,7 @@ describe('DAPI', () => {
     before('Collect block hash and contract info', async () => {
       const promises = [];
 
-      for (const hostName of inventory.masternodes.hosts) {
+      for (const hostName of inventory.hp_masternodes.hosts) {
         const timeout = 10000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32)
           .fill(1);
@@ -93,7 +93,7 @@ describe('DAPI', () => {
       await Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of inventory.masternodes.hosts) {
+    for (const hostName of inventory.hp_masternodes.hosts) {
       describe(hostName, () => {
         it('should respond with Core data via gRPC Web', () => {
           if (blockByHeightError[hostName]) {
