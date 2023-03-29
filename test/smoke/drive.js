@@ -2,7 +2,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory, variables } = getNetworkConfig();
 
-const { getDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
 describe('Drive', () => {
   describe('HP masternodes', () => {
@@ -15,14 +15,7 @@ describe('Drive', () => {
       }
 
       const statusPromises = inventory.hp_masternodes.hosts.map(async (hostName) => {
-        let docker;
-        try {
-          docker = await getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
-        } catch (e) {
-          statusError[hostName] = e;
-
-          throw e;
-        }
+        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
         let containerId;
         try {

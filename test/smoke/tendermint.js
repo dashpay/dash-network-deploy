@@ -1,7 +1,7 @@
 const { client: jaysonClient } = require('jayson/promise');
 
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
-const { getDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
 const { variables, inventory, network } = getNetworkConfig();
 
@@ -87,7 +87,7 @@ describe('Tendermint', () => {
       }
 
       const dashmatePromises = dashmateHosts.map(async (hostName) => {
-        const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
+        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
         const containerId = await getContainerId(docker, 'dashmate_helper');
 
         try {

@@ -1,6 +1,6 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
-const { getDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
 const { inventory, network, variables } = getNetworkConfig();
 
@@ -95,7 +95,7 @@ describe('Quorums', () => {
       }
 
       for (const hostName of dashmateHosts) {
-        const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
+        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
 
         const promise = getContainerId(docker, 'core')
           .then((containerId) => {
@@ -155,7 +155,7 @@ describe('Quorums', () => {
           continue;
         }
 
-        const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
+        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
 
         const promise = execCommand(docker, containerIds[hostName],
           ['dash-cli', 'quorum', 'info',
@@ -213,7 +213,7 @@ describe('Quorums', () => {
       }
 
       for (const hostName of dashmateHosts) {
-        const docker = getDocker(inventory.meta.hostvars[hostName].public_ip);
+        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
 
         const promise = execCommand(docker, containerIds[hostName],
           ['dash-cli', 'getrawmempool', 'true'])

@@ -2,7 +2,7 @@ const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromCon
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory, network, variables } = getNetworkConfig();
-const { getDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
 const timeout = 15000; // set individual rpc client timeout
 
@@ -18,42 +18,68 @@ const allHosts = [
   ...(inventory.seed_nodes?.hosts ?? []),
 ];
 
+const ansibleHosts = [
+  ...(inventory.seed_nodes?.hosts ?? []),
+  ...(inventory.masternodes?.hosts ?? []),
+  ...(inventory.wallet_nodes?.hosts ?? []),
+  ...(inventory.miners?.hosts ?? []),
+];
+
+const dashmateHosts = [
+  ...(inventory.hp_masternodes?.hosts ?? []),
+];
+
 describe('Core', () => {
-  const coreContainerIds = {};
-
-  before('Collect masternodes container ids', async () => {
-    await Promise.all(inventory.hp_masternodes.hosts.map(async (hostName) => {
-      const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
-
-      coreContainerIds[hostName] = await getContainerId(docker, 'core');
-    }));
-  });
-
   describe('All nodes', () => {
     // Set up vars and functions to hold max height and mn responses
     const blockchainInfo = {};
     let maxBlockHeight = 0;
-
     const networkInfo = {};
+    const errors = {};
 
     before('Collect blockchain and network info', async function func() {
       this.timeout(60000); // set mocha timeout
 
-      await Promise.all(inventory.hp_masternodes.hosts.map(async (hostName) => {
-        const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
+      // Collect data for dashmate-based hosts
+      await Promise.all(dashmateHosts.map(async (hostName) => {
+        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
-        const blockchain = await execCommand(docker, coreContainerIds[hostName],
-          ['dash-cli', 'getblockchaininfo']);
+        let containerId;
+        try {
+          containerId = await getContainerId(docker, 'core');
+        } catch (e) {
+          errors[hostName] = e;
+
+          throw e;
+        }
+
+        let blockchain;
+        try {
+          blockchain = await execCommand(docker, containerId,
+            ['dash-cli', 'getblockchaininfo']);
+        } catch (e) {
+          errors[hostName] = e;
+
+          throw e;
+        }
 
         if (maxBlockHeight < blockchain.blocks) {
           maxBlockHeight = blockchain.blocks;
         }
 
         blockchainInfo[hostName] = blockchain;
-        networkInfo[hostName] = await execCommand(docker, coreContainerIds[hostName],
-          ['dash-cli', 'getnetworkinfo']);
+
+        try {
+          networkInfo[hostName] = await execCommand(docker, containerId,
+            ['dash-cli', 'getnetworkinfo']);
+        } catch (e) {
+          errors[hostName] = e;
+
+          throw e;
+        }
       }));
 
+      // Collect data for dashd role based hosts
       await Promise.all(ansibleHosts.map(async (hostName) => {
         const client = createRpcClientFromConfig(hostName);
 
@@ -77,6 +103,10 @@ describe('Core', () => {
       // eslint-disable-next-line no-loop-func
       describe(hostName, () => {
         it('should have correct network type', async () => {
+          if (errors[hostName]) {
+            expect.fail(errors[hostName]);
+          }
+
           if (!blockchainInfo[hostName]) {
             expect.fail(null, null, 'no blockchain info');
           }
@@ -110,18 +140,36 @@ describe('Core', () => {
 
   describe('Masternodes', () => {
     const masternodeListInfo = {};
+    const errors = {};
 
     before('Collect masternode list info', async function func() {
       this.timeout(30000); // set mocha timeout
 
       const promises = [];
 
-      await Promise.all(inventory.hp_masternodes.hosts.map(async (hostName) => {
-        const docker = getDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
+      // Collect info from dashmate-based hosts
+      await Promise.all(dashmateHosts.map(async (hostName) => {
+        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
 
-        masternodeListInfo[hostName] = await execCommand(docker, coreContainerIds[hostName], ['dash-cli', 'masternode', 'list']);
+        let containerId;
+        try {
+          containerId = await getContainerId(docker, 'core');
+        } catch (e) {
+          errors[hostName] = e;
+
+          throw e;
+        }
+
+        try {
+          masternodeListInfo[hostName] = await execCommand(docker, containerId, ['dash-cli', 'masternode', 'list']);
+        } catch (e) {
+          errors[hostName] = e;
+
+          throw e;
+        }
       })).catch(() => Promise.resolve()); // Do not fail the test if any of promises were rejected
 
+      // Collect info from dashd role based hosts
       for (const hostName of ansibleHosts) {
         const client = createRpcClientFromConfig(hostName);
 
@@ -135,12 +183,16 @@ describe('Core', () => {
         promises.push(requestMasternodeListInfoPromise);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      await Promise.all(promises).catch(() => Promise.resolve());
     });
 
     for (const hostName of allMasternodes) {
       describe(hostName, () => {
         it('should be in masternodes list with correct type', async () => {
+          if (errors[hostName]) {
+            expect.fail(errors[hostName]);
+          }
+
           if (!masternodeListInfo[hostName]) {
             expect.fail(null, null, 'no masternode list info');
           }
