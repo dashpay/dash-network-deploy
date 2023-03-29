@@ -35,7 +35,7 @@
 - name: Load core input config
   ansible.builtin.include_vars:
     file: core.yml
-#  when: dashmate_tenderdash_host_info.containers | length == 0
+  when: core_host_info.containers | length == 0
 
 #- name: Load platform input config
 #  ansible.builtin.include_vars:
