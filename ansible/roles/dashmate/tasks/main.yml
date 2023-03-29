@@ -170,6 +170,7 @@
     chdir: '{{ dashmate_source_dir }}'
   register: dashmate_status
   ignore_errors: true
+  changed_when: dashmate_status.rc == 0
 
 # Restart dashmate if already running
 - name: Restart dashmate services
