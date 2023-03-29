@@ -105,15 +105,10 @@
   become: true
   roles:
     - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - role: dashd
       tags:
         - dashd
     - elastic_beats
-
 
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
@@ -125,17 +120,13 @@
       tags: always
       when: inventory_hostname in seed_nodes
   roles:
+    - role: dash_cli
     - role: dashd
       dashd_listen: true
       dashd_zmq: true
       dashd_indexes: true
       tags:
         - dashd
-    - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - role: mn_evo_services
       tags:
         - evo
@@ -156,17 +147,13 @@
         msg: Masternode not defined in network config
       when: masternode is not defined
   roles:
+    - role: dash_cli
     - role: dashd
       dashd_listen: true
       dashd_zmq: true
       dashd_indexes: true
       tags:
         - dashd
-    - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - mn_sentinel
     - mn_status_report
     - elastic_beats
@@ -193,6 +180,7 @@
   become: true
   roles:
     - multifaucet
+    - role: dash_cli
     - role: dashd
       dashd_indexes: true
       dashd_zmq: true
@@ -206,17 +194,13 @@
   hosts: wallet_nodes
   become: true
   roles:
+    - role: dash_cli
     - role: dashd
       dashd_indexes: true
       dashd_zmq: true
       enable_wallet: true
       tags:
         - dashd
-    - role: dash_cli
-      users:
-        - user: "{{ dashd_user }}"
-          group: "{{ dashd_group }}"
-          dir: "{{ dashd_home }}"
     - elastic_beats
 
 # Register masternodes and set sporks
@@ -274,12 +258,8 @@
       tags: always
       when: inventory_hostname in hp_masternodes
   roles:
-    - role: dashmate
     - role: dash_cli
-      users:
-        - user: "{{ dashmate_user }}"
-          group: "{{ dashmate_group }}"
-          dir: "{{ dashmate_home }}"
+    - role: dashmate
     - role: elastic_beats
 
 - name: Set up fake latency on masternodes

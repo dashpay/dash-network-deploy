@@ -13,7 +13,7 @@
     create_home: true
     umask: '0002'
 
-- name: Adding dashmate to group docker
+- name: Add dashmate user to docker group
   ansible.builtin.user:
     name: 'dashmate'
     groups: docker
@@ -26,9 +26,28 @@
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     recurse: true
-    mode: 0750
+    mode: "0750"
   loop:
     - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+
+- name: Write dash.conf for dash-cli
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: /etc/dash.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure users for dash-cli
+  ansible.builtin.include_role:
+    name: dash_cli
+    tasks_from: configure_users
+  vars:
+    dashmate_user_dict:
+      user: '{{ dashmate_user }}'
+      group: '{{ dashmate_group }}'
+      dir: '{{ dashmate_home }}'
+    users: '{{ system_users + [dashmate_user_dict] }}'
 
 - name: Create logs dir
   ansible.builtin.file:
@@ -37,7 +56,7 @@
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     recurse: true
-    mode: 0755
+    mode: "0755"
 
 - name: Configure log rotation
   ansible.builtin.include_role:
@@ -97,7 +116,7 @@
     dest: '{{ dashmate_config_dir }}/config.json'
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
-    mode: 0644
+    mode: "0644"
 
 - name: Install some required dependencies for yarn build
   ansible.builtin.package:
@@ -120,7 +139,7 @@
   become_user: dashmate
   ansible.builtin.git:
     repo: 'https://github.com/dashpay/platform'
-    dest: {{ dashmate_source_dir }}
+    dest: '{{ dashmate_source_dir }}'
     version: '{{ platform_branch }}'
     single_branch: true
     depth: 1
@@ -130,16 +149,16 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
-    creates: {{ dashmate_source_dir }}/.yarn/unplugged
+    chdir: '{{ dashmate_source_dir }}'
+    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
 - name: Build source
   ansible.builtin.command: yarn build
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}/packages/js-dash-sdk
-    creates: {{ dashmate_source_dir }}/packages/js-dash-sdk/build
+    chdir: '{{ dashmate_source_dir }}/packages/js-dash-sdk'
+    creates: '{{ dashmate_source_dir }}/packages/js-dash-sdk/build'
 
 # Check if dashmate is running and set var
 
@@ -148,7 +167,7 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
+    chdir: '{{ dashmate_source_dir }}'
   register: dashmate_status
   ignore_errors: true
 
@@ -158,7 +177,7 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
+    chdir: '{{ dashmate_source_dir }}'
   register: dashmate_start
   when: dashmate_status.rc == 0
   # changed_when: "'Running services detected' not in dashmate_start.stderr"
@@ -169,7 +188,7 @@
   become: true
   become_user: dashmate
   args:
-    chdir: {{ dashmate_source_dir }}
+    chdir: '{{ dashmate_source_dir }}'
   register: dashmate_start
   when: dashmate_status.rc == 1
   # changed_when: "'Running services detected' not in dashmate_start.stderr"
