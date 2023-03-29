@@ -59,16 +59,18 @@
             "image": "{{ sentinel_image }}"
           }
         },
+        "devnet": {
+            "name": "{{ dash_devnet_name }}",
+            "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
+            "powTargetSpacing": {{ dashd_powtargetspacing }}
+        },
         "debug": {{ dashd_debug }},
         "logIps": 0,
         "indexes": true,
-        "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
-        "powTargetSpacing": {{ dashd_powtargetspacing }},
         "reindex": {
           "enable": false,
           "containerId": null
         },
-        "devnetName": "{{ dash_devnet_name }}"
       },
       "platform": {
         "enable": {% if dashmate_platform_enable %}true{% else %}false{% endif %},
