@@ -119,7 +119,7 @@ describe('Quorums', () => {
         promises.push(promise);
       }
 
-      return Promise.all(promises).catch(console.error);
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
     before('Collect quorum info', () => {
@@ -127,6 +127,7 @@ describe('Quorums', () => {
 
       for (const hostName of ansibleHosts) {
         if (quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
+          // eslint-disable-next-line no-continue
           continue;
         }
 
@@ -151,16 +152,22 @@ describe('Quorums', () => {
 
       for (const hostName of dashmateHosts) {
         if (quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
-          console.log('skip')
+          // eslint-disable-next-line no-continue
           continue;
         }
 
         const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
 
-        const promise = execCommand(docker, containerIds[hostName],
-          ['dash-cli', 'quorum', 'info',
+        const promise = execCommand(
+          docker,
+          containerIds[hostName],
+          [
+            'dash-cli',
+            'quorum',
+            'info',
             String(quorumCheckTypes[network.type].type),
-            quorumLists[hostName][quorumCheckTypes[network.type].name][0]])
+            quorumLists[hostName][quorumCheckTypes[network.type].name][0]
+          ])
           .then((result) => {
             firstQuorumInfo[hostName] = result;
           });
@@ -168,7 +175,7 @@ describe('Quorums', () => {
         promises.push(promise);
       }
 
-      return Promise.all(promises).catch(console.error);
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
     before('Send a transaction', () => {

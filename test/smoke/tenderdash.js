@@ -43,7 +43,7 @@ function requestTendermint(host, port, path) {
   });
 }
 
-describe.only('Tenderdash', () => {
+describe('Tenderdash', () => {
   const tenderdashStatuses = {};
   const errors = {};
 
