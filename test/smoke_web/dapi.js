@@ -90,7 +90,7 @@ describe('DAPI', () => {
         promises.push(requestBlockByHash, requestDataContract);
       }
 
-      await Promise.all(promises).catch(console.error);
+      await Promise.all(promises).catch(() => Promise.resolve());
     });
 
     for (const hostName of inventory.masternodes.hosts) {
