@@ -178,9 +178,9 @@
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
-  register: dashmate_start
+  register: dashmate_restart
   when: dashmate_status.rc == 0
-  # changed_when: "'Running services detected' not in dashmate_start.stderr"
+  changed_when: dashmate_restart.rc == 0
 
 # Start if not already running
 - name: Start dashmate services
@@ -191,4 +191,4 @@
     chdir: '{{ dashmate_source_dir }}'
   register: dashmate_start
   when: dashmate_status.rc == 1
-  # changed_when: "'Running services detected' not in dashmate_start.stderr"
+  changed_when: dashmate_start.rc == 0

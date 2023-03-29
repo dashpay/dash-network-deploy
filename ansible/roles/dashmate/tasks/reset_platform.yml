@@ -6,3 +6,5 @@
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
+  register: dashmate_reset
+  changed_when: dashmate_reset.rc == 0
