@@ -31,7 +31,7 @@
           "user": "{{ dashd_rpc_user }}",
           "password": "{{ dashd_rpc_password }}",
           "allowIps": [
-            "{{ {{ private_ip | ansible.utils.ipsubnet(16) }} }}",
+            "{{ private_ip | ansible.utils.ipsubnet(16) }}",
             "127.0.0.0",
             "172.16.0.0/12",
             "192.168.0.0/16",
