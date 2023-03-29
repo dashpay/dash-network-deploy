@@ -91,6 +91,8 @@ dashd_rpc_port: 20002
 
 dashd_zmq_port: 29998
 
+dashd_powtargetspacing: 150
+
 # Example spork address/privkey. Please provide your own spork key in network config:
 # dashd_sporkaddr:
 # dashd_sporkkey:
