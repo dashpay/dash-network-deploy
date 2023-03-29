@@ -258,12 +258,8 @@
       tags: always
       when: inventory_hostname in hp_masternodes
   roles:
-    - role: dashmate
     - role: dash_cli
-      users:
-        - user: "{{ dashmate_user }}"
-          group: "{{ dashmate_group }}"
-          dir: "{{ dashmate_home }}"
+    - role: dashmate
     - role: elastic_beats
 
 - name: Set up fake latency on masternodes
