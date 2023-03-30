@@ -160,6 +160,13 @@
     chdir: '{{ dashmate_source_dir }}/packages/js-dash-sdk'
     creates: '{{ dashmate_source_dir }}/packages/js-dash-sdk/build'
 
+- name: Build dashmate helper
+  ansible.builtin.command: docker build -t pshenmic/dashmate_helper -f ./packages/dashmate/Dockerfile .
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}/packages/js-dash-sdk'
+
 # Check if dashmate is running and set var
 
 - name: Check if dashmate is already running
