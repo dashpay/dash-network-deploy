@@ -1,62 +1,55 @@
-const net = require('net');
-
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
-const { inventory } = getNetworkConfig();
+const { inventory, variables } = getNetworkConfig();
 
-async function sendEcho(ip) {
-  const echoRequestBytes = Buffer.from('0a0a080a0668656c6c6f21', 'hex');
-
-  return new Promise((resolve, reject) => {
-    const client = net.connect(26658, ip);
-
-    client.on('connect', () => {
-      client.write(echoRequestBytes);
-    });
-
-    client.on('data', () => {
-      client.destroy();
-
-      resolve();
-    });
-
-    client.on('error', reject);
-
-    setTimeout(() => {
-      reject(new Error('Can\'t connect to ABCI port: timeout.'));
-    }, 2000);
-  });
-}
+const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
 
 describe('Drive', () => {
-  describe('All nodes', () => {
-    const echoInfo = {};
+  describe('HP masternodes', () => {
+    const statusInfo = {};
+    const statusError = {};
 
-    before('Collect echo info from Drive', () => {
-      const promises = [];
-
-      for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
-        // eslint-disable-next-line no-underscore-dangle
-        const requestEchoPromise = sendEcho(inventory._meta.hostvars[hostName].public_ip)
-          .then(() => {
-            echoInfo[hostName] = true;
-          })
-          .catch((e) => {
-            echoInfo[hostName] = e;
-          });
-
-        promises.push(requestEchoPromise);
+    before('Collect echo info from Drive', async function before() {
+      if (variables.dashmate_platform_enable === false) {
+        this.skip('platform is disabled for this network');
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      const statusPromises = inventory.hp_masternodes.hosts.map(async (hostName) => {
+        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
+
+        let containerId;
+        try {
+          containerId = await getContainerId(docker, 'dashmate_helper');
+        } catch (e) {
+          statusError[hostName] = e;
+
+          throw e;
+        }
+
+        try {
+          statusInfo[hostName] = await execCommand(docker, containerId,
+            ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
+        } catch (e) {
+          statusError[hostName] = e;
+
+          throw e;
+        }
+      });
+
+      return Promise.all(statusPromises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
+    for (const hostName of inventory.hp_masternodes.hosts) {
       describe(hostName, () => {
-        it('should listen for ABCI connection', () => {
-          if (echoInfo[hostName] !== true) {
-            expect.fail(echoInfo[hostName]);
+        it('drive status should be running and responding', () => {
+          if (statusError[hostName]) {
+            expect.fail(statusError[hostName]);
           }
+
+          const { drive } = statusInfo[hostName];
+
+          expect(drive.dockerStatus).to.be.equal('running');
+          expect(drive.serviceStatus).to.be.equal('up');
         });
       });
     }

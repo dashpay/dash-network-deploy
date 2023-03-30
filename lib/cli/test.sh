@@ -49,7 +49,6 @@ function test_run_mocha() {
     done
 
     # Run mocha tests
-
     node_modules/.bin/_mocha ${MOCHA_ARGUMENTS} ${test_types_string}
 }
 

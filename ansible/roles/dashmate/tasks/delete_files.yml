@@ -1,0 +1,11 @@
+---
+
+- name: Delete dashmate config dir
+  ansible.builtin.file:
+    state: absent
+    path: "{{ dashmate_config_dir }}/"
+
+- name: Delete dashmate logs dir
+  ansible.builtin.file:
+    state: absent
+    path: "{{ dashmate_logs_dir }}/"

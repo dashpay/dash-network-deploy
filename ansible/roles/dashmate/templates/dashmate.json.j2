@@ -1,0 +1,242 @@
+{
+  "configFormatVersion": "{{ dashmate_version }}",
+  "defaultConfigName": "{{ dash_network_name}}",
+  "defaultGroupName": null,
+  "configs": {
+    "{{ dash_network_name }}": {
+      "description": "node with {{ dash_network_name }} configuration",
+      "group": null,
+      "docker": {
+        "network": {
+          "subnet": "172.25.24.0/24"
+        }
+      },
+      "core": {
+        "docker": {
+          "image": "{{ dashd_image }}"
+        },
+        "p2p": {
+          "port": {{ dashd_port }},
+          "seeds": [
+          {% for seed in template_bootstrap_peers %}
+            {
+              "host": "{{ hostvars[seed].public_ip }}",
+              "port": {{ dashd_port }}
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ]
+        },
+        "rpc": {
+          "port": {{ dashd_rpc_port }},
+          "user": "{{ dashd_rpc_user }}",
+          "password": "{{ dashd_rpc_password }}",
+          "allowIps": [
+            "{{ private_ip | ansible.utils.ipsubnet(16) }}",
+            "127.0.0.0",
+            "172.16.0.0/12",
+            "192.168.0.0/16",
+            "{{ hostvars['vpn'].public_ip }}/32"
+          ]
+        },
+        "spork": {
+          "address": {% if dashd_sporkaddr is defined %}"{{ dashd_sporkaddr }}"{% else %}null{% endif %},
+          "privateKey": {% if dashd_sporkkey is defined %}"{{ dashd_sporkkey }}"{% else %}null{% endif %}
+        },
+        "masternode": {
+          "enable": {% if node is defined %}true{% else %}false{% endif %},
+          "operator": {
+            "privateKey": {% if node is defined%}"{{ node.operator.private_key }}"{% else %}null{% endif %}
+          }
+        },
+        "miner": {
+          "enable": false,
+          "interval": "2.5m",
+          "mediantime": null,
+          "address": null
+        },
+        "sentinel": {
+          "docker": {
+            "image": "{{ sentinel_image }}"
+          }
+        },
+        "devnet": {
+            "name": "{{ dash_devnet_name }}",
+            "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
+            "powTargetSpacing": {{ dashd_powtargetspacing }}
+        },
+        "debug": {{ dashd_debug }},
+        "logIps": 0,
+        "indexes": true,
+        "reindex": {
+          "enable": false,
+          "containerId": null
+        }
+      },
+      "platform": {
+        "enable": {% if dashmate_platform_enable %}true{% else %}false{% endif %},
+        "dapi": {
+          "envoy": {
+            "docker": {
+              "image": "{{ dapi_envoy_image }}"
+            },
+            "http": {
+              "port": {{ dapi_port }}
+            },
+            "rateLimiter": {
+              "maxTokens": 300,
+              "tokensPerFill": 150,
+              "fillInterval": "60s",
+              "enabled": true
+            },
+            "ssl": {
+              "enabled": true,
+              "provider": "selfSigned",
+              "providerConfigs": {
+                "zerossl": {
+                  "apiKey": null,
+                  "id": null
+                }
+              }
+            }
+          },
+          "api": {
+            "docker": {
+              "image": "{{ dapi_image }}"
+            }
+          }
+        },
+        "drive": {
+          "abci": {
+            "docker": {
+              "image": "{{ drive_image }}"
+            },
+            "log": {
+              "stdout": {
+                "level": "{{ drive_log_stdout_level }}"
+              },
+              "prettyFile": {
+                "level": "{{ drive_log_pretty_file_level }}",
+                "path": "{{ dashmate_logs_dir }}/drive-pretty.log"
+              },
+              "jsonFile": {
+                "level": "{{ drive_log_json_file_level }}",
+                "path": "{{ dashmate_logs_dir }}/drive-json.log"
+              }
+            },
+            "validatorSet": {
+              "llmqType": {{ platform_drive_validator_set_llmq_type }}
+            }
+          },
+          "tenderdash": {
+            "docker": {
+              "image": "{{ tendermint_image }}"
+            },
+            "p2p": {
+               "port": {{ tendermint_p2p_port }},
+               "persistentPeers": [],
+               "seeds": [
+               {% for seed in template_bootstrap_peers %}
+                 {
+                   "id": "{{ seed_nodes[seed].node_key.id }}",
+                   "host": "{{ hostvars[seed].public_ip }}",
+                   "port": {{ tendermint_p2p_port }}
+                 }{% if not loop.last %},{% endif %}
+                 {% endfor %}
+               ]
+            },
+            "rpc": {
+              "port": {{ tendermint_rpc_port }}
+            },
+            "consensus": {
+              "createEmptyBlocks": true,
+              "createEmptyBlocksInterval": "3m"
+            },
+            "log": {
+              "level": "{{ tenderdash_log_level }}",
+              "format": "json"
+            },
+            "moniker": "{{ inventory_hostname }}",
+            "node": {
+              "id": "{{ node.node_key.id }}",
+              "key": "{{ node.node_key.private_key }}"
+            },
+            "genesis": {
+              "genesis_time": "{{ genesis_time }}",
+              "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
+              "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
+              "consensus_params": {
+                "block": {
+                  "max_bytes": "22020096",
+                  "max_gas": "-1",
+                  "time_iota_ms": "5000"
+                },
+                "evidence": {
+                  "max_age": "100000",
+                  "max_age_num_blocks": "100000",
+                  "max_age_duration": "172800000000000"
+                },
+                "validator": {
+                  "pub_key_types": [
+                    "bls12381"
+                  ]
+                },
+                "version": {
+                  "app_version": "1"
+                }
+              },
+              "validator_quorum_type": {{ platform_drive_validator_set_llmq_type }}
+            }
+          }
+        },
+        "dpns": {
+          "contract": {
+            "id": "GWRSAVFMjXx8HpQFaNJMqBV7MBgMK4br5UESsB4S31Ec"
+          },
+          "ownerId": "4EfA9Jrvv3nnCFdSf7fad59851iiTRZ6Wcu6YVJ4iSeF",
+          "masterPublicKey": "{{ dpns_hd_master_public_key }}",
+          "secondPublicKey": "{{ dpns_hd_second_public_key }}"
+        },
+        "dashpay": {
+          "contract": {
+            "id": "Bwr4WHCPz5rFVAD87RqTs3izo4zpzwsEdKPWUT1NS1C7"
+          },
+          "masterPublicKey": "{{ dashpay_hd_master_public_key }}",
+          "secondPublicKey": "{{ dashpay_hd_second_public_key }}"
+        },
+        "featureFlags": {
+          "contract": {
+            "id": "HY1keaRK5bcDmujNCQq5pxNyvAiHHpoHQgLN5ppiu4kh"
+          },
+          "ownerId": "H9sjb2bHG8t7gq5SwNdqzMWG7KR6sf3CbziFzthCkDD6",
+          "masterPublicKey": "{{ feature_flags_hd_master_public_key }}",
+          "secondPublicKey": "{{ feature_flags_hd_second_public_key }}"
+        },
+        "sourcePath": null,
+        "masternodeRewardShares": {
+          "contract": {
+            "id": "rUnsWrFu3PKyRMGk2mxmZVBPbQuZx2qtHeFjURoQevX"
+          },
+          "masterPublicKey": "{{ mn_reward_shares_hd_master_public_key }}",
+          "secondPublicKey": "{{ mn_reward_shares_hd_second_public_key }}"
+        },
+        "withdrawals": {
+          "contract": {
+           "id": "4fJLR2GYTPFdomuTVvNy3VRrvWgvkKPzqehEBpNf2nk6"
+          },
+          "masterPublicKey": "{{ withdrawals_hd_master_public_key }}",
+          "secondPublicKey": "{{ withdrawals_hd_second_public_key }}"
+        }
+      },
+      "dashmate": {
+        "helper": {
+          "docker": {
+            "image": "dashpay/dashmate-helper:0.24-dev"
+          }
+        }
+      },
+      "externalIp": "{{ public_ip }}",
+      "network": "{{ dash_network }}",
+      "environment": "{{ node_environment }}"
+    }
+  }
+}

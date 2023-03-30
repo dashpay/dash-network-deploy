@@ -17,14 +17,24 @@ describe('DAPI', () => {
     before('Collect blockhash, status and data contract info and errors', function func() {
       this.timeout(120000); // set mocha timeout
 
+      if (variables.dashmate_platform_enable === false) {
+        this.skip('platform is disabled for this network');
+      }
+
       const promises = [];
       for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
         const timeout = 15000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32).fill(1);
 
+        const dapiAddress = {
+          protocol: 'https',
+          host: inventory.meta.hostvars[hostName].public_ip,
+          httpPort: variables.dapi_port,
+          allowSelfSignedCertificate: true,
+        };
+
         const dapiClient = new DAPIClient({
-          // eslint-disable-next-line no-underscore-dangle
-          dapiAddresses: [`${inventory._meta.hostvars[hostName].public_ip}:${variables.dapi_port}`],
+          dapiAddresses: [dapiAddress],
           timeout,
         });
 
