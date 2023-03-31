@@ -54,6 +54,10 @@ describe('DAPI', () => {
       const promises = [];
 
       for (const hostName of inventory.hp_masternodes.hosts) {
+        if (!blockByHeight[hostName]) {
+          continue;
+        }
+
         const timeout = 10000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32)
           .fill(1);
@@ -61,7 +65,7 @@ describe('DAPI', () => {
         const dapiAddress = {
           protocol: 'https',
           host: inventory.meta.hostvars[hostName].public_ip,
-          httpPort: variables.dapi_port,
+          port: variables.dapi_port,
           allowSelfSignedCertificate: true,
         };
 
