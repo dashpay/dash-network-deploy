@@ -351,15 +351,6 @@ resource "aws_eip_association" "amd_eip_assoc" {
 }
 
 
-output "hp_masternode_arm_eip" {
-  value = aws_eip.hpmn_arm_eip.*.public_ip
-}
-
-output "hp_masternode_amd_eip" {
-  value = aws_eip.hpmn_amd_eip.*.public_ip
-}
-
-
 resource "aws_instance" "vpn" {
   count = var.vpn_enabled ? 1 : 0
 
