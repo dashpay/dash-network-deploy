@@ -1,11 +1,20 @@
 resource "aws_eip" "hpmn_arm_eip" {
   instance = null
   count = var.hp_masternode_arm_count
+  
+  tags = {
+    Name        = "dn-masternode-arm-${count.index}"
+    DashNetwork = terraform.workspace
+  }
 }
 
 resource "aws_eip" "hpmn_amd_eip" {
   instance = null
   count = var.hp_masternode_amd_count
+  tags = {
+    Name        = "dn-masternode-amd-${count.index}"
+    DashNetwork = terraform.workspace
+  }
 }
 
 resource "aws_instance" "web" {
