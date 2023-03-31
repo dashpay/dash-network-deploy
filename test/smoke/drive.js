@@ -22,8 +22,6 @@ describe('Drive', () => {
           containerId = await getContainerId(docker, 'dashmate_helper');
         } catch (e) {
           statusError[hostName] = e;
-
-          throw e;
         }
 
         try {
@@ -31,8 +29,6 @@ describe('Drive', () => {
             ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
         } catch (e) {
           statusError[hostName] = e;
-
-          throw e;
         }
       });
 
