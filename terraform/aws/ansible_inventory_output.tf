@@ -91,7 +91,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.hp_masternode_amd.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.hp_masternode_amd.*.public_ip, n)
+        public_ip  = element(aws_eip.hpmn_amd_eip.*.public_ip, n)
         private_ip = element(aws_instance.hp_masternode_amd.*.private_ip, n)
       }
     )
@@ -103,7 +103,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.hp_masternode_arm.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.hp_masternode_arm.*.public_ip, n)
+        public_ip  = element(aws_eip.hpmn_arm_eip.*.public_ip, n)
         private_ip = element(aws_instance.hp_masternode_arm.*.private_ip, n)
       }
     )
