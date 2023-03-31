@@ -28,7 +28,7 @@ describe('DAPI', () => {
         const dapiAddress = {
           protocol: 'https',
           host: inventory.meta.hostvars[hostName].public_ip,
-          httpPort: variables.dapi_port,
+          port: variables.dapi_port,
           allowSelfSignedCertificate: true,
         };
 
