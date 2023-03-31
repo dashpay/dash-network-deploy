@@ -1,6 +1,6 @@
 ---
 
-- name: Hard reset platform (dashmate)
+- name: Reset platform (dashmate)
   ansible.builtin.import_role:
     name: dashmate
     tasks_from: reset_platform
