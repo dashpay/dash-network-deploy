@@ -260,6 +260,7 @@
   roles:
     - role: dash_cli
     - role: dashmate
+    - role: mn_status_report
     - role: elastic_beats
 
 - name: Set up fake latency on masternodes
