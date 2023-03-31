@@ -238,6 +238,25 @@ resource "aws_instance" "masternode_arm" {
 
 }
 
+resource "aws_eip" "hpmn_arm_eip" {
+  instance = null
+  count = var.hp_masternode_arm_count
+  
+  tags = {
+    Name        = "dn-${terraform.workspace}-hp-masternode-arm-${count.index+1}"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_eip" "hpmn_amd_eip" {
+  instance = null
+  count = var.hp_masternode_amd_count
+  tags = {
+    Name        = "dn-${terraform.workspace}-hp-masternode-amd-${count.index+1}"
+    DashNetwork = terraform.workspace
+  }
+}
+
 resource "aws_instance" "hp_masternode_amd" {
   count = var.hp_masternode_amd_count
 
@@ -315,6 +334,20 @@ resource "aws_instance" "hp_masternode_arm" {
     ignore_changes = [ami]
   }
 
+}
+
+resource "aws_eip_association" "arm_eip_assoc" {
+  count = var.hp_masternode_arm_count
+
+  instance_id   = aws_instance.hp_masternode_arm[count.index].id
+  allocation_id = aws_eip.hpmn_arm_eip[count.index].id
+}
+
+resource "aws_eip_association" "amd_eip_assoc" {
+  count = var.hp_masternode_amd_count
+
+  instance_id   = aws_instance.hp_masternode_amd[count.index].id
+  allocation_id = aws_eip.hpmn_amd_eip[count.index].id
 }
 
 
