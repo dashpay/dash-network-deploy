@@ -243,7 +243,7 @@ resource "aws_eip" "hpmn_arm_eip" {
   count = var.hp_masternode_arm_count
   
   tags = {
-    Name        = "dn-masternode-arm-${count.index}"
+    Name        = "dn-${terraform.workspace}-hp-masternode-arm-${count.index+1}"
     DashNetwork = terraform.workspace
   }
 }
@@ -252,7 +252,7 @@ resource "aws_eip" "hpmn_amd_eip" {
   instance = null
   count = var.hp_masternode_amd_count
   tags = {
-    Name        = "dn-masternode-amd-${count.index}"
+    Name        = "dn-${terraform.workspace}-hp-masternode-amd-${count.index+1}"
     DashNetwork = terraform.workspace
   }
 }
