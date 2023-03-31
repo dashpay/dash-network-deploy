@@ -201,7 +201,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.hp_masternode_amd.*.public_ip, n),
+          element(aws_eip.hpmn_amd_eip.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
@@ -218,7 +218,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.hp_masternode_amd.*.public_ip, n),
+          element(aws_eip.hpmn_amd_eip.*.public_ip, n),
         )
         service_logs = chomp(
           join(
@@ -258,7 +258,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.hp_masternode_arm.*.public_ip, n),
+          element(aws_eip.hpmn_arm_eip.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
@@ -275,7 +275,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.hp_masternode_arm.*.public_ip, n),
+          element(aws_eip.hpmn_arm_eip.*.public_ip, n),
         )
         service_logs = chomp(
           join(
