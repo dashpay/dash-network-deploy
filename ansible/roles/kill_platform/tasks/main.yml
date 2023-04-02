@@ -1,5 +1,22 @@
 ---
 
+#-----
+# temporary solution to avoid permission errors after running smoke tests
+# to be removed after dashmate json rpc
+- name: Fix permissions before execute dashmate command
+  file:
+    path: {{ dashmate_config_dir }}
+    recursive: true
+    owner: "{{ dashmate_user }}"
+    group: "{{ dashmate_group }}"
+
+- name: Fix permissions before execute dashmate command
+  file:
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+    owner: "101"
+    group: "101"
+#-----
+
 - name: Reset platform (dashmate)
   ansible.builtin.import_role:
     name: dashmate
