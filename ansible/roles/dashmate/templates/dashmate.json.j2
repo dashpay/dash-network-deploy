@@ -60,7 +60,7 @@
           }
         },
         "devnet": {
-            "name": "{{ dash_devnet_name }}",
+            "name": {% if dash_devnet_name is defined %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
             "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
             "powTargetSpacing": {{ dashd_powtargetspacing }}
         },
