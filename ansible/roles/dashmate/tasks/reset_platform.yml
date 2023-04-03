@@ -7,6 +7,7 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
   register: dashmate_stop
+  changed_when: dashmate_stop.rc == 0
 
 - name: Reset platform
   ansible.builtin.command: yarn dashmate reset --platform-only --force
