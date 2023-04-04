@@ -58,7 +58,7 @@ variable "tendermint_p2p_port" {
 
 variable "tendermint_rpc_port" {
   description = "Tendermint RPC port"
-  default     = 36657
+  default     = 26657
 }
 
 variable "tendermint_abci_port" {
