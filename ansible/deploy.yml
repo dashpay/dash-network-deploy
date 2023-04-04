@@ -108,7 +108,9 @@
     - role: dashd
       tags:
         - dashd
-#    - elastic_beats
+    - role: elastic_beats
+      when:
+        - inventory_hostname not in hp_masternodes
 
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
@@ -131,7 +133,9 @@
       tags:
         - evo
       when: evo_services
-#    - elastic_beats
+    - role: elastic_beats
+      when:
+        - inventory_hostname not in hp_masternodes
 
 - name: Set up core on masternodes
   hosts: masternodes
@@ -156,7 +160,9 @@
         - dashd
     - mn_sentinel
     - mn_status_report
-#    - elastic_beats
+    - role: elastic_beats
+      when:
+        - inventory_hostname not in hp_masternodes
 
 
 # Start network
@@ -186,7 +192,10 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
-#    - elastic_beats
+    - role: elastic_beats
+      when:
+        - inventory_hostname not in hp_masternodes
+
   tags:
     - web
 
@@ -201,7 +210,10 @@
       enable_wallet: true
       tags:
         - dashd
-#    - elastic_beats
+    - role: elastic_beats
+      when:
+        - inventory_hostname not in hp_masternodes
+
 
 # Register masternodes and set sporks
 
@@ -261,7 +273,9 @@
     - role: dash_cli
     - role: dashmate
     - role: mn_status_report
-#    - role: elastic_beats
+    - role: elastic_beats
+      when:
+        - inventory_hostname not in hp_masternodes
 
 - name: Set up fake latency on masternodes
   hosts: masternodes
