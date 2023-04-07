@@ -210,24 +210,6 @@
   ignore_errors: true
   changed_when: dashmate_status.rc == 0
 
-# TODO: Update smoke tests with HTTP API and remove it
-# -----
-#  temporary solution to avoid permission errors after running smoke tests
-#  to be removed after dashmate json rpc
-- name: Fix permissions before execute dashmate command
-  ansible.builtin.file:
-    path: "{ dashmate_config_dir }}"
-    recurse: true
-    owner: "{{ dashmate_user }}"
-    group: "{{ dashmate_group }}"
-
-- name: Fix permissions before execute dashmate command
-  ansible.builtin.file:
-    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
-    owner: "101"
-    group: "101"
-# -----
-
 # Restart dashmate if already running
 - name: Restart dashmate services
   ansible.builtin.command: yarn dashmate restart

@@ -26,7 +26,15 @@ describe('Drive', () => {
 
         try {
           statusInfo[hostName] = await execCommand(docker, containerId,
-            ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
+            ['curl',
+              '--silent',
+              '-X',
+              'POST',
+              '-H',
+              'Content-Type: application/json',
+              '-d',
+              '{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}',
+              'localhost:9000']);
         } catch (e) {
           statusError[hostName] = e;
         }
