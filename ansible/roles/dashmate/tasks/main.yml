@@ -129,7 +129,7 @@
     state: present
 
 - name: Install Rust
-  ansible.builtin.shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  ansible.builtin.shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   become: true
   become_user: root
   args:
