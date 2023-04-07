@@ -92,6 +92,7 @@
     owner: 101
     group: 101
 
+# TODO: Certifiates are generating every deploy
   # common name is required when loading into envoy
 - name: Generate an OpenSSL Certificate Signing Request
   community.crypto.openssl_csr:
@@ -178,6 +179,7 @@
     chdir: '{{ dashmate_source_dir }}'
     creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
+# Build sources to call dashmate
 - name: Build sources
   ansible.builtin.shell: |
     . "$HOME/.cargo/env"
@@ -190,36 +192,18 @@
     executable: /bin/bash
   when: git.changed
 
-# TODO: It must build it with platform.sourcePath
-- name: Build dashmate helper
-  ansible.builtin.command: docker build -t dashmate_local -f ./packages/dashmate/Dockerfile .
-  become: true
-  become_user: dashmate
-  register: build_dashmate_helper
-  args:
-    chdir: '{{ dashmate_source_dir }}'
-  changed_when: build_dashmate_helper.rc == 0
-
-- name: Check if dashmate is already running
-  ansible.builtin.command: yarn dashmate status --format=json
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_source_dir }}'
-  register: dashmate_status
-  ignore_errors: true
-  changed_when: dashmate_status.rc == 0
-
+# TODO: status command should work always even if node is not running and we need
+#   to get the status from the response
 # Restart dashmate if already running
 - name: Restart dashmate services
-  ansible.builtin.command: yarn dashmate restart
+  ansible.builtin.command: yarn dashmate restart --verbose
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
   register: dashmate_restart
-  when: dashmate_status.rc == 0
   changed_when: dashmate_restart.rc == 0
+  ignore_errors: true
 
 # Start if not already running
 - name: Start dashmate services
@@ -229,5 +213,5 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
   register: dashmate_start
-  when: dashmate_status.rc == 1
+  when: "dashmate_restart.rc != 0"
   changed_when: dashmate_start.rc == 0
