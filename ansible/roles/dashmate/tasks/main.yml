@@ -11,6 +11,7 @@
     group: '{{ dashmate_group }}'
     home: '{{ dashmate_home }}'
     create_home: true
+    shell: /bin/bash
     umask: '0002'
 
 - name: Add dashmate user to docker group
@@ -124,24 +125,30 @@
       - cmake
       - libzmq3-dev
       - clang
-      - gcc
+      - build-essential
       - libc-dev
+      - libssl-dev
+      - pkg-config
     state: present
 
 - name: Install Rust
   ansible.builtin.shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   become: true
-  become_user: root
+  become_user: dashmate
   args:
-    creates: /root/.rustup
+    creates: /home/dashmate/.rustup
 
+# TODO: it should work without sourcing cargo env
 - name: Install Rust dependencies
   ansible.builtin.shell: |
+    . "$HOME/.cargo/env"
     rustup toolchain install stable
     rustup target add wasm32-unknown-unknown --toolchain stable
     cargo install -f wasm-bindgen-cli
   become: true
-  become_user: root
+  become_user: dashmate
+  args:
+    executable: /bin/bash
 
 - name: Enable corepack
   ansible.builtin.shell: |
@@ -161,6 +168,7 @@
     version: '{{ platform_branch }}'
     single_branch: true
     depth: 1
+  register: git
 
 - name: Install Yarn dependencies
   ansible.builtin.command: yarn
@@ -170,14 +178,19 @@
     chdir: '{{ dashmate_source_dir }}'
     creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
-#- name: Build source
-#  ansible.builtin.command: yarn build
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_source_dir }}/packages/js-dash-sdk'
-#    creates: '{{ dashmate_source_dir }}/packages/js-dash-sdk/build'
+- name: Build sources
+  ansible.builtin.shell: |
+    . "$HOME/.cargo/env"
+    yarn workspace @dashevo/wasm-dpp build
+    yarn workspace dash build
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+    executable: /bin/bash
+  when: git.changed
 
+# TODO: It must build it with platform.sourcePath
 - name: Build dashmate helper
   ansible.builtin.command: docker build -t dashmate_local -f ./packages/dashmate/Dockerfile .
   become: true
@@ -186,8 +199,6 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
   changed_when: build_dashmate_helper.rc == 0
-
-# Check if dashmate is running and set var
 
 - name: Check if dashmate is already running
   ansible.builtin.command: yarn dashmate status --format=json
@@ -200,8 +211,9 @@
   changed_when: dashmate_status.rc == 0
 
 # TODO: Update smoke tests with HTTP API and remove it
-# temporary solution to avoid permission errors after running smoke tests
-# to be removed after dashmate json rpc
+# -----
+#  temporary solution to avoid permission errors after running smoke tests
+#  to be removed after dashmate json rpc
 - name: Fix permissions before execute dashmate command
   ansible.builtin.file:
     path: "{ dashmate_config_dir }}"
@@ -229,7 +241,7 @@
 
 # Start if not already running
 - name: Start dashmate services
-  ansible.builtin.command: yarn dashmate start
+  ansible.builtin.command: yarn dashmate start --verbose
   become: true
   become_user: dashmate
   args:
