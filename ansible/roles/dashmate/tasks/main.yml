@@ -118,12 +118,30 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
 
-- name: Install some required dependencies for yarn build
+- name: Install system dependencies
   ansible.builtin.package:
     name:
       - cmake
       - libzmq3-dev
+      - clang
+      - gcc
+      - libc-dev
     state: present
+
+- name: Install Rust
+  ansible.builtin.shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  become: true
+  become_user: root
+  args:
+    creates: /root/.rustup
+
+- name: Install Rust dependencies
+  ansible.builtin.shell: |
+    rustup toolchain install stable
+    rustup target add wasm32-unknown-unknown --toolchain stable
+    cargo install -f wasm-bindgen-cli
+  become: true
+  become_user: root
 
 - name: Enable corepack
   ansible.builtin.shell: |
