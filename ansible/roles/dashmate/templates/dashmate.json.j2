@@ -211,7 +211,7 @@
           "masterPublicKey": "{{ feature_flags_hd_master_public_key }}",
           "secondPublicKey": "{{ feature_flags_hd_second_public_key }}"
         },
-        "sourcePath": null,
+        "sourcePath": {% if platform_branch %}"{{ dashmate_source_dir }}"{% else %}null{% endif %},
         "masternodeRewardShares": {
           "contract": {
             "id": "rUnsWrFu3PKyRMGk2mxmZVBPbQuZx2qtHeFjURoQevX"
