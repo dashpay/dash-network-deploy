@@ -36,8 +36,16 @@ describe('Tenderdash', () => {
         }
 
         try {
-          const result = await execCommand(docker, containerId,
-            ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
+          statusInfo[hostName] = await execCommand(docker, containerId,
+            ['curl',
+              '--silent',
+              '-X',
+              'POST',
+              '-H',
+              'Content-Type: application/json',
+              '-d',
+              '{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}',
+              'localhost:9000']);
 
           tenderdashStatuses[hostName] = result.tenderdash;
         } catch (e) {
