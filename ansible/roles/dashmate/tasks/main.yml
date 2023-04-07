@@ -152,13 +152,13 @@
     chdir: '{{ dashmate_source_dir }}'
     creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
-- name: Build source
-  ansible.builtin.command: yarn build
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_source_dir }}/packages/js-dash-sdk'
-    creates: '{{ dashmate_source_dir }}/packages/js-dash-sdk/build'
+#- name: Build source
+#  ansible.builtin.command: yarn build
+#  become: true
+#  become_user: dashmate
+#  args:
+#    chdir: '{{ dashmate_source_dir }}/packages/js-dash-sdk'
+#    creates: '{{ dashmate_source_dir }}/packages/js-dash-sdk/build'
 
 - name: Build dashmate helper
   ansible.builtin.command: docker build -t dashmate_local -f ./packages/dashmate/Dockerfile .
@@ -181,7 +181,7 @@
   ignore_errors: true
   changed_when: dashmate_status.rc == 0
 
-# -----
+# TODO: Update smoke tests with HTTP API and remove it
 # temporary solution to avoid permission errors after running smoke tests
 # to be removed after dashmate json rpc
 - name: Fix permissions before execute dashmate command
