@@ -36,7 +36,7 @@ describe('Tenderdash', () => {
         }
 
         try {
-          statusInfo[hostName] = await execCommand(docker, containerId,
+          const {result} = await execCommand(docker, containerId,
             ['curl',
               '--silent',
               '-X',
@@ -44,7 +44,7 @@ describe('Tenderdash', () => {
               '-H',
               'Content-Type: application/json',
               '-d',
-              '{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}',
+              '\'{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}\'',
               'localhost:9000']);
 
           tenderdashStatuses[hostName] = result.tenderdash;
