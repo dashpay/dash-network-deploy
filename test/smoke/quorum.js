@@ -166,11 +166,11 @@ describe('Quorums', () => {
             'quorum',
             'info',
             String(quorumCheckTypes[network.type].type),
-            quorumLists[hostName][quorumCheckTypes[network.type].name][0]
-          ])
-          .then((result) => {
-            firstQuorumInfo[hostName] = result;
-          });
+            quorumLists[hostName][quorumCheckTypes[network.type].name][0],
+          ],
+        ).then((result) => {
+          firstQuorumInfo[hostName] = result;
+        });
 
         promises.push(promise);
       }
@@ -178,22 +178,14 @@ describe('Quorums', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    before('Send a transaction', () => {
-      const promises = [];
+    before('Send a transaction', async () => {
       const timeout = 15000; // set individual rpc client timeout
 
       const client = createRpcClientFromConfig(inventory.wallet_nodes.hosts[0]);
 
       client.setTimeout(timeout);
 
-      const requestGetBalance = client.sendToAddress(variables.faucet_address, 0.1, { wallet: 'dashd-wallet-1-faucet' })
-        .then(({ result }) => {
-          instantsendTestTxid = result;
-        });
-
-      promises.push(requestGetBalance);
-
-      return Promise.all(promises).catch(() => Promise.resolve());
+      ({ result: instantsendTestTxid } = await client.sendToAddress(variables.faucet_address, 0.1, { wallet: 'dashd-wallet-1-faucet' }));
     });
 
     before('Collect instantsend info', async () => {
@@ -251,6 +243,7 @@ describe('Quorums', () => {
         });
 
         it('should see an instantsend lock', () => {
+          expect(rawMemPool[hostName]).to.have.property(instantsendTestTxid);
           expect(rawMemPool[hostName][instantsendTestTxid].instantlock).to.equal('true');
         });
       });

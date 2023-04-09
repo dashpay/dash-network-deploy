@@ -36,16 +36,23 @@ describe('Tenderdash', () => {
         }
 
         try {
-          const {result} = await execCommand(docker, containerId,
-            ['curl',
+          const { result, error } = await execCommand(docker, containerId,
+            [
+              'curl',
               '--silent',
               '-X',
               'POST',
               '-H',
               'Content-Type: application/json',
               '-d',
-              '\'{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}\'',
-              'localhost:9000']);
+              '{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}',
+              'localhost:9000',
+            ]);
+
+          if (error) {
+            // noinspection ExceptionCaughtLocallyJS
+            throw new Error(error.message);
+          }
 
           tenderdashStatuses[hostName] = result.tenderdash;
         } catch (e) {
