@@ -218,7 +218,7 @@
     chdir: '{{ dashmate_source_dir }}'
   changed_when: dashmate_update.rc == 0
 
-- name: Change dashmate image to avoid 'pull access denied for dashmate_local'
+- name: Change dashmate image back to "dashmate_local"
   ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image dashmate_local
   become: true
   become_user: dashmate
