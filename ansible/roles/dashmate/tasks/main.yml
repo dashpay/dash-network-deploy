@@ -202,6 +202,13 @@
     chdir: '{{ dashmate_source_dir }}'
   changed_when: build_dashmate_helper.rc == 0
 
+- name: Change dashmate image to avoid 'pull access denied for dashmate_local'
+  ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+
 - name: Update dashmate images
   ansible.builtin.command: yarn dashmate update --verbose
   become: true
@@ -210,6 +217,13 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
   changed_when: dashmate_update.rc == 0
+
+- name: Change dashmate image to avoid 'pull access denied for dashmate_local'
+  ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image dashmate_local
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
 
 # TODO: status command should work always even if node is not running and we need
 #   to get the status from the response
