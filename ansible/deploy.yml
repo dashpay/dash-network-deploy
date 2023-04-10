@@ -109,6 +109,7 @@
       tags:
         - dashd
     - role: elastic_beats
+      core_container_name: dashd
 
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
@@ -132,6 +133,8 @@
         - evo
       when: evo_services
     - role: elastic_beats
+      core_container_name: dashd
+      abci_logs_path: "{{ mn_evo_services_path }}/logs"
 
 - name: Set up core on masternodes
   hosts: masternodes
@@ -157,6 +160,7 @@
     - mn_sentinel
     - mn_status_report
     - role: elastic_beats
+      core_container_name: dashd
 
 
 # Start network
@@ -187,6 +191,7 @@
       dashd_listen: true
     - insight
     - role: elastic_beats
+      core_container_name: dashd
   tags:
     - web
 
@@ -202,6 +207,7 @@
       tags:
         - dashd
     - role: elastic_beats
+      core_container_name: dashd
 
 # Register masternodes and set sporks
 
@@ -262,7 +268,9 @@
     - role: dash_cli
     - role: dashmate
     - role: mn_status_report
-#    - role: elastic_beats
+    - role: elastic_beats
+      core_container_name: core
+      abci_logs_path: "/var/log/dashmate"
 
 - name: Set up fake latency on masternodes
   hosts: masternodes

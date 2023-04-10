@@ -4,14 +4,14 @@
   community.docker.docker_host_info:
     containers: true
     containers_filters:
-      name: dashd
+      name: '{{ core_container_name }}'
   register: core_host_info
 
 - name: Get tenderdash container id
   community.docker.docker_host_info:
     containers: true
     containers_filters:
-      name: mn_evo_services_tendermint
+      name: tender
   register: tenderdash_host_info
 
 - name: Load common filebeat config
