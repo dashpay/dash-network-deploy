@@ -241,7 +241,7 @@
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
 
-# todo enable back later
+# todo: partially working code causes errors in deploy, comment out for now and fix later
 # - name: Create governance proposals
 #  hosts: wallet_nodes
 #  become: true
