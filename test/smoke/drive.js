@@ -46,7 +46,9 @@ describe('Drive', () => {
             throw new Error(error.message);
           }
 
-          statusInfo[hostName] = result;
+          const status = JSON.parse(result)
+
+          statusInfo[hostName] = status;
         } catch (e) {
           statusError[hostName] = e;
         }

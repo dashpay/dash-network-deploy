@@ -54,7 +54,9 @@ describe('Tenderdash', () => {
             throw new Error(error.message);
           }
 
-          tenderdashStatuses[hostName] = result.tenderdash;
+          const status = JSON.parse(result)
+
+          tenderdashStatuses[hostName] = status.tenderdash;
         } catch (e) {
           errors[hostName] = e;
         }
