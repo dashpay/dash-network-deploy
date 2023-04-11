@@ -4,6 +4,9 @@ collections:
   - name: ansible.utils
     version: 2.9.0
 
+  - community.docker
+    version: 3.4.3
+
 roles:
   - src: geerlingguy.pip
     version: 2.2.0
