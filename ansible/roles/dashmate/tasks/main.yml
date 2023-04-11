@@ -30,7 +30,7 @@
     mode: "0750"
   loop:
     - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
-    - '{{ dashmate_config_dir }}/{{ dash_network_name }}'
+    - '{{ dashmate_config_dir }}'
 
 - name: Write dash.conf for dash-cli
   ansible.builtin.template:
