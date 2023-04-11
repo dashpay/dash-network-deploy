@@ -80,6 +80,7 @@
     state: directory
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
+    mode: '0755'
   loop:
     - '{{ dashmate_config_dir }}'
 
@@ -167,12 +168,20 @@
     chdir: '{{ dashmate_source_dir }}'
     creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
+- name: Download Rustup
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: '{{ dashmate_home }}/rustup.sh'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  register: rustup
+
 - name: Install Rust
-  ansible.builtin.shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  ansible.builtin.shell: '{{ dashmate_home }}/rustup.sh -y'
   become: true
   become_user: dashmate
-  args:
-    creates: /home/dashmate/.rustup
+  when: rustup.changed  # noqa: no-handler
 
 # TODO: it should work without sourcing cargo env
 - name: Install Rust dependencies
