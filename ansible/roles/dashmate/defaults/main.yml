@@ -8,6 +8,5 @@ dashmate_logs_dir: /var/log/dashmate
 dashmate_source_dir: '{{ dashmate_home }}/platform'
 dashmate_user: "dashmate"
 dashmate_group: "dashmate"
-dashmate_uid: "700"
-dashmate_gid: "1700"
+dashmate_api_port: 9000
 dashmate_platform_enable: true

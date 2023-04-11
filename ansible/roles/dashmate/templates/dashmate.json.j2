@@ -230,7 +230,11 @@
       "dashmate": {
         "helper": {
           "docker": {
-            "image": "dashpay/dashmate-helper:0.24-dev"
+            "image": "dashmate_local"
+          },
+          "api": {
+            "enable": true,
+            "port": "{{ dashmate_api_port }}"
           }
         }
       },

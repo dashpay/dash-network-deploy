@@ -11,6 +11,7 @@
     group: '{{ dashmate_group }}'
     home: '{{ dashmate_home }}'
     create_home: true
+    shell: /bin/bash
     umask: '0002'
 
 - name: Add dashmate user to docker group
@@ -18,17 +19,6 @@
     name: 'dashmate'
     groups: docker
     append: true
-
-- name: Create all necessary config dirs
-  ansible.builtin.file:
-    path: '{{ item }}'
-    state: directory
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-    recurse: true
-    mode: "0750"
-  loop:
-    - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
 
 - name: Write dash.conf for dash-cli
   ansible.builtin.template:
@@ -84,19 +74,39 @@
     insertafter: '^OnCalendar=daily'
     line: OnCalendar=hourly
 
+- name: Create dashmate's config dir
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  loop:
+    - '{{ dashmate_config_dir }}'
+
+- name: Create dashmate's ssl directory
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0750"
+  loop:
+    - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+
 - name: Generate an OpenSSL private key
   community.crypto.openssl_privatekey:
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
-    # dapi-envoy docker user
-    owner: 101
-    group: 101
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
 
-  # common name is required when loading into envoy
 - name: Generate an OpenSSL Certificate Signing Request
   community.crypto.openssl_csr:
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
     privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
     common_name: '{{ inventory_hostname }}'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
 
 - name: Generate a Self Signed OpenSSL certificate
   community.crypto.x509_certificate:
@@ -104,11 +114,10 @@
     csr_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
     privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
     provider: selfsigned
-    # dapi-envoy docker user
-    owner: 101
-    group: 101
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
 
-- name: Write config.json file in ~/.dashmate
+- name: Write dashmate's config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
   ansible.builtin.template:
@@ -118,21 +127,75 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
 
-- name: Install some required dependencies for yarn build
+- name: Install system dependencies
   ansible.builtin.package:
     name:
       - cmake
       - libzmq3-dev
+      - clang
+      - build-essential
+      - libc-dev
+      - libssl-dev
+      - pkg-config
+      - docker-compose-plugin
     state: present
+
+- name: Setup Node.JS and NPM
+  ansible.builtin.include_role:
+    name: geerlingguy.nodejs
+  vars:
+    nodejs_version: "16.x"
+    nodejs_install_npm_user: "dashmate"
+# todo use that after v24-dev release
+#    nodejs_npm_global_packages:
+#      - name: 'dashmate@{{ dashmate_version }}'
 
 - name: Enable corepack
   ansible.builtin.shell: |
     corepack enable
-    touch /root/.corepack
+    yarn --version
   become: true
-  become_user: root
+  become_user: dashmate
   args:
-    creates: /root/.corepack
+    creates: '{{ dashmate_home }}/.cache/node/corepack'
+    chdir: '{{ dashmate_source_dir }}'
+
+- name: Install Yarn dependencies
+  ansible.builtin.command: yarn
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
+
+- name: Download Rustup
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: '{{ dashmate_home }}/rustup.sh'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  register: rustup
+
+- name: Install Rust
+  ansible.builtin.command: '{{ dashmate_home }}/rustup.sh -y'
+  become: true
+  become_user: dashmate
+  when: rustup.changed  # noqa: no-handler
+  changed_when: true
+
+# TODO: it should work without sourcing cargo env
+- name: Install Rust dependencies
+  ansible.builtin.shell: |
+    . "$HOME/.cargo/env"
+    rustup toolchain install stable
+    rustup target add wasm32-unknown-unknown --toolchain stable
+    cargo install wasm-bindgen-cli
+  become: true
+  become_user: dashmate
+  args:
+    executable: /bin/bash
+  changed_when: true
 
 - name: Clone dashmate source
   become: true
@@ -143,53 +206,77 @@
     version: '{{ platform_branch }}'
     single_branch: true
     depth: 1
+  register: git
 
-- name: Install Yarn dependencies
-  ansible.builtin.command: yarn
+# Build sources to call dashmate
+- name: Build sources
+  ansible.builtin.shell: |
+    . "$HOME/.cargo/env"
+    yarn workspace @dashevo/wasm-dpp build
+    yarn workspace dash build
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
-    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
+    executable: /bin/bash
+  when: git.changed # noqa: no-handler
+  changed_when: true
 
-- name: Build source
-  ansible.builtin.command: yarn build
+# TODO: We should keep it only in case if we want to build dashmate from the branch
+- name: Build dashmate helper
+  ansible.builtin.command: docker build -t dashmate_local -f ./packages/dashmate/Dockerfile .
   become: true
   become_user: dashmate
+  register: build_dashmate_helper
   args:
-    chdir: '{{ dashmate_source_dir }}/packages/js-dash-sdk'
-    creates: '{{ dashmate_source_dir }}/packages/js-dash-sdk/build'
+    chdir: '{{ dashmate_source_dir }}'
+  changed_when: build_dashmate_helper.rc == 0
 
-# Check if dashmate is running and set var
-
-- name: Check if dashmate is already running
-  ansible.builtin.command: yarn dashmate status --format=json
+- name: Change dashmate image to avoid 'pull access denied for dashmate_local'
+  ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
-  register: dashmate_status
-  ignore_errors: true
-  changed_when: dashmate_status.rc == 0
+  changed_when: true
 
+- name: Update dashmate images
+  ansible.builtin.command: yarn dashmate update --verbose
+  become: true
+  become_user: dashmate
+  register: dashmate_update
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+  changed_when: dashmate_update.rc == 0
+
+- name: Change dashmate image back to "dashmate_local"
+  ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image dashmate_local
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+  changed_when: true
+
+# TODO: status command should work always even if node is not running and we need
+#   to get the status from the response
 # Restart dashmate if already running
 - name: Restart dashmate services
-  ansible.builtin.command: yarn dashmate restart
+  ansible.builtin.command: yarn dashmate restart --verbose
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
   register: dashmate_restart
-  when: dashmate_status.rc == 0
   changed_when: dashmate_restart.rc == 0
+  ignore_errors: true
 
 # Start if not already running
 - name: Start dashmate services
-  ansible.builtin.command: yarn dashmate start
+  ansible.builtin.command: yarn dashmate start --verbose
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
   register: dashmate_start
-  when: dashmate_status.rc == 1
+  when: "dashmate_restart.rc != 0"
   changed_when: dashmate_start.rc == 0

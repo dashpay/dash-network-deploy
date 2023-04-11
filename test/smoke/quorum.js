@@ -126,7 +126,8 @@ describe('Quorums', () => {
       const promises = [];
 
       for (const hostName of ansibleHosts) {
-        if (quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
+        if (!quorumLists[hostName]
+          || quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
           // eslint-disable-next-line no-continue
           continue;
         }
@@ -151,7 +152,8 @@ describe('Quorums', () => {
       }
 
       for (const hostName of dashmateHosts) {
-        if (quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
+        if (!quorumLists[hostName]
+          || quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
           // eslint-disable-next-line no-continue
           continue;
         }
@@ -166,11 +168,11 @@ describe('Quorums', () => {
             'quorum',
             'info',
             String(quorumCheckTypes[network.type].type),
-            quorumLists[hostName][quorumCheckTypes[network.type].name][0]
-          ])
-          .then((result) => {
-            firstQuorumInfo[hostName] = result;
-          });
+            quorumLists[hostName][quorumCheckTypes[network.type].name][0],
+          ],
+        ).then((result) => {
+          firstQuorumInfo[hostName] = result;
+        });
 
         promises.push(promise);
       }
@@ -178,28 +180,22 @@ describe('Quorums', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    before('Send a transaction', () => {
-      const promises = [];
+    before('Send a transaction', async () => {
       const timeout = 15000; // set individual rpc client timeout
 
       const client = createRpcClientFromConfig(inventory.wallet_nodes.hosts[0]);
 
       client.setTimeout(timeout);
 
-      const requestGetBalance = client.sendToAddress(variables.faucet_address, 0.1, { wallet: 'dashd-wallet-1-faucet' })
-        .then(({ result }) => {
-          instantsendTestTxid = result;
-        });
-
-      promises.push(requestGetBalance);
-
-      return Promise.all(promises).catch(() => Promise.resolve());
+      ({ result: instantsendTestTxid } = await client.sendToAddress(variables.faucet_address, 0.1, { wallet: 'dashd-wallet-1-faucet' }));
     });
 
     before('Collect instantsend info', async () => {
       // Wait two seconds here before checking for IS locks
       // TODO: implement this.slow() and await IS ZMQ message to mark test response speed yellow/red
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 2000);
+      });
 
       const promises = [];
 
@@ -222,11 +218,13 @@ describe('Quorums', () => {
       for (const hostName of dashmateHosts) {
         const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
 
-        const promise = execCommand(docker, containerIds[hostName],
-          ['dash-cli', 'getrawmempool', 'true'])
-          .then((result) => {
-            rawMemPool[hostName] = result;
-          });
+        const promise = execCommand(
+          docker,
+          containerIds[hostName],
+          ['dash-cli', 'getrawmempool', 'true'],
+        ).then((result) => {
+          rawMemPool[hostName] = result;
+        });
 
         promises.push(promise);
       }
@@ -238,19 +236,27 @@ describe('Quorums', () => {
       // eslint-disable-next-line no-loop-func
       describe(hostName, () => {
         it('should see quorums of the correct type', () => {
+          expect(quorumLists).to.have.property(hostName);
+
           expect(quorumLists[hostName][quorumCheckTypes[network.type].name]).to.not.be.empty();
         });
 
         it('should see chainlocks at the chain tip', () => {
+          expect(bestChainLock).to.have.property(hostName);
+
           expect(blockCount[hostName]).to.equal(bestChainLock[hostName].height);
         });
 
         it('should see the first quorum was created recently', () => {
+          expect(firstQuorumInfo).to.have.property(hostName);
+
           expect(blockCount[hostName] - firstQuorumInfo[hostName].height)
             .to.be.lessThanOrEqual(quorumCheckTypes[network.type].dkgInterval * 1.5);
         });
 
         it('should see an instantsend lock', () => {
+          expect(rawMemPool).to.have.property(hostName);
+          expect(rawMemPool[hostName]).to.have.property(instantsendTestTxid);
           expect(rawMemPool[hostName][instantsendTestTxid].instantlock).to.equal('true');
         });
       });

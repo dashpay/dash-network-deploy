@@ -50,7 +50,8 @@
     password: '{{ elastic_password }}'
     body_format: json
     body:
-      number_of_replicas: 0
+      index:
+        number_of_replicas: 0
 
 - name: Set up Kibana UI
   ansible.builtin.uri:
