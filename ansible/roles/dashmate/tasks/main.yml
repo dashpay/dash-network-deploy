@@ -209,7 +209,7 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
     executable: /bin/bash
-  when: git.changed
+  when: git.changed # noqa: no-handler
   changed_when: true
 
 # TODO: We should keep it only in case if we want to build dashmate from the branch
