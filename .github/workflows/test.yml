@@ -24,12 +24,3 @@ jobs:
 
       - name: Run ansible-lint
         run: ansible-lint ansible
-
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
-
-      # - name: Run ansible-lint
-      #   uses: ansible/ansible-lint-action@v6
-      #   with:
-      #     path: ansible
