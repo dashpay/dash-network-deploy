@@ -4,6 +4,7 @@
   ansible.builtin.command: yarn dashmate stop
   become: true
   become_user: dashmate
+  ignore_errors: true
   args:
     chdir: '{{ dashmate_source_dir }}'
   register: dashmate_stop
