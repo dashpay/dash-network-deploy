@@ -55,8 +55,11 @@ describe('Core', () => {
 
         let blockchain;
         try {
-          blockchain = await execCommand(docker, containerId,
-            ['dash-cli', 'getblockchaininfo']);
+          blockchain = await execCommand(
+            docker,
+            containerId,
+            ['dash-cli', 'getblockchaininfo'],
+          );
         } catch (e) {
           errors[hostName] = e;
 
@@ -70,14 +73,17 @@ describe('Core', () => {
         blockchainInfo[hostName] = blockchain;
 
         try {
-          networkInfo[hostName] = await execCommand(docker, containerId,
-            ['dash-cli', 'getnetworkinfo']);
+          networkInfo[hostName] = await execCommand(
+            docker,
+            containerId,
+            ['dash-cli', 'getnetworkinfo'],
+          );
         } catch (e) {
           errors[hostName] = e;
 
           throw e;
         }
-      }));
+      })).catch(() => Promise.resolve());
 
       // Collect data for dashd role based hosts
       await Promise.all(ansibleHosts.map(async (hostName) => {
