@@ -1,11 +1,17 @@
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
-const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const {
+  createDocker,
+  execJSONDockerCommand,
+  execDockerCommand,
+  getContainerId,
+} = require('../../lib/test/docker');
 
 const { variables, inventory, network } = getNetworkConfig();
 
 const dashmateHosts = inventory.hp_masternodes.hosts;
 
 describe.only('Tenderdash', () => {
+  const currentTime = {};
   const tenderdashStatuses = {};
   const errors = {};
 
@@ -30,7 +36,13 @@ describe.only('Tenderdash', () => {
         }
 
         try {
-          const { result, error } = await execCommand(
+          currentTime[hostName] = await execDockerCommand(
+            docker,
+            containerId,
+            ['date'],
+          );
+
+          const { result, error } = await execJSONDockerCommand(
             docker,
             containerId,
             [
@@ -108,7 +120,9 @@ describe.only('Tenderdash', () => {
 
           const latestBlockTime = new Date(tenderdashStatuses[hostName].latestBlockTime);
 
-          expect(latestBlockTime.getTime()).to.be.closeTo(Date.now(), 30 * 60 * 1000);
+          const currentTimestamp = new Date(currentTime[hostName]).getTime();
+
+          expect(latestBlockTime.getTime()).to.be.closeTo(currentTimestamp, 30 * 60 * 1000);
         });
       });
     }

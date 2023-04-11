@@ -2,7 +2,7 @@ const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromCon
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory, network, variables } = getNetworkConfig();
-const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const { createDocker, execJSONDockerCommand, getContainerId } = require('../../lib/test/docker');
 
 const timeout = 15000; // set individual rpc client timeout
 
@@ -55,7 +55,7 @@ describe('Core', () => {
 
         let blockchain;
         try {
-          blockchain = await execCommand(docker, containerId,
+          blockchain = await execJSONDockerCommand(docker, containerId,
             ['dash-cli', 'getblockchaininfo']);
         } catch (e) {
           errors[hostName] = e;
@@ -70,7 +70,7 @@ describe('Core', () => {
         blockchainInfo[hostName] = blockchain;
 
         try {
-          networkInfo[hostName] = await execCommand(docker, containerId,
+          networkInfo[hostName] = await execJSONDockerCommand(docker, containerId,
             ['dash-cli', 'getnetworkinfo']);
         } catch (e) {
           errors[hostName] = e;
@@ -161,7 +161,7 @@ describe('Core', () => {
         }
 
         try {
-          masternodeListInfo[hostName] = await execCommand(docker, containerId, ['dash-cli', 'masternode', 'list']);
+          masternodeListInfo[hostName] = await execJSONDockerCommand(docker, containerId, ['dash-cli', 'masternode', 'list']);
         } catch (e) {
           errors[hostName] = e;
 

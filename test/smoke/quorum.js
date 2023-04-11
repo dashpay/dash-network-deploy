@@ -1,6 +1,6 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
-const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const { createDocker, execJSONDockerCommand, getContainerId } = require('../../lib/test/docker');
 
 const { inventory, network, variables } = getNetworkConfig();
 
@@ -104,10 +104,10 @@ describe('Quorums', () => {
             return containerId;
           })
           .then((containerId) => Promise.all([
-            execCommand(docker, containerId, ['dash-cli', 'getblockcount']),
-            execCommand(docker, containerId, ['dash-cli', 'getbestchainlock']),
-            execCommand(docker, containerId, ['dash-cli', 'getblockchaininfo']),
-            execCommand(docker, containerId, ['dash-cli', 'quorum', 'list']),
+            execJSONDockerCommand(docker, containerId, ['dash-cli', 'getblockcount']),
+            execJSONDockerCommand(docker, containerId, ['dash-cli', 'getbestchainlock']),
+            execJSONDockerCommand(docker, containerId, ['dash-cli', 'getblockchaininfo']),
+            execJSONDockerCommand(docker, containerId, ['dash-cli', 'quorum', 'list']),
           ])
             .then(([getBlockCount, getBestChainLock, getBlockchainInfo, quorumList]) => {
               blockCount[hostName] = getBlockCount;
@@ -158,7 +158,7 @@ describe('Quorums', () => {
 
         const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
 
-        const promise = execCommand(
+        const promise = execJSONDockerCommand(
           docker,
           containerIds[hostName],
           [
@@ -222,7 +222,7 @@ describe('Quorums', () => {
       for (const hostName of dashmateHosts) {
         const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
 
-        const promise = execCommand(docker, containerIds[hostName],
+        const promise = execJSONDockerCommand(docker, containerIds[hostName],
           ['dash-cli', 'getrawmempool', 'true'])
           .then((result) => {
             rawMemPool[hostName] = result;
