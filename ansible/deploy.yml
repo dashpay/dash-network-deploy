@@ -50,7 +50,7 @@
       - name: docker-compose
         version: "1.29.2"
   roles:
-    - role: geerlingguy.pip
+    - geerlingguy.pip
     - role: geerlingguy.docker
       vars:
         docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
