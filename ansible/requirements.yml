@@ -1,6 +1,9 @@
 ---
 
 collections:
+  - name: ansible.posix
+    version: 1.5.1
+
   - name: ansible.utils
     version: 2.9.0
 
