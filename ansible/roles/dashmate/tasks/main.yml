@@ -178,10 +178,11 @@
   register: rustup
 
 - name: Install Rust
-  ansible.builtin.shell: '{{ dashmate_home }}/rustup.sh -y'
+  ansible.builtin.command: '{{ dashmate_home }}/rustup.sh -y'
   become: true
   become_user: dashmate
   when: rustup.changed  # noqa: no-handler
+  changed_when: true
 
 # TODO: it should work without sourcing cargo env
 - name: Install Rust dependencies
