@@ -8,7 +8,7 @@ filebeat_platform_inputs:
     exclude_files: ['\.gz$']
     index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - "{{ mn_evo_services_path }}/logs/drive-json*.log*"
+      - "{{ abci_logs_path }}/drive-json*.log*"
     processors:
       - timestamp:
           field: json.time
@@ -80,7 +80,7 @@ filebeat_platform_inputs:
           ignore_missing: true
   - type: container
     enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
-    json.message_key: _msg
+    json.message_key: message
     json.keys_under_root: false
     index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
     paths:
@@ -92,7 +92,7 @@ filebeat_platform_inputs:
             dataset: "drive.tenderdash-{{ dash_network_name }}"
       - rename:
           fields:
-            - from: "json._msg"
+            - from: "json.message"
               to: "message"
           ignore_missing: true
           fail_on_error: true

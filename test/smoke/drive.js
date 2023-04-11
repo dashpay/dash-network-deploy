@@ -22,17 +22,33 @@ describe('Drive', () => {
           containerId = await getContainerId(docker, 'dashmate_helper');
         } catch (e) {
           statusError[hostName] = e;
-
-          throw e;
         }
 
         try {
-          statusInfo[hostName] = await execJSONDockerCommand(docker, containerId,
-            ['yarn', 'workspace', 'dashmate', 'dashmate', 'status', 'platform', '--format=json']);
+          const { result, error } = await execJSONDockerCommand(
+            docker,
+            containerId,
+            [
+              'curl',
+              '--silent',
+              '-X',
+              'POST',
+              '-H',
+              'Content-Type: application/json',
+              '-d',
+              '{"jsonrpc":"2.0","id":"id","method":"status platform","params":{"format":"json"}}',
+              'localhost:9000',
+            ],
+          );
+
+          if (error) {
+            // noinspection ExceptionCaughtLocallyJS
+            throw new Error(error.message);
+          }
+
+          statusInfo[hostName] = JSON.parse(result);
         } catch (e) {
           statusError[hostName] = e;
-
-          throw e;
         }
       });
 

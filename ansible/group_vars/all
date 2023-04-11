@@ -35,6 +35,7 @@ core_llmq_types:
     3: llmq_400_85
     4: llmq_100_67
     5: llmq_60_75
+    6: llmq_25_67
     100: llmq_test
     101: llmq_devnet
     102: llmq_test_v17

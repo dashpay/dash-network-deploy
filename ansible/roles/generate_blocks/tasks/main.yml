@@ -38,6 +38,7 @@
   until: getblockcount_result.stdout | int >= start_block_count.stdout | int + num_blocks | int
   retries: 200
   delay: 10
+  changed_when: getblockcount_result.rc == 0
 
 # Option: balance
 
@@ -48,6 +49,7 @@
   until: getbalance_result.stdout | float >= target_balance | float
   retries: 200
   delay: 10
+  changed_when: getbalance_result.rc == 0
 
 # Option: confirmations
 
@@ -59,6 +61,7 @@
   with_items: "{{ txid_list }}"
   retries: 200
   delay: 10
+  changed_when: gettransaction_result.rc == 0
 
 # Stop mining
 

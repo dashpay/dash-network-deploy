@@ -22,3 +22,5 @@
 - name: Generate first block
   ansible.builtin.command: 'dash-cli generatetoaddress 1 {{ miner_payment_address }}'
   when: initial_block_count | int < required_block_count | int
+  register: firstblock_result
+  changed_when: firstblock_result.rc == 0
