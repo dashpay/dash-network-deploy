@@ -194,6 +194,7 @@
   become_user: dashmate
   args:
     executable: /bin/bash
+  changed_when: true
 
 - name: Clone dashmate source
   become: true
@@ -217,7 +218,8 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
     executable: /bin/bash
-  when: git.changed
+  when: git.changed # noqa: no-handler
+  changed_when: true
 
 # TODO: We should keep it only in case if we want to build dashmate from the branch
 - name: Build dashmate helper
@@ -235,6 +237,7 @@
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
+  changed_when: true
 
 - name: Update dashmate images
   ansible.builtin.command: yarn dashmate update --verbose
@@ -251,6 +254,7 @@
   become_user: dashmate
   args:
     chdir: '{{ dashmate_source_dir }}'
+  changed_when: true
 
 # TODO: status command should work always even if node is not running and we need
 #   to get the status from the response
