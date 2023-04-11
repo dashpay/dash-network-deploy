@@ -10,6 +10,9 @@ collections:
   - name: community.docker
     version: 3.4.3
 
+  - name: community.general
+    version: 6.5.0
+
 roles:
   - src: arillso.logrotate
     version: 1.6.1
