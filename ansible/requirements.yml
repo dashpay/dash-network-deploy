@@ -4,7 +4,7 @@ collections:
   - name: ansible.utils
     version: 2.9.0
 
-  - community.docker
+  - name: community.docker
     version: 3.4.3
 
 roles:
