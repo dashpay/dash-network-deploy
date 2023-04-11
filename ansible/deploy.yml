@@ -60,25 +60,6 @@
     - docker_options
     - eternal_terminal
 
-- name: Setup Node.JS and NPM
-  hosts: hp_masternodes
-  become: true
-  pre_tasks:
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
-    - name: Install docker-compose-plugin
-      ansible.builtin.package:
-        name: docker-compose-plugin
-        state: present
-  vars:
-    nodejs_version: "16.x"
-# todo use that after v24-dev release
-#    nodejs_npm_global_packages:
-#      - name: 'dashmate@{{ dashmate_version }}'
-  roles:
-    - geerlingguy.nodejs
-
 - name: Install AWS monitoring scripts
   hosts: all
   become: true

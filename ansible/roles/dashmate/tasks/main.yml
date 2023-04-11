@@ -20,18 +20,6 @@
     groups: docker
     append: true
 
-- name: Create necessary config dirs for next steps
-  ansible.builtin.file:
-    path: '{{ item }}'
-    state: directory
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-    recurse: true
-    mode: "0750"
-  loop:
-    - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
-    - '{{ dashmate_config_dir }}'
-
 - name: Write dash.conf for dash-cli
   ansible.builtin.template:
     src: dash.conf.j2
@@ -86,20 +74,38 @@
     insertafter: '^OnCalendar=daily'
     line: OnCalendar=hourly
 
+- name: Create dashmate's config dir
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+  loop:
+    - '{{ dashmate_config_dir }}'
+
+- name: Create dashmate's ssl directory
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0750"
+  loop:
+    - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+
 - name: Generate an OpenSSL private key
   community.crypto.openssl_privatekey:
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
-    # dapi-envoy docker user
-    owner: 101
-    group: 101
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
 
-# TODO: Certifiates are generating every deploy
-  # common name is required when loading into envoy
 - name: Generate an OpenSSL Certificate Signing Request
   community.crypto.openssl_csr:
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
     privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
     common_name: '{{ inventory_hostname }}'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
 
 - name: Generate a Self Signed OpenSSL certificate
   community.crypto.x509_certificate:
@@ -107,11 +113,10 @@
     csr_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
     privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
     provider: selfsigned
-    # dapi-envoy docker user
-    owner: 101
-    group: 101
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
 
-- name: Write config.json file in ~/.dashmate
+- name: Write dashmate's config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
   ansible.builtin.template:
@@ -131,7 +136,36 @@
       - libc-dev
       - libssl-dev
       - pkg-config
+      - docker-compose-plugin
     state: present
+
+- name: Setup Node.JS and NPM
+  ansible.builtin.include_role:
+    name: geerlingguy.nodejs
+  vars:
+    nodejs_version: "16.x"
+    nodejs_install_npm_user: "dashmate"
+# todo use that after v24-dev release
+#    nodejs_npm_global_packages:
+#      - name: 'dashmate@{{ dashmate_version }}'
+
+- name: Enable corepack
+  ansible.builtin.shell: |
+    corepack enable
+    yarn --version
+  become: true
+  become_user: dashmate
+  args:
+    creates: '{{ dashmate_home }}/.cache/node/corepack'
+    chdir: '{{ dashmate_source_dir }}'
+
+- name: Install Yarn dependencies
+  ansible.builtin.command: yarn
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
 - name: Install Rust
   ansible.builtin.shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -146,20 +180,11 @@
     . "$HOME/.cargo/env"
     rustup toolchain install stable
     rustup target add wasm32-unknown-unknown --toolchain stable
-    cargo install -f wasm-bindgen-cli
+    cargo install wasm-bindgen-cli
   become: true
   become_user: dashmate
   args:
     executable: /bin/bash
-
-- name: Enable corepack
-  ansible.builtin.shell: |
-    corepack enable
-    touch /root/.corepack
-  become: true
-  become_user: root
-  args:
-    creates: /root/.corepack
 
 - name: Clone dashmate source
   become: true
@@ -171,14 +196,6 @@
     single_branch: true
     depth: 1
   register: git
-
-- name: Install Yarn dependencies
-  ansible.builtin.command: yarn
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_source_dir }}'
-    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
 # Build sources to call dashmate
 - name: Build sources
@@ -193,7 +210,7 @@
     executable: /bin/bash
   when: git.changed
 
-# TODO: It must build it with platform.sourcePath?
+# TODO: We should keep it only in case if we want to build dashmate from the branch
 - name: Build dashmate helper
   ansible.builtin.command: docker build -t dashmate_local -f ./packages/dashmate/Dockerfile .
   become: true
