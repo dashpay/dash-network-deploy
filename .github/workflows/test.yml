@@ -20,6 +20,9 @@ jobs:
         run: ansible-galaxy install -r ansible/requirements.yml
 
       - name: Run ansible-lint
-        uses: ansible/ansible-lint-action@v6
-        with:
-          path: ansible
+        run: ansible-lint ansible
+
+      # - name: Run ansible-lint
+      #   uses: ansible/ansible-lint-action@v6
+      #   with:
+      #     path: ansible
