@@ -10,8 +10,8 @@ const { variables, inventory, network } = getNetworkConfig();
 
 const dashmateHosts = inventory.hp_masternodes.hosts;
 
-describe.only('Tenderdash', () => {
-  const currentTime = {};
+describe('Tenderdash', () => {
+  const currentTimeStrings = {};
   const tenderdashStatuses = {};
   const errors = {};
 
@@ -36,7 +36,7 @@ describe.only('Tenderdash', () => {
         }
 
         try {
-          currentTime[hostName] = await execDockerCommand(
+          currentTimeStrings[hostName] = await execDockerCommand(
             docker,
             containerId,
             ['date'],
@@ -120,9 +120,11 @@ describe.only('Tenderdash', () => {
 
           const latestBlockTime = new Date(tenderdashStatuses[hostName].latestBlockTime);
 
-          const currentTimestamp = new Date(currentTime[hostName]).getTime();
+          const currentDate = new Date(currentTimeStrings[hostName]);
+          const emptyBlockWindow = new Date(currentDate);
+          emptyBlockWindow.setMinutes(currentDate.getMinutes() - 5);
 
-          expect(latestBlockTime.getTime()).to.be.closeTo(currentTimestamp, 30 * 60 * 1000);
+          expect(latestBlockTime).to.be.within(emptyBlockWindow, currentDate);
         });
       });
     }
