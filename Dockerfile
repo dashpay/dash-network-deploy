@@ -12,11 +12,6 @@ RUN apt-get update -y && \
     curl \
     git \
     gnupg \
-    libasound2 \
-    libdbus-glib-1-2 \
-    libgtk-3-0 \
-    libx11-xcb1 \
-    libxtst6 \
     openvpn \
     python3-pip \
     python3-setuptools \
@@ -44,13 +39,14 @@ RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${
     && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 -C /usr/local/bin docker/docker \
     && rm docker-${DOCKERVERSION}.tgz
 
-# Install Firefox
+# Install Chrome
 
-ENV FIREFOX_VERSION=111.0.1
-RUN curl -fsSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 \
-    && tar xjvf firefox-${FIREFOX_VERSION}.tar.bz2 -C /opt \
-    && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
-    && rm firefox-${FIREFOX_VERSION}.tar.bz2
+# Check available versions here: https://www.ubuntuupdates.org/package/google_chrome/stable/main/base/google-chrome-stable
+ENV CHROMEVERSION=112.0.5615.49-1
+ENV CHROME_BIN="/usr/bin/google-chrome"
+RUN curl -fsSL https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROMEVERSION}_amd64.deb -o /tmp/chrome.deb \
+    && apt install -y --no-install-recommends /tmp/chrome.deb \
+    && rm /tmp/chrome.deb
 
 # Copy dash-cli form dashd image
 
