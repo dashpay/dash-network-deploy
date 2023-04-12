@@ -1,17 +1,19 @@
-const { client: jaysonClient } = require('jayson/promise');
-
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
-const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const {
+  createDocker,
+  execJSONDockerCommand,
+  execDockerCommand,
+  getContainerId,
+} = require('../../lib/test/docker');
 
 const { variables, inventory, network } = getNetworkConfig();
 
 const dashmateHosts = inventory.hp_masternodes.hosts;
 
 describe('Tenderdash', () => {
+  const currentTimeStrings = {};
   const tenderdashStatuses = {};
   const errors = {};
-
-  const blockHashes = {};
 
   describe('HP and seed nodes', () => {
     before('Collect tenderdash info', function collect() {
@@ -19,9 +21,7 @@ describe('Tenderdash', () => {
         this.skip('platform is disabled for this network');
       }
 
-      const promises = [];
-
-      const dashmatePromises = dashmateHosts.map(async (hostName) => {
+      const promises = dashmateHosts.map(async (hostName) => {
         const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
 
         let containerId;
@@ -36,7 +36,15 @@ describe('Tenderdash', () => {
         }
 
         try {
-          const { result, error } = await execCommand(docker, containerId,
+          currentTimeStrings[hostName] = await execDockerCommand(
+            docker,
+            containerId,
+            ['date'],
+          );
+
+          const { result, error } = await execJSONDockerCommand(
+            docker,
+            containerId,
             [
               'curl',
               '--silent',
@@ -47,14 +55,15 @@ describe('Tenderdash', () => {
               '-d',
               '{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}',
               'localhost:9000',
-            ]);
+            ],
+          );
 
           if (error) {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error(error.message);
           }
 
-          const status = JSON.parse(result)
+          const status = JSON.parse(result);
 
           tenderdashStatuses[hostName] = status.tenderdash;
         } catch (e) {
@@ -62,25 +71,7 @@ describe('Tenderdash', () => {
         }
       });
 
-      return Promise.all(promises.concat(dashmatePromises)).catch(() => Promise.resolve());
-    });
-
-    before('Evaluate block hashes', () => {
-      for (const hostName of dashmateHosts) {
-        if (!tenderdashStatuses[hostName]) {
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-
-        const {
-          lastBlockHeight: blockHeight,
-          lastBlockHash: blockHash,
-        } = tenderdashStatuses[hostName];
-
-        if (!blockHashes[blockHeight]) {
-          blockHashes[blockHeight] = blockHash;
-        }
-      }
+      return Promise.all(promises).catch(() => Promise.resolve());
     });
 
     for (const hostName of dashmateHosts) {
@@ -127,21 +118,13 @@ describe('Tenderdash', () => {
             expect.fail('can\'t get tenderdash status');
           }
 
-          const {
-            lastBlockHash: blockHash,
-            lastBlockHeight: blockHeight,
-          } = tenderdashStatuses[hostName];
+          const latestBlockTime = new Date(tenderdashStatuses[hostName].latestBlockTime);
 
-          expect(blockHashes[blockHeight]).to.be.equal(blockHash);
+          const currentDate = new Date(currentTimeStrings[hostName]);
+          const emptyBlockWindow = new Date(currentDate);
+          emptyBlockWindow.setMinutes(currentDate.getMinutes() - 5);
 
-          const blocksCounts = Object.keys(blockHashes).map((c) => parseInt(c, 10));
-          const maxBlocksCount = Math.max(...blocksCounts);
-
-          const blocksCountDiff = maxBlocksCount - blockHeight;
-
-          if (blocksCountDiff > 3) {
-            expect.fail(`${blocksCountDiff} blocks behind`);
-          }
+          expect(latestBlockTime).to.be.within(emptyBlockWindow, currentDate);
         });
       });
     }

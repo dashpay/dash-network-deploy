@@ -2,7 +2,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory, variables } = getNetworkConfig();
 
-const { createDocker, execCommand, getContainerId } = require('../../lib/test/docker');
+const { createDocker, execJSONDockerCommand, getContainerId } = require('../../lib/test/docker');
 
 describe('Drive', () => {
   describe('HP masternodes', () => {
@@ -25,7 +25,7 @@ describe('Drive', () => {
         }
 
         try {
-          const { result, error } = await execCommand(
+          const { result, error } = await execJSONDockerCommand(
             docker,
             containerId,
             [
@@ -46,9 +46,7 @@ describe('Drive', () => {
             throw new Error(error.message);
           }
 
-          const status = JSON.parse(result)
-
-          statusInfo[hostName] = status;
+          statusInfo[hostName] = JSON.parse(result);
         } catch (e) {
           statusError[hostName] = e;
         }
