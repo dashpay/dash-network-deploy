@@ -1,6 +1,6 @@
 {
   "name": "@dashevo/dash-network-deploy",
-  "version": "0.24.0-dev.7",
+  "version": "0.24.0-dev.8",
   "description": "Dash Network deployment tool",
   "directories": {
     "lib": "lib",
