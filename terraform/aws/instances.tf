@@ -240,7 +240,7 @@ resource "aws_instance" "masternode_arm" {
 
 resource "aws_eip" "hpmn_arm_eip" {
   instance = null
-  count = var.hp_masternode_arm_count
+  count = var.create_eip ? var.hp_masternode_arm_count : 0
   
   tags = {
     Name        = "dn-${terraform.workspace}-hp-masternode-arm-${count.index+1}"
@@ -250,7 +250,7 @@ resource "aws_eip" "hpmn_arm_eip" {
 
 resource "aws_eip" "hpmn_amd_eip" {
   instance = null
-  count = var.hp_masternode_amd_count
+  count = var.create_eip ? var.hp_masternode_amd_count : 0
   tags = {
     Name        = "dn-${terraform.workspace}-hp-masternode-amd-${count.index+1}"
     DashNetwork = terraform.workspace
@@ -264,6 +264,7 @@ resource "aws_instance" "hp_masternode_amd" {
   instance_type        = "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
+  associate_public_ip_address = !var.create_eip
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -304,6 +305,7 @@ resource "aws_instance" "hp_masternode_arm" {
   instance_type        = "t4g.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
+  associate_public_ip_address = !var.create_eip
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -337,14 +339,14 @@ resource "aws_instance" "hp_masternode_arm" {
 }
 
 resource "aws_eip_association" "arm_eip_assoc" {
-  count = var.hp_masternode_arm_count
+  count = var.create_eip ? var.hp_masternode_arm_count : 0
 
   instance_id   = aws_instance.hp_masternode_arm[count.index].id
   allocation_id = aws_eip.hpmn_arm_eip[count.index].id
 }
 
 resource "aws_eip_association" "amd_eip_assoc" {
-  count = var.hp_masternode_amd_count
+  count = var.create_eip ? var.hp_masternode_amd_count : 0
 
   instance_id   = aws_instance.hp_masternode_amd[count.index].id
   allocation_id = aws_eip.hpmn_amd_eip[count.index].id

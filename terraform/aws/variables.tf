@@ -201,3 +201,9 @@ variable "volume_type" {
   description = "Type of volume to use for block devices"
   default     = "gp3"
 }
+
+variable "create_eip" {
+  description = "Whether to create an Elastic IP for the instance"
+  type        = bool
+  default     = true
+}
