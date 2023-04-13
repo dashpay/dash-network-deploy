@@ -183,119 +183,119 @@ locals {
 
   masternodes = concat(local.masternodes_amd, local.masternodes_arm) #Magic...
 
-  hp_masternodes_amd = [
-    for n in range(length(aws_instance.hp_masternode_amd)) : templatefile(
-      "${path.module}/templates/services/node.tpl",
-      {
-        name = "hp-masternode-amd-${n + 1}"
-        external_services = replace(
-          chomp(
-            join(
-              "",
-              [
-                local.service_ssh,
-                local.service_core_p2p,
-                local.service_dapi,
-                local.service_tendermint_p2p,
-              ],
-            ),
-          ),
-          "{{ip}}",
-          element(aws_eip.hpmn_amd_eip.*.public_ip, n),
-        )
-        internal_services = replace(
-          chomp(
-            join(
-              "",
-              [
-                local.service_tendermint_rpc,
-                local.service_core_rpc,
-                local.service_core_zmq,
-                local.service_drive,
-                local.service_insight,
-                local.service_docker,
-              ],
-            ),
-          ),
-          "{{ip}}",
-          element(aws_eip.hpmn_amd_eip.*.public_ip, n),
-        )
-        service_logs = chomp(
+hp_masternodes_amd = [
+  for n in range(length(aws_instance.hp_masternode_amd)) : templatefile(
+    "${path.module}/templates/services/node.tpl",
+    {
+      name = "hp-masternode-amd-${n + 1}"
+      external_services = replace(
+        chomp(
           join(
-            "\n",
+            "",
             [
-              "   - dashd",
-              "   - dapi_api",
-              "   - dapi_tx_filter_stream",
-              "   - dapi_nginx",
-              "   - dapi_envoy",
-              "   - drive_abci",
-              "   - tendermint",
-              "   - sentinel",
-              "   - insight",
+              local.service_ssh,
+              local.service_core_p2p,
+              local.service_dapi,
+              local.service_tendermint_p2p,
             ],
           ),
-        )
-      }
-    )
-  ]
+        ),
+        "{{ip}}",
+        var.create_eip ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n),
+      )
+      internal_services = replace(
+        chomp(
+          join(
+            "",
+            [
+              local.service_tendermint_rpc,
+              local.service_core_rpc,
+              local.service_core_zmq,
+              local.service_drive,
+              local.service_insight,
+              local.service_docker,
+            ],
+          ),
+        ),
+        "{{ip}}",
+        var.create_eip ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n),
+      )
+      service_logs = chomp(
+        join(
+          "\n",
+          [
+            "   - dashd",
+            "   - dapi_api",
+            "   - dapi_tx_filter_stream",
+            "   - dapi_nginx",
+            "   - dapi_envoy",
+            "   - drive_abci",
+            "   - tendermint",
+            "   - sentinel",
+            "   - insight",
+          ],
+        ),
+      )
+    }
+  )
+]
 
-  hp_masternodes_arm = [
-    for n in range(length(aws_instance.hp_masternode_arm)) : templatefile(
-      "${path.module}/templates/services/node.tpl",
-      {
-        name = "hp-masternode-arm-${n + 1}"
-        external_services = replace(
-          chomp(
-            join(
-              "",
-              [
-                local.service_ssh,
-                local.service_core_p2p,
-                local.service_dapi,
-                local.service_tendermint_p2p,
-              ],
-            ),
-          ),
-          "{{ip}}",
-          element(aws_eip.hpmn_arm_eip.*.public_ip, n),
-        )
-        internal_services = replace(
-          chomp(
-            join(
-              "",
-              [
-                local.service_tendermint_rpc,
-                local.service_core_rpc,
-                local.service_core_zmq,
-                local.service_drive,
-                local.service_insight,
-                local.service_docker,
-              ],
-            ),
-          ),
-          "{{ip}}",
-          element(aws_eip.hpmn_arm_eip.*.public_ip, n),
-        )
-        service_logs = chomp(
+ hp_masternodes_arm = [
+  for n in range(length(aws_instance.hp_masternode_arm)) : templatefile(
+    "${path.module}/templates/services/node.tpl",
+    {
+      name = "hp-masternode-amd-${n + 1}"
+      external_services = replace(
+        chomp(
           join(
-            "\n",
+            "",
             [
-              "   - dashd",
-              "   - dapi_api",
-              "   - dapi_tx_filter_stream",
-              "   - dapi_nginx",
-              "   - dapi_envoy",
-              "   - drive_abci",
-              "   - tendermint",
-              "   - sentinel",
-              "   - insight",
+              local.service_ssh,
+              local.service_core_p2p,
+              local.service_dapi,
+              local.service_tendermint_p2p,
             ],
           ),
-        )
-      }
-    )
-  ]
+        ),
+        "{{ip}}",
+        var.create_eip ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n),
+      )
+      internal_services = replace(
+        chomp(
+          join(
+            "",
+            [
+              local.service_tendermint_rpc,
+              local.service_core_rpc,
+              local.service_core_zmq,
+              local.service_drive,
+              local.service_insight,
+              local.service_docker,
+            ],
+          ),
+        ),
+        "{{ip}}",
+        var.create_eip ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n),
+      )
+      service_logs = chomp(
+        join(
+          "\n",
+          [
+            "   - dashd",
+            "   - dapi_api",
+            "   - dapi_tx_filter_stream",
+            "   - dapi_nginx",
+            "   - dapi_envoy",
+            "   - drive_abci",
+            "   - tendermint",
+            "   - sentinel",
+            "   - insight",
+          ],
+        ),
+      )
+    }
+  )
+]
 
   hp_masternodes = concat(local.hp_masternodes_amd, local.hp_masternodes_arm) #Magic...
 
