@@ -10,7 +10,7 @@
             ''
             {{ masternode.collateral.address }}" # Should already be funded from registration protx
   register: mn_protx
-  changed_when: protx.stdout | length == 64
+  changed_when: mn_protx.stdout | length == 64
   when: 'masternode_name is not match ("hp*")'
 
 - name: Create HP ProUpServTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
