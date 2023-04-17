@@ -9,11 +9,15 @@
             {{ masternode.operator.private_key }}
             ''
             {{ masternode.collateral.address }}" # Should already be funded from registration protx
-  register: protx
+  register: mn_protx
   changed_when: protx.stdout | length == 64
   when: 'masternode_name is not match ("hp*")'
 
-- name: Create ProUpServTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
+- name: Debug HPMN tx output
+  debug:
+    var: protx
+
+- name: Create HP ProUpServTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
   ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx update_service_hpmn
             {{ vars['protx_' + masternode_name | replace('-', '_')] }}
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
@@ -23,10 +27,20 @@
             {{ dapi_port }}
             ''
             {{ masternode.collateral.address }}" # Should already be funded from registration protx
-  register: protx
-  changed_when: protx.stdout | length == 64
+  register: hpmn_protx
+  changed_when: hpmn_protx.stdout | length == 64
   when: 'masternode_name is match ("hp*")'
 
-- name: Add resulting txid to list
+- name: Debug HPMN tx output
+  debug:
+    var: hpmn_protxd
+
+- name: Add resulting mn txid to list
   ansible.builtin.set_fact:
-    created_protx_list: "{{ created_protx_list + [protx.stdout] }}"
+    created_protx_list: "{{ created_protx_list + [ protx.stdout ] }}"
+  when: protx.changed
+
+- name: Add resulting hpmn txid to list
+  ansible.builting.set_fact:
+    created_protx_list: "{{ created_protx_list + [ hpmn_protx.stdout ] }}"
+  when: hpmn_protx.changed
