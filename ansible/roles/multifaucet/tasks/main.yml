@@ -55,6 +55,6 @@
     container: multifaucet_db_1
     command: >
       mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
-      -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout) 
+      -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout)
           VALUES (1,"masternode",{{ masternode_collaterals.mn }},{{ masternode_collaterals.mn | int + 10 }}),
                  (2,"hp-masternode",{{ masternode_collaterals.hpmn }},{{ masternode_collaterals.hpmn | int + 10 }});'
