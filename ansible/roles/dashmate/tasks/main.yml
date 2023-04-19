@@ -140,34 +140,6 @@
       - docker-compose-plugin
     state: present
 
-- name: Setup Node.JS and NPM
-  ansible.builtin.include_role:
-    name: geerlingguy.nodejs
-  vars:
-    nodejs_version: "16.x"
-    nodejs_install_npm_user: "dashmate"
-# todo use that after v24-dev release
-#    nodejs_npm_global_packages:
-#      - name: 'dashmate@{{ dashmate_version }}'
-
-- name: Enable corepack
-  ansible.builtin.shell: |
-    corepack enable
-    yarn --version
-  become: true
-  become_user: dashmate
-  args:
-    creates: '{{ dashmate_home }}/.cache/node/corepack'
-    chdir: '{{ dashmate_source_dir }}'
-
-- name: Install Yarn dependencies
-  ansible.builtin.command: yarn
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_source_dir }}'
-    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
-
 - name: Download Rustup
   ansible.builtin.get_url:
     url: https://sh.rustup.rs
@@ -197,6 +169,16 @@
     executable: /bin/bash
   changed_when: true
 
+- name: Setup Node.JS and NPM
+  ansible.builtin.include_role:
+    name: geerlingguy.nodejs
+  vars:
+    nodejs_version: "16.x"
+    nodejs_install_npm_user: "dashmate"
+# todo use that after v24-dev release
+#    nodejs_npm_global_packages:
+#      - name: 'dashmate@{{ dashmate_version }}'
+
 - name: Clone dashmate source
   become: true
   become_user: dashmate
@@ -207,6 +189,24 @@
     single_branch: true
     depth: 1
   register: git
+
+- name: Enable corepack
+  ansible.builtin.shell: |
+    corepack enable
+    yarn --version
+  become: true
+#  become_user: dashmate
+  args:
+    creates: '{{ dashmate_home }}/.cache/node/corepack'
+    chdir: '{{ dashmate_source_dir }}'
+
+- name: Install Yarn dependencies
+  ansible.builtin.command: yarn
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
 # Build sources to call dashmate
 - name: Build sources
