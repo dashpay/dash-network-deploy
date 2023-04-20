@@ -191,10 +191,10 @@ describe('Quorums', () => {
     });
 
     before('Collect instantsend info', async () => {
-      // Wait two seconds here before checking for IS locks
+      // Wait five seconds here before checking for IS locks
       // TODO: implement this.slow() and await IS ZMQ message to mark test response speed yellow/red
       await new Promise((resolve) => {
-        setTimeout(resolve, 2000);
+        setTimeout(resolve, 5000);
       });
 
       const promises = [];
