@@ -1,6 +1,9 @@
 ---
 # for development
-platform_branch: v0.24-dev
+
+# One of them should be set
+# dashmate_branch:   # install dashmate from the branch
+# dashmate_version:  # install dashmate using specific version
 
 dashmate_home: /home/dashmate
 dashmate_config_dir: '{{ dashmate_home }}/.dashmate'

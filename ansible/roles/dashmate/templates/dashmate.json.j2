@@ -230,7 +230,7 @@
       "dashmate": {
         "helper": {
           "docker": {
-            "image": "dashmate_local"
+            "image": "{{ dashmate_helper_image if dashmate_version is defined else 'dashmate_local' }}"
           },
           "api": {
             "enable": true,

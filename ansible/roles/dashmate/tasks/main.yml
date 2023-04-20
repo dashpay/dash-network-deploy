@@ -1,5 +1,14 @@
 ---
 
+- name: Validate configuration
+  ansible.builtin.fail:
+    msg: Either dashmate_branch or dashmate_version must be set
+  when: (dashmate_branch is defined and dashmate_version is defined) or (dashmate_branch is not defined and dashmate_version is not defined)
+
+- name: Set dashmate cmd
+  ansible.builtin.set_fact:
+    dashmate_cmd: "{{ 'yarn dashmate' if dashmate_branch is defined else 'dashmate' }}"
+
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
@@ -93,12 +102,14 @@
     mode: "0750"
   loop:
     - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+  when: dashmate_platform_enable
 
 - name: Generate an OpenSSL private key
   community.crypto.openssl_privatekey:
     path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
+  when: dashmate_platform_enable
 
 - name: Generate an OpenSSL Certificate Signing Request
   community.crypto.openssl_csr:
@@ -107,6 +118,7 @@
     common_name: '{{ inventory_hostname }}'
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
+  when: dashmate_platform_enable
 
 - name: Generate a Self Signed OpenSSL certificate
   community.crypto.x509_certificate:
@@ -116,6 +128,7 @@
     provider: selfsigned
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
+  when: dashmate_platform_enable
 
 - name: Write dashmate's config file
   vars:
@@ -139,6 +152,7 @@
       - pkg-config
       - docker-compose-plugin
     state: present
+  when: dashmate_branch is defined and dashmate_platform_enable
 
 - name: Download Rustup
   ansible.builtin.get_url:
@@ -148,12 +162,13 @@
     group: '{{ dashmate_group }}'
     mode: '0755'
   register: rustup
+  when: dashmate_branch is defined and dashmate_platform_enable
 
 - name: Install Rust
   ansible.builtin.command: '{{ dashmate_home }}/rustup.sh -y'
   become: true
   become_user: dashmate
-  when: rustup.changed  # noqa: no-handler
+  when: rustup.changed and dashmate_branch is defined and dashmate_platform_enable # noqa: no-handler
   changed_when: true
 
 # TODO: it should work without sourcing cargo env
@@ -168,16 +183,14 @@
   args:
     executable: /bin/bash
   changed_when: true
+  when: dashmate_branch is defined and dashmate_platform_enable
 
 - name: Setup Node.JS and NPM
   ansible.builtin.include_role:
     name: geerlingguy.nodejs
   vars:
     nodejs_version: "16.x"
-    nodejs_install_npm_user: "dashmate"
-# todo use that after v24-dev release
-#    nodejs_npm_global_packages:
-#      - name: 'dashmate@{{ dashmate_version }}'
+  when: dashmate_branch is defined
 
 - name: Clone dashmate source
   become: true
@@ -185,20 +198,21 @@
   ansible.builtin.git:
     repo: 'https://github.com/dashpay/platform'
     dest: '{{ dashmate_source_dir }}'
-    version: '{{ platform_branch }}'
+    version: '{{ dashmate_branch }}'
     single_branch: true
     depth: 1
   register: git
+  when: dashmate_branch is defined
 
 - name: Enable corepack
   ansible.builtin.shell: |
     corepack enable
     yarn --version
   become: true
-#  become_user: dashmate
   args:
     creates: '{{ dashmate_home }}/.cache/node/corepack'
     chdir: '{{ dashmate_source_dir }}'
+  when: dashmate_branch is defined
 
 - name: Install Yarn dependencies
   ansible.builtin.command: yarn
@@ -207,6 +221,7 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
     creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
+  when: dashmate_branch is defined
 
 # Build sources to call dashmate
 - name: Build sources
@@ -219,7 +234,7 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
     executable: /bin/bash
-  when: git.changed # noqa: no-handler
+  when: git.changed and dashmate_branch is defined # noqa: no-handler
   changed_when: true
 
 # TODO: We should keep it only in case if we want to build dashmate from the branch
@@ -231,6 +246,26 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
   changed_when: build_dashmate_helper.rc == 0
+  when: dashmate_branch is defined
+
+- name: Get dashmate release assets
+  uri:
+    url: "https://api.github.com/repos/dashpay/platform/releases/tags/v{{ dashmate_version }}"
+    method: GET
+    status_code: 200
+    return_content: true
+  register: release_info
+  when: dashmate_version is defined
+
+- name: Get package architecture
+  shell: dpkg --print-architecture
+  register: deb_architecture
+  when: dashmate_version is defined
+
+- name: Install dashmate package
+  ansible.builtin.apt:
+    deb: "{{ release_info.json.assets | selectattr('name', 'search', '_' + deb_architecture.stdout + '.deb' ) | map(attribute='browser_download_url') | first }}"
+  when: dashmate_version is defined
 
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
   ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev
@@ -239,14 +274,15 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
   changed_when: true
+  when: dashmate_branch is defined
 
 - name: Update dashmate images
-  ansible.builtin.command: yarn dashmate update --verbose
+  ansible.builtin.command: "{{ dashmate_cmd }} update --verbose"
   become: true
   become_user: dashmate
   register: dashmate_update
   args:
-    chdir: '{{ dashmate_source_dir }}'
+    chdir: '{{ dashmate_home }}'
   changed_when: dashmate_update.rc == 0
 
 - name: Change dashmate image back to "dashmate_local"
@@ -256,12 +292,13 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
   changed_when: true
+  when: dashmate_branch is defined
 
-# TODO: status command should work always even if node is not running and we need
+# TODO: we should use status command to figure out if dashmate is running
 #   to get the status from the response
 # Restart dashmate if already running
 - name: Restart dashmate services
-  ansible.builtin.command: yarn dashmate restart --verbose
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
   become: true
   become_user: dashmate
   args:
@@ -272,7 +309,7 @@
 
 # Start if not already running
 - name: Start dashmate services
-  ansible.builtin.command: yarn dashmate start --verbose
+  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
   become: true
   become_user: dashmate
   args:
