@@ -8,6 +8,7 @@
 - name: Set dashmate cmd
   ansible.builtin.set_fact:
     dashmate_cmd: "{{ 'yarn dashmate' if dashmate_branch is defined else 'dashmate' }}"
+    dashmate_cwd: "{{ dashmate_source_dir if dashmate_branch is defined else dashmate_home }}"
 
 - name: Create dashmate group
   ansible.builtin.group:
@@ -268,11 +269,11 @@
   when: dashmate_version is defined
 
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
-  ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
   become: true
   become_user: dashmate
   args:
-    chdir: '{{ dashmate_source_dir }}'
+    chdir: '{{ dashmate_cwd }}'
   changed_when: true
   when: dashmate_branch is defined
 
@@ -282,15 +283,15 @@
   become_user: dashmate
   register: dashmate_update
   args:
-    chdir: '{{ dashmate_home }}'
+    chdir: '{{ dashmate_cwd }}'
   changed_when: dashmate_update.rc == 0
 
 - name: Change dashmate image back to "dashmate_local"
-  ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.image dashmate_local
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashmate_local"
   become: true
   become_user: dashmate
   args:
-    chdir: '{{ dashmate_source_dir }}'
+    chdir: '{{ dashmate_cwd }}'
   changed_when: true
   when: dashmate_branch is defined
 
@@ -302,7 +303,7 @@
   become: true
   become_user: dashmate
   args:
-    chdir: '{{ dashmate_source_dir }}'
+    chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart
   changed_when: dashmate_restart.rc == 0
   ignore_errors: true
@@ -313,7 +314,7 @@
   become: true
   become_user: dashmate
   args:
-    chdir: '{{ dashmate_source_dir }}'
+    chdir: '{{ dashmate_cwd }}'
   register: dashmate_start
   when: "dashmate_restart.rc != 0"
   changed_when: dashmate_start.rc == 0
