@@ -1,9 +1,9 @@
 ---
 # for development
 
-# One of them should be set
-# dashmate_branch:   # install dashmate from the branch
-# dashmate_version:  # install dashmate using specific version
+# One of the following variables must be set
+# dashmate_branch:   # install dashmate from a branch
+# dashmate_version:  # install dashmate using a specific version
 
 dashmate_home: /home/dashmate
 dashmate_config_dir: '{{ dashmate_home }}/.dashmate'
