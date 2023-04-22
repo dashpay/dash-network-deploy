@@ -250,7 +250,7 @@
   when: dashmate_branch is defined
 
 - name: Get dashmate release assets
-  uri:
+  ansible.builtin.uri:
     url: "https://api.github.com/repos/dashpay/platform/releases/tags/v{{ dashmate_version }}"
     method: GET
     status_code: 200
@@ -259,13 +259,14 @@
   when: dashmate_version is defined
 
 - name: Get package architecture
-  shell: dpkg --print-architecture
+  ansible.builtin.command: dpkg --print-architecture
   register: deb_architecture
   when: dashmate_version is defined
+  changed_when: false
 
 - name: Install dashmate package
   ansible.builtin.apt:
-    deb: "{{ release_info.json.assets | selectattr('name', 'search', '_' + deb_architecture.stdout + '.deb' ) | map(attribute='browser_download_url') | first }}"
+    deb: "{{ release_info.json.assets | selectattr('name', 'search', '_' + deb_architecture.stdout + '.deb') | map(attribute='browser_download_url') | first }}"
   when: dashmate_version is defined
 
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
