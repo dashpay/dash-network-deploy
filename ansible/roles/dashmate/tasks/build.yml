@@ -79,7 +79,6 @@
     chdir: '{{ dashmate_source_dir }}'
     creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
-# Build sources to call dashmate
 - name: Build sources
   ansible.builtin.shell: |
     . "$HOME/.cargo/env"
@@ -93,7 +92,6 @@
   when: git.changed # noqa: no-handler
   changed_when: true
 
-# TODO: We should keep it only in case if we want to build dashmate from the branch
 - name: Build dashmate helper
   ansible.builtin.command: docker build -t dashmate_local -f ./packages/dashmate/Dockerfile .
   become: true
