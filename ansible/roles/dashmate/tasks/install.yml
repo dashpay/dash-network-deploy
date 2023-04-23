@@ -1,0 +1,18 @@
+---
+
+- name: Get dashmate release assets
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/dashpay/platform/releases/tags/v{{ dashmate_version }}"
+    method: GET
+    status_code: 200
+    return_content: true
+  register: release_info
+
+- name: Get package architecture
+  ansible.builtin.command: dpkg --print-architecture
+  register: deb_architecture
+  changed_when: false
+
+- name: Install dashmate package
+  ansible.builtin.apt:
+    deb: "{{ release_info.json.assets | selectattr('name', 'search', '_' + deb_architecture.stdout + '.deb') | map(attribute='browser_download_url') | first }}"
