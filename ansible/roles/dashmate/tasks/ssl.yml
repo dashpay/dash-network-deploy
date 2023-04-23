@@ -1,0 +1,34 @@
+---
+
+- name: Create dashmate's ssl directory
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0750"
+  loop:
+    - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+
+- name: Generate an OpenSSL private key
+  community.crypto.openssl_privatekey:
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+
+- name: Generate an OpenSSL Certificate Signing Request
+  community.crypto.openssl_csr:
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
+    privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    common_name: '{{ inventory_hostname }}'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+
+- name: Generate a Self Signed OpenSSL certificate
+  community.crypto.x509_certificate:
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.crt'
+    csr_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
+    privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    provider: selfsigned
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'

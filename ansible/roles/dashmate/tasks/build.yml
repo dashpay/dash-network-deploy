@@ -1,0 +1,104 @@
+---
+
+- name: Install system dependencies
+  ansible.builtin.package:
+    name:
+      - cmake
+      - libzmq3-dev
+      - clang
+      - build-essential
+      - libc-dev
+      - libssl-dev
+      - pkg-config
+      - docker-compose-plugin
+    state: present
+  when: dashmate_platform_enable
+
+- name: Download Rustup
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: '{{ dashmate_home }}/rustup.sh'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  register: rustup
+  when: dashmate_platform_enable
+
+- name: Install Rust
+  ansible.builtin.command: '{{ dashmate_home }}/rustup.sh -y'
+  become: true
+  become_user: dashmate
+  when: rustup.changed and dashmate_platform_enable # noqa: no-handler
+  changed_when: true
+
+# TODO: it should work without sourcing cargo env
+- name: Install Rust dependencies
+  ansible.builtin.shell: |
+    . "$HOME/.cargo/env"
+    rustup toolchain install stable
+    rustup target add wasm32-unknown-unknown --toolchain stable
+    cargo install wasm-bindgen-cli
+  become: true
+  become_user: dashmate
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when: dashmate_platform_enable
+
+- name: Setup Node.JS and NPM
+  ansible.builtin.include_role:
+    name: geerlingguy.nodejs
+  vars:
+    nodejs_version: "16.x"
+
+- name: Clone dashmate source
+  become: true
+  become_user: dashmate
+  ansible.builtin.git:
+    repo: 'https://github.com/dashpay/platform'
+    dest: '{{ dashmate_source_dir }}'
+    version: '{{ dashmate_branch }}'
+    single_branch: true
+    depth: 1
+  register: git
+
+- name: Enable corepack
+  ansible.builtin.shell: |
+    corepack enable
+    yarn --version
+  become: true
+  args:
+    creates: '{{ dashmate_home }}/.cache/node/corepack'
+    chdir: '{{ dashmate_source_dir }}'
+
+- name: Install Yarn dependencies
+  ansible.builtin.command: yarn install
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
+
+# Build sources to call dashmate
+- name: Build sources
+  ansible.builtin.shell: |
+    . "$HOME/.cargo/env"
+    yarn workspace @dashevo/wasm-dpp build
+    yarn workspace dash build
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+    executable: /bin/bash
+  when: git.changed # noqa: no-handler
+  changed_when: true
+
+# TODO: We should keep it only in case if we want to build dashmate from the branch
+- name: Build dashmate helper
+  ansible.builtin.command: docker build -t dashmate_local -f ./packages/dashmate/Dockerfile .
+  become: true
+  become_user: dashmate
+  register: build_dashmate_helper
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+  changed_when: build_dashmate_helper.rc == 0

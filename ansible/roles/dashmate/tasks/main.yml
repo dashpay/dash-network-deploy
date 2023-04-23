@@ -94,43 +94,6 @@
   loop:
     - '{{ dashmate_config_dir }}'
 
-- name: Create dashmate's ssl directory
-  ansible.builtin.file:
-    path: '{{ item }}'
-    state: directory
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-    mode: "0750"
-  loop:
-    - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
-  when: dashmate_platform_enable
-
-- name: Generate an OpenSSL private key
-  community.crypto.openssl_privatekey:
-    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-  when: dashmate_platform_enable
-
-- name: Generate an OpenSSL Certificate Signing Request
-  community.crypto.openssl_csr:
-    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
-    privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
-    common_name: '{{ inventory_hostname }}'
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-  when: dashmate_platform_enable
-
-- name: Generate a Self Signed OpenSSL certificate
-  community.crypto.x509_certificate:
-    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.crt'
-    csr_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
-    privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
-    provider: selfsigned
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-  when: dashmate_platform_enable
-
 - name: Write dashmate's config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
@@ -141,132 +104,16 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
 
-- name: Install system dependencies
-  ansible.builtin.package:
-    name:
-      - cmake
-      - libzmq3-dev
-      - clang
-      - build-essential
-      - libc-dev
-      - libssl-dev
-      - pkg-config
-      - docker-compose-plugin
-    state: present
-  when: dashmate_branch is defined and dashmate_platform_enable
+- name: Generate Self-singed SSL certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl.yml
+  when: dashmate_platform_enable
 
-- name: Download Rustup
-  ansible.builtin.get_url:
-    url: https://sh.rustup.rs
-    dest: '{{ dashmate_home }}/rustup.sh'
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-    mode: '0755'
-  register: rustup
-  when: dashmate_branch is defined and dashmate_platform_enable
-
-- name: Install Rust
-  ansible.builtin.command: '{{ dashmate_home }}/rustup.sh -y'
-  become: true
-  become_user: dashmate
-  when: rustup.changed and dashmate_branch is defined and dashmate_platform_enable # noqa: no-handler
-  changed_when: true
-
-# TODO: it should work without sourcing cargo env
-- name: Install Rust dependencies
-  ansible.builtin.shell: |
-    . "$HOME/.cargo/env"
-    rustup toolchain install stable
-    rustup target add wasm32-unknown-unknown --toolchain stable
-    cargo install wasm-bindgen-cli
-  become: true
-  become_user: dashmate
-  args:
-    executable: /bin/bash
-  changed_when: true
-  when: dashmate_branch is defined and dashmate_platform_enable
-
-- name: Setup Node.JS and NPM
-  ansible.builtin.include_role:
-    name: geerlingguy.nodejs
-  vars:
-    nodejs_version: "16.x"
+- name: Build dashmate
+  ansible.builtin.import_tasks: ./build.yml
   when: dashmate_branch is defined
 
-- name: Clone dashmate source
-  become: true
-  become_user: dashmate
-  ansible.builtin.git:
-    repo: 'https://github.com/dashpay/platform'
-    dest: '{{ dashmate_source_dir }}'
-    version: '{{ dashmate_branch }}'
-    single_branch: true
-    depth: 1
-  register: git
-  when: dashmate_branch is defined
-
-- name: Enable corepack
-  ansible.builtin.shell: |
-    corepack enable
-    yarn --version
-  become: true
-  args:
-    creates: '{{ dashmate_home }}/.cache/node/corepack'
-    chdir: '{{ dashmate_source_dir }}'
-  when: dashmate_branch is defined
-
-- name: Install Yarn dependencies
-  ansible.builtin.command: yarn
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_source_dir }}'
-    creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
-  when: dashmate_branch is defined
-
-# Build sources to call dashmate
-- name: Build sources
-  ansible.builtin.shell: |
-    . "$HOME/.cargo/env"
-    yarn workspace @dashevo/wasm-dpp build
-    yarn workspace dash build
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_source_dir }}'
-    executable: /bin/bash
-  when: git.changed and dashmate_branch is defined # noqa: no-handler
-  changed_when: true
-
-# TODO: We should keep it only in case if we want to build dashmate from the branch
-- name: Build dashmate helper
-  ansible.builtin.command: docker build -t dashmate_local -f ./packages/dashmate/Dockerfile .
-  become: true
-  become_user: dashmate
-  register: build_dashmate_helper
-  args:
-    chdir: '{{ dashmate_source_dir }}'
-  changed_when: build_dashmate_helper.rc == 0
-  when: dashmate_branch is defined
-
-- name: Get dashmate release assets
-  ansible.builtin.uri:
-    url: "https://api.github.com/repos/dashpay/platform/releases/tags/v{{ dashmate_version }}"
-    method: GET
-    status_code: 200
-    return_content: true
-  register: release_info
-  when: dashmate_version is defined
-
-- name: Get package architecture
-  ansible.builtin.command: dpkg --print-architecture
-  register: deb_architecture
-  when: dashmate_version is defined
-  changed_when: false
-
-- name: Install dashmate package
-  ansible.builtin.apt:
-    deb: "{{ release_info.json.assets | selectattr('name', 'search', '_' + deb_architecture.stdout + '.deb') | map(attribute='browser_download_url') | first }}"
+- name: Install dashmate
+  ansible.builtin.import_tasks: ./install.yml
   when: dashmate_version is defined
 
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
