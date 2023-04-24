@@ -9,3 +9,8 @@
   ansible.builtin.file:
     state: absent
     path: "{{ dashmate_logs_dir }}/"
+
+- name: Delete dashmate source dir
+  ansible.builtin.file:
+    state: absent
+    path: "{{ dashmate_source_dir }}/"
