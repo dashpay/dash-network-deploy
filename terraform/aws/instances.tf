@@ -264,7 +264,7 @@ resource "aws_instance" "hp_masternode_amd" {
   instance_type        = "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
-  associate_public_ip_address = !var.create_eip
+  associate_public_ip_address = true
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
@@ -305,7 +305,7 @@ resource "aws_instance" "hp_masternode_arm" {
   instance_type        = "t4g.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
-  associate_public_ip_address = !var.create_eip
+  associate_public_ip_address = true
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
