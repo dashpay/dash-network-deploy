@@ -1,20 +1,23 @@
 ---
 
+- name: Set vars
+  ansible.builtin.import_tasks: ./set_vars.yml
+
 - name: Stop node
-  ansible.builtin.command: yarn dashmate stop
+  ansible.builtin.command: "{{ dashmate_cmd }} stop"
   become: true
   become_user: dashmate
   ignore_errors: true
   args:
-    chdir: '{{ dashmate_source_dir }}'
+    chdir: '{{ dashmate_cwd }}'
   register: dashmate_stop
   changed_when: dashmate_stop.rc == 0
 
 - name: Reset platform
-  ansible.builtin.command: yarn dashmate reset --platform-only --force
+  ansible.builtin.command: "{{ dashmate_cmd }} reset --platform-only --force"
   become: true
   become_user: dashmate
   args:
-    chdir: '{{ dashmate_source_dir }}'
+    chdir: '{{ dashmate_cwd }}'
   register: dashmate_reset
   changed_when: dashmate_reset.rc == 0
