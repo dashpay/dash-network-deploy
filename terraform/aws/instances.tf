@@ -292,7 +292,7 @@ resource "aws_instance" "hp_masternode_amd" {
   }
 
   lifecycle {
-    ignore_changes = [ami]
+    ignore_changes = [ami, associate_public_ip_address]
   }
 
 }
@@ -333,7 +333,7 @@ resource "aws_instance" "hp_masternode_arm" {
   }
 
   lifecycle {
-    ignore_changes = [ami]
+    ignore_changes = [ami, associate_public_ip_address]
   }
 
 }
