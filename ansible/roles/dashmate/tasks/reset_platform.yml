@@ -4,7 +4,7 @@
   ansible.builtin.import_tasks: ./set_vars.yml
 
 - name: Stop node
-  ansible.builtin.command: {{ dashmate_cmd }} stop
+  ansible.builtin.command: "{{ dashmate_cmd }} stop"
   become: true
   become_user: dashmate
   ignore_errors: true
@@ -14,7 +14,7 @@
   changed_when: dashmate_stop.rc == 0
 
 - name: Reset platform
-  ansible.builtin.command: {{ dashmate_cmd }} reset --platform-only --force
+  ansible.builtin.command: "{{ dashmate_cmd }} reset --platform-only --force"
   become: true
   become_user: dashmate
   args:
