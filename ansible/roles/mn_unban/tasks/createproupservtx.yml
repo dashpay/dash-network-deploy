@@ -29,7 +29,7 @@
 
 - name: Add resulting mn txid to list
   ansible.builtin.set_fact:
-    created_protx_list: "{{ created_protx_list + [protx.stdout] }}" # noqa: no-handler
+    created_protx_list: "{{ created_protx_list + [mn_protx.stdout] }}" # noqa: no-handler
   when: mn_protx.changed
 
 - name: Add resulting hpmn txid to list
