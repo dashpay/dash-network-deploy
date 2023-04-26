@@ -41,6 +41,7 @@
   ansible.builtin.set_fact:
     registered_masternode_names: []
 
+# TODO: this needs to query the HPMN owner address if the item is an HPMN
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
     registered_masternode_names: '{{ registered_masternode_names + [item] }}'
