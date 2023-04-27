@@ -16,3 +16,4 @@
 - name: Install dashmate package
   ansible.builtin.apt:
     deb: "{{ release_info.json.assets | selectattr('name', 'search', '_' + deb_architecture.stdout + '.deb') | map(attribute='browser_download_url') | first }}"
+    force: true

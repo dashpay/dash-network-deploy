@@ -159,3 +159,23 @@
   register: dashmate_start
   when: "dashmate_restart.rc != 0"
   changed_when: dashmate_start.rc == 0
+
+# Restart only changed services (only works for package-installed dashmate)
+- name: Export current dashmate config
+  ansible.builtin.shell: "{{ dashmate_cmd }} config envs > .env"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_envs
+  # when: TODO: we need to write tags for these commands
+  changed_when: dashmate_envs.rc == 0
+
+- name: Use docker compose to start only changed containers
+  ansible.builtin.shell: "LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) docker compose --env-file {{ dashmate_cwd }}/.env up -d"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: /usr/lib/dashmate
+  register: dashmate_compose_up
+  changed_when: dashmate_compose_up.rc == 0
