@@ -14,6 +14,13 @@
       name: tender
   register: tenderdash_host_info
 
+- name: Get drive container id
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: abci
+  register: drive_host_info
+
 - name: Load common filebeat config
   ansible.builtin.include_vars:
     file: common.yml

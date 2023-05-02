@@ -1,83 +1,22 @@
 ---
 
 filebeat_platform_inputs:
-  - type: log
-    enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
-    json.message_key: msg
+  - type: container
+    enabled: "{{ drive_host_info.containers | length > 0 }}"
+    json.message_key: log
     json.keys_under_root: false
-    exclude_files: ['\.gz$']
     index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - "{{ abci_logs_path }}/drive-json*.log*"
+      - '/var/lib/docker/containers/{{ drive_host_info.containers[0].Id }}/*.log'
     processors:
       - timestamp:
           field: json.time
           layouts:
             - UNIX_MS
-      - if:
-          equals:
-            json.level: 10
-        then:
-          - add_fields:
-              target: log
-              fields:
-                level: trace
-      - if:
-          equals:
-            json.level: 20
-        then:
-          - add_fields:
-              target: log
-              fields:
-                level: debug
-      - if:
-          equals:
-            json.level: 30
-        then:
-          - add_fields:
-              target: log
-              fields:
-                level: info
-      - if:
-          equals:
-            json.level: 40
-        then:
-          - add_fields:
-              target: log
-              fields:
-                level: warn
-      - if:
-          equals:
-            json.level: 50
-        then:
-          - add_fields:
-              target: log
-              fields:
-                level: error
-      - if:
-          equals:
-            json.level: 60
-        then:
-          - add_fields:
-              target: log
-              fields:
-                level: fatal
       - add_fields:
           target: event
           fields:
             dataset: "drive.abci-{{ dash_network_name }}"
-      - rename:
-          fields:
-            - from: "json.msg"
-              to: "message"
-          ignore_missing: true
-          fail_on_error: true
-      - drop_fields:
-          fields:
-            - json.pid
-            - json.hostname
-            - json.time
-          ignore_missing: true
   - type: container
     enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
     json.message_key: message
