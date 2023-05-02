@@ -3,12 +3,15 @@
 filebeat_platform_inputs:
   - type: container
     enabled: "{{ drive_host_info.containers | length > 0 }}"
-    json.message_key: log
     json.keys_under_root: false
     index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
     paths:
       - '/var/lib/docker/containers/{{ drive_host_info.containers[0].Id }}/*.log'
     processors:
+      - dissect:
+          tokenizer: "%{timestamp} %{log.level} %{log.module} %{message}"
+          field: "log"
+          target_prefix: ""
       - timestamp:
           field: json.time
           layouts:
