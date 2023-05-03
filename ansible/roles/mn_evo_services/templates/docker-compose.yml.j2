@@ -38,7 +38,6 @@ services:
 
   tendermint:
     image: {{ tendermint_image }}
-    entrypoint: sh -c "sleep 30 && /usr/bin/tenderdash node"
     restart: always
     ports:
       - {{ tendermint_rpc_port }}:26657
