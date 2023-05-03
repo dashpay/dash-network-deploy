@@ -9,13 +9,10 @@ filebeat_platform_inputs:
       - '/var/lib/docker/containers/{{ drive_host_info.containers[0].Id }}/*.log'
     processors:
       - dissect:
-          tokenizer: "%{timestamp} %{log.level} %{log.module} %{message}"
+          tokenizer: "%{?timestamp} %{log.level} %{message}"
           field: "log"
           target_prefix: ""
-      - timestamp:
-          field: json.time
-          layouts:
-            - UNIX_MS
+          overwrite_keys: true
       - add_fields:
           target: event
           fields:
