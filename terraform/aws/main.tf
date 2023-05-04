@@ -236,30 +236,26 @@ locals {
   dns_record_length = 10 // recommended number of hosts per A record. Other way there might be problems with resolving of seeds in some regions.
 }
 
+# shuffle hpmn ips only
 resource "random_shuffle" "dns_ips" {
   input = concat(
-    aws_instance.masternode_amd.*.public_ip,
-    aws_instance.masternode_arm.*.public_ip,
     var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
     var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
   )
   result_count = length(
     concat(
-      aws_instance.masternode_amd.*.public_ip,
-      aws_instance.masternode_arm.*.public_ip,
       var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
       var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
     )
   ) > local.dns_record_length ? local.dns_record_length : length(
     concat(
-      aws_instance.masternode_amd.*.public_ip,
-      aws_instance.masternode_arm.*.public_ip,
       var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
       var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
     )
   )
 }
 
+# `seed-n` type addresses are dapi endpoints
 resource "aws_route53_record" "masternodes" {
   zone_id = data.aws_route53_zone.main_domain[0].zone_id
   name    = "seed-${count.index + 1}.${var.public_network_name}.${var.main_domain}"
