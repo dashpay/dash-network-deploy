@@ -16,6 +16,7 @@
   with_items:
     - docker-compose.yml
     - init.sql
+    - config/faucet.conf.php
 
 - name: Apply multifaucet config
   ansible.builtin.template:
@@ -25,7 +26,6 @@
   with_items:
     - config/db.conf.php
     - config/wallet.conf.php
-    - config/faucet.conf.php.j2
 
 - name: Start multifaucet service
   community.docker.docker_compose:

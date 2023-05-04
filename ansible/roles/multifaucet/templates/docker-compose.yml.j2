@@ -36,7 +36,7 @@ services:
       - MULTIFAUCET_MAX_PAYOUT={{ faucet_maximum_payout }}
       - MULTIFAUCET_PAYOUT_THRESHOLD={{ faucet_payout_threshold }}
       - MULTIFAUCET_PAYOUT_INTERVAL={{ faucet_payout_interval }}
-      - MULTIFAUCET_RECAPTCHA_PUBLIC_KEY={{ faucet_recaptcha_public_key }}
+      - MULTIFAUCET_RECAPTCHA_PUBLIC_KEY={{ faucet_recaptcha_public_key | default() }}
     volumes:
       - ./config:/var/www/html/config/
     ports:
