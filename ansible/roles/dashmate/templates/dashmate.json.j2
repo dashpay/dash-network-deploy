@@ -64,7 +64,12 @@
             "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
             "powTargetSpacing": {{ dashd_powtargetspacing }}
         },
-        "debug": {{ dashd_debug }},
+        "log": {
+          "file": {
+            "categories": {% if dashd_debug == 1%}[“all”]{% else %}[]{% endif %},
+            "path": "{{ dashmate_logs_dir }}/core.log"
+          }
+        },
         "logIps": 0,
         "indexes": true,
         "reindex": {
