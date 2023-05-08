@@ -33,6 +33,8 @@
       dangling: true
     networks: true
     volumes: true
+    volumes_filters:
+      all: true
     builder_cache: true
 
 - name: Unmount data
