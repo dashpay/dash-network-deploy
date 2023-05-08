@@ -170,7 +170,7 @@
   changed_when: dashmate_start.rc == 0
 
 # TODO Convenient tasks until we have this functionality in dashmate
-#- name: Replace parameters in tenderdash config
+# - name: Replace parameters in tenderdash config
 #  ansible.builtin.lineinfile:
 #    path: /home/dashmate/.dashmate/testnet/platform/drive/tenderdash/config.toml
 #    regexp: "^(# )?{{ item.parameter }} = .*$"
@@ -211,7 +211,7 @@
 #    - parameter: 'unsafe-commit-timeout-override'
 #      value: '3s'
 
-#- name: Create and start services if needed
+# - name: Create and start services if needed
 #  ansible.builtin.shell: |
 #    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
 #    docker compose --env-file {{ dashmate_home }}/.env \
@@ -223,7 +223,7 @@
 #  register: dashmate_compose_command
 #  changed_when: dashmate_compose_command.rc == 0
 
-#- name: Restart platform services
+# - name: Restart platform services
 #  ansible.builtin.shell: |
 #    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
 #    docker compose --env-file {{ dashmate_home }}/.env \
