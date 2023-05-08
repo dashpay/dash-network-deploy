@@ -109,6 +109,15 @@
   ansible.builtin.import_tasks: ./install.yml
   when: dashmate_version is defined
 
+- name: Export current dashmate config
+  ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_envs
+  changed_when: dashmate_envs.rc == 0
+
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
   become: true
@@ -159,3 +168,69 @@
   register: dashmate_start
   when: "dashmate_restart.rc != 0"
   changed_when: dashmate_start.rc == 0
+
+# TODO Convenient tasks until we have this functionality in dashmate
+# - name: Replace parameters in tenderdash config
+#  ansible.builtin.lineinfile:
+#    path: /home/dashmate/.dashmate/testnet/platform/drive/tenderdash/config.toml
+#    regexp: "^(# )?{{ item.parameter }} = .*$"
+#    line: "{{ item.parameter }} = \"{{ item.value }}\""
+#  loop:
+#    # This field provides an unsafe override of the Propose timeout consensus parameter.
+#    # This field configures how long the consensus engine will wait for a proposal block before prevoting nil.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 3s
+#    - parameter: 'unsafe-propose-timeout-override'
+#      value: '5s'
+#
+#    # This field provides an unsafe override of the ProposeDelta timeout consensus parameter.
+#    # This field configures how much the propose timeout increases with each round.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 500ms
+#    - parameter: 'unsafe-propose-timeout-delta-override'
+#      value: '1000ms'
+#
+#    # This field provides an unsafe override of the Vote timeout consensus parameter.
+#    # This field configures how long the consensus engine will wait after receiving +2/3 votes in a round.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 1s
+#    - parameter: 'unsafe-vote-timeout-override'
+#      value: '5s'
+#
+#    # This field provides an unsafe override of the VoteDelta timeout consensus parameter.
+#    # This field configures how much the vote timeout increases with each round.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 500ms,
+#    - parameter: 'unsafe-vote-timeout-delta-override'
+#      value: '1000ms'
+#
+#    # This field provides an unsafe override of the Commit timeout consensus parameter.
+#    # This field configures how long the consensus engine will wait after receiving +2/3 precommits before beginning the next height.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 1s
+#    - parameter: 'unsafe-commit-timeout-override'
+#      value: '3s'
+
+# - name: Create and start services if needed
+#  ansible.builtin.shell: |
+#    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+#    docker compose --env-file {{ dashmate_home }}/.env \
+#    up -d
+#  become: true
+#  become_user: dashmate
+#  args:
+#    chdir: /usr/lib/dashmate
+#  register: dashmate_compose_command
+#  changed_when: dashmate_compose_command.rc == 0
+
+# - name: Restart platform services
+#  ansible.builtin.shell: |
+#    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+#    docker compose --env-file {{ dashmate_home }}/.env \
+#    restart drive_abci drive_tenderdash dapi_api dapi_tx_filter_stream
+#  become: true
+#  become_user: dashmate
+#  args:
+#    chdir: /usr/lib/dashmate
+#  register: dashmate_compose_command
+#  changed_when: dashmate_compose_command.rc == 0
