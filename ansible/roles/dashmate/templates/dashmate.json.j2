@@ -171,11 +171,11 @@
               "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
               "consensus_params": {
                 "timeout": {
-                  "propose": "50s",
-                  "propose_delta": "10s",
-                  "vote": "500ms",
-                  "vote_delta": "100ms",
-                  "commit": "1s",
+                  "propose": "50000000000",
+                  "propose_delta": "10000000000",
+                  "vote": "500000000",
+                  "vote_delta": "100000000",
+                  "commit": "1000000000",
                   "bypass_commit_timeout": false
                 },
                 "block": {
