@@ -170,6 +170,14 @@
               "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
               "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
               "consensus_params": {
+                "timeout": {
+                  "propose": "50s",
+                  "propose_delta": "10s",
+                  "vote": "500ms",
+                  "vote_delta": "100ms",
+                  "commit": "1s",
+                  "bypass_commit_timeout": false
+                },
                 "block": {
                   "max_bytes": "22020096",
                   "max_gas": "-1",
