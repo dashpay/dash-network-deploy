@@ -1,24 +1,39 @@
 ---
 
 collections:
+  - name: ansible.posix
+    version: 1.5.1
+
   - name: ansible.utils
-    version: 2.6.1
+    version: 2.9.0
+
+  - name: community.crypto
+    version: 2.11.1
+
+  - name: community.docker
+    version: 3.4.3
+
+  - name: community.general
+    version: 6.5.0
 
 roles:
-  - src: geerlingguy.pip
-    version: 2.1.0
+  - src: arillso.logrotate
+    version: 1.6.1
 
   - src: geerlingguy.docker
-    version: 4.2.2
+    version: 6.1.0
+
+  - src: geerlingguy.filebeat
+    version: 3.5.0
+
+  - src: geerlingguy.nodejs
+    version: 6.1.0
+
+  - src: geerlingguy.pip
+    version: 2.2.0
 
   - src: kyl191.openvpn
     version: v0.9.1
 
   - src: Restless-ET.aws-scripts-mon
     version: 1.0.1
-
-  - src: arillso.logrotate
-    version: 1.6.1
-
-  - src: geerlingguy.filebeat
-    version: 3.4.1

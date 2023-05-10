@@ -40,6 +40,19 @@
     body_format: json
     body: "{{ lookup('file', 'files/index-templates/logs-drive.tenderdash.json') }}"
 
+- name: Set replica count to zero
+  when: play_hosts | length == 1
+  ansible.builtin.uri:
+    url: http://localhost:9200/_settings
+    method: PUT
+    status_code: 200
+    user: '{{ elastic_username }}'
+    password: '{{ elastic_password }}'
+    body_format: json
+    body:
+      index:
+        number_of_replicas: 0
+
 - name: Set up Kibana UI
   ansible.builtin.uri:
     url: http://localhost:5601/api/saved_objects/_bulk_create

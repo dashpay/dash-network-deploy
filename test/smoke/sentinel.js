@@ -3,6 +3,11 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory } = getNetworkConfig();
 
+const allMasternodes = [
+  ...(inventory.masternodes?.hosts ?? []),
+  ...(inventory.hp_masternodes?.hosts ?? []),
+];
+
 describe('Sentinel', () => {
   describe('All nodes', () => {
     // Set up vars and functions to hold Sentinel responses
@@ -14,11 +19,10 @@ describe('Sentinel', () => {
 
       const promises = [];
 
-      for (const hostName of inventory.masternodes.hosts) {
+      for (const hostName of allMasternodes) {
         const timeout = 15000; // set individual docker client timeout
         const docker = new Docker({
-          // eslint-disable-next-line no-underscore-dangle
-          host: `http://${inventory._meta.hostvars[hostName].public_ip}`,
+          host: `http://${inventory.meta.hostvars[hostName].public_ip}`,
           port: 2375,
           timeout,
         });
@@ -42,8 +46,7 @@ describe('Sentinel', () => {
           }))
           .then((result) => {
             getContainer[hostName] = result.toString();
-          })
-          .catch(() => {});
+          });
 
         promises.push(requestListContainers);
       }
@@ -51,7 +54,7 @@ describe('Sentinel', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of inventory.masternodes.hosts) {
+    for (const hostName of allMasternodes) {
       // eslint-disable-next-line no-loop-func
       describe(hostName, () => {
         it('should be running without errors', async () => {

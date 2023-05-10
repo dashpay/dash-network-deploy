@@ -4,11 +4,10 @@ import subprocess
 import sys
 import json
 
-COIN = 100000000
-
 rpcargs = sys.argv[1]
 mn_address = sys.argv[2]
-find_protx = sys.argv[3] == 'True'
+coin = int(sys.argv[3]) * 100000
+find_protx = sys.argv[4] == 'True'
 
 blockchaininfo_s = subprocess.run("dash-cli %s getblockchaininfo" % (rpcargs), shell=True, check=True, stdout=subprocess.PIPE).stdout.decode("utf-8")
 unspent_s = subprocess.run("dash-cli %s listunspent 0 9999999 \'[\"%s\"]\'" % (rpcargs, mn_address), shell=True, check=True, stdout=subprocess.PIPE).stdout.decode("utf-8")
@@ -34,7 +33,7 @@ utxos = unspent
 for u in addressutxos:
     e = {
         "txid": u.get('txid'),
-        "amount": u.get('satoshis') / COIN,
+        "amount": u.get('satoshis') / coin,
         "vout": u.get('outputIndex'),
         "confirmations": tipHeight - u.get('height')
     }

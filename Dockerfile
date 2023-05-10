@@ -1,46 +1,52 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 LABEL maintainer="Dash Developers <dev@dash.org>"
 LABEL description="Dash Network Deployment Tool"
 
-# Install build utils
+# Install build utils and Firefox deps
 
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    bzip2 \
     ca-certificates \
     curl \
-    unzip \
+    git \
+    gnupg \
+    openvpn \
     python3-pip \
     python3-setuptools \
-    git \
-    openvpn \
     software-properties-common \
-    gnupg \
-    firefox \
-    ssh
+    ssh \
+    unzip
 
 # Install Node.JS
 
 RUN curl -sSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     nodejs
 
 # Install terraform
 
-ARG TERRAFORM_VERSION=1.0.5
-
-RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+ARG TERRAFORM_VERSION=1.4.4
+RUN curl -fsSLO https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 # Install Docker client
 
-ENV DOCKERVERSION=20.10.8
+ENV DOCKERVERSION=23.0.3
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
-    && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
-    -C /usr/local/bin docker/docker \
+    && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 -C /usr/local/bin docker/docker \
     && rm docker-${DOCKERVERSION}.tgz
+
+# Install Chrome
+
+# Check available versions here: https://www.ubuntuupdates.org/package/google_chrome/stable/main/base/google-chrome-stable
+ENV CHROMEVERSION=112.0.5615.49-1
+ENV CHROME_BIN="/usr/bin/google-chrome"
+RUN curl -fsSL https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${CHROMEVERSION}_amd64.deb -o /tmp/chrome.deb \
+    && apt install -y --no-install-recommends /tmp/chrome.deb \
+    && rm /tmp/chrome.deb
 
 # Copy dash-cli form dashd image
 
@@ -67,7 +73,6 @@ RUN apt-get remove --purge -y \
     python3-setuptools \
     unzip \
     curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . .

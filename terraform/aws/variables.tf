@@ -48,22 +48,17 @@ variable "drive_port" {
 
 variable "dapi_port" {
   description = "DAPI port"
-  default     = 3000
-}
-
-variable "dapi_grpc_port" {
-  description = "DAPI GRPC port"
-  default     = 3010
+  default     = 1443
 }
 
 variable "tendermint_p2p_port" {
   description = "Tendermint P2P port"
-  default     = 26656
+  default     = 36656
 }
 
 variable "tendermint_rpc_port" {
   description = "Tendermint RPC port"
-  default     = 26657
+  default     = 36657
 }
 
 variable "tendermint_abci_port" {
@@ -106,7 +101,19 @@ variable "miner_count" {
   default = 1
 }
 
-variable "masternode_count" {
+variable "masternode_amd_count" {
+  default = 3
+}
+
+variable "masternode_arm_count" {
+  default = 3
+}
+
+variable "hp_masternode_amd_count" {
+  default = 3
+}
+
+variable "hp_masternode_arm_count" {
   default = 3
 }
 
@@ -125,9 +132,9 @@ variable "logs_count" {
   description = "number of logging nodes to create. set to 0 to disable logging for the network"
 }
 
-variable "host_arch" {
-  description = "use amd64 (t3.*) or arm64 (t4g.*) EC2 instances"
-  default     = "amd64"
+variable "main_host_arch" {
+  description = "use amd64 (t3.*) or arm64 (t4g.*) EC2 instances for non-masternodes"
+  default     = "arm64"
 }
 
 variable "vpn_enabled" {
@@ -162,12 +169,12 @@ variable "core_node_disk_size" {
 
 variable "mn_node_disk_size" {
   description = "Disk size of masternodes"
-  default     = 30
+  default     = 20
 }
 
-variable "web_node_disk_size" {
-  description = "Disk size of web nodes"
-  default     = 50
+variable "hpmn_node_disk_size" {
+  description = "Disk size of HP masternodes"
+  default     = 30
 }
 
 variable "logs_node_root_disk_size" {
@@ -188,4 +195,15 @@ variable "logs_node_instance_size" {
 variable "wallet_node_instance_size" {
   description = "Instance type of wallet nodes"
   default     = "micro"
+}
+
+variable "volume_type" {
+  description = "Type of volume to use for block devices"
+  default     = "gp3"
+}
+
+variable "create_eip" {
+  description = "Whether to create an Elastic IP for the instance"
+  type        = bool
+  default     = true
 }

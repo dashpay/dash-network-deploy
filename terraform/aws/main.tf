@@ -9,30 +9,31 @@ data "aws_availability_zones" "available" {
   state         = "available"
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "ubuntu_amd" {
   most_recent = true
 
   filter {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-*-22.04-*-server-*",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-2023*",
     ]
   }
 
+  owners = [
+    "099720109477",
+  ]
+  # Canonical
+}
+
+data "aws_ami" "ubuntu_arm" {
+  most_recent = true
+
   filter {
-    name = "architecture"
+    name = "name"
 
     values = [
-      var.host_arch == "arm64" ? "arm64" : "x86_64"
-    ]
-  }
-
-  filter {
-    name = "virtualization-type"
-
-    values = [
-      "hvm",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-2023*",
     ]
   }
 
@@ -235,11 +236,26 @@ locals {
   dns_record_length = 10 // recommended number of hosts per A record. Other way there might be problems with resolving of seeds in some regions.
 }
 
+# shuffle hpmn ips only
 resource "random_shuffle" "dns_ips" {
-  input        = concat(aws_instance.masternode.*.public_ip)
-  result_count = length(concat(aws_instance.masternode.*.public_ip)) > local.dns_record_length ? local.dns_record_length : length(concat(aws_instance.masternode.*.public_ip))
+  input = concat(
+    var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
+    var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
+  )
+  result_count = length(
+    concat(
+      var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
+      var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
+    )
+  ) > local.dns_record_length ? local.dns_record_length : length(
+    concat(
+      var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
+      var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
+    )
+  )
 }
 
+# `seed-n` type addresses are dapi endpoints
 resource "aws_route53_record" "masternodes" {
   zone_id = data.aws_route53_zone.main_domain[0].zone_id
   name    = "seed-${count.index + 1}.${var.public_network_name}.${var.main_domain}"

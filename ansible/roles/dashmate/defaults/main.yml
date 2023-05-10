@@ -1,0 +1,15 @@
+---
+# for development
+
+# One of the following variables must be set
+# dashmate_branch:   # install dashmate from a branch
+# dashmate_version:  # install dashmate using a specific version
+
+dashmate_home: /home/dashmate
+dashmate_config_dir: '{{ dashmate_home }}/.dashmate'
+dashmate_logs_dir: /var/log/dashmate
+dashmate_source_dir: '{{ dashmate_home }}/platform'
+dashmate_user: "dashmate"
+dashmate_group: "dashmate"
+dashmate_api_port: 9000
+dashmate_platform_enable: true

@@ -1,0 +1,236 @@
+---
+
+- name: Set vars
+  ansible.builtin.import_tasks: ./set_vars.yml
+
+- name: Create dashmate group
+  ansible.builtin.group:
+    name: '{{ dashmate_group }}'
+
+- name: Create dashmate user
+  ansible.builtin.user:
+    name: '{{ dashmate_user }}'
+    comment: 'Dashmate user'
+    group: '{{ dashmate_group }}'
+    home: '{{ dashmate_home }}'
+    create_home: true
+    shell: /bin/bash
+    umask: '0002'
+
+- name: Add dashmate user to docker group
+  ansible.builtin.user:
+    name: 'dashmate'
+    groups: docker
+    append: true
+
+- name: Write dash.conf for dash-cli
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: /etc/dash.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure users for dash-cli
+  ansible.builtin.include_role:
+    name: dash_cli
+    tasks_from: configure_users
+  vars:
+    dashmate_user_dict:
+      user: '{{ dashmate_user }}'
+      group: '{{ dashmate_group }}'
+      dir: '{{ dashmate_home }}'
+    users: '{{ system_users + [dashmate_user_dict] }}'
+
+- name: Create logs dir
+  ansible.builtin.file:
+    path: '{{ dashmate_logs_dir }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    recurse: true
+    mode: "0755"
+
+- name: Configure log rotation
+  ansible.builtin.include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_applications:
+      - name: platform-logs
+        definitions:
+          - logs:
+              - '{{ dashmate_logs_dir }}/*.log'
+            options:
+              - rotate 7
+              - daily
+              - maxsize 1G
+              - missingok
+              - notifempty
+              - copytruncate
+              - compress
+              - delaycompress
+
+- name: Ensure logrotate runs hourly under systemd timer
+  ansible.builtin.lineinfile:
+    path: /lib/systemd/system/logrotate.timer
+    regexp: '^OnCalendar=hourly'
+    insertafter: '^OnCalendar=daily'
+    line: OnCalendar=hourly
+
+- name: Create dashmate's config dir
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  loop:
+    - '{{ dashmate_config_dir }}'
+
+- name: Write dashmate's config file
+  vars:
+    template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
+  ansible.builtin.template:
+    src: dashmate.json.j2
+    dest: '{{ dashmate_config_dir }}/config.json'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0644"
+
+- name: Generate Self-singed SSL certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl.yml
+  when: dashmate_platform_enable
+
+- name: Build dashmate
+  ansible.builtin.import_tasks: ./build.yml
+  when: dashmate_branch is defined
+
+- name: Install dashmate
+  ansible.builtin.import_tasks: ./install.yml
+  when: dashmate_version is defined
+
+- name: Export current dashmate config
+  ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_envs
+  changed_when: dashmate_envs.rc == 0
+
+- name: Change dashmate image to avoid 'pull access denied for dashmate_local'
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  changed_when: true
+  when: dashmate_branch is defined
+
+- name: Update dashmate images
+  ansible.builtin.command: "{{ dashmate_cmd }} update --verbose"
+  become: true
+  become_user: dashmate
+  register: dashmate_update
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  changed_when: dashmate_update.rc == 0
+
+- name: Change dashmate image back to "dashmate_local"
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashmate_local"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  changed_when: true
+  when: dashmate_branch is defined
+
+# TODO: we should use status command to figure out if dashmate is running
+#   to get the status from the response
+# Restart dashmate if already running
+- name: Restart dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_restart
+  changed_when: dashmate_restart.rc == 0
+  ignore_errors: true
+
+# Start if not already running
+- name: Start dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_start
+  when: "dashmate_restart.rc != 0"
+  changed_when: dashmate_start.rc == 0
+
+# TODO Convenient tasks until we have this functionality in dashmate
+# - name: Replace parameters in tenderdash config
+#  ansible.builtin.lineinfile:
+#    path: /home/dashmate/.dashmate/testnet/platform/drive/tenderdash/config.toml
+#    regexp: "^(# )?{{ item.parameter }} = .*$"
+#    line: "{{ item.parameter }} = \"{{ item.value }}\""
+#  loop:
+#    # This field provides an unsafe override of the Propose timeout consensus parameter.
+#    # This field configures how long the consensus engine will wait for a proposal block before prevoting nil.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 3s
+#    - parameter: 'unsafe-propose-timeout-override'
+#      value: '5s'
+#
+#    # This field provides an unsafe override of the ProposeDelta timeout consensus parameter.
+#    # This field configures how much the propose timeout increases with each round.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 500ms
+#    - parameter: 'unsafe-propose-timeout-delta-override'
+#      value: '1000ms'
+#
+#    # This field provides an unsafe override of the Vote timeout consensus parameter.
+#    # This field configures how long the consensus engine will wait after receiving +2/3 votes in a round.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 1s
+#    - parameter: 'unsafe-vote-timeout-override'
+#      value: '5s'
+#
+#    # This field provides an unsafe override of the VoteDelta timeout consensus parameter.
+#    # This field configures how much the vote timeout increases with each round.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 500ms,
+#    - parameter: 'unsafe-vote-timeout-delta-override'
+#      value: '1000ms'
+#
+#    # This field provides an unsafe override of the Commit timeout consensus parameter.
+#    # This field configures how long the consensus engine will wait after receiving +2/3 precommits before beginning the next height.
+#    # If this field is set to a value greater than 0, it will take effect.
+#    # Default: 1s
+#    - parameter: 'unsafe-commit-timeout-override'
+#      value: '3s'
+
+# - name: Create and start services if needed
+#  ansible.builtin.shell: |
+#    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+#    docker compose --env-file {{ dashmate_home }}/.env \
+#    up -d
+#  become: true
+#  become_user: dashmate
+#  args:
+#    chdir: /usr/lib/dashmate
+#  register: dashmate_compose_command
+#  changed_when: dashmate_compose_command.rc == 0
+
+# - name: Restart platform services
+#  ansible.builtin.shell: |
+#    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+#    docker compose --env-file {{ dashmate_home }}/.env \
+#    restart drive_abci drive_tenderdash dapi_api dapi_tx_filter_stream
+#  become: true
+#  become_user: dashmate
+#  args:
+#    chdir: /usr/lib/dashmate
+#  register: dashmate_compose_command
+#  changed_when: dashmate_compose_command.rc == 0

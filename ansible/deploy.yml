@@ -46,7 +46,7 @@
     pip_package: python3-pip
     pip_install_packages:
       - name: docker
-        version: "5.0.3"
+        version: "6.0.1"
       - name: docker-compose
         version: "1.29.2"
   roles:
@@ -68,15 +68,12 @@
       aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
       aws_scripts_mon_use_iam: true
 
-# Install Dash Core
-
-- name: Configure dashd cli and network logging
+- name: Configure tcpdump
   hosts: all
   become: true
   roles:
     - role: tcpdumpd
       when: dashd_network_logging != 0
-    - dash_cli
 
 - name: Setup logs
   hosts: logs_nodes
@@ -84,38 +81,41 @@
   roles:
     - elastic_stack
 
-- name: Set up wallets
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      enable_wallet: true
-      tags:
-        - dashd
-    - elastic_beats
-
 - name: Set up miners
   hosts: miners
   become: true
   roles:
+    - role: dash_cli
     - role: dashd
       tags:
         - dashd
-    - elastic_beats
+    - role: elastic_beats
+      core_container_name: dashd
 
-- name: Set up core on seed nodes
+- name: Set up core and platform on seed nodes
   hosts: seed_nodes
   become: true
+  pre_tasks:
+    - name: Set node variables for seed nodes
+      ansible.builtin.set_fact:
+        node: "{{ seed_nodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in seed_nodes
   roles:
+    - role: dash_cli
     - role: dashd
       dashd_listen: true
       dashd_zmq: true
       dashd_indexes: true
       tags:
         - dashd
-    - elastic_beats
+    - role: mn_evo_services
+      tags:
+        - evo
+      when: evo_services
+    - role: elastic_beats
+      core_container_name: dashd
+      abci_logs_path: "{{ mn_evo_services_path }}/logs"
 
 - name: Set up core on masternodes
   hosts: masternodes
@@ -131,6 +131,7 @@
         msg: Masternode not defined in network config
       when: masternode is not defined
   roles:
+    - role: dash_cli
     - role: dashd
       dashd_listen: true
       dashd_zmq: true
@@ -139,7 +140,9 @@
         - dashd
     - mn_sentinel
     - mn_status_report
-    - elastic_beats
+    - role: elastic_beats
+      core_container_name: dashd
+
 
 # Start network
 
@@ -162,25 +165,60 @@
   become: true
   roles:
     - multifaucet
+    - role: dash_cli
     - role: dashd
       dashd_indexes: true
       dashd_zmq: true
       dashd_listen: true
     - insight
-    - elastic_beats
+    - role: elastic_beats
+      core_container_name: dashd
   tags:
     - web
+
+- name: Set up wallets
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: dash_cli
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      enable_wallet: true
+      tags:
+        - dashd
+    - role: elastic_beats
+      core_container_name: dashd
+
+# Register masternodes and set sporks
 
 - name: Register masternodes
   hosts: wallet_nodes
   become: true
   roles:
-    - mn_init
+    - role: mn_init
+      mnlist: "{{ masternodes }}"
+      funding_amount: "{{ masternode_collaterals.mn | int }}"
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
   roles:
-    - mn_protx_config
+    - role: mn_protx_config
+      mnlist: "{{ masternodes }}"
+
+- name: Register HP masternodes
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: mn_init
+      mnlist: "{{ hp_masternodes }}"
+      funding_amount: "{{ masternode_collaterals.hpmn | int }}"
+
+- name: Update inventory with HPMN protx values
+  hosts: wallet_nodes
+  roles:
+    - role: mn_protx_config
+      mnlist: "{{ hp_masternodes }}"
 
 - name: Activate sporks
   hosts: wallet_nodes
@@ -190,47 +228,30 @@
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
 
-# Start platform
+# todo: partially working code causes errors in deploy, comment out for now and fix later
+# - name: Create governance proposals
+#  hosts: wallet_nodes
+#  become: true
+#  roles:
+#    - role: generate_proposals
+#      when: governance_proposal_count > 0
 
-- name: Set up platform on seed nodes
-  hosts: seed_nodes
+- name: Set up core and platform on HP masternodes
+  hosts: hp_masternodes
   become: true
   pre_tasks:
-    - name: Check inventory for masternodes
+    - name: Check inventory for HP masternodes
       ansible.builtin.set_fact:
-        node: "{{ seed_nodes[inventory_hostname] }}"
+        node: "{{ hp_masternodes[inventory_hostname] }}"
       tags: always
-      when: inventory_hostname in seed_nodes
-    - name: Check inventory for seed nodes
-      ansible.builtin.fail:
-        msg: Seed node not defined in network config
-      when: node is not defined
+      when: inventory_hostname in hp_masternodes
   roles:
-    - role: mn_evo_services
-      tags:
-        - evo
-      when: evo_services
+    - role: dash_cli
+    - role: dashmate
+    - role: mn_status_report
     - role: elastic_beats
-
-- name: Set up platform on masternodes
-  hosts: masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for masternodes
-      ansible.builtin.set_fact:
-        node: "{{ masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in masternodes
-    - name: Fail if no masternodes present
-      ansible.builtin.fail:
-        msg: Masternode not defined in network config
-      when: node is not defined
-  roles:
-    - role: mn_evo_services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic_beats
+      core_container_name: core
+      abci_logs_path: "/var/log/dashmate"
 
 - name: Set up fake latency on masternodes
   hosts: masternodes

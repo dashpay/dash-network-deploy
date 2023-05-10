@@ -5,11 +5,10 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory } = getNetworkConfig();
 
 describe('Faucet', () => {
-  for (const hostName of inventory.web.hosts) {
+  for (const hostName of inventory.web?.hosts ?? []) {
     describe(hostName, () => {
       it('should respond positive balance', async () => {
-        // eslint-disable-next-line no-underscore-dangle
-        const response = await fetch(`http://${inventory._meta.hostvars[hostName].public_ip}/`);
+        const response = await fetch(`http://${inventory.meta.hostvars[hostName].public_ip}/`);
         const faucetBalance = await response.text();
 
         const regex = 'Faucet balance: ([0-9,.]+)';

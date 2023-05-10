@@ -2,21 +2,30 @@
 
 # register
 
+- name: Initialize array for created protx
+  ansible.builtin.set_fact:
+    created_protx_list: []
+
 - name: Create provider registration transaction
   ansible.builtin.include_tasks: createprovidertx.yml
   vars:
-    masternode: "{{ masternodes[item] }}"
+    masternode: "{{ mnlist[item] }}"
     masternode_name: "{{ item }}"
   with_items: '{{ masternode_names }}'
 
-- name: Generate at least one block to confirm protxs
+- name: Generate blocks until transactions are confirmed
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
-    num_blocks: 1
-    balance_needed: 0
+    generate: confirmations
+    txid_list: "{{ created_protx_list }}"
+    tx_source: "{{ wallet_rpc_wallet_mno }}"
 
 # verify
+
+- name: Initialize array for registered masternodes
+  ansible.builtin.set_fact:
+    registered_masternode_names: []
 
 - name: Get list of ProTx transactions from the wallet
   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx list wallet true
@@ -25,9 +34,13 @@
 
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
-    registered_masternode_names: "{{ registered_masternode_names | default([]) + [item] }}"
-  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + masternodes[item].owner.address + "']")
+    registered_masternode_names: "{{ registered_masternode_names + [item] }}"
+  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
   with_items: '{{ masternode_names }}'
+
+- name: List of registered masternodes
+  ansible.builtin.debug:
+    var: registered_masternode_names
 
 - name: Fail if masternodes were not registered
   ansible.builtin.fail:

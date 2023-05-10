@@ -34,14 +34,16 @@ core_llmq_types:
     2: llmq_400_60
     3: llmq_400_85
     4: llmq_100_67
+    5: llmq_60_75
+    6: llmq_25_67
     100: llmq_test
     101: llmq_devnet
     102: llmq_test_v17
 
 # Tendermint
 tendermint_image: dashpay/tenderdash
-tendermint_p2p_port: 26656
-tendermint_rpc_port: 26657
+tendermint_p2p_port: 36656
+tendermint_rpc_port: 36657
 tendermint_uid: "100"
 tendermint_gid: "1000"
 # tenderdash_chain_id:
@@ -51,8 +53,7 @@ tenderdash_log_level: debug
 # DAPI
 dapi_image: dashpay/dapi
 dapi_envoy_image: envoyproxy/envoy
-dapi_port: 3000
-dapi_grpc_port: 3010
+dapi_port: 1443
 
 # Insight
 insight_image: dashpay/insight
@@ -65,16 +66,13 @@ multifaucet_image: dashpay/multifaucet:latest
 # DashCore Docker image
 dashd_image: dashpay/dashd
 
-users_to_manage:
+system_users:
 - user: "ubuntu"
   group: "ubuntu"
   dir: "/home/ubuntu"
 - user: "root"
   group: "root"
   dir: "/root"
-- user: "{{ dashd_user }}"
-  group: "{{ dashd_group }}"
-  dir: "{{ dashd_home }}"
 
 dashd_user: dash
 dashd_group: dash
@@ -93,6 +91,9 @@ dashd_rpc_password: password
 dashd_rpc_port: 20002
 
 dashd_zmq_port: 29998
+
+dashd_powtargetspacing: 150
+dashd_minimumdifficultyblocks: 4032
 
 # Example spork address/privkey. Please provide your own spork key in network config:
 # dashd_sporkaddr:
@@ -139,6 +140,14 @@ masternode_wallet_rpc_user: "{{ dashd_rpc_user }}"
 masternode_wallet_rpc_password: "{{ dashd_rpc_password }}"
 masternode_wallet_rpc_args: "-rpcconnect={{ masternode_wallet_rpc_host }} -rpcport={{ masternode_wallet_rpc_port }} -rpcuser={{ masternode_wallet_rpc_user }} -rpcpassword={{ masternode_wallet_rpc_password }}"
 
+masternode_collaterals:
+  mn: 1000
+  hpmn: 4000
+
+# Proposal stuff
+
+governance_proposal_count: 2
+
 # Disk space allocated for swap file on each host
 swap_space: 2G
 
@@ -151,7 +160,7 @@ mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name 
 
 elastic_username: elastic
 elastic_password:
-elastic_version: 8.4.0
+elastic_version: 8.7.0
 elastic_data_block_device: /dev/nvme1n1
 kibana_encryptionkey:
 elastic_heap_size: 3g

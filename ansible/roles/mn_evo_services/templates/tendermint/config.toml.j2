@@ -255,7 +255,10 @@ handshake-timeout = "20s"
 dial-timeout = "3s"
 
 {% if inventory_hostname in groups['seed_nodes'] %}
-max-connections = 256
+max-connections = 30
+max-outgoing-connections = 5
+max-incoming-connection-time = "60s"
+incoming-connection-window = "70s"
 {% else %}
 max-connections = 32
 {% endif %}
@@ -346,21 +349,21 @@ version = "v0"
 wal-file = "data/cs.wal/wal"
 
 # How long we wait for a proposal block before prevoting nil
-timeout-propose = "3s"
+# timeout-propose = "3s"
 # How much timeout-propose increases with each round
-timeout-propose-delta = "500ms"
+# timeout-propose-delta = "500ms"
 # How long we wait after receiving +2/3 prevotes for “anything” (ie. not a single block or nil)
-timeout-prevote = "1s"
+# timeout-prevote = "1s"
 # How much the timeout-prevote increases with each round
-timeout-prevote-delta = "500ms"
+# timeout-prevote-delta = "500ms"
 # How long we wait after receiving +2/3 precommits for “anything” (ie. not a single block or nil)
-timeout-precommit = "1s"
+# timeout-precommit = "1s"
 # How much the timeout-precommit increases with each round
-timeout-precommit-delta = "500ms"
+# timeout-precommit-delta = "500ms"
 # How long we wait after committing a block, before starting on the new
 # height (this gives us a chance to receive some more precommits, even
 # though we already have +2/3).
-timeout-commit = "1s"
+# timeout-commit = "1s"
 
 # How many blocks to look back to check existence of the node's consensus votes before joining consensus
 # When non-zero, the node will panic upon restart
@@ -369,7 +372,7 @@ timeout-commit = "1s"
 double-sign-check-height = 0
 
 # Make progress as soon as we have all the precommits (as if TimeoutCommit = 0)
-skip-timeout-commit = false
+# skip-timeout-commit = false
 
 # EmptyBlocks mode and possible interval between empty blocks
 create-empty-blocks = true

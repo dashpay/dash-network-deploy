@@ -55,14 +55,6 @@ locals {
     }
   )
 
-  service_dapi_grpc = templatefile(
-    "${path.module}/templates/services/service.tpl",
-    {
-      name = "DAPI GRPC"
-      port = var.dapi_grpc_port
-    }
-  )
-
   service_drive = templatefile(
     "${path.module}/templates/services/service.tpl",
     {
@@ -95,11 +87,11 @@ locals {
     }
   )
 
-  masternodes = [
-    for n in range(length(aws_instance.masternode)) : templatefile(
+  masternodes_amd = [
+    for n in range(length(aws_instance.masternode_amd)) : templatefile(
       "${path.module}/templates/services/node.tpl",
       {
-        name = "masternode-${n + 1}"
+        name = "masternode-amd-${n + 1}"
         external_services = replace(
           chomp(
             join(
@@ -107,43 +99,32 @@ locals {
               [
                 local.service_ssh,
                 local.service_core_p2p,
-                local.service_dapi,
-                local.service_dapi_grpc,
-                local.service_tendermint_p2p,
               ],
             ),
           ),
           "{{ip}}",
-          element(aws_instance.masternode.*.public_ip, n),
+          element(aws_instance.masternode_amd.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
             join(
               "",
               [
-                local.service_tendermint_rpc,
                 local.service_core_rpc,
                 local.service_core_zmq,
-                local.service_drive,
                 local.service_insight,
                 local.service_docker,
               ],
             ),
           ),
           "{{ip}}",
-          element(aws_instance.masternode.*.public_ip, n),
+          element(aws_instance.masternode_amd.*.public_ip, n),
         )
         service_logs = chomp(
           join(
             "\n",
             [
               "   - dashd",
-              "   - dapi_api",
-              "   - dapi_tx_filter_stream",
-              "   - dapi_nginx",
-              "   - dapi_envoy",
-              "   - drive_abci",
-              "   - tendermint",
               "   - sentinel",
               "   - insight",
             ],
@@ -152,6 +133,171 @@ locals {
       }
     )
   ]
+
+  masternodes_arm = [
+    for n in range(length(aws_instance.masternode_arm)) : templatefile(
+      "${path.module}/templates/services/node.tpl",
+      {
+        name = "masternode-arm-${n + 1}"
+        external_services = replace(
+          chomp(
+            join(
+              "",
+              [
+                local.service_ssh,
+                local.service_core_p2p,
+              ],
+            ),
+          ),
+          "{{ip}}",
+          element(aws_instance.masternode_arm.*.public_ip, n),
+        )
+        internal_services = replace(
+          chomp(
+            join(
+              "",
+              [
+                local.service_core_rpc,
+                local.service_core_zmq,
+                local.service_insight,
+                local.service_docker,
+              ],
+            ),
+          ),
+          "{{ip}}",
+          element(aws_instance.masternode_arm.*.public_ip, n),
+        )
+        service_logs = chomp(
+          join(
+            "\n",
+            [
+              "   - dashd",
+              "   - sentinel",
+              "   - insight",
+            ],
+          ),
+        )
+      }
+    )
+  ]
+
+  masternodes = concat(local.masternodes_amd, local.masternodes_arm) #Magic...
+
+hp_masternodes_amd = [
+  for n in range(length(aws_instance.hp_masternode_amd)) : templatefile(
+    "${path.module}/templates/services/node.tpl",
+    {
+      name = "hp-masternode-amd-${n + 1}"
+      external_services = replace(
+        chomp(
+          join(
+            "",
+            [
+              local.service_ssh,
+              local.service_core_p2p,
+              local.service_dapi,
+              local.service_tendermint_p2p,
+            ],
+          ),
+        ),
+        "{{ip}}",
+        var.create_eip ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n),
+      )
+      internal_services = replace(
+        chomp(
+          join(
+            "",
+            [
+              local.service_tendermint_rpc,
+              local.service_core_rpc,
+              local.service_core_zmq,
+              local.service_drive,
+              local.service_insight,
+              local.service_docker,
+            ],
+          ),
+        ),
+        "{{ip}}",
+        var.create_eip ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n),
+      )
+      service_logs = chomp(
+        join(
+          "\n",
+          [
+            "   - dashd",
+            "   - dapi_api",
+            "   - dapi_tx_filter_stream",
+            "   - dapi_nginx",
+            "   - dapi_envoy",
+            "   - drive_abci",
+            "   - tendermint",
+            "   - sentinel",
+            "   - insight",
+          ],
+        ),
+      )
+    }
+  )
+]
+
+ hp_masternodes_arm = [
+  for n in range(length(aws_instance.hp_masternode_arm)) : templatefile(
+    "${path.module}/templates/services/node.tpl",
+    {
+      name = "hp-masternode-amd-${n + 1}"
+      external_services = replace(
+        chomp(
+          join(
+            "",
+            [
+              local.service_ssh,
+              local.service_core_p2p,
+              local.service_dapi,
+              local.service_tendermint_p2p,
+            ],
+          ),
+        ),
+        "{{ip}}",
+        var.create_eip ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n),
+      )
+      internal_services = replace(
+        chomp(
+          join(
+            "",
+            [
+              local.service_tendermint_rpc,
+              local.service_core_rpc,
+              local.service_core_zmq,
+              local.service_drive,
+              local.service_insight,
+              local.service_docker,
+            ],
+          ),
+        ),
+        "{{ip}}",
+        var.create_eip ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n),
+      )
+      service_logs = chomp(
+        join(
+          "\n",
+          [
+            "   - dashd",
+            "   - dapi_api",
+            "   - dapi_tx_filter_stream",
+            "   - dapi_nginx",
+            "   - dapi_envoy",
+            "   - drive_abci",
+            "   - tendermint",
+            "   - sentinel",
+            "   - insight",
+          ],
+        ),
+      )
+    }
+  )
+]
+
+  hp_masternodes = concat(local.hp_masternodes_amd, local.hp_masternodes_arm) #Magic...
 
   wallets = [
     for n in range(length(aws_instance.dashd_wallet)) : templatefile(
@@ -196,7 +342,6 @@ locals {
                 local.service_ssh,
                 local.service_core_p2p,
                 local.service_dapi,
-                local.service_dapi_grpc,
                 local.service_tendermint_p2p,
               ],
             ),
@@ -268,16 +413,17 @@ locals {
   services = templatefile(
     "${path.module}/templates/services/services.tpl",
     {
-      masternodes  = chomp(join("\n", local.masternodes.*))
-      wallets      = chomp(join("\n", local.wallets.*))
-      seeds        = chomp(join("\n", local.seeds.*))
-      miners       = chomp(join("\n", local.miners.*))
-      elb_host     = chomp(join("\n", aws_elb.web.*.dns_name))
-      insight_port = var.insight_port
-      kibana_port  = var.kibana_port
-      logs_host    = aws_route53_record.logs[0].name
-      vpn_host     = chomp(join("\n", aws_eip.vpn.*.public_ip))
-      vpn_port     = var.vpn_port
+      masternodes     = chomp(join("\n", local.masternodes.*))
+      hp_masternodes  = chomp(join("\n", local.hp_masternodes.*))
+      wallets         = chomp(join("\n", local.wallets.*))
+      seeds           = chomp(join("\n", local.seeds.*))
+      miners          = chomp(join("\n", local.miners.*))
+      elb_host        = chomp(join("\n", aws_elb.web.*.dns_name))
+      insight_port    = var.insight_port
+      kibana_port     = var.kibana_port
+      logs_host       = aws_route53_record.logs[0].name
+      vpn_host        = chomp(join("\n", aws_eip.vpn.*.public_ip))
+      vpn_port        = var.vpn_port
     }
   )
 }

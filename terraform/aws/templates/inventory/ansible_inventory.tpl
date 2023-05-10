@@ -15,5 +15,8 @@ ${miner_hosts}
 [masternodes]
 ${masternode_hosts}
 
+[hp_masternodes]
+${hp_masternode_hosts}
+
 [seed_nodes]
 ${seed_hosts}

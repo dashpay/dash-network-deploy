@@ -2,6 +2,10 @@
 
 # Requires "payment_targets" and "amount" variables
 
+- name: Initialize array for payments
+  ansible.builtin.set_fact:
+    payments: []
+
 - name: Populate payment addresses and values
   ansible.builtin.set_fact:
     payments: "{{ payments | default({}) | combine({item: amount}) }}"
@@ -12,7 +16,15 @@
   ansible.builtin.debug:
     var: payments
 
-- name: Fund listed masternodes with {{ amount }}
+- name: Fund listed masternodes with {{ amount ~ ' Dash'}}
   ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendmany '' '{{ payments | to_json }}'"
   register: fund_result
   changed_when: fund_result.stdout | length == 64
+
+- name: Produce blocks until funding transaction is confirmed
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    generate: confirmations
+    txid_list: "{{ [fund_result.stdout] }}"
+    tx_source: "{{ wallet_rpc_wallet_faucet }}"

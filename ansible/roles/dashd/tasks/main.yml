@@ -14,14 +14,13 @@
     umask: '0002'
   register: dash_user
 
-- name: Create .dashcore directory for each user
+- name: Create .dashcore directory for dash
   ansible.builtin.file:
-    path: '{{ item.dir }}/.dashcore'
+    path: '{{ dashd_home }}/.dashcore'
     state: directory
-    mode: 0755
-    owner: '{{ item.user }}'
-    group: '{{ item.group }}'
-  loop: '{{ users_to_manage }}'
+    mode: "0755"
+    owner: '{{ dashd_user }}'
+    group: '{{ dashd_group }}'
 
 - name: Write dash.conf file in /etc/
   ansible.builtin.template:
@@ -29,29 +28,31 @@
     dest: /etc/dash.conf
     owner: root
     group: root
-    mode: 0644
-  register: dash_config_state
+    mode: "0644"
 
-- name: Symlink dash.conf to user dashcore directories to make rpc work
-  ansible.builtin.file:
-    path: '{{ item.dir }}/.dashcore/dash.conf'
-    src: '/etc/dash.conf'
-    state: link
-    force: true
-  loop: '{{ users_to_manage }}'
+- name: Configure users for dash-cli
+  ansible.builtin.include_role:
+    name: dash_cli
+    tasks_from: configure_users
+  vars:
+    dashd_user_dict:
+      user: '{{ dashd_user }}'
+      group: '{{ dashd_group }}'
+      dir: '{{ dashd_home }}'
+    users: '{{ system_users + [dashd_user_dict] }}'
 
 - name: Create dashcore docker-compose dir
   ansible.builtin.file:
     path: '{{ dashd_compose_path }}'
     state: directory
-    mode: 0755
+    mode: "0755"
     recurse: true
 
 - name: Copy dashcore docker-compose file
   ansible.builtin.template:
     src: '{{ item }}.j2'
     dest: '{{ dashd_compose_path }}/{{ item }}'
-    mode: 0644
+    mode: "0644"
   loop:
     - docker-compose.yml
     - .env
@@ -61,6 +62,13 @@
     name: arillso.logrotate
   vars:
     logrotate_use_hourly_rotation: true
+    logrotate_options:
+      - weekly
+      - rotate 4
+      - create
+      - dateext
+      - dateformat -%Y%m%d-%s
+      - su root syslog
     logrotate_applications:
       - name: core-logs
         definitions:
@@ -81,14 +89,19 @@
     path: /etc/cron.daily/logrotate
     mode: "+x"
 
-- name: Load/create faucet wallet on startup
+- name: Check if wallet exists
+  ansible.builtin.stat:
+    path: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_faucet }}/wallet.dat"
+  register: wallet_exists
+
+- name: Load wallets on startup
   ansible.builtin.blockinfile:
     path: '/etc/dash.conf'
     insertafter: '[{{ dash_network }}]'
     block: |
       wallet={{ wallet_rpc_wallet_faucet }}
       wallet={{ wallet_rpc_wallet_mno }}
-  when: enable_wallet is true
+  when: enable_wallet is true and wallet_exists.stat.exists is true
 
 # TODO: why does this always take exactly 30 seconds on first deploy?
 - name: Start dash core
@@ -106,6 +119,22 @@
   retries: 50
   delay: 2
   changed_when: task_result.rc == 0
+
+# Wallet node
+- name: Create faucet wallet
+  ansible.builtin.command:
+    cmd: dash-cli createwallet {{ wallet_rpc_wallet_faucet }}
+    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_faucet }}/wallet.dat"
+  register: task_result
+  when: enable_wallet is true
+
+- name: Create mno wallet
+  ansible.builtin.command:
+    cmd: dash-cli createwallet {{ wallet_rpc_wallet_mno }}
+    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_mno }}/wallet.dat"
+  register: task_result
+  when: enable_wallet is true
+
 
 - name: Import faucet privkey
   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} importprivkey {{ faucet_privkey }}

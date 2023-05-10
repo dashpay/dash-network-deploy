@@ -19,4 +19,4 @@
     remote_src: true
     src: /tmp/dash-cli
     dest: /usr/local/bin/dash-cli
-    mode: 0755
+    mode: "0755"

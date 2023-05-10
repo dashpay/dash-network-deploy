@@ -6,7 +6,7 @@
     state: directory
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
-    mode: 0750
+    mode: "0750"
 
 - name: Create tendermint config dir
   ansible.builtin.file:
@@ -14,7 +14,7 @@
     state: directory
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
-    mode: 0750
+    mode: "0750"
 
 - name: Create tendermint data dir
   ansible.builtin.file:
@@ -22,7 +22,7 @@
     state: directory
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
-    mode: 0750
+    mode: "0750"
 
 - name: Create Tendermint configs
   vars:
@@ -32,7 +32,7 @@
     dest: '{{ mn_evo_services_path }}/tendermint/config/{{ item }}'
     owner: '{{ tendermint_uid }}'
     group: '{{ tendermint_gid }}'
-    mode: 0644
+    mode: "0644"
   loop:
     - config.toml
     - genesis.json

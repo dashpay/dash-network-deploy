@@ -1,0 +1,13 @@
+---
+
+- name: Set vars
+  ansible.builtin.import_tasks: ./set_vars.yml
+
+- name: Reset platform
+  ansible.builtin.command: "{{ dashmate_cmd }} reset --platform --force"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_reset
+  changed_when: dashmate_reset.rc == 0

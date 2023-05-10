@@ -9,8 +9,8 @@
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
+    generate: blocks
     num_blocks: "{{ spork_ready_block_height - (blocks_count.stdout | int) }}"
-    balance_needed: 0
   when: (blocks_count.stdout | int) < spork_ready_block_height
 
 - name: Get active sporks list
@@ -20,6 +20,7 @@
 
 - name: Activate non active sporks
   ansible.builtin.command: dash-cli sporkupdate {{ item }} 0
+  register: spork_update
   with_items:
     - SPORK_2_INSTANTSEND_ENABLED
     - SPORK_3_INSTANTSEND_BLOCK_FILTERING
@@ -28,3 +29,4 @@
     - SPORK_19_CHAINLOCKS_ENABLED
     - SPORK_21_QUORUM_ALL_CONNECTED
   when: not (active_sporks.stdout | from_json)[item]
+  changed_when: spork_update.stdout == "success"
