@@ -87,6 +87,21 @@
   loop:
     - '{{ dashmate_config_dir }}'
 
+- name: Build dashmate
+  ansible.builtin.import_tasks: ./build.yml
+  when: dashmate_branch is defined
+
+- name: Install dashmate
+  ansible.builtin.import_tasks: ./install.yml
+  when: dashmate_version is defined
+
+- name: Generate Self-singed SSL certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl.yml
+  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
+
+# TODO: Obtain ZeroSSL certificate ID
+#  if present set fact dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id
+
 - name: Write dashmate's config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
@@ -97,18 +112,6 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
 
-- name: Generate Self-singed SSL certificate for DAPI
-  ansible.builtin.import_tasks: ./ssl.yml
-  when: dashmate_platform_enable
-
-- name: Build dashmate
-  ansible.builtin.import_tasks: ./build.yml
-  when: dashmate_branch is defined
-
-- name: Install dashmate
-  ansible.builtin.import_tasks: ./install.yml
-  when: dashmate_version is defined
-
 - name: Export current dashmate config
   ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"
   become: true
@@ -117,6 +120,9 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_envs
   changed_when: dashmate_envs.rc == 0
+
+# TODO  in dashmate replace renew with obtain. remove renew. they are the same
+#   obtain certificate with dashmate if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id not set
 
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
@@ -148,26 +154,26 @@
 # TODO: we should use status command to figure out if dashmate is running
 #   to get the status from the response
 # Restart dashmate if already running
-- name: Restart dashmate services
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_restart
-  changed_when: dashmate_restart.rc == 0
-  ignore_errors: true
-
-# Start if not already running
-- name: Start dashmate services
-  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_start
-  when: "dashmate_restart.rc != 0"
-  changed_when: dashmate_start.rc == 0
+#- name: Restart dashmate services
+#  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
+#  become: true
+#  become_user: dashmate
+#  args:
+#    chdir: '{{ dashmate_cwd }}'
+#  register: dashmate_restart
+#  changed_when: dashmate_restart.rc == 0
+#  ignore_errors: true
+#
+## Start if not already running
+#- name: Start dashmate services
+#  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
+#  become: true
+#  become_user: dashmate
+#  args:
+#    chdir: '{{ dashmate_cwd }}'
+#  register: dashmate_start
+#  when: "dashmate_restart.rc != 0"
+#  changed_when: dashmate_start.rc == 0
 
 # TODO Convenient tasks until we have this functionality in dashmate
 # - name: Replace parameters in tenderdash config
@@ -211,17 +217,17 @@
 #    - parameter: 'unsafe-commit-timeout-override'
 #      value: '3s'
 
-# - name: Create and start services if needed
-#  ansible.builtin.shell: |
-#    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
-#    docker compose --env-file {{ dashmate_home }}/.env \
-#    up -d
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: /usr/lib/dashmate
-#  register: dashmate_compose_command
-#  changed_when: dashmate_compose_command.rc == 0
+- name: Create and start services if needed
+  ansible.builtin.shell: |
+    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+    docker compose --env-file {{ dashmate_home }}/.env \
+    up -d
+  become: true
+  become_user: dashmate
+  args:
+    chdir: /usr/lib/dashmate
+  register: dashmate_compose_command
+  changed_when: dashmate_compose_command.rc == 0
 
 # - name: Restart platform services
 #  ansible.builtin.shell: |
