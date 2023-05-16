@@ -172,26 +172,26 @@
 # TODO: we should use status command to figure out if dashmate is running
 #   to get the status from the response
 # Restart dashmate if already running
-#- name: Restart dashmate services
-#  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_restart
-#  changed_when: dashmate_restart.rc == 0
-#  ignore_errors: true
-#
-## Start if not already running
-#- name: Start dashmate services
-#  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_start
-#  when: "dashmate_restart.rc != 0"
-#  changed_when: dashmate_start.rc == 0
+- name: Restart dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_restart
+  changed_when: dashmate_restart.rc == 0
+  ignore_errors: true
+
+# Start if not already running
+- name: Start dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_start
+  when: "dashmate_restart.rc != 0"
+  changed_when: dashmate_start.rc == 0
 
 # TODO Convenient tasks until we have this functionality in dashmate
 # - name: Replace parameters in tenderdash config
@@ -235,17 +235,17 @@
 #    - parameter: 'unsafe-commit-timeout-override'
 #      value: '3s'
 
-- name: Create and start services if needed
-  ansible.builtin.shell: |
-    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
-    docker compose --env-file {{ dashmate_home }}/.env \
-    up -d
-  become: true
-  become_user: dashmate
-  args:
-    chdir: /usr/lib/dashmate
-  register: dashmate_compose_command
-  changed_when: dashmate_compose_command.rc == 0
+# - name: Create and start services if needed
+#  ansible.builtin.shell: |
+#    LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+#    docker compose --env-file {{ dashmate_home }}/.env \
+#    up -d
+#  become: true
+#  become_user: dashmate
+#  args:
+#    chdir: /usr/lib/dashmate
+#  register: dashmate_compose_command
+#  changed_when: dashmate_compose_command.rc == 0
 
 # - name: Restart platform services
 #  ansible.builtin.shell: |
