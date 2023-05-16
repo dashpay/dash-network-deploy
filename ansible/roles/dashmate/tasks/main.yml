@@ -99,8 +99,19 @@
   ansible.builtin.import_tasks: ./ssl.yml
   when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
 
-# TODO: Obtain ZeroSSL certificate ID
-#  if present set fact dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id
+- name: Obtain ZeroSSL certificate ID
+  ansible.builtin.shell: "{{ dashmate_cmd }} config get dashmate.platform.dapi.envoy.ssl_provider.config.zerossl.id"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_zerossl_id
+  changed_when: dashmate_zerossl_id.rc == 0
+  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl'
+
+- ansible.builtin.set_fact:
+    dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id: "{{ dashmate_zerossl_id.stdout }}"
+  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and dashmate_zerossl_id.stdout != ''
 
 - name: Write dashmate's config file
   vars:
@@ -121,8 +132,15 @@
   register: dashmate_envs
   changed_when: dashmate_envs.rc == 0
 
-# TODO  in dashmate replace renew with obtain. remove renew. they are the same
-#   obtain certificate with dashmate if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id not set
+- name: Obtain ZeroSSL certificate for DAPI
+  ansible.builtin.shell: "{{ dashmate_cmd }} ssl obtain --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_obtain
+  changed_when: dashmate_obtain.rc == 0
+  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id is not defined
 
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
