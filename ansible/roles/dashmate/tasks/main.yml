@@ -170,8 +170,18 @@
   changed_when: true
   when: dashmate_branch is defined
 
-# TODO: we should use status command to figure out if dashmate is running
-#   to get the status from the response
+- name: Get status
+  ansible.builtin.command: "{{ dashmate_cmd }} status --format=json"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_status
+
+- name: Get service status
+  ansible.builtin.set_fact:
+    service_status: "{{ dashmate_status.stdout | from_json | json_query('core.serviceStatus') }}"
+
 # Restart dashmate if already running
 - name: Restart dashmate services
   ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
@@ -180,8 +190,8 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart
+  when: "service_status == 'up'"
   changed_when: dashmate_restart.rc == 0
-  ignore_errors: true
 
 # Start if not already running
 - name: Start dashmate services
@@ -191,7 +201,7 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start
-  when: "dashmate_restart.rc != 0"
+  when: "service_status == 'stopped'"
   changed_when: dashmate_start.rc == 0
 
 # TODO Convenient tasks until we have this functionality in dashmate
