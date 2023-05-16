@@ -109,7 +109,6 @@
   changed_when: dashmate_zerossl_id.rc == 0 and dashmate_zerossl_id.stdout != 'null'
   when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl'
 
-
 - name: Set ZeroSSL certificate ID
   ansible.builtin.set_fact:
     dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id: "{{ dashmate_zerossl_id.stdout }}"
