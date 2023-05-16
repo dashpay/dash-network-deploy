@@ -100,18 +100,20 @@
   when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
 
 - name: Obtain ZeroSSL certificate ID
-  ansible.builtin.shell: "{{ dashmate_cmd }} config get dashmate.platform.dapi.envoy.ssl_provider.config.zerossl.id"
+  ansible.builtin.command: "{{ dashmate_cmd }} config get platform.dapi.envoy.ssl.providerConfigs.zerossl.id"
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id
-  changed_when: dashmate_zerossl_id.rc == 0
+  changed_when: dashmate_zerossl_id.rc == 0 and dashmate_zerossl_id.stdout != 'null'
   when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl'
 
-- ansible.builtin.set_fact:
+
+- name: Set ZeroSSL certificate ID
+  ansible.builtin.set_fact:
     dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id: "{{ dashmate_zerossl_id.stdout }}"
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and dashmate_zerossl_id.stdout != ''
+  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and dashmate_zerossl_id.stdout != 'null'
 
 - name: Write dashmate's config file
   vars:
@@ -133,7 +135,7 @@
   changed_when: dashmate_envs.rc == 0
 
 - name: Obtain ZeroSSL certificate for DAPI
-  ansible.builtin.shell: "{{ dashmate_cmd }} ssl obtain --verbose"
+  ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --verbose"
   become: true
   become_user: dashmate
   args:
