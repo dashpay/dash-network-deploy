@@ -95,7 +95,7 @@
   ansible.builtin.import_tasks: ./install.yml
   when: dashmate_version is defined
 
-- name: Generate Self-singed SSL certificate for DAPI
+- name: Generate self-signed SSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl.yml
   when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
 
