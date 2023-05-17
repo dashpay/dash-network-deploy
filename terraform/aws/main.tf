@@ -175,15 +175,6 @@ resource "aws_lb_target_group" "seed" {
   port     = var.dapi_port
   protocol = "HTTP"
   vpc_id   = aws_vpc.default.id
-
-  health_check {
-    enabled             = true
-    interval            = 30
-    path                = "/"
-    timeout             = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
 }
 
 resource "aws_lb_target_group_attachment" "attach_instances_amd" {
@@ -207,7 +198,9 @@ resource "aws_route53_record" "seeds" {
   alias {
     name                   = aws_lb.seed.dns_name
     zone_id                = aws_lb.seed.zone_id
-    evaluate_target_health = true
+    # TODO: enable health checks
+    # https://www.envoyproxy.io/docs/envoy/latest/operations/admin#get--ready
+    evaluate_target_health = false
   }
 }
 
