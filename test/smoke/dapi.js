@@ -4,7 +4,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
-describe('DAPI', () => {
+describe.only('DAPI', () => {
   describe('All nodes', () => {
   // Set up vars and functions to hold DAPI responses
     const bestBlockHash = {};
@@ -14,6 +14,8 @@ describe('DAPI', () => {
     const dataContract = {};
     const dataContractError = {};
 
+    const hosts = ['seed-1.testnet.networks.dash.org', 'seed-2.testnet.networks.dash.org', 'seed-3.testnet.networks.dash.org', 'seed-4.testnet.networks.dash.org', 'seed-5.testnet.networks.dash.org'];
+
     before('Collect blockhash, status and data contract info and errors', function func() {
       this.timeout(120000); // set mocha timeout
 
@@ -22,13 +24,13 @@ describe('DAPI', () => {
       }
 
       const promises = [];
-      for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
+      for (const hostName of hosts) {
         const timeout = 15000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32).fill(1);
 
         const dapiAddress = {
           protocol: 'https',
-          host: inventory.meta.hostvars[hostName].public_ip,
+          host: hostName,
           port: variables.dapi_port,
           allowSelfSignedCertificate: variables.dashmate_platform_dapi_envoy_ssl_provider !== 'zerossl',
         };
@@ -71,7 +73,7 @@ describe('DAPI', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
+    for (const hostName of hosts) {
       describe(hostName, () => {
         it('should return data from Core', async () => {
           if (bestBlockHashError[hostName]) {
