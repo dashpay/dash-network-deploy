@@ -22,7 +22,7 @@ jobs:
         run: ansible-galaxy install -r ansible/requirements.yml
 
       - name: Install ansible-lint
-        run: pip3 install ansible-lint=${{ env.ANSIBLE_LINT_VERSION }}
+        run: pip3 install ansible-lint==${{ env.ANSIBLE_LINT_VERSION }}
 
       - name: Run ansible-lint
         run: ansible-lint ansible
