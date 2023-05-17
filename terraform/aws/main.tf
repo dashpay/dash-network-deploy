@@ -198,15 +198,10 @@ resource "aws_lb_target_group_attachment" "attach_instances_arm" {
   target_id        = aws_instance.hp_masternode_arm[count.index].id
 }
 
-variable "domains" {
-  type    = list(string)
-  default = ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5"]
-}
-
 resource "aws_route53_record" "seeds" {
-  count   = length(var.domains)
+  count   = length(var.main_domain) > 1 ? 5 : 0
   zone_id = data.aws_route53_zone.main_domain[0].zone_id
-  name    = "${var.domains[count.index]}.${var.public_network_name}.${var.main_domain}"
+  name    = "seed-${count.index + 1}.${var.public_network_name}.${var.main_domain}"
   type    = "A"
 
   alias {
