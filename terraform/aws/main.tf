@@ -148,29 +148,29 @@ resource "aws_elb" "web" {
   }
 }
 
-resource "aws_lb" "seed-elb" {
-  name               = "${var.public_network_name}-elb-seed"
+resource "aws_lb" "seed" {
+  name               = "${var.public_network_name}-alb-seed"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.sg-seed.id]
+  security_groups    = [aws_security_group.seed.id]
   subnets            = aws_subnet.public.*.id
   enable_deletion_protection = false
 }
 
-resource "aws_lb_listener" "listener" {
-  load_balancer_arn = aws_lb.seed-elb.arn
+resource "aws_lb_listener" "seed_listener" {
+  load_balancer_arn = aws_lb.seed.arn
   port              = var.dapi_port
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = aws_acm_certificate.cert-seed.arn
+  certificate_arn   = aws_acm_certificate.seed.arn
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tg-seed.arn
+    target_group_arn = aws_lb_target_group.seed.arn
   }
 }
 
-resource "aws_lb_target_group" "tg-seed" {
+resource "aws_lb_target_group" "seed" {
   name     = "${var.public_network_name}-tg-seed"
   port     = var.dapi_port
   protocol = "HTTP"
@@ -188,13 +188,13 @@ resource "aws_lb_target_group" "tg-seed" {
 
 resource "aws_lb_target_group_attachment" "attach_instances_amd" {
   count            = var.hp_masternode_amd_count
-  target_group_arn = aws_lb_target_group.tg-seed.arn
+  target_group_arn = aws_lb_target_group.seed.arn
   target_id        = aws_instance.hp_masternode_amd[count.index].id
 }
 
 resource "aws_lb_target_group_attachment" "attach_instances_arm" {
   count            = var.hp_masternode_arm_count
-  target_group_arn = aws_lb_target_group.tg-seed.arn
+  target_group_arn = aws_lb_target_group.seed.arn
   target_id        = aws_instance.hp_masternode_arm[count.index].id
 }
 
@@ -210,8 +210,8 @@ resource "aws_route53_record" "seeds" {
   type    = "A"
 
   alias {
-    name                   = aws_lb.seed-elb.dns_name
-    zone_id                = aws_lb.seed-elb.zone_id
+    name                   = aws_lb.seed.dns_name
+    zone_id                = aws_lb.seed.zone_id
     evaluate_target_health = true
   }
 }
@@ -325,7 +325,7 @@ resource "random_shuffle" "dns_ips" {
 
 # `seed-n` type addresses are dapi endpoints
 
-resource "aws_acm_certificate" "cert-seed" {
+resource "aws_acm_certificate" "seed" {
   domain_name       = "seed-1.${var.public_network_name}.${var.main_domain}"
   validation_method = "DNS"
 
@@ -345,9 +345,9 @@ resource "aws_acm_certificate" "cert-seed" {
   }
 }
 
-resource "aws_route53_record" "cert_seed_validation" {
+resource "aws_route53_record" "seed_validation" {
   for_each = {
-    for dvo in aws_acm_certificate.cert-seed.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.seed.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -362,9 +362,9 @@ resource "aws_route53_record" "cert_seed_validation" {
   zone_id         = data.aws_route53_zone.main_domain[0].zone_id
 }
 
-resource "aws_acm_certificate_validation" "cert-seed" {
-  certificate_arn         = aws_acm_certificate.cert-seed.arn
-  validation_record_fqdns = [for record in aws_route53_record.cert_seed_validation : record.fqdn]
+resource "aws_acm_certificate_validation" "seed" {
+  certificate_arn         = aws_acm_certificate.seed.arn
+  validation_record_fqdns = [for record in aws_route53_record.seed_validation : record.fqdn]
 }
 
 resource "aws_key_pair" "auth" {
