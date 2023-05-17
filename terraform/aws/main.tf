@@ -177,13 +177,13 @@ resource "aws_lb_target_group" "seed" {
   vpc_id   = aws_vpc.default.id
 }
 
-resource "aws_lb_target_group_attachment" "attach_instances_amd" {
+resource "aws_lb_target_group_attachment" "amd_hpmns" {
   count            = var.hp_masternode_amd_count
   target_group_arn = aws_lb_target_group.seed.arn
   target_id        = aws_instance.hp_masternode_amd[count.index].id
 }
 
-resource "aws_lb_target_group_attachment" "attach_instances_arm" {
+resource "aws_lb_target_group_attachment" "arm_hpmns" {
   count            = var.hp_masternode_arm_count
   target_group_arn = aws_lb_target_group.seed.arn
   target_id        = aws_instance.hp_masternode_arm[count.index].id
