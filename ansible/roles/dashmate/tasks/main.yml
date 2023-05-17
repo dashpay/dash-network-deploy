@@ -142,8 +142,8 @@
   register: dashmate_obtain
   changed_when: dashmate_obtain.rc == 0
   when: >
-    dashmate_platform_enable and 
-    dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and 
+    dashmate_platform_enable and
+    dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and
     dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id is not defined
 
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
