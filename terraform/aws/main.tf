@@ -151,8 +151,7 @@ resource "aws_elb" "web" {
 resource "aws_lb" "seed" {
   name                       = "${var.public_network_name}-alb-seed"
   internal                   = false
-  load_balancer_type         = "application"
-  security_groups            = [aws_security_group.seed.id]
+  load_balancer_type         = "network"
   subnets                    = aws_subnet.public.*.id
   enable_deletion_protection = false
 }
@@ -160,7 +159,7 @@ resource "aws_lb" "seed" {
 resource "aws_lb_listener" "seed_listener" {
   load_balancer_arn = aws_lb.seed.arn
   port              = var.dapi_port
-  protocol          = "HTTPS"
+  protocol          = "TLS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = aws_acm_certificate.seed.arn
 
@@ -173,8 +172,18 @@ resource "aws_lb_listener" "seed_listener" {
 resource "aws_lb_target_group" "seed" {
   name     = "${var.public_network_name}-tg-seed"
   port     = var.dapi_port
-  protocol = "HTTPS"
+  protocol = "TLS"
   vpc_id   = aws_vpc.default.id
+
+  health_check {
+    interval            = 30
+    port                = var.dapi_port
+    timeout             = 10
+    protocol            = "HTTPS"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200-499"
+  }
 }
 
 resource "aws_lb_target_group_attachment" "amd_hpmns" {
