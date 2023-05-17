@@ -173,7 +173,7 @@ resource "aws_lb_listener" "seed_listener" {
 resource "aws_lb_target_group" "seed" {
   name     = "${var.public_network_name}-tg-seed"
   port     = var.dapi_port
-  protocol = "HTTP"
+  protocol = "HTTPS"
   vpc_id   = aws_vpc.default.id
 }
 
