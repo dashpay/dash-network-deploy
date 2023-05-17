@@ -463,7 +463,7 @@ resource "aws_security_group" "seed" {
   vpc_id      = aws_vpc.default.id
 
   ingress {
-    description = "TLS from VPC"
+    description = "DAPI from internet"
     from_port   = var.dapi_port
     to_port     = var.dapi_port
     protocol    = "tcp"
