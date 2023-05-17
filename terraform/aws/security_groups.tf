@@ -446,8 +446,8 @@ resource "aws_security_group" "vpn" {
 }
 
 resource "aws_security_group" "seed" {
-  name        = "seed-1"
-  description = "Allow inbound traffic on DAPI port and all outbound traffic"
+  name        = "${terraform.workspace}-seed"
+  description = "DAPI access"
   vpc_id      = aws_vpc.default.id
 
   ingress {
