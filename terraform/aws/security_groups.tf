@@ -447,13 +447,13 @@ resource "aws_security_group" "vpn" {
 
 resource "aws_security_group" "sg-seed" {
   name        = "seed-1"
-  description = "Allow inbound traffic on port 443 and all outbound traffic"
+  description = "Allow inbound traffic on DAPI port and all outbound traffic"
   vpc_id      = aws_vpc.default.id
 
   ingress {
     description = "TLS from VPC"
-    from_port   = 443
-    to_port     = 443
+    from_port   = var.dapi_port
+    to_port     = var.dapi_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
