@@ -112,10 +112,10 @@ resource "aws_elb" "web" {
   }
 
   listener {
-    instance_port     = var.faucet_port
-    instance_protocol = "http"
-    lb_port           = var.faucet_https_port
-    lb_protocol       = "https"
+    instance_port      = var.faucet_port
+    instance_protocol  = "http"
+    lb_port            = var.faucet_https_port
+    lb_protocol        = "https"
     ssl_certificate_id = aws_acm_certificate_validation.faucet.certificate_arn
   }
 
@@ -149,11 +149,11 @@ resource "aws_elb" "web" {
 }
 
 resource "aws_lb" "seed" {
-  name               = "${var.public_network_name}-alb-seed"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.seed.id]
-  subnets            = aws_subnet.public.*.id
+  name                       = "${var.public_network_name}-alb-seed"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.seed.id]
+  subnets                    = aws_subnet.public.*.id
   enable_deletion_protection = false
 }
 
@@ -199,12 +199,12 @@ resource "aws_lb_target_group_attachment" "attach_instances_arm" {
 }
 
 variable "domains" {
-  type        = list(string)
-  default     = ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5"]
+  type    = list(string)
+  default = ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5"]
 }
 
 resource "aws_route53_record" "seeds" {
-  count = length(var.domains)
+  count   = length(var.domains)
   zone_id = data.aws_route53_zone.main_domain[0].zone_id
   name    = "${var.domains[count.index]}.${var.public_network_name}.${var.main_domain}"
   type    = "A"
