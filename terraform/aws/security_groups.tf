@@ -456,3 +456,21 @@ resource "aws_security_group" "vpn" {
     DashNetwork = terraform.workspace
   }
 }
+
+resource "aws_security_group" "seed" {
+  name        = "${terraform.workspace}-seed"
+  description = "DAPI access"
+  vpc_id      = aws_vpc.default.id
+
+  ingress {
+    description = "DAPI from internet"
+    from_port   = var.dapi_port
+    to_port     = var.dapi_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "seed-1"
+  }
+}

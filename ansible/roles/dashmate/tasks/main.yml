@@ -141,8 +141,19 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_obtain
   changed_when: dashmate_obtain.rc == 0
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider ==
-    'zerossl' and dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id is not defined
+  when: >
+    dashmate_platform_enable and
+    dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and
+    dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id is not defined
+
+- name: Change dashmate image to avoid 'pull access denied for dashmate_local'
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  changed_when: true
+  when: dashmate_branch is defined
 
 - name: Update dashmate images
   ansible.builtin.command: "{{ dashmate_cmd }} update --verbose"
