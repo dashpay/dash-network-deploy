@@ -149,14 +149,14 @@ resource "aws_elb" "web" {
 }
 
 resource "aws_lb" "seed" {
-  name                       = "${var.public_network_name}-alb-seed"
+  name                       = "${var.public_network_name}-nlb-seed"
   internal                   = false
   load_balancer_type         = "network"
   subnets                    = aws_subnet.public.*.id
   enable_deletion_protection = false
 }
 
-resource "aws_lb_listener" "seed_listener" {
+resource "aws_lb_listener" "seed" {
   load_balancer_arn = aws_lb.seed.arn
   port              = var.dapi_port
   protocol          = "TLS"
