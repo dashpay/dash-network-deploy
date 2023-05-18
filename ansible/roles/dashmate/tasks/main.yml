@@ -185,14 +185,14 @@
 - name: Get service status
   ansible.builtin.set_fact:
     core_service_status: "{{ dashmate_status.stdout | from_json | json_query('core.serviceStatus') }}"
-    drive_service_status: "{{ dashmate_status.stdout | from_json | json_query('drive.serviceStatus') }}"
+    tenderdash_service_status: "{{ dashmate_status.stdout | from_json | json_query('platform.tenderdash.serviceStatus') }}"
 
 - name: Fail if dashmate node in inconsistent state
   ansible.builtin.fail:
     msg: Dashmate status returned invalid service status
   when: >
-    (core_service_status is not 'up' or core_service_status is not 'stopped') or
-    (drive_service_status is not 'up' or drive_service_status is not 'stopped')
+    (core_service_status != 'up' and core_service_status != 'stopped') or
+    (tenderdash_service_status != 'up' and tenderdash_service_status != 'stopped')
 
 # start platform when (core is up and platform is down)
 # start ALL when (core is down and platform is down)
@@ -206,7 +206,7 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start_platform
-  when: core_service_status == 'up' and drive_service_status == 'stopped'
+  when: core_service_status == 'up' and tenderdash_service_status == 'stopped'
   changed_when: dashmate_start_platform.rc == 0
 
 # Start if not already running
@@ -217,7 +217,7 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start
-  when: core_service_status == 'stopped' and drive_service_status == 'stopped'
+  when: core_service_status == 'stopped' and tenderdash_service_status == 'stopped'
   changed_when: dashmate_start.rc == 0
 
 # Restart dashmate if already running
@@ -228,7 +228,7 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart
-  when: core_service_status == 'up' and drive_service_status == 'up'
+  when: core_service_status == 'up' and tenderdash_service_status == 'up'
   changed_when: dashmate_restart.rc == 0
 
 # Start if not already running
