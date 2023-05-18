@@ -98,7 +98,7 @@
               "provider": "{{ dashmate_platform_dapi_envoy_ssl_provider }}",
               "providerConfigs": {
                 "zerossl": {
-                  "apiKey": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key is not none and dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
+                  "apiKey": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
                   "id": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id is defined %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id }}"{% else %}null{% endif %}
                 }
               }
