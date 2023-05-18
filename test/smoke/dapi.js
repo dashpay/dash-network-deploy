@@ -4,7 +4,7 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
-describe.only('DAPI', () => {
+describe('DAPI', () => {
   describe('All nodes', () => {
   // Set up vars and functions to hold DAPI responses
     const bestBlockHash = {};
