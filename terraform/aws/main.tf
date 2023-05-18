@@ -112,10 +112,10 @@ resource "aws_elb" "web" {
   }
 
   listener {
-    instance_port     = var.faucet_port
-    instance_protocol = "http"
-    lb_port           = var.faucet_https_port
-    lb_protocol       = "https"
+    instance_port      = var.faucet_port
+    instance_protocol  = "http"
+    lb_port            = var.faucet_https_port
+    lb_protocol        = "https"
     ssl_certificate_id = aws_acm_certificate_validation.faucet.certificate_arn
   }
 
@@ -145,6 +145,71 @@ resource "aws_elb" "web" {
   tags = {
     Name        = "dn-${terraform.workspace}-web"
     DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_lb" "seed" {
+  name                       = "${var.public_network_name}-nlb-seed"
+  internal                   = false
+  load_balancer_type         = "network"
+  subnets                    = aws_subnet.public.*.id
+  enable_deletion_protection = false
+}
+
+resource "aws_lb_listener" "seed" {
+  load_balancer_arn = aws_lb.seed.arn
+  port              = var.dapi_port
+  protocol          = "TLS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.seed.arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.seed.arn
+  }
+}
+
+resource "aws_lb_target_group" "seed" {
+  name     = "${var.public_network_name}-tg-seed"
+  port     = var.dapi_port
+  protocol = "TLS"
+  vpc_id   = aws_vpc.default.id
+
+  health_check {
+    interval            = 30
+    port                = var.dapi_port
+    timeout             = 10
+    protocol            = "HTTPS"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200-499"
+  }
+}
+
+resource "aws_lb_target_group_attachment" "amd_hpmns" {
+  count            = var.hp_masternode_amd_count
+  target_group_arn = aws_lb_target_group.seed.arn
+  target_id        = aws_instance.hp_masternode_amd[count.index].id
+}
+
+resource "aws_lb_target_group_attachment" "arm_hpmns" {
+  count            = var.hp_masternode_arm_count
+  target_group_arn = aws_lb_target_group.seed.arn
+  target_id        = aws_instance.hp_masternode_arm[count.index].id
+}
+
+resource "aws_route53_record" "seeds" {
+  count   = length(var.main_domain) > 1 ? 5 : 0
+  zone_id = data.aws_route53_zone.main_domain[0].zone_id
+  name    = "seed-${count.index + 1}.${var.public_network_name}.${var.main_domain}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.seed.dns_name
+    zone_id                = aws_lb.seed.zone_id
+    # TODO: enable health checks
+    # https://www.envoyproxy.io/docs/envoy/latest/operations/admin#get--ready
+    evaluate_target_health = false
   }
 }
 
@@ -239,31 +304,64 @@ locals {
 # shuffle hpmn ips only
 resource "random_shuffle" "dns_ips" {
   input = concat(
-    var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
-    var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
+    var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
+    var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
   )
   result_count = length(
     concat(
-      var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
-      var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
+      var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
+      var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
     )
   ) > local.dns_record_length ? local.dns_record_length : length(
     concat(
-      var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : [],
-      var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : []
+      var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
+      var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
     )
   )
 }
 
 # `seed-n` type addresses are dapi endpoints
-resource "aws_route53_record" "masternodes" {
-  zone_id = data.aws_route53_zone.main_domain[0].zone_id
-  name    = "seed-${count.index + 1}.${var.public_network_name}.${var.main_domain}"
-  type    = "A"
-  ttl     = "300"
-  records = random_shuffle.dns_ips.result
 
-  count = length(var.main_domain) > 1 ? 5 : 0
+resource "aws_acm_certificate" "seed" {
+  domain_name       = "seed-1.${var.public_network_name}.${var.main_domain}"
+  validation_method = "DNS"
+
+  subject_alternative_names = [
+    "seed-2.${var.public_network_name}.${var.main_domain}",
+    "seed-3.${var.public_network_name}.${var.main_domain}",
+    "seed-4.${var.public_network_name}.${var.main_domain}",
+    "seed-5.${var.public_network_name}.${var.main_domain}"
+  ]
+
+  tags = {
+    Name = "seed.${var.public_network_name}.${var.main_domain}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "seed_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.seed.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.main_domain[0].zone_id
+}
+
+resource "aws_acm_certificate_validation" "seed" {
+  certificate_arn         = aws_acm_certificate.seed.arn
+  validation_record_fqdns = [for record in aws_route53_record.seed_validation : record.fqdn]
 }
 
 resource "aws_key_pair" "auth" {
