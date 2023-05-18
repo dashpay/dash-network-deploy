@@ -177,15 +177,19 @@
   ansible.builtin.command: "{{ dashmate_cmd }} status --format=json"
   become: true
   become_user: dashmate
+  changed_when: true
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_status
-  tags:
-    - skip_ansible_lint
 
 - name: Get service status
   ansible.builtin.set_fact:
     service_status: "{{ dashmate_status.stdout | from_json | json_query('core.serviceStatus') }}"
+
+- name: Fail if dashmate node in inconsistent state
+  ansible.builtin.fail:
+    msg: Dashmate status returned invalid service status
+  when: service_status is not 'up' or service_status is not 'stopped'
 
 # Restart dashmate if already running
 - name: Restart dashmate services
