@@ -6,7 +6,7 @@ const { variables, inventory } = getNetworkConfig();
 
 describe('DAPI', () => {
   describe('All nodes', () => {
-  // Set up vars and functions to hold DAPI responses
+    // Set up vars and functions to hold DAPI responses
     const bestBlockHash = {};
     const bestBlockHashError = {};
     const status = {};
@@ -14,7 +14,13 @@ describe('DAPI', () => {
     const dataContract = {};
     const dataContractError = {};
 
-    const hosts = ['seed-1.testnet.networks.dash.org', 'seed-2.testnet.networks.dash.org', 'seed-3.testnet.networks.dash.org', 'seed-4.testnet.networks.dash.org', 'seed-5.testnet.networks.dash.org'];
+    const hosts = [
+      'seed-1.testnet.networks.dash.org',
+      'seed-2.testnet.networks.dash.org',
+      'seed-3.testnet.networks.dash.org',
+      'seed-4.testnet.networks.dash.org',
+      'seed-5.testnet.networks.dash.org'
+    ];
 
     before('Collect blockhash, status and data contract info and errors', function func() {
       this.timeout(120000); // set mocha timeout
