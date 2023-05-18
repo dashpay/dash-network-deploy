@@ -22,18 +22,8 @@
       "numeric_detection": true,
       "date_detection": true,
       "properties": {
-        "json.abciMethod": {
-          "type": "keyword"
-        },
-        "json.height": {
-          "type": "long",
-          "ignore_malformed": true
-        },
         "log.level": {
           "type": "keyword"
-        },
-        "json.level": {
-          "type": "short"
         },
         "event.dataset": {
           "type": "keyword"
