@@ -184,12 +184,41 @@
 
 - name: Get service status
   ansible.builtin.set_fact:
-    service_status: "{{ dashmate_status.stdout | from_json | json_query('core.serviceStatus') }}"
+    core_service_status: "{{ dashmate_status.stdout | from_json | json_query('core.serviceStatus') }}"
+    drive_service_status: "{{ dashmate_status.stdout | from_json | json_query('drive.serviceStatus') }}"
 
 - name: Fail if dashmate node in inconsistent state
   ansible.builtin.fail:
     msg: Dashmate status returned invalid service status
-  when: service_status is not 'up' or service_status is not 'stopped'
+  when: >
+    (core_service_status is not 'up' or core_service_status is not 'stopped') or
+    (drive_service_status is not 'up' or drive_service_status is not 'stopped')
+
+# start platform when (core is up and platform is down)
+# start ALL when (core is down and platform is down)
+# restart ALL when (core is up and platform is up)
+
+# Start platform in case core is running
+- name: Start dashmate platform services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --platform --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_start_platform
+  when: core_service_status == 'up' and drive_service_status == 'stopped'
+  changed_when: dashmate_start_platform.rc == 0
+
+# Start if not already running
+- name: Start dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_start
+  when: core_service_status == 'stopped' and drive_service_status == 'stopped'
+  changed_when: dashmate_start.rc == 0
 
 # Restart dashmate if already running
 - name: Restart dashmate services
@@ -199,7 +228,7 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart
-  when: "service_status == 'up'"
+  when: core_service_status == 'up' and drive_service_status == 'up'
   changed_when: dashmate_restart.rc == 0
 
 # Start if not already running
