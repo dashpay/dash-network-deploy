@@ -251,7 +251,7 @@
     - role: mn_status_report
     - role: elastic_beats
       core_container_name: core
-      abci_logs_path: "{{ dashmate_log_path }}"
+      abci_logs_path: "{{ dashmate_logs_path }}"
 
 - name: Set up fake latency on masternodes
   hosts: masternodes
