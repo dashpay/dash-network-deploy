@@ -9,17 +9,19 @@
   ansible.builtin.copy:
     src: files/protx-diff.sh
     dest: /usr/local/bin
-    owner: ubuntu
-    group: ubuntu
+    owner: root
+    group: root
     mode: "0755"
 
 - name: Create crontab entry for protx diff script
   ansible.builtin.cron:
+    user: dash
     name: "protx diff"
     minute: "*"
     job: "/usr/local/bin/protx-diff.sh"
 
 # - name: Remove crontab entry for protx diff script
 #   ansible.builtin.cron:
+#     user: dash
 #     name: "protx diff"
 #     state: absent
