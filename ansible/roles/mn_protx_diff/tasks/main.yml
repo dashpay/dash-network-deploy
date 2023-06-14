@@ -18,7 +18,7 @@
     user: dash
     name: "protx diff"
     minute: "*"
-    job: "/usr/local/bin/protx-diff.sh"
+    job: "/usr/local/bin/protx-diff.sh > /dash/protx-diff.log 2>&1"
 
 # - name: Remove crontab entry for protx diff script
 #   ansible.builtin.cron:
