@@ -18,3 +18,8 @@
     name: "protx diff"
     minute: "*"
     job: "/usr/local/bin/protx-diff.sh"
+
+# - name: Remove crontab entry for protx diff script
+#   ansible.builtin.cron:
+#     name: "protx diff"
+#     state: absent
