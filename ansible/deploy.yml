@@ -253,6 +253,11 @@
       core_container_name: core
       abci_logs_path: "{{ dashmate_logs_dir }}"
 
+      - name: Set up protx diff script
+  hosts: masternodes:random(80%)
+  roles:
+    - role: mn_protx_diff
+
 - name: Set up fake latency on masternodes
   hosts: masternodes
   become: true
