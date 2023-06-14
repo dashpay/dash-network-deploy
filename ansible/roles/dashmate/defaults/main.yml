@@ -5,9 +5,7 @@
 # dashmate_branch:   # install dashmate from a branch
 # dashmate_version:  # install dashmate using a specific version
 
-dashmate_home: /home/dashmate
 dashmate_config_dir: '{{ dashmate_home }}/.dashmate'
-dashmate_logs_dir: '{{ dashmate_home }}/logs'
 dashmate_source_dir: '{{ dashmate_home }}/platform'
 dashmate_user: "dashmate"
 dashmate_group: "dashmate"
