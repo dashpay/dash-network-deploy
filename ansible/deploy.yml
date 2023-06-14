@@ -254,7 +254,8 @@
       abci_logs_path: "{{ dashmate_logs_dir }}"
 
 - name: Set up protx diff script
-  hosts: masternodes:random(80%)
+  hosts: masternodes
+  become: true
   roles:
     - role: mn_protx_diff
 
