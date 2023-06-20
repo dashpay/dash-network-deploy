@@ -133,6 +133,88 @@
   register: dashmate_envs
   changed_when: dashmate_envs.rc == 0
 
+# - name: Check if private key already exists
+
+- name: Create ssl dir
+  ansible.builtin.file:
+    path: '{{ dashmate_home }}/ssl/{{ dash_network_name }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    recurse: true
+    mode: "0755"
+
+- name: Generate PEM format private key
+  community.crypto.openssl_privatekey:
+    path: '{{ dashmate_home }}/ssl/{{ dash_network_name }}/private.key'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+
+- name: Debug cert content
+  ansible.builtin.command: cat '{{ dashmate_home }}/ssl/{{ dash_network_name }}/private.key'
+
+# Double escape newlines to prevent ansible.builtin.lineinfile from interpreting them as line breaks when adding to inventory later
+- name: Remove line breaks from private key
+  ansible.builtin.shell: |
+    awk 'NF {sub(/\r/, ""); printf "%s\\\\n",$0;}' {{ dashmate_home }}/ssl/{{ dash_network_name }}/private.key
+  register: zerossl_oneline_private_key
+
+- name: Write single line to file
+  ansible.builtin.template: 
+    src: 'oneline_debug.j2'
+    dest: '{{ dashmate_home }}/ssl/{{ dash_network_name }}/private.oneline'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0644"
+
+- name: Write oneline to inventory
+  become: false
+  delegate_to: localhost
+  ansible.builtin.lineinfile:
+    path: ../networks/{{ dash_network_name }}.inventory # relative to playbook
+    regexp: '^({{ inventory_hostname }} (?!.*privkey=).*)'
+    line: '\1 privkey={{ zerossl_oneline_private_key.stdout | quote }}'
+    backrefs: true
+
+- name: Get oneline from inventory
+  become: false
+  delegate_to: localhost
+  ansible.builtin.shell: |
+    grep -Po '(?<=privkey=).*' ../networks/{{ dash_network_name }}.inventory
+  register: oneline_from_inventory
+
+- name: Debug oneline from inventory
+  ansible.builtin.debug:
+    var: oneline_from_inventory.stdout
+
+# Note sure why this doesn't make newlines
+- name: Write single line to file as many lines
+  ansible.builtin.template: 
+    src: 'multiline_debug.j2'
+    dest: '{{ dashmate_home }}/ssl/{{ dash_network_name }}/private.frominventory'
+    newline_sequence: '\n'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0644"
+
+# Todo: remove fix newlines
+- name: Fix newlines
+  ansible.builtin.replace:
+    path: '{{ dashmate_home }}/ssl/{{ dash_network_name }}/private.frominventory'
+    regexp: '\\n'
+    replace: '\n'
+
+# Todo: remove fix quotes
+- name: Fix quotes
+  ansible.builtin.replace:
+    path: '{{ dashmate_home }}/ssl/{{ dash_network_name }}/private.frominventory'
+    regexp: "'"
+    replace: ""
+
+- name: Debug
+  ansible.builtin.debug:
+    var:  "{{ zerossl_oneline_private_key.stdout | replace('\\n', '\n') }}"
+
 - name: Obtain ZeroSSL certificate for DAPI
   ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --verbose"
   become: true
