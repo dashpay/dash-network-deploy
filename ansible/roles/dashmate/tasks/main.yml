@@ -48,7 +48,6 @@
     state: directory
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
-    recurse: true
     mode: "0755"
 
 - name: Configure log rotation
