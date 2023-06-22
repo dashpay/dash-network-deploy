@@ -2,13 +2,11 @@
 
 - name: Create dashmate ssl directory
   ansible.builtin.file:
-    path: '{{ item }}'
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
     state: directory
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     mode: "0750"
-  loop:
-    - '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
 
 - name: Generate an OpenSSL private key
   community.crypto.openssl_privatekey:
