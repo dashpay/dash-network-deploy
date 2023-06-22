@@ -9,6 +9,14 @@
     dashmate_zerossl_private_key_file_name: "private.key"
     dashmate_zerossl_bundle_file_name: "bundle.crt"
 
+- name: Create dashmate ssl directory
+  ansible.builtin.file:
+    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0750"
+
 # Set certificate ID to dashmate config
 
 - name: Check SSM parameter store for ZeroSSL certificate ID
