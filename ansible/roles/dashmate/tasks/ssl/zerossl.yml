@@ -30,7 +30,7 @@
 # Copy ZeroSSL files if they are not present
 
 - name: Check that ZeroSSL CSR and private key files exist
-  stat:
+  ansible.builtin.stat:
     path: '{{ dashmate_zerossl_keys_path }}/{{ dashmate_zerossl_private_key_file_name }}'
   register: zero_ssl_files
 
@@ -45,14 +45,14 @@
     - '{{ dashmate_zerossl_private_key_file_name }}'
     - '{{ dashmate_zerossl_csr_file_name }}'
   when: >
-    zero_ssl_files.stat.exists == false and 
+    not zero_ssl_files.stat.exists and
     dashmate_zerossl_certificate_id != ''
 
 # Create a new ZeroSSL certificate if it is not present
 # or download bundle if it's not exist
 
 - name: Check that ZeroSSL bundle file exists
-  stat:
+  ansible.builtin.stat:
     path: '{{ dashmate_zerossl_keys_path }}/{{ dashmate_zerossl_bundle_file_name }}'
   register: zero_ssl_bundle_file
 
@@ -64,7 +64,9 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_obtain
   changed_when: dashmate_obtain.rc == 0
-  when: dashmate_zerossl_certificate_id == '' or zero_ssl_bundle_file.stat.exists == false
+  when: >
+    dashmate_zerossl_certificate_id == '' or
+    not zero_ssl_bundle_file.stat.exists
 
 # Save new ZeroSSL information to SSM
 
@@ -99,7 +101,7 @@
   when: dashmate_zerossl_certificate_id == ''
 
 - name: Set new generated ZeroSSL CSR and private key files
-  set_fact:
+  ansible.builtin.set_fact:
     dashmate_zerossl_files:
       - name: "{{ dashmate_zerossl_private_key_file_name }}"
         content: '{{ dashmate_zerossl_private_key_file.content | b64decode }}'
