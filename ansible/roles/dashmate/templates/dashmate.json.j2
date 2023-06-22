@@ -1,5 +1,5 @@
 {
-  "configFormatVersion": "{{ dashmate_version }}",
+  "configFormatVersion": "{{ dashmate_version | default('999.0.0') }}",
   "defaultConfigName": "{{ dash_network_name}}",
   "defaultGroupName": null,
   "configs": {
@@ -99,7 +99,7 @@
               "providerConfigs": {
                 "zerossl": {
                   "apiKey": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key is not none and dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
-                  "id": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id is defined %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id }}"{% else %}null{% endif %}
+                  "id": null
                 }
               }
             }

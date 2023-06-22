@@ -76,7 +76,7 @@
     insertafter: '^OnCalendar=daily'
     line: OnCalendar=hourly
 
-- name: Create dashmate's config dir
+- name: Create dashmate config dir
   ansible.builtin.file:
     path: '{{ item }}'
     state: directory
@@ -94,26 +94,7 @@
   ansible.builtin.import_tasks: ./install.yml
   when: dashmate_version is defined
 
-- name: Generate self-signed SSL certificate for DAPI
-  ansible.builtin.import_tasks: ./ssl.yml
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
-
-- name: Obtain ZeroSSL certificate ID
-  ansible.builtin.command: "{{ dashmate_cmd }} config get platform.dapi.envoy.ssl.providerConfigs.zerossl.id"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_zerossl_id
-  changed_when: dashmate_zerossl_id.rc == 0 and dashmate_zerossl_id.stdout != 'null'
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl'
-
-- name: Set ZeroSSL certificate ID
-  ansible.builtin.set_fact:
-    dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id: "{{ dashmate_zerossl_id.stdout }}"
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and dashmate_zerossl_id.stdout != 'null'
-
-- name: Write dashmate's config file
+- name: Write dashmate config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
   ansible.builtin.template:
@@ -123,6 +104,14 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
 
+- name: Generate self-signed SSL certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl/self_signed.yml
+  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
+
+- name: Obtain ZeroSSL certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl/zerossl.yml
+  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl'
+
 - name: Export current dashmate config
   ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"
   become: true
@@ -131,19 +120,6 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_envs
   changed_when: dashmate_envs.rc == 0
-
-- name: Obtain ZeroSSL certificate for DAPI
-  ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --verbose"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_obtain
-  changed_when: dashmate_obtain.rc == 0
-  when: >
-    dashmate_platform_enable and
-    dashmate_platform_dapi_envoy_ssl_provider == 'zerossl' and
-    dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_id is not defined
 
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
