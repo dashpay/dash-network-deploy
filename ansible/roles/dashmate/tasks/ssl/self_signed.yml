@@ -1,6 +1,6 @@
 ---
 
-- name: Create dashmate's ssl directory
+- name: Create dashmate ssl directory
   ansible.builtin.file:
     path: '{{ item }}'
     state: directory

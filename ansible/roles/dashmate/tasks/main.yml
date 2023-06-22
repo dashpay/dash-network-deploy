@@ -77,7 +77,7 @@
     insertafter: '^OnCalendar=daily'
     line: OnCalendar=hourly
 
-- name: Create dashmate's config dir
+- name: Create dashmate config dir
   ansible.builtin.file:
     path: '{{ item }}'
     state: directory
@@ -95,7 +95,7 @@
   ansible.builtin.import_tasks: ./install.yml
   when: dashmate_version is defined
 
-- name: Write dashmate's config file
+- name: Write dashmate config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
   ansible.builtin.template:
