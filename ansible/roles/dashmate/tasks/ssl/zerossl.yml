@@ -64,8 +64,6 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_obtain
   changed_when: dashmate_obtain.rc == 0
-  retries: 5
-  delay: 2
   when: dashmate_zerossl_certificate_id == '' or zero_ssl_bundle_file.stat.exists == false
 
 # Save new ZeroSSL information to SSM
