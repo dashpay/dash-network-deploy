@@ -48,7 +48,7 @@
     state: directory
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
-    mode: "0755"
+    recurse: true
 
 - name: Configure log rotation
   ansible.builtin.include_role:
