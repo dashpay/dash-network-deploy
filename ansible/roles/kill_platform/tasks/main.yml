@@ -3,7 +3,7 @@
 - name: Reset platform (dashmate)
   ansible.builtin.import_role:
     name: dashmate
-    tasks_from: reset_platform
+    tasks_from: destroy_platform
   when: inventory_hostname in groups["hp_masternodes"]
 
 - name: Remove platform docker containers and volumes
@@ -18,6 +18,8 @@
   ansible.builtin.file:
     state: absent
     path: '{{ mn_evo_services_path }}'
+  when:
+    - inventory_hostname not in groups["hp_masternodes"]
 
 - name: Remove any remaining docker data
   community.docker.docker_prune:

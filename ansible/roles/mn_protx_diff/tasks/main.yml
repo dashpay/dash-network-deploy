@@ -1,0 +1,27 @@
+---
+
+- name: Install jq
+  ansible.builtin.package:
+    name: jq
+    state: present
+
+- name: Copy protx diff script
+  ansible.builtin.copy:
+    src: files/protx-diff.sh
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create crontab entry for protx diff script
+  ansible.builtin.cron:
+    user: dash
+    name: "protx diff"
+    minute: "*"
+    job: "/usr/local/bin/protx-diff.sh > /dash/protx-diff.log 2>&1"
+
+# - name: Remove crontab entry for protx diff script
+#   ansible.builtin.cron:
+#     user: dash
+#     name: "protx diff"
+#     state: absent
