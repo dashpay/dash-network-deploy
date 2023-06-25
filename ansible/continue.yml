@@ -9,6 +9,6 @@
       no_log: true
 
     - name: Check for chainlock
-      fail:
+      ansible.builtin.fail:
         msg: "Chainlock failure: no chainlock found."
       when: '"error" in chainlock_output.stderr'
