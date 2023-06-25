@@ -3,7 +3,7 @@
   hosts: wallet_nodes
   tasks:
     - name: Run dash-cli getbestchainlock
-      command: dash-cli getbestchainlock
+      ansible.builtin.command: dash-cli getbestchainlock
       register: chainlock_output
       ignore_errors: true
       no_log: true
