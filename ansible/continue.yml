@@ -1,0 +1,14 @@
+---
+- name: Execute getbestchainlock
+  hosts: wallet_nodes
+  tasks:
+    - name: Run dash-cli getbestchainlock
+      command: dash-cli getbestchainlock
+      register: chainlock_output
+      ignore_errors: true
+      no_log: true
+
+    - name: Check for chainlock
+      fail:
+        msg: "Chainlock failure: no chainlock found."
+      when: '"error" in chainlock_output.stderr'

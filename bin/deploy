@@ -14,10 +14,13 @@ Options:
   -i        --only-infrastructure         - Only build infrastructure using Terraform
   -p        --only-provisioning           - Only provisioning using Ansible
   -f        --force-deployment            - Force deployment of a devnet branch on a different devnet
+  -s        --stage                       - Stage of deployment, defaults to first stage (1)
   -a=<args> --ansible-args=<args>         - Pass extra arguments to ansible-playbook command
             --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
   -h        --help                        - Show help"
 
+
+STAGE=1 #Default
 for i in "$@"
 do
 case ${i} in
@@ -36,6 +39,9 @@ case ${i} in
     --ansible-playbook=*)
     ansible_playbook="${i#*=}.yml"
     ;;
+    -s=*|--stage=*)
+    STAGE="${i#*=}"
+    ;;
     -h|--help)
         echo "$CMD_USAGE"
         exit 0
@@ -50,31 +56,35 @@ done
 . ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
 
-echo "Deploying $NETWORK_NAME network...";
+case ${STAGE} in
+    1)
+        echo "Deploying $NETWORK_NAME network... stage (1)";
 
-# TODO: this fails if not at the HEAD of a given branch
-BRANCH=$(git symbolic-ref --short HEAD)
-if [[ $BRANCH == "devnet-"* ]]; then
-    if [[ $BRANCH != $NETWORK_NAME ]] && [[ $FORCED_DEPLOYMENT != 1 ]]; then
-        echo "Wrong Devnet - Check you're in the correct branch. Use -f to force if you're sure"
-        exit 1
-    fi
-fi
+        # TODO: this fails if not at the HEAD of a given branch
+        BRANCH=$(git symbolic-ref --short HEAD)
+        if [[ $BRANCH == "devnet-"* ]]; then
+            if [[ $BRANCH != $NETWORK_NAME ]] && [[ $FORCED_DEPLOYMENT != 1 ]]; then
+                echo "Wrong Devnet - Check you're in the correct branch. Use -f to force if you're sure"
+                exit 1
+            fi
+        fi
 
-# Setup infrastructure using Terraform
+        # Setup infrastructure using Terraform
+        if [ -z ${ONLY_PROVISIONING} ]; then
+            terraform_run_command "apply"
+        else
+            echo "Skipping Terraform infrastructure deployment"
+        fi
 
-if [ -z ${ONLY_PROVISIONING} ]; then
-    terraform_run_command "apply"
-else
-    echo "Skipping Terraform infrastructure deployment"
-fi
-
-# Install software and configure dash network using Ansible
-
-if [ -z ${ONLY_INFRASTRUCTURE} ]; then
-    ansible_run_playbook "$ansible_playbook"
-else
-    echo "Skipping Ansible provisioning"
-fi
-
-
+        # Install software and configure dash network using Ansible
+        if [ -z ${ONLY_INFRASTRUCTURE} ]; then
+            ansible_run_playbook "$ansible_playbook"
+        else
+            echo "Skipping Ansible provisioning"
+        fi
+    ;;
+    2)
+        echo "stage 2"
+        ansible_run_playbook "continue.yml"
+    ;;
+esac
