@@ -63,7 +63,7 @@ COPY ansible/requirements.yml /ansible-requirements.yml
 COPY package*.json ./
 
 RUN python3 -m pip install -U pip && \
-    python3 -m pip install --upgrade netaddr awscli jmespath ansible && \
+    python3 -m pip install --upgrade netaddr awscli jmespath ansible ansible-lint boto3 botocore && \
     ansible-galaxy install -r /ansible-requirements.yml && \
     npm install
 

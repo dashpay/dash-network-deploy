@@ -320,6 +320,18 @@ resource "aws_security_group" "hp_masternode" {
     ])
   }
 
+  # ZeroSSL IP verification
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    description = "ZeroSSL IP verification"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
   tags = {
     Name        = "dn-${terraform.workspace}-hp-masternode"
     DashNetwork = terraform.workspace
@@ -442,5 +454,23 @@ resource "aws_security_group" "vpn" {
   tags = {
     Name        = "dn-${terraform.workspace}-vpn"
     DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_security_group" "seed" {
+  name        = "${terraform.workspace}-seed"
+  description = "DAPI access"
+  vpc_id      = aws_vpc.default.id
+
+  ingress {
+    description = "DAPI from internet"
+    from_port   = var.dapi_port
+    to_port     = var.dapi_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "seed-1"
   }
 }
