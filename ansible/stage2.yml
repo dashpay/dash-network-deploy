@@ -1,0 +1,13 @@
+---
+- name: Execute getbestchainlock
+  hosts: wallet_nodes
+  tasks:
+    - name: Run dash-cli getbestchainlock
+      ansible.builtin.command: dash-cli getbestchainlock
+      register: chainlock_output
+      ignore_errors: true
+
+    - name: Check for chainlock
+      ansible.builtin.fail:
+        msg: "Chainlock failure: no chainlock found."
+      when: '"error" in chainlock_output.stderr'
