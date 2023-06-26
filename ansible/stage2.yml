@@ -6,7 +6,6 @@
       ansible.builtin.command: dash-cli getbestchainlock
       register: chainlock_output
       ignore_errors: true
-      no_log: true
 
     - name: Check for chainlock
       ansible.builtin.fail:

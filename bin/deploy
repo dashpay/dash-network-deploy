@@ -84,7 +84,6 @@ case ${STAGE} in
         fi
     ;;
     2)
-        echo "stage 2"
-        ansible_run_playbook "continue.yml"
+        ansible_run_playbook "stage2.yml"
     ;;
 esac
