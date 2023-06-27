@@ -29,7 +29,7 @@ describe('DAPI', () => {
           protocol: 'https',
           host: inventory.meta.hostvars[hostName].public_ip,
           port: variables.dapi_port,
-          allowSelfSignedCertificate: true,
+          allowSelfSignedCertificate: variables.dashmate_platform_dapi_envoy_ssl_provider !== 'zerossl',
         };
 
         const dapiClient = new DAPIClient({
@@ -66,7 +66,7 @@ describe('DAPI', () => {
           protocol: 'https',
           host: inventory.meta.hostvars[hostName].public_ip,
           port: variables.dapi_port,
-          allowSelfSignedCertificate: true,
+          allowSelfSignedCertificate: variables.dashmate_platform_dapi_envoy_ssl_provider !== 'zerossl',
         };
 
         const dapiClient = new DAPIClient({
