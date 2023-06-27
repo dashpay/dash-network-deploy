@@ -173,7 +173,3 @@ elastic_path: '{{ dashd_home }}/{{ elastic_compose_project_name }}'
 masternode_network_latency: false
 masternode_network_latency_min: 10
 masternode_network_latency_max: 100
-
-# Dashmate
-dashmate_home: /home/dashmate
-dashmate_logs_dir: '{{ dashmate_home }}/logs'

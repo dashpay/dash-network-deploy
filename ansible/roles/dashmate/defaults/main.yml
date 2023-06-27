@@ -5,11 +5,11 @@
 # dashmate_branch:   # install dashmate from a branch
 # dashmate_version:  # install dashmate using a specific version
 
+dashmate_home: /home/dashmate
 dashmate_config_dir: '{{ dashmate_home }}/.dashmate'
+dashmate_logs_dir: /var/log/dashmate
 dashmate_source_dir: '{{ dashmate_home }}/platform'
 dashmate_user: "dashmate"
 dashmate_group: "dashmate"
 dashmate_api_port: 9000
 dashmate_platform_enable: true
-dashmate_platform_dapi_envoy_ssl_provider: self-signed
-dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key:

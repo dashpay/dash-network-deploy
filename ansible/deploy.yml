@@ -251,13 +251,7 @@
     - role: mn_status_report
     - role: elastic_beats
       core_container_name: core
-      abci_logs_path: "{{ dashmate_logs_dir }}"
-
-- name: Set up protx diff script
-  hosts: masternodes
-  become: true
-  roles:
-    - role: mn_protx_diff
+      abci_logs_path: "/var/log/dashmate"
 
 - name: Set up fake latency on masternodes
   hosts: masternodes

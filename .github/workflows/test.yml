@@ -12,8 +12,6 @@ jobs:
     name: Test package
     runs-on: ubuntu-22.04
     timeout-minutes: 5
-    env:
-      ANSIBLE_LINT_VERSION: "6.16.0"
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
@@ -22,7 +20,7 @@ jobs:
         run: ansible-galaxy install -r ansible/requirements.yml
 
       - name: Install ansible-lint
-        run: pip3 install ansible-lint==${{ env.ANSIBLE_LINT_VERSION }}
+        run: pip3 install ansible-lint
 
       - name: Run ansible-lint
         run: ansible-lint ansible

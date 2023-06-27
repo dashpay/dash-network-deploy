@@ -49,6 +49,7 @@
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     recurse: true
+    mode: "0755"
 
 - name: Configure log rotation
   ansible.builtin.include_role:
@@ -76,7 +77,7 @@
     insertafter: '^OnCalendar=daily'
     line: OnCalendar=hourly
 
-- name: Create dashmate config dir
+- name: Create dashmate's config dir
   ansible.builtin.file:
     path: '{{ item }}'
     state: directory
@@ -86,15 +87,7 @@
   loop:
     - '{{ dashmate_config_dir }}'
 
-- name: Build dashmate
-  ansible.builtin.import_tasks: ./build.yml
-  when: dashmate_branch is defined
-
-- name: Install dashmate
-  ansible.builtin.import_tasks: ./install.yml
-  when: dashmate_version is defined
-
-- name: Write dashmate config file
+- name: Write dashmate's config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
   ansible.builtin.template:
@@ -104,13 +97,17 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
 
-- name: Generate self-signed SSL certificate for DAPI
-  ansible.builtin.import_tasks: ./ssl/self_signed.yml
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
+- name: Generate Self-singed SSL certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl.yml
+  when: dashmate_platform_enable
 
-- name: Obtain ZeroSSL certificate for DAPI
-  ansible.builtin.import_tasks: ./ssl/zerossl.yml
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl'
+- name: Build dashmate
+  ansible.builtin.import_tasks: ./build.yml
+  when: dashmate_branch is defined
+
+- name: Install dashmate
+  ansible.builtin.import_tasks: ./install.yml
+  when: dashmate_version is defined
 
 - name: Export current dashmate config
   ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"
