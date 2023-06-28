@@ -220,7 +220,7 @@
 
 # Start platform in case core is running
 - name: Start dashmate platform services
-  ansible.builtin.command: "{{ dashmate_cmd }} start --platform --verbose --force"
+  ansible.builtin.command: "{{ dashmate_cmd }} start --platform --verbose"
   become: true
   become_user: dashmate
   args:
