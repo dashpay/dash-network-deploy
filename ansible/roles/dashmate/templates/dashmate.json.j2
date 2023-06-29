@@ -152,6 +152,10 @@
             "rpc": {
               "port": {{ tendermint_rpc_port }}
             },
+            "pprof": {
+              "enabled": {% if dashmate_platform_tenderdash_pprof_enable %}true{% else %}false{% endif %},
+              "port": 6060
+            },
             "consensus": {
               "createEmptyBlocks": true,
               "createEmptyBlocksInterval": "3m"
