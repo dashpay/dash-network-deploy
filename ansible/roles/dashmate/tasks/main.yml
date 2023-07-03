@@ -177,29 +177,15 @@
     dashmate_package_changed: "{{ dashmate_install_result.changed }}"
     dashmate_config_changed: "{{ template_result.changed }}"
 
-- name: print
-  ansible.builtin.debug:
-    var: core_docker_status
-
-- name: print
-  ansible.builtin.debug:
-    var: tenderdash_docker_status
-
-- name: print
-  ansible.builtin.debug:
-    var: core_images_updated
-
-- name: print
-  ansible.builtin.debug:
-    var: platform_images_updated
-
-- name: print
-  ansible.builtin.debug:
-    var: dashmate_package_changed
-
-- name: print
-  ansible.builtin.debug:
-    var: dashmate_config_changed
+- name: Print status
+  debug: "msg=Mosh Version: '{{ mosh_version.stdout }}
+Core Status: {{ core_docker_status }}
+Tenderdash Status: {{ tenderdash_docker_status }}
+Core Images Updated: {{ core_images_updated }}
+Platform Images Updated: {{ platform_images_updated }}
+Dashmate Package Updated: {{ platform_images_updated }}
+Dashmate Config Changed: {{ dashmate_package_changed }}'
+"
 
 # Start logic:
 # start ALL when (core is down and platform is down)
