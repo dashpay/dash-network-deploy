@@ -13,4 +13,4 @@ dashmate_api_port: 9000
 dashmate_platform_enable: true
 dashmate_platform_dapi_envoy_ssl_provider: self-signed
 dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key:
-dashmate_platform_tenderdash_pprof_enable: false
+dashmate_branch: fix/dashmate-reindex
