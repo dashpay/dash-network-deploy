@@ -172,18 +172,19 @@
   ansible.builtin.set_fact:
     core_docker_status: "{{ dashmate_status.stdout | from_json | json_query('core.dockerStatus') }}"
     tenderdash_docker_status: "{{ dashmate_status.stdout | from_json | json_query('platform.tenderdash.dockerStatus') }}"
-    core_images_updated: "{{ dashmate_update.stdout | from_json | json_query('[?serviceName==`core`||serviceName==`sentinel`]') | sort(attribute='pulled',reverse=true) | first() | json_query('pulled') }}"
-    platform_images_updated: "{{ dashmate_update.stdout | from_json | json_query('[?serviceName!=`core`&&serviceName!=`sentinel`]') | sort(attribute='pulled',reverse=true) | first() | json_query('pulled') }}"
+    core_images_updated: "{{ dashmate_update.stdout | from_json | json_query('[?name==`core`||name==`sentinel`]') | sort(attribute='updated',reverse=true) | first() | json_query('updated') }}"
+    platform_images_updated: "{{ dashmate_update.stdout | from_json | json_query('[?name!=`core`&&name!=`sentinel`]') | sort(attribute='updated',reverse=true) | first() | json_query('updated') }}"
     dashmate_package_changed: "{{ dashmate_install_result.changed }}"
     dashmate_config_changed: "{{ template_result.changed }}"
 
 - name: Print status
-  debug: "msg=Core Status: {{ core_docker_status }}
-Tenderdash Status: {{ tenderdash_docker_status }}
-Core Images Updated: {{ core_images_updated }}
-Platform Images Updated: {{ platform_images_updated }}
-Dashmate Package Updated: {{ platform_images_updated }}
-Dashmate Config Changed: {{ dashmate_package_changed }}'
+  debug: "msg='\n
+Core Status: {{ core_docker_status }}\n
+Tenderdash Status: {{ tenderdash_docker_status }}\n
+Core Images Updated: {{ core_images_updated }}\n
+Platform Images Updated: {{ platform_images_updated }}\n
+Dashmate Package Updated: {{ dashmate_package_changed }}\\n
+Dashmate Config Changed: {{ dashmate_config_changed }}'
 "
 
 # Start logic:
