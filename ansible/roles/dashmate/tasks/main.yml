@@ -92,7 +92,7 @@
 
 - name: Install dashmate
   ansible.builtin.import_tasks: ./install.yml
-  when: dashmate_version is defined and dashmate_branch is not defined
+  when: dashmate_version is defined
 
 - name: Write dashmate config file
   vars:
@@ -122,16 +122,6 @@
   register: dashmate_envs
   changed_when: dashmate_envs.rc == 0
 
-- name: Retrieve dashmate version
-  ansible.builtin.command: "{{ dashmate_cmd }} config get dashmate.helper.docker.image"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  changed_when: true
-  when: dashmate_branch is defined
-  register: dashmate_image_result
-
 - name: Change dashmate image to avoid 'pull access denied for dashmate_local'
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
   become: true
@@ -151,7 +141,7 @@
   changed_when: dashmate_update.rc == 0
 
 - name: Change dashmate image back to "dashmate_local"
-  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image {{ dashmate_image_result.stdout }}"
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashmate_local"
   become: true
   become_user: dashmate
   args:
