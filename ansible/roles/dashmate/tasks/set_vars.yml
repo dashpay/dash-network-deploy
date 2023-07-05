@@ -1,5 +1,10 @@
 ---
 
+- name: Validate configuration
+  ansible.builtin.fail:
+    msg: Either dashmate_branch or dashmate_version must be set
+  when: (dashmate_branch is defined and dashmate_version is defined) or (dashmate_branch is not defined and dashmate_version is not defined)
+
 - name: Set dashmate vars
   ansible.builtin.set_fact:
     dashmate_cmd: "{{ 'yarn dashmate' if dashmate_branch is defined else 'dashmate' }}"
