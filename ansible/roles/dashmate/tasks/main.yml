@@ -190,7 +190,7 @@ Core Status: {{ core_docker_status }}\n
 Tenderdash Status: {{ tenderdash_docker_status }}\n
 Core Images Updated: {{ core_images_updated }}\n
 Platform Images Updated: {{ platform_images_updated }}\n
-Dashmate Package Updated: {{ dashmate_package_changed }}\\n
+Dashmate Package Updated: {{ dashmate_package_changed }}\n
 Dashmate Config Changed: {{ dashmate_config_changed }}
 "
 
