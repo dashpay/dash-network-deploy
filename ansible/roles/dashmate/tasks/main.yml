@@ -95,7 +95,7 @@
   when: dashmate_version is defined
 
 - name: Retrieve dashmate version
-  ansible.builtin.shell: "{{ dashmate_cmd }} --version"
+  ansible.builtin.command: "{{ dashmate_cmd }} --version"
   become: true
   become_user: dashmate
   args:
@@ -166,7 +166,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} status --format=json"
   become: true
   become_user: dashmate
-  changed_when: dashamte_status.rc == 0
+  changed_when: dashmate_status.rc == 0
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_status
