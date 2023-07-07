@@ -94,6 +94,19 @@
   ansible.builtin.import_tasks: ./install.yml
   when: dashmate_version is defined
 
+- name: Retrieve dashmate version
+  ansible.builtin.shell: "{{ dashmate_cmd }} --version"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_version_result
+  changed_when: dashmate_version_result.rc == 0
+
+- name: Extract dashmate version
+  ansible.builtin.set_fact:
+    dashmate_config_version: "{{ (dashmate_version_result.stdout | split(' ') | first() | split('/'))[1] }}"
+
 - name: Write dashmate config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
