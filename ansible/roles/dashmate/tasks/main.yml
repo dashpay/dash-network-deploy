@@ -231,8 +231,8 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start
   when:
-    - !is_core_started
-    - !is_platform_started
+    - not is_core_started
+    - not is_platform_started
   changed_when: dashmate_start.rc == 0
 
 # Start platform in case core is running
@@ -245,7 +245,7 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
   register: dashmate_start_platform
   when:
     - is_core_started
-    - !is_platform_started
+    - not is_platform_started
   changed_when: dashmate_start_platform.rc == 0
 
 # Restart logic
@@ -263,7 +263,7 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
   register: dashmate_restart
   when:
     - dashmate_start_platform.skipped and dashmate_start.skipped
-    - !is_platform_images_updated # We only restart platform in this case
+    - not is_platform_images_updated # We only restart platform in this case
     - is_core_images_updated or is_dashmate_package_changed or is_dashmate_config_changed
   changed_when: dashmate_restart.rc == 0
 
@@ -275,7 +275,7 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart_platform
   when:
-    - dashmate_start_platform.skipped and dashmate_start.skipped and dashmate_restart.skipped
+    - not dashmate_start_platform.changed and not dashmate_start.changed and not dashmate_restart.changed
     - is_platform_images_updated
   changed_when: dashmate_restart_platform.rc == 0
 
