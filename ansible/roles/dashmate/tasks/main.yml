@@ -171,7 +171,7 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_services_status
 
-- name: Get service status
+- name: Set facts
   ansible.builtin.set_fact:
     core_docker_status: >-
       {{
