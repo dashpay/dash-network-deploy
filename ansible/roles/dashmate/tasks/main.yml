@@ -162,19 +162,32 @@
   changed_when: true
   when: dashmate_branch is defined
 
-- name: Get status
-  ansible.builtin.command: "{{ dashmate_cmd }} status --format=json"
+- name: Get service statuses
+  ansible.builtin.command: "{{ dashmate_cmd }} status services --format=json"
   become: true
   become_user: dashmate
-  changed_when: dashmate_status.rc == 0
+  changed_when: dashmate_services_status.rc == 0
   args:
     chdir: '{{ dashmate_cwd }}'
-  register: dashmate_status
+  register: dashmate_services_status
 
 - name: Get service status
   ansible.builtin.set_fact:
-    core_docker_status: "{{ dashmate_status.stdout | from_json | json_query('core.dockerStatus') }}"
-    tenderdash_docker_status: "{{ dashmate_status.stdout | from_json | json_query('platform.tenderdash.dockerStatus') }}"
+    core_docker_status: >-
+      {{
+        dashmate_services_status.stdout |
+        from_json |
+        json_query('[?service==`core`]') |
+        first() |
+        json_query('status')
+      }}
+    platform_running: >-
+      {{
+        dashmate_services_status.stdout |
+        from_json |
+        json_query('[?service!=`core`&&service!=`sentinel`&&status==`running`]') |
+        length | int > 0
+      }}
     core_images_updated: >-
       {{
         dashmate_update.stdout |
@@ -200,7 +213,7 @@
   ansible.builtin.debug:
     msg: "\n
 Core Status: {{ core_docker_status }}\n
-Tenderdash Status: {{ tenderdash_docker_status }}\n
+Platform Running: {{ platform_running }}\n
 Core Images Updated: {{ core_images_updated }}\n
 Platform Images Updated: {{ platform_images_updated }}\n
 Dashmate Package Updated: {{ dashmate_package_changed }}\n
@@ -221,7 +234,7 @@ Dashmate Config Changed: {{ dashmate_config_changed }}
   register: dashmate_start
   when:
     - core_docker_status == 'not_started'
-    - tenderdash_docker_status == 'not_started'
+    - platform_running is false
   changed_when: dashmate_start.rc == 0
 
 # Start platform in case core is running
@@ -234,7 +247,7 @@ Dashmate Config Changed: {{ dashmate_config_changed }}
   register: dashmate_start_platform
   when:
     - core_docker_status == 'running'
-    - tenderdash_docker_status == 'not_started'
+    - platform_running is false
   changed_when: dashmate_start_platform.rc == 0
 
 # Restart logic
@@ -251,7 +264,7 @@ Dashmate Config Changed: {{ dashmate_config_changed }}
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart_platform
   when:
-    - core_docker_status == 'running' and tenderdash_docker_status == 'running'
+    - dashmate_start_platform.skipped is true and dashmate_start.skipped is true
     - core_images_updated is false and platform_images_updated is true
     - dashmate_package_changed is false and dashmate_config_changed is false
   changed_when: dashmate_restart_platform.rc == 0
@@ -264,7 +277,7 @@ Dashmate Config Changed: {{ dashmate_config_changed }}
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart
   when:
-    - core_docker_status == 'running' and tenderdash_docker_status == 'running'
+    - dashmate_start_platform.skipped is true and dashmate_start.skipped is true
     - platform_images_updated is false
     - core_images_updated is true or dashmate_package_changed is true or dashmate_config_changed is true
   changed_when: dashmate_restart.rc == 0
