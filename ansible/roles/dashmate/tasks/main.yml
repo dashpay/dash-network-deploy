@@ -173,13 +173,12 @@
 
 - name: Set facts
   ansible.builtin.set_fact:
-    core_docker_status: >-
+    core_running: >-
       {{
         dashmate_services_status.stdout |
         from_json |
-        json_query('[?service==`core`]') |
-        first() |
-        json_query('status')
+        json_query('[?service==`core`&&status!=`not_started`]') |
+        length | int > 0
       }}
     platform_running: >-
       {{
@@ -212,7 +211,7 @@
 - name: Print status
   ansible.builtin.debug:
     msg: "\n
-Core Status: {{ core_docker_status }}\n
+Core Running: {{ core_running }}\n
 Platform Running: {{ platform_running }}\n
 Core Images Updated: {{ core_images_updated }}\n
 Platform Images Updated: {{ platform_images_updated }}\n
@@ -233,7 +232,7 @@ Dashmate Config Changed: {{ dashmate_config_changed }}
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start
   when:
-    - core_docker_status == 'not_started'
+    - core_running is false
     - platform_running is false
   changed_when: dashmate_start.rc == 0
 
@@ -246,7 +245,7 @@ Dashmate Config Changed: {{ dashmate_config_changed }}
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start_platform
   when:
-    - core_docker_status == 'running'
+    - core_running is true
     - platform_running is false
   changed_when: dashmate_start_platform.rc == 0
 
