@@ -185,7 +185,7 @@
       {{
         dashmate_services_status.stdout |
         from_json |
-        json_query('[?service!=`core`&&service!=`sentinel`&&status==`running`]') |
+        json_query('[?service!=`core`&&service!=`sentinel`&&status!=`not_started`]') |
         length | int > 0
       }}
     core_images_updated: >-
