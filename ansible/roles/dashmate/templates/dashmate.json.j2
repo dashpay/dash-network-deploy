@@ -1,5 +1,5 @@
 {
-  "configFormatVersion": "{{ dashmate_version | default('999.0.0') }}",
+  "configFormatVersion": "{{ dashmate_config_version }}",
   "defaultConfigName": "{{ dash_network_name}}",
   "defaultGroupName": null,
   "configs": {
@@ -8,7 +8,8 @@
       "group": null,
       "docker": {
         "network": {
-          "subnet": "172.25.24.0/24"
+          "subnet": "172.25.24.0/24",
+          "bindIp": "0.0.0.0"
         }
       },
       "core": {
@@ -18,12 +19,10 @@
         "p2p": {
           "port": {{ dashd_port }},
           "seeds": [
-          {% for seed in template_bootstrap_peers %}
-            {
+            {% for seed in template_bootstrap_peers %}{
               "host": "{{ hostvars[seed].public_ip }}",
               "port": {{ dashd_port }}
-            }{% if not loop.last %},{% endif %}
-            {% endfor %}
+            }{% if not loop.last %},{% endif %}{% endfor %}
           ]
         },
         "rpc": {
@@ -60,9 +59,9 @@
           }
         },
         "devnet": {
-            "name": {% if dash_network == 'devnet' %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
-            "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
-            "powTargetSpacing": {{ dashd_powtargetspacing }}
+          "name": {% if dash_network == 'devnet' %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
+          "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
+          "powTargetSpacing": {{ dashd_powtargetspacing }}
         },
         "logIps": 0,
         "indexes": true,
@@ -145,9 +144,8 @@
                    "id": "{{ seed_nodes[seed].node_key.id }}",
                    "host": "{{ hostvars[seed].public_ip }}",
                    "port": {{ tendermint_p2p_port }}
-                 }{% if not loop.last %},{% endif %}
-                 {% endfor %}
-               ]
+                 }{% if not loop.last %},{% endif %}{% endfor %}
+              ]
             },
             "rpc": {
               "port": {{ tendermint_rpc_port }}
@@ -238,7 +236,7 @@
         },
         "withdrawals": {
           "contract": {
-           "id": "4fJLR2GYTPFdomuTVvNy3VRrvWgvkKPzqehEBpNf2nk6"
+            "id": "4fJLR2GYTPFdomuTVvNy3VRrvWgvkKPzqehEBpNf2nk6"
           },
           "masterPublicKey": "{{ withdrawals_hd_master_public_key }}",
           "secondPublicKey": "{{ withdrawals_hd_second_public_key }}"
@@ -251,7 +249,7 @@
           },
           "api": {
             "enable": true,
-            "port": "{{ dashmate_api_port }}"
+            "port": {{ dashmate_api_port }}
           }
         }
       },

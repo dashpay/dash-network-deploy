@@ -94,6 +94,19 @@
   ansible.builtin.import_tasks: ./install.yml
   when: dashmate_version is defined
 
+- name: Retrieve dashmate version
+  ansible.builtin.command: "{{ dashmate_cmd }} --version"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_version_result
+  changed_when: dashmate_version_result.rc == 0
+
+- name: Extract dashmate version
+  ansible.builtin.set_fact:
+    dashmate_config_version: "{{ (dashmate_version_result.stdout | split(' ') | first() | split('/'))[1] }}"
+
 - name: Write dashmate config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
@@ -103,6 +116,7 @@
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     mode: "0644"
+  register: template_result
 
 - name: Generate self-signed SSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/self_signed.yml
@@ -131,7 +145,7 @@
   when: dashmate_branch is defined
 
 - name: Update dashmate images
-  ansible.builtin.command: "{{ dashmate_cmd }} update --verbose"
+  ansible.builtin.command: "{{ dashmate_cmd }} update --format=json"
   become: true
   become_user: dashmate
   register: dashmate_update
@@ -148,20 +162,67 @@
   changed_when: true
   when: dashmate_branch is defined
 
-# TODO: we should use status command to figure out if dashmate is running
-#   to get the status from the response
-# Restart dashmate if already running
-- name: Restart dashmate services
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
+- name: Get service statuses
+  ansible.builtin.command: "{{ dashmate_cmd }} status services --format=json"
   become: true
   become_user: dashmate
+  changed_when: dashmate_services_status.rc == 0
   args:
     chdir: '{{ dashmate_cwd }}'
-  register: dashmate_restart
-  changed_when: dashmate_restart.rc == 0
-  ignore_errors: true
+  register: dashmate_services_status
 
-# Start if not already running
+- name: Set facts
+  ansible.builtin.set_fact:
+    is_core_started: >-
+      {{
+        dashmate_services_status.stdout |
+        from_json |
+        json_query('[?service==`core`&&status!=`not_started`]') |
+        length | int > 0
+      }}
+    is_platform_started: >-
+      {{
+        dashmate_services_status.stdout |
+        from_json |
+        json_query('[?service!=`core`&&service!=`sentinel`&&status!=`not_started`]') |
+        length | int > 0
+      }}
+    is_core_images_updated: >-
+      {{
+        dashmate_update.stdout |
+        from_json |
+        json_query('[?name==`core`||name==`sentinel`]') |
+        sort(attribute='updated', reverse=true) |
+        first() |
+        json_query('updated')
+      }}
+    is_platform_images_updated: >-
+      {{
+        dashmate_update.stdout |
+        from_json |
+        json_query('[?name!=`core`&&name!=`sentinel`]') |
+        sort(attribute='updated', reverse=true) |
+        first() |
+        json_query('updated')
+      }}
+    is_dashmate_package_changed: "{{ dashmate_install_result.changed }}"
+    is_dashmate_config_changed: "{{ template_result.changed }}"
+
+- name: Print status
+  ansible.builtin.debug:
+    msg: "\n
+Core Started: {{ is_core_started }}\n
+Platform Started: {{ is_platform_started }}\n
+Core Images Updated: {{ is_core_images_updated }}\n
+Platform Images Updated: {{ is_platform_images_updated }}\n
+Dashmate Package Updated: {{ is_dashmate_package_changed }}\n
+Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
+
+# Start logic:
+# start ALL when (core is down and platform is down)
+# start platform when (core is up and platform is down)
+
+# Start all if everything is stopped (not started yet)
 - name: Start dashmate services
   ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
   become: true
@@ -169,8 +230,54 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start
-  when: "dashmate_restart.rc != 0"
+  when:
+    - not is_core_started
+    - not is_platform_started
   changed_when: dashmate_start.rc == 0
+
+# Start platform in case core is running
+- name: Start dashmate platform services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --platform --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_start_platform
+  when:
+    - is_core_started
+    - not is_platform_started
+  changed_when: dashmate_start_platform.rc == 0
+
+# Restart logic
+# if any of platform images were updated => restart platform
+# if core or sentinel images updated => restart all
+# dashmate version is changed => restart all
+# dashmate config is changed => restart all
+
+- name: Restart dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_restart
+  when:
+    - dashmate_start_platform.skipped and dashmate_start.skipped
+    - not is_platform_images_updated # We only restart platform in this case
+    - is_core_images_updated or is_dashmate_package_changed or is_dashmate_config_changed
+  changed_when: dashmate_restart.rc == 0
+
+- name: Restart dashmate platform services
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --platform --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_restart_platform
+  when:
+    - not dashmate_start_platform.changed and not dashmate_start.changed and not dashmate_restart.changed
+    - is_platform_images_updated
+  changed_when: dashmate_restart_platform.rc == 0
 
 # TODO Convenient tasks until we have this functionality in dashmate
 # - name: Replace parameters in tenderdash config
