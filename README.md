@@ -144,10 +144,10 @@ You can use the OpenVPN config generated during deployment (`<network_name>.ovpn
     * [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
     * [Terraform](https://www.terraform.io/intro/getting-started/install.html)
 
-3. Ensure Python netaddr and jmespath package is installed locally
+3. Ensure Python dependencies are installed locally
 
     ```bash
-    pip install -U netaddr jmespath ansible-lint
+    pip install -U netaddr jmespath ansible-lint boto3 botocore
     ```
 
 4. Install pre-requisite Ansible roles
