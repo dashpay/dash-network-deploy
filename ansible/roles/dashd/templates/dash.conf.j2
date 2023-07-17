@@ -116,3 +116,8 @@ port={{ dashd_port }}
 {% if dashd_seednode is not none and not dashd_isseednode %}
 addnode={{ dashd_seednode }}:{{ dashd_port }}
 {% endif %}
+
+{% if dashd_walletnode is not none and coinjoin_wallet_count is defined %}
+coinjoinmultisession=1
+coinjoinsessions=16
+{% endif %}
