@@ -52,11 +52,7 @@
     mode: "0644"
   loop:
     - docker-compose.yml
-    - dapi-nginx.conf
-    - dapi-nginx-grpc.conf
-    - dapi-nginx-errors.grpc_conf
     - .env
-    - dapi-envoy.yaml
 
 - name: Configure Tendermint
   ansible.builtin.import_tasks: tendermint.yml
