@@ -78,6 +78,11 @@ sporkaddr={{ dashd_sporkaddr }}
 sporkkey={{ dashd_sporkkey }}
 {% endif %}
 
+{% if dashd_walletnode is not none and coinjoin_wallet_count is defined %}
+coinjoinmultisession=1
+coinjoinsessions=16
+{% endif %}
+
 {% if dash_network == 'regtest' %}
 [regtest]
 {% elif dash_network == 'mainnet' %}
@@ -89,11 +94,6 @@ llmqchainlocks=llmq_devnet
 llmqinstantsend=llmq_devnet
 llmqinstantsenddip0024=llmq_devnet_dip0024
 llmqplatform=llmq_devnet_platform
-
-{% if dashd_walletnode is not none and coinjoin_wallet_count is defined %}
-coinjoinmultisession=1
-coinjoinsessions=16
-{% endif %}
 
 [devnet]
 minimumdifficultyblocks={{ dashd_minimumdifficultyblocks }}
