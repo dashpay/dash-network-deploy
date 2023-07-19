@@ -130,7 +130,7 @@
 
 - name: Create mno wallet
   ansible.builtin.command:
-    cmd: dash-cli createwallet {{ wallet_rpc_wallet_mno }}false false "" false true #Reload wallet on restart
+    cmd: dash-cli createwallet {{ wallet_rpc_wallet_mno }} false false "" false true #Reload wallet on restart
     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_mno }}/wallet.dat"
   register: task_result
   when: enable_wallet is true
