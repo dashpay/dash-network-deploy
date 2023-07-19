@@ -31,12 +31,7 @@
 
 - name: Set CoinJoin amount
   ansible.builtin.command:
-    cmd: dash-cli -rpcwallet=coinjoin-wallet-{{ item | string }} setcoinjoinamount 10
-  loop: "{{ range(0, coinjoin_wallet_count | int, 1) }}"
-
-- name: Set CoinJoin rounds
-  ansible.builtin.command:
-    cmd: dash-cli -rpcwallet=coinjoin-wallet-{{ item | string }} setcoinjoinrounds 16
+    cmd: dash-cli -rpcwallet=coinjoin-wallet-{{ item | string }} setcoinjoinamount {{ coinjoin_amount }}
   loop: "{{ range(0, coinjoin_wallet_count | int, 1) }}"
 
 - name: Start mixing

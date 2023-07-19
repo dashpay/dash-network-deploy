@@ -102,8 +102,8 @@ dashd_minimumdifficultyblocks: 4032
 # You can provide your own seed node in network config. May be useful if you want to connect to another network
 dashd_seednode: '{{ hostvars[groups.seed_nodes[0]]["public_ip"] if groups.seed_nodes else none }}'
 
-#Do the same for walletnode so we can identify later
-dashd_walletnode: '{{ hostvars[groups.seed_nodes[0]]["public_ip"] if groups.wallet_nodes else none }}'
+#This allows us to identify a wallet node so we can add the mixing stuff in the dashd role
+dashd_walletnode: '{{ hostvars[groups.wallet_nodes[0]]["public_ip"] if groups.wallet_nodes else none }}'
 
 
 # Faucet stuff
@@ -181,3 +181,4 @@ masternode_network_latency_max: 100
 # Dashmate
 dashmate_home: /home/dashmate
 dashmate_logs_dir: '{{ dashmate_home }}/logs'
+coinjoin_amount: 10

@@ -27,6 +27,6 @@
       delay: 10
       until: coinjoin_output is not failed
 
-    - name: Include mixing role if coinjoin is not enabled
+    - name: Include mixing role
       include_role:
         name: mixing
