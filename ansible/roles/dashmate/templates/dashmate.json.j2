@@ -10,6 +10,14 @@
         "network": {
           "subnet": "172.25.24.0/24",
           "bindIp": "0.0.0.0"
+        },
+        "baseImage": {
+          "build" : {
+            "enabled": false,
+            "context": "",
+            "dockerFile": "",
+            "target": ""
+          }
         }
       },
       "core": {
@@ -65,10 +73,6 @@
         },
         "logIps": 0,
         "indexes": true,
-        "reindex": {
-          "enable": false,
-          "containerId": null
-        },
         "log": {
           "file": {
             "categories": [{% if dashd_debug == 1%}"all"{% endif %}],
@@ -105,14 +109,26 @@
           },
           "api": {
             "docker": {
-              "image": "{{ dapi_image }}"
+              "image": "{{ dapi_image }}",
+              "build": {
+                "enabled": false,
+                "context": "{{ dashmate_source_dir }}",
+                "dockerFile": "{{ dashmate_source_dir }}/packages/dapi/Dockerfile",
+                "target": ""
+              }
             }
           }
         },
         "drive": {
           "abci": {
             "docker": {
-              "image": "{{ drive_image }}"
+              "image": "{{ drive_image }}",
+              "build": {
+                "enabled": false,
+                "context": "{{ dashmate_source_dir }}",
+                "dockerFile": "{{ dashmate_source_dir }}/packages/js-drive/Dockerfile",
+                "target": ""
+              }
             },
             "log": {
               "stdout": {
@@ -226,7 +242,6 @@
           "masterPublicKey": "{{ feature_flags_hd_master_public_key }}",
           "secondPublicKey": "{{ feature_flags_hd_second_public_key }}"
         },
-        "sourcePath": null,
         "masternodeRewardShares": {
           "contract": {
             "id": "rUnsWrFu3PKyRMGk2mxmZVBPbQuZx2qtHeFjURoQevX"
@@ -245,7 +260,12 @@
       "dashmate": {
         "helper": {
           "docker": {
-            "image": "{{ dashmate_helper_image if dashmate_version is defined else 'dashmate_local' }}"
+            "build": {
+              "enabled": false,
+              "context": "{{ dashmate_source_dir }}",
+              "dockerFile": "{{ dashmate_source_dir }}/Dockerfile",
+              "target": ""
+            }
           },
           "api": {
             "enable": true,
