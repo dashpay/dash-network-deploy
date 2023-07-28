@@ -15,7 +15,9 @@ describe('Drive', () => {
       }
 
       const statusPromises = inventory.hp_masternodes.hosts.map(async (hostName) => {
-        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
+        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`, {
+          timeout: this.timeout() - 1000,
+        });
 
         let containerId;
         try {
