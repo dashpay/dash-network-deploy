@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/cli/utils.sh
+
+ansible_playbook="reindex.yml"
+
+CMD_USAGE="Reindex Dash Network
+
+Usage: reindex [options] <network_name> <group_name>
+
+Options:
+  -f        --filter                      - Filter by host name
+  -h        --help                        - Show help"
+
+for i in "$@"
+do
+case ${i} in
+    -f|--filter)
+        echo "Filter"
+        exit 0
+    ;;
+    -h|--help)
+        echo "$CMD_USAGE"
+        exit 0
+    ;;
+esac
+done
+
+NETWORK_NAME="$1"
+GROUP_NAME="$2"
+
+if [ -z ${GROUP_NAME} ]; then
+    echo "Ansible group name not defined"
+    exit 1
+fi
+
+. ./lib/cli/init.sh
+. ./lib/cli/terraform.sh
+. ./lib/cli/ansible.sh
+
+echo "Reindexing $NETWORK_NAME network...";
+
+# Install software and configure dash network using Ansible
+
+ansible_run_playbook "reindex.yml" --extra-vars "target_group=$GROUP_NAME"
+
+
