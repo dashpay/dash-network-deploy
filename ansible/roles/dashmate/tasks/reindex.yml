@@ -8,7 +8,7 @@
   become_user: dashmate
   args:
     chdir: '{{ dashmate_cwd }}'
-  register: dashmate_reset
-  changed_when: dashmate_reset.rc == 0
+  register: dashmate_reindex
+  changed_when: dashmate_reindex.rc == 0
   when:
     - 'not filter_hostname or filter_hostname == inventory_hostname'
