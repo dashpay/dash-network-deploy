@@ -6,30 +6,37 @@ set -ea
 
 ansible_playbook="reindex.yml"
 
-CMD_USAGE="Reindex Dash Network
+CMD_USAGE="Reindex core nodes on Dash Network
 
 Usage: reindex [options] <network_name> <group_name>
 
 Options:
-  -f        --filter                      - Filter by host name
+  -f        --filter=<hostname>           - Filter by host name
   -h        --help                        - Show help"
 
 for i in "$@"
 do
 case ${i} in
-    -f|--filter)
-        echo "Filter"
-        exit 0
+    -f*|--filter=*)
+      FILTER="${i#*=}"
     ;;
     -h|--help)
-        echo "$CMD_USAGE"
-        exit 0
+      echo "$CMD_USAGE"
+      exit 0
+    ;;
+    *)
+      if [ -z ${NETWORK_NAME} ]; then
+        NETWORK_NAME="${i#*=}"
+        continue
+      fi
+
+      if [ -z ${GROUP_NAME} ]; then
+        GROUP_NAME="${i#*=}"
+        continue
+      fi
     ;;
 esac
 done
-
-NETWORK_NAME="$1"
-GROUP_NAME="$2"
 
 if [ -z ${GROUP_NAME} ]; then
     echo "Ansible group name not defined"
@@ -37,13 +44,12 @@ if [ -z ${GROUP_NAME} ]; then
 fi
 
 . ./lib/cli/init.sh
-. ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
 
-echo "Reindexing $NETWORK_NAME network...";
+echo "Reindexing group $GROUP_NAME of $NETWORK_NAME network...";
 
 # Install software and configure dash network using Ansible
 
-ansible_run_playbook "reindex.yml" --extra-vars "target_group=$GROUP_NAME"
+ansible_run_playbook "reindex.yml" --extra-vars "target_group=$GROUP_NAME" --extra-vars "filter_hostname=$FILTER"
 
 
