@@ -245,7 +245,6 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
   register: dashmate_restart
   when:
     - dashmate_start_platform.skipped and dashmate_start.skipped
-    - not is_platform_images_updated # We only restart platform in this case
     - is_core_images_updated or is_dashmate_package_changed or is_dashmate_config_changed
   changed_when: dashmate_restart.rc == 0
 
