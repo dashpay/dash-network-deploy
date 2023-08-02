@@ -262,12 +262,12 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
   changed_when: dashmate_restart_platform.rc == 0
 
 - name: Disable dashmate helper build
-  ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.build.enabled false
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
   become: true
   become_user: dashmate
   register: build_dashmate_helper
   args:
-    chdir: '{{ dashmate_source_dir }}'
+    chdir: '{{ dashmate_cwd }}'
   changed_when: build_dashmate_helper.rc == 0
 
 # TODO Convenient tasks until we have this functionality in dashmate
