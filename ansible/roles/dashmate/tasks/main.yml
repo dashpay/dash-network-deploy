@@ -135,15 +135,6 @@
   register: dashmate_envs
   changed_when: dashmate_envs.rc == 0
 
-- name: Change dashmate image to avoid 'pull access denied for dashmate_local'
-  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashpay/dashmate-helper:latest-dev"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  changed_when: true
-  when: dashmate_branch is defined
-
 - name: Update dashmate images
   ansible.builtin.command: "{{ dashmate_cmd }} update --format=json"
   become: true
@@ -152,15 +143,6 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   changed_when: dashmate_update.rc == 0
-
-- name: Change dashmate image back to "dashmate_local"
-  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.image dashmate_local"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  changed_when: true
-  when: dashmate_branch is defined
 
 - name: Get service statuses
   ansible.builtin.command: "{{ dashmate_cmd }} status services --format=json"
@@ -263,7 +245,6 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
   register: dashmate_restart
   when:
     - dashmate_start_platform.skipped and dashmate_start.skipped
-    - not is_platform_images_updated # We only restart platform in this case
     - is_core_images_updated or is_dashmate_package_changed or is_dashmate_config_changed
   changed_when: dashmate_restart.rc == 0
 
@@ -278,6 +259,15 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
     - not dashmate_start_platform.changed and not dashmate_start.changed and not dashmate_restart.changed
     - is_platform_images_updated
   changed_when: dashmate_restart_platform.rc == 0
+
+- name: Disable dashmate helper build
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
+  become: true
+  become_user: dashmate
+  register: build_dashmate_helper
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  changed_when: build_dashmate_helper.rc == 0
 
 # TODO Convenient tasks until we have this functionality in dashmate
 # - name: Replace parameters in tenderdash config
