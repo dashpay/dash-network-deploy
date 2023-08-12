@@ -15,9 +15,8 @@ const allHosts = inventory.masternodes.hosts.concat(
 const ansibleHosts = inventory.masternodes.hosts.concat(
   inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
-  inventory.seed_nodes.hosts,
 );
-const dashmateHosts = inventory.hp_masternodes.hosts;
+const dashmateHosts = inventory.hp_masternodes.hosts.concat(inventory.seed_nodes.hosts);
 
 const quorumCheckTypes = {
   testnet: {

@@ -8,7 +8,7 @@ const {
 
 const { variables, inventory, network } = getNetworkConfig();
 
-const dashmateHosts = inventory.hp_masternodes.hosts;
+const dashmateHosts = inventory.hp_masternodes.hosts.concat(inventory.seed_nodes.hosts);
 
 describe('Tenderdash', () => {
   const currentTimeStrings = {};
