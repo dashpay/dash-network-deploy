@@ -99,23 +99,18 @@
     - name: Set node variables for seed nodes
       ansible.builtin.set_fact:
         node: "{{ seed_nodes[inventory_hostname] }}"
+        mode: "seed"
       tags: always
       when: inventory_hostname in seed_nodes
   roles:
     - role: dash_cli
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
+    - role: dashmate
+    - role: mn_status_report
+    - role: elastic_beats
+      core_container_name: core
+      abci_logs_path: "{{ dashmate_logs_dir }}"
       tags:
         - dashd
-    - role: mn_evo_services
-      tags:
-        - evo
-      when: evo_services
-    - role: elastic_beats
-      core_container_name: dashd
-      abci_logs_path: "{{ mn_evo_services_path }}/logs"
 
 - name: Set up core on masternodes
   hosts: masternodes
