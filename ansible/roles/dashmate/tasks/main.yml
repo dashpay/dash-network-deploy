@@ -292,7 +292,7 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
   when: mode == 'seed'
 
 - name: Stop some services in seed mode
-    community.docker.docker_container:
+  community.docker.docker_container:
     name: "{{ item }}"
     state: stopped
   when: mode == 'seed'
