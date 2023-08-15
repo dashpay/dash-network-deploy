@@ -148,6 +148,7 @@
             }
           },
           "tenderdash": {
+            "mode": {% if mode == 'seed' %}"seed"{% else %}"validator"{% endif %},
             "docker": {
               "image": "{{ tendermint_image }}"
             },
