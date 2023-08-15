@@ -33,11 +33,7 @@ DOCKER_LOGS_ARGS=""
 
 for i in "${@:3}"
 do
-  if [ "${i:0:1}" == "-" ]; then
-    DOCKER_LOGS_ARGS="${DOCKER_LOGS_ARGS} ${i}"
-  else
-    DOCKER_CONTAINER_NAME="mn_evo_services_${i}_1"
-  fi
+  DOCKER_LOGS_ARGS="${DOCKER_LOGS_ARGS} ${i}"
 done
 
 if [[ -z ${DOCKER_CONTAINER_NAME} ]]; then

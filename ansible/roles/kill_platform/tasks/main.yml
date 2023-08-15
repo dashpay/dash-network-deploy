@@ -4,22 +4,7 @@
   ansible.builtin.import_role:
     name: dashmate
     tasks_from: destroy_platform
-  when: inventory_hostname in groups["hp_masternodes"]
-
-- name: Remove platform docker containers and volumes
-  community.docker.docker_compose:
-    project_src: '{{ mn_evo_services_path }}'
-    state: absent
-    remove_volumes: false
-  when:
-    - inventory_hostname not in groups["hp_masternodes"]
-
-- name: Delete platform dir
-  ansible.builtin.file:
-    state: absent
-    path: '{{ mn_evo_services_path }}'
-  when:
-    - inventory_hostname not in groups["hp_masternodes"]
+  when: inventory_hostname in groups["hp_masternodes"] or inventory_hostname in groups["seeds"]
 
 - name: Remove any remaining docker data
   community.docker.docker_prune:
