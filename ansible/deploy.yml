@@ -109,8 +109,6 @@
     - role: elastic_beats
       core_container_name: core
       abci_logs_path: "{{ dashmate_logs_dir }}"
-      tags:
-        - dashd
 
 - name: Set up core on masternodes
   hosts: masternodes
