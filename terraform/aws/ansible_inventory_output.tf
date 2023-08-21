@@ -35,6 +35,18 @@ locals {
     )
   ]
 
+    mixer_hosts = [
+    for n in range(length(aws_instance.mixer)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.mixer.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.mixer.*.public_ip, n)
+        private_ip = element(aws_instance.mixer.*.private_ip, n)
+      }
+    )
+  ]
+
   seed_node_hosts = [
     for n in range(length(aws_instance.seed_node)) : templatefile(
       "${path.module}/templates/inventory/hostname.tpl",
@@ -132,6 +144,7 @@ locals {
           local.web_hosts.*,
           local.logs_hosts.*,
           local.wallet_node_hosts.*,
+          local.mixer_hosts.*,
           local.seed_node_hosts.*,
           local.miner_hosts.*,
           local.masternode_hosts.*,
@@ -142,6 +155,7 @@ locals {
       web_hosts            = join("\n", concat(aws_instance.web.*.tags.Hostname))
       logs_hosts           = join("\n", concat(aws_instance.logs.*.tags.Hostname))
       wallet_node_hosts    = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
+      mixer_hosts    = join("\n", concat(aws_instance.mixer.*.tags.Hostname))
       miner_hosts          = join("\n", concat(aws_instance.miner.*.tags.Hostname))
       masternode_hosts     = join("\n", concat(aws_instance.masternode_amd.*.tags.Hostname), concat(aws_instance.masternode_arm.*.tags.Hostname))
       hp_masternode_hosts  = join("\n", concat(aws_instance.hp_masternode_amd.*.tags.Hostname), concat(aws_instance.hp_masternode_arm.*.tags.Hostname))

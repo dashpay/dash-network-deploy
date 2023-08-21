@@ -1,48 +1,58 @@
----
+# ---
 
-# Mixing
+# # Mixing
 
-- name: Get wallet funding address
-  ansible.builtin.command:
-    cmd: dash-cli -rpcwallet=coinjoin-wallet-{{ item | string }} getnewaddress
-  register: getnewaddress_result
-  loop: "{{ range(0, coinjoin_wallet_count | int, 1) }}"
+# - name: Ensure jq is installed
+#   apt:
+#     name: jq
+#     state: present
+#     update_cache: yes
+#   become: true
 
-- name: Debug
-  debug:
-    var: getnewaddress_result
+# - name: Create CoinJoin wallets
+#   ansible.builtin.command:
+#     cmd: dash-cli createwallet coinjoin-wallet-0 false false "" false true
+#     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/coinjoin-wallet-0/wallet.dat"
 
-- name: Prepare list of CoinJoin funding targets
-  ansible.builtin.set_fact:
-    coinjoin_funding_addresses: "{{ (coinjoin_funding_addresses | default([])) + [item.stdout] }}"
-  with_items: "{{ getnewaddress_result.results }}"
+# - name: Import mixer addresses
+#   ansible.builtin.command:
+#     cmd: 'dash-cli -rpcwallet=coinjoin-wallet-0 importprivkey {{ mixers[inventory_hostname].owner.private_key }}'
+#   register: result
+#   changed_when: result.rc == 0
 
-- name: Fund 10 coins for mixing
-  ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
-  vars:
-    amount: 10
-    payment_targets: '{{ coinjoin_funding_addresses }}'
+# - name: Get wallet balance
+#   ansible.builtin.command:
+#     cmd: dash-cli -rpcwallet=coinjoin-wallet-0 getbalance
+#   register: getbalance_result
 
-- name: Get wallet balance
-  ansible.builtin.command:
-    cmd: dash-cli -rpcwallet=coinjoin-wallet-{{ item | string }} getbalance
-  register: getbalance_result
-  loop: "{{ range(0, coinjoin_wallet_count | int, 1) }}"
+# - name: Print balances
+#   ansible.builtin.debug:
+#     msg: system what {{ getbalance_result }}
 
-- name: Set CoinJoin amount
-  ansible.builtin.command:
-    cmd: dash-cli -rpcwallet=coinjoin-wallet-{{ item | string }} setcoinjoinamount {{ coinjoin_amount }}
-  loop: "{{ range(0, coinjoin_wallet_count | int, 1) }}"
+# - name: Set CoinJoin amount
+#   ansible.builtin.command:
+#     cmd: dash-cli -rpcwallet=coinjoin-wallet-0 setcoinjoinamount 100
 
-- name: Start mixing
-  ansible.builtin.command:
-    cmd: dash-cli -rpcwallet=coinjoin-wallet-{{ item | string }} coinjoin start
-  loop: "{{ range(0, coinjoin_wallet_count | int, 1) }}"
-  register: coinjoin_start_result
-  changed_when: '"Mixing started successfully" in coinjoin_start_result.stdout'
+# - name: Start mixing
+#   ansible.builtin.command:
+#     cmd: dash-cli -rpcwallet=coinjoin-wallet-0 coinjoin start
+#   register: coinjoin_start_result
+#   changed_when: '"Mixing started successfully" in coinjoin_start_result.stdout'
 
-- name: Get CoinJoin info
-  ansible.builtin.command:
-    cmd: dash-cli -rpcwallet=coinjoin-wallet-{{ item | string }} getcoinjoininfo
-  register: getcoinjoininfo_result
-  loop: "{{ range(0, coinjoin_wallet_count | int, 1) }}"
+# - name: Get CoinJoin info
+#   ansible.builtin.command:
+#     cmd: dash-cli -rpcwallet=coinjoin-wallet-0 getcoinjoininfo
+#   register: getcoinjoininfo_result
+
+# - name: Copy remixing script
+#   ansible.builtin.template:
+#     src: 'remix.sh.j2'
+#     dest: '/dash/remix.sh'
+#     mode: "0755"
+
+- name: Schedule remix.sh to run every 10 minutes
+  cron:
+    name: "Run remix.sh every 10 minutes"
+    minute: "*/5"
+    job: "/dash/remix.sh"
+    user: "root"

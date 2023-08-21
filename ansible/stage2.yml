@@ -1,32 +1,8 @@
 ---
 
-#We need to check first to ensure mixing is not enabled from a previous run, if it tries to do it again it will fail (thus not idempotent)
-- name: Check mixing status and start mixing if not enabled
-  hosts: wallet_nodes
+- name: Include mixing role
+  hosts: mixer_nodes
   become: true
-  tasks:
-
-    - name: Create CoinJoin wallets
-      ansible.builtin.command:
-        cmd: dash-cli createwallet coinjoin-wallet-{{ item | string }} false false "" false true
-        creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/coinjoin-wallet-{{ item | string }}/wallet.dat"
-      loop: "{{ range(0, coinjoin_wallet_count | int, 1) }}"
-
-    - name: Restart dash core
-      community.docker.docker_compose:
-        project_src: '{{ dashd_home }}/dashcore/'
-        state: present
-        restarted: true
-        pull: true
-        timeout: 30
-    
-    - name: Check we're up after restart
-      ansible.builtin.command: dash-cli -rpcwallet=coinjoin-wallet-0 getcoinjoininfo
-      register: coinjoin_output
-      retries: 3
-      delay: 10
-      until: coinjoin_output is not failed
-
-    - name: Include mixing role
-      include_role:
-        name: mixing
+  roles:
+    - role: mixing
+      mnlist: "{{ mixers }}"

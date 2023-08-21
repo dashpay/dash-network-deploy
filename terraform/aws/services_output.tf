@@ -329,6 +329,36 @@ hp_masternodes_amd = [
     )
   ]
 
+  mixers = [
+    for n in range(length(aws_instance.mixer)) : templatefile(
+      "${path.module}/templates/services/node.tpl",
+      {
+        name = "mixing-${n + 1}"
+        external_services = replace(
+          chomp(join("", [local.service_ssh])),
+          "{{ip}}",
+          element(aws_instance.mixer.*.public_ip, n),
+        )
+        internal_services = replace(
+          chomp(
+            join(
+              "",
+              [
+                local.service_core_p2p,
+                local.service_core_rpc,
+                local.service_core_zmq,
+                local.service_docker,
+              ],
+            ),
+          ),
+          "{{ip}}",
+          element(aws_instance.mixer.*.public_ip, n),
+        )
+        service_logs = chomp(join("\n", ["   - mixing"]))
+      }
+    )
+  ]
+
   seeds = [
     for n in range(length(aws_instance.seed_node)) : templatefile(
       "${path.module}/templates/services/node.tpl",
@@ -416,6 +446,7 @@ hp_masternodes_amd = [
       masternodes     = chomp(join("\n", local.masternodes.*))
       hp_masternodes  = chomp(join("\n", local.hp_masternodes.*))
       wallets         = chomp(join("\n", local.wallets.*))
+      mixers        = chomp(join("\n", local.mixer_hosts.*))
       seeds           = chomp(join("\n", local.seeds.*))
       miners          = chomp(join("\n", local.miners.*))
       elb_host        = chomp(join("\n", aws_elb.web.*.dns_name))

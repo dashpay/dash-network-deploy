@@ -101,6 +101,10 @@ variable "miner_count" {
   default = 1
 }
 
+variable "mixer_count" {
+  default = 4
+}
+
 variable "masternode_amd_count" {
   default = 3
 }
@@ -206,4 +210,9 @@ variable "create_eip" {
   description = "Whether to create an Elastic IP for the instance"
   type        = bool
   default     = true
+}
+
+variable "mixing_enabled" {
+  default     = false
+  description = "setup mixing nodes"
 }

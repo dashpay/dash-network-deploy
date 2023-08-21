@@ -12,6 +12,7 @@ async function main() {
     hpMasternodesAmdCount,
     hpMasternodesArmCount,
     seedsCount,
+    mixerCount = 4,
   ] = process.argv.slice(2);
 
   const masternodesCount = parseInt(masternodesAmdCount, 10)
@@ -27,6 +28,7 @@ async function main() {
       masternodesCount,
       hpMasternodesCount,
       seedsCount,
+      mixerCount,
     );
     await generateTerraformConfig(
       network,

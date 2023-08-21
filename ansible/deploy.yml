@@ -92,6 +92,17 @@
     - role: elastic_beats
       core_container_name: dashd
 
+- name: Set up mixers
+  hosts: mixer_nodes
+  become: true
+  roles:
+    - role: dash_cli
+    - role: dashd
+      tags:
+        - dashd
+    - role: elastic_beats
+      core_container_name: dashd
+
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
   become: true
@@ -200,6 +211,20 @@
       mnlist: "{{ masternodes }}"
       funding_amount: "{{ masternode_collaterals.mn | int }}"
 
+- name: Fund 10 coins for mixing
+  hosts: wallet_nodes
+  become: true
+  tasks:
+
+    - name: Extract mixer addresses
+      ansible.builtin.set_fact:
+        mixer_addresses: "{{ mixers.values() | map(attribute='owner.address') | list }}"
+    - name: include funding for mixers
+      ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
+      vars:
+        payment_targets: "{{ mixer_addresses }}"
+        amount: 100
+
 - name: Update inventory with protx values
   hosts: wallet_nodes
   roles:
@@ -236,22 +261,22 @@
 #    - role: generate_proposals
 #      when: governance_proposal_count > 0
 
-- name: Set up core and platform on HP masternodes
-  hosts: hp_masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for HP masternodes
-      ansible.builtin.set_fact:
-        node: "{{ hp_masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in hp_masternodes
-  roles:
-    - role: dash_cli
-    - role: dashmate
-    - role: mn_status_report
-    - role: elastic_beats
-      core_container_name: core
-      abci_logs_path: "{{ dashmate_logs_dir }}"
+#- name: Set up core and platform on HP masternodes
+#  hosts: hp_masternodes
+#  become: true
+#  pre_tasks:
+#    - name: Check inventory for HP masternodes
+#      ansible.builtin.set_fact:
+#        node: "{{ hp_masternodes[inventory_hostname] }}"
+#      tags: always
+#      when: inventory_hostname in hp_masternodes
+#  roles:
+#    - role: dash_cli
+#    - role: dashmate
+#    - role: mn_status_report
+#    - role: elastic_beats
+#      core_container_name: core
+#      abci_logs_path: "{{ dashmate_logs_dir }}"
 
 - name: Set up protx diff script
   hosts: masternodes
