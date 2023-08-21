@@ -1,54 +1,54 @@
-# ---
+---
 
-# # Mixing
+# Mixing
 
-# - name: Ensure jq is installed
-#   apt:
-#     name: jq
-#     state: present
-#     update_cache: yes
-#   become: true
+- name: Ensure jq is installed
+  apt:
+    name: jq
+    state: present
+    update_cache: yes
+  become: true
 
-# - name: Create CoinJoin wallets
-#   ansible.builtin.command:
-#     cmd: dash-cli createwallet coinjoin-wallet-0 false false "" false true
-#     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/coinjoin-wallet-0/wallet.dat"
+- name: Create CoinJoin wallets
+  ansible.builtin.command:
+    cmd: dash-cli createwallet coinjoin-wallet-0 false false "" false true
+    creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/coinjoin-wallet-0/wallet.dat"
 
-# - name: Import mixer addresses
-#   ansible.builtin.command:
-#     cmd: 'dash-cli -rpcwallet=coinjoin-wallet-0 importprivkey {{ mixers[inventory_hostname].owner.private_key }}'
-#   register: result
-#   changed_when: result.rc == 0
+- name: Import mixer addresses
+  ansible.builtin.command:
+    cmd: 'dash-cli -rpcwallet=coinjoin-wallet-0 importprivkey {{ mixers[inventory_hostname].owner.private_key }}'
+  register: result
+  changed_when: result.rc == 0
 
-# - name: Get wallet balance
-#   ansible.builtin.command:
-#     cmd: dash-cli -rpcwallet=coinjoin-wallet-0 getbalance
-#   register: getbalance_result
+- name: Get wallet balance
+  ansible.builtin.command:
+    cmd: dash-cli -rpcwallet=coinjoin-wallet-0 getbalance
+  register: getbalance_result
 
-# - name: Print balances
-#   ansible.builtin.debug:
-#     msg: system what {{ getbalance_result }}
+- name: Print balances
+  ansible.builtin.debug:
+    msg: system what {{ getbalance_result }}
 
-# - name: Set CoinJoin amount
-#   ansible.builtin.command:
-#     cmd: dash-cli -rpcwallet=coinjoin-wallet-0 setcoinjoinamount 100
+- name: Set CoinJoin amount
+  ansible.builtin.command:
+    cmd: dash-cli -rpcwallet=coinjoin-wallet-0 setcoinjoinamount 100
 
-# - name: Start mixing
-#   ansible.builtin.command:
-#     cmd: dash-cli -rpcwallet=coinjoin-wallet-0 coinjoin start
-#   register: coinjoin_start_result
-#   changed_when: '"Mixing started successfully" in coinjoin_start_result.stdout'
+- name: Start mixing
+  ansible.builtin.command:
+    cmd: dash-cli -rpcwallet=coinjoin-wallet-0 coinjoin start
+  register: coinjoin_start_result
+  changed_when: '"Mixing started successfully" in coinjoin_start_result.stdout'
 
-# - name: Get CoinJoin info
-#   ansible.builtin.command:
-#     cmd: dash-cli -rpcwallet=coinjoin-wallet-0 getcoinjoininfo
-#   register: getcoinjoininfo_result
+- name: Get CoinJoin info
+  ansible.builtin.command:
+    cmd: dash-cli -rpcwallet=coinjoin-wallet-0 getcoinjoininfo
+  register: getcoinjoininfo_result
 
-# - name: Copy remixing script
-#   ansible.builtin.template:
-#     src: 'remix.sh.j2'
-#     dest: '/dash/remix.sh'
-#     mode: "0755"
+- name: Copy remixing script
+  ansible.builtin.template:
+    src: 'remix.sh.j2'
+    dest: '/dash/remix.sh'
+    mode: "0755"
 
 - name: Schedule remix.sh to run every 10 minutes
   cron:
