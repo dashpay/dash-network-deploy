@@ -269,7 +269,10 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
     chdir: '{{ dashmate_cwd }}'
   changed_when: build_dashmate_helper.rc == 0
 
-- name: Get service statuses
+# In the seed mode, we are disabling some services that are not necessary to run on the node
+# We are shutting down dapi, envoy, and other services, leaving only core & tenderdash running
+
+- name: Pull started services list
   ansible.builtin.command: "{{ dashmate_cmd }} status services --format=json"
   become: true
   become_user: dashmate
@@ -279,7 +282,7 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
   register: started_dashmate_services
   when: mode == 'seed'
 
-- name: Set facts
+- name: Extract tenderdash and core container ids
   ansible.builtin.set_fact:
     containers_to_stop: >-
       {{
@@ -291,7 +294,7 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
       }}
   when: mode == 'seed'
 
-- name: Stop some services in seed mode
+- name: Stop all services except Core and Tenderdash
   community.docker.docker_container:
     name: "{{ item }}"
     state: stopped
