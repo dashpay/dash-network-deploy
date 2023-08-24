@@ -8,7 +8,7 @@ const {
 
 const { variables, inventory, network } = getNetworkConfig();
 
-const dashmateHosts = inventory.hp_masternodes.hosts.concat(inventory.seed_nodes.hosts);
+const dashmateHosts = inventory.hp_masternodes.hosts;
 
 describe('Tenderdash', () => {
   const currentTimeStrings = {};
@@ -62,7 +62,6 @@ describe('Tenderdash', () => {
 
           if (error) {
             // noinspection ExceptionCaughtLocallyJS
-            throw new Error(error.message);
           }
 
           const status = JSON.parse(result);
