@@ -412,6 +412,11 @@ resource "aws_instance" "mixer" {
     DashNetwork = terraform.workspace
   }
 
+  root_block_device {
+    volume_size = 15
+    volume_type = var.volume_type
+  }
+
   lifecycle {
     ignore_changes = [ami]
   }
