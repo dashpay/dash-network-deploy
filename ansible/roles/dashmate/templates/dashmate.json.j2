@@ -1,3 +1,4 @@
+#jinja2: lstrip_blocks: True
 {
   "configFormatVersion": "{{ dashmate_config_version }}",
   "defaultConfigName": "{{ dash_network_name}}",
@@ -12,7 +13,7 @@
           "bindIp": "0.0.0.0"
         },
         "baseImage": {
-          "build" : {
+          "build": {
             "enabled": false,
             "context": null,
             "dockerFile": null,
@@ -27,10 +28,12 @@
         "p2p": {
           "port": {{ dashd_port }},
           "seeds": [
-            {% for seed in template_bootstrap_peers %}{
+            {%- for seed in template_bootstrap_peers +%}
+            {
               "host": "{{ hostvars[seed].public_ip }}",
               "port": {{ dashd_port }}
-            }{% if not loop.last %},{% endif %}{% endfor %}
+            }{% if not loop.last %},{% endif %}
+            {% endfor +%}
           ]
         },
         "rpc": {
@@ -47,12 +50,12 @@
         },
         "spork": {
           "address": {% if dashd_sporkaddr is defined %}"{{ dashd_sporkaddr }}"{% else %}null{% endif %},
-          "privateKey": {% if dashd_sporkkey is defined %}"{{ dashd_sporkkey }}"{% else %}null{% endif %}
+          "privateKey": {% if dashd_sporkkey is defined %}"{{ dashd_sporkkey }}"{% else %}null{% endif +%}
         },
         "masternode": {
           "enable": {% if node is defined and node['operator'] is defined  %}true{% else %}false{% endif %},
           "operator": {
-            "privateKey": {% if node is defined and node['operator'] is defined %}"{{ node.operator.private_key }}"{% else %}null{% endif %}
+            "privateKey": {% if node is defined and node['operator'] is defined %}"{{ node.operator.private_key }}"{% else %}null{% endif +%}
           }
         },
         "miner": {
@@ -75,7 +78,11 @@
         "indexes": true,
         "log": {
           "file": {
-            "categories": [{% if dashd_debug == 1%}"all"{% endif %}],
+            "categories": [
+              {%- if dashd_debug == 1 %}
+
+              "all"
+            {%+ endif %}],
             "path": "{{ dashmate_logs_dir }}/core.log"
           }
         }
@@ -153,15 +160,16 @@
               "image": "{{ tendermint_image }}"
             },
             "p2p": {
-               "port": {{ tendermint_p2p_port }},
-               "persistentPeers": [],
-               "seeds": [
-               {% for seed in template_bootstrap_peers %}
-                 {
-                   "id": "{{ seed_nodes[seed].node_key.id }}",
-                   "host": "{{ hostvars[seed].public_ip }}",
-                   "port": {{ tendermint_p2p_port }}
-                 }{% if not loop.last %},{% endif %}{% endfor %}
+              "port": {{ tendermint_p2p_port }},
+              "persistentPeers": [],
+              "seeds": [
+                {%- for seed in template_bootstrap_peers +%}
+                {
+                  "id": "{{ seed_nodes[seed].node_key.id }}",
+                  "host": "{{ hostvars[seed].public_ip }}",
+                  "port": {{ tendermint_p2p_port }}
+                }{% if not loop.last %},{% endif %}
+                {% endfor +%}
               ]
             },
             "rpc": {
