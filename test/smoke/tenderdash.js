@@ -62,6 +62,7 @@ describe('Tenderdash', () => {
 
           if (error) {
             // noinspection ExceptionCaughtLocallyJS
+            throw new Error(error.message);
           }
 
           const status = JSON.parse(result);
