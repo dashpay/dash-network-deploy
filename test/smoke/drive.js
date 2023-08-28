@@ -4,6 +4,8 @@ const { inventory, variables } = getNetworkConfig();
 
 const { createDocker, execJSONDockerCommand, getContainerId } = require('../../lib/test/docker');
 
+const dashmateHosts = inventory.hp_masternodes.hosts.concat(inventory.seed_nodes.hosts);
+
 describe('Drive', () => {
   describe('HP masternodes', () => {
     const statusInfo = {};
@@ -14,8 +16,10 @@ describe('Drive', () => {
         this.skip('platform is disabled for this network');
       }
 
-      const statusPromises = inventory.hp_masternodes.hosts.map(async (hostName) => {
-        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
+      const statusPromises = dashmateHosts.map(async (hostName) => {
+        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`, {
+          timeout: this.timeout() - 1000,
+        });
 
         let containerId;
         try {
@@ -55,7 +59,7 @@ describe('Drive', () => {
       return Promise.all(statusPromises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of inventory.hp_masternodes.hosts) {
+    for (const hostName of dashmateHosts) {
       describe(hostName, () => {
         it('drive status should be running and responding', () => {
           if (statusError[hostName]) {

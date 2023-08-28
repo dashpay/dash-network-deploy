@@ -155,11 +155,6 @@ governance_proposal_count: 2
 # Disk space allocated for swap file on each host
 swap_space: 2G
 
-# MN Evo Services
-
-mn_evo_services_compose_project_name: mn_evo_services
-mn_evo_services_path: '{{ dashd_home }}/{{ mn_evo_services_compose_project_name }}'
-
 # Elastic
 
 elastic_username: elastic

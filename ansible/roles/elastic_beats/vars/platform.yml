@@ -3,22 +3,28 @@
 filebeat_platform_inputs:
   - type: container
     enabled: "{{ drive_host_info.containers | length > 0 }}"
+    json.message_key: message
     index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
     paths:
       - '/var/lib/docker/containers/{{ drive_host_info.containers[0].Id }}/*.log'
     processors:
-      - dissect:
-          tokenizer: "%{?timestamp->} %{log.level} %{message}"
-          target_prefix: ""
-          overwrite_keys: true
       - add_fields:
           target: event
           fields:
             dataset: "drive.abci-{{ dash_network_name }}"
+      - rename:
+          fields:
+            - from: "json.fields.message"
+              to: "message"
+          ignore_missing: true
+          fail_on_error: true
+      - rename:
+          fields:
+            - from: "json.level"
+            - to: "log.level"
   - type: container
     enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
     json.message_key: message
-    json.keys_under_root: false
     index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
     paths:
       - '/var/lib/docker/containers/{{ tenderdash_host_info.containers[0].Id }}/*.log'

@@ -19,13 +19,13 @@ const allHosts = [
 ];
 
 const ansibleHosts = [
-  ...(inventory.seed_nodes?.hosts ?? []),
   ...(inventory.masternodes?.hosts ?? []),
   ...(inventory.wallet_nodes?.hosts ?? []),
   ...(inventory.miners?.hosts ?? []),
 ];
 
 const dashmateHosts = [
+  ...(inventory.seed_nodes?.hosts ?? []),
   ...(inventory.hp_masternodes?.hosts ?? []),
 ];
 
@@ -42,7 +42,9 @@ describe('Core', () => {
 
       // Collect data for dashmate-based hosts
       await Promise.all(dashmateHosts.map(async (hostName) => {
-        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
+        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`, {
+          timeout: this.timeout() - 5000,
+        });
 
         let containerId;
         try {
@@ -155,7 +157,9 @@ describe('Core', () => {
 
       // Collect info from dashmate-based hosts
       await Promise.all(dashmateHosts.map(async (hostName) => {
-        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`);
+        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`, {
+          timeout: this.timeout() - 1000,
+        });
 
         let containerId;
         try {
