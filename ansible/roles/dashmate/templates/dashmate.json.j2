@@ -1,5 +1,6 @@
+#jinja2: lstrip_blocks: True
 {
-  "configFormatVersion": "{{ dashmate_version | default('999.0.0') }}",
+  "configFormatVersion": "{{ dashmate_config_version }}",
   "defaultConfigName": "{{ dash_network_name}}",
   "defaultGroupName": null,
   "configs": {
@@ -8,7 +9,16 @@
       "group": null,
       "docker": {
         "network": {
-          "subnet": "172.25.24.0/24"
+          "subnet": "172.25.24.0/24",
+          "bindIp": "0.0.0.0"
+        },
+        "baseImage": {
+          "build": {
+            "enabled": false,
+            "context": null,
+            "dockerFile": null,
+            "target": null
+          }
         }
       },
       "core": {
@@ -18,12 +28,12 @@
         "p2p": {
           "port": {{ dashd_port }},
           "seeds": [
-          {% for seed in template_bootstrap_peers %}
+            {%- for seed in template_bootstrap_peers +%}
             {
               "host": "{{ hostvars[seed].public_ip }}",
               "port": {{ dashd_port }}
             }{% if not loop.last %},{% endif %}
-            {% endfor %}
+            {% endfor +%}
           ]
         },
         "rpc": {
@@ -40,12 +50,12 @@
         },
         "spork": {
           "address": {% if dashd_sporkaddr is defined %}"{{ dashd_sporkaddr }}"{% else %}null{% endif %},
-          "privateKey": {% if dashd_sporkkey is defined %}"{{ dashd_sporkkey }}"{% else %}null{% endif %}
+          "privateKey": {% if dashd_sporkkey is defined %}"{{ dashd_sporkkey }}"{% else %}null{% endif +%}
         },
         "masternode": {
-          "enable": {% if node is defined %}true{% else %}false{% endif %},
+          "enable": {% if node is defined and node['operator'] is defined  %}true{% else %}false{% endif %},
           "operator": {
-            "privateKey": {% if node is defined%}"{{ node.operator.private_key }}"{% else %}null{% endif %}
+            "privateKey": {% if node is defined and node['operator'] is defined %}"{{ node.operator.private_key }}"{% else %}null{% endif +%}
           }
         },
         "miner": {
@@ -60,19 +70,19 @@
           }
         },
         "devnet": {
-            "name": {% if dash_network == 'devnet' %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
-            "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
-            "powTargetSpacing": {{ dashd_powtargetspacing }}
+          "name": {% if dash_network == 'devnet' %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
+          "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
+          "powTargetSpacing": {{ dashd_powtargetspacing }}
         },
         "logIps": 0,
         "indexes": true,
-        "reindex": {
-          "enable": false,
-          "containerId": null
-        },
         "log": {
           "file": {
-            "categories": [{% if dashd_debug == 1%}"all"{% endif %}],
+            "categories": [
+              {%- if dashd_debug == 1 %}
+
+              "all"
+            {%+ endif %}],
             "path": "{{ dashmate_logs_dir }}/core.log"
           }
         }
@@ -106,14 +116,26 @@
           },
           "api": {
             "docker": {
-              "image": "{{ dapi_image }}"
+              "image": "{{ dapi_image }}",
+              "build": {
+                "enabled": false,
+                "context": "{{ dashmate_source_dir }}",
+                "dockerFile": "{{ dashmate_source_dir }}/packages/dapi/Dockerfile",
+                "target": ""
+              }
             }
           }
         },
         "drive": {
           "abci": {
             "docker": {
-              "image": "{{ drive_image }}"
+              "image": "{{ drive_image }}",
+              "build": {
+                "enabled": false,
+                "context": "{{ dashmate_source_dir }}",
+                "dockerFile": "{{ dashmate_source_dir }}/packages/js-drive/Dockerfile",
+                "target": ""
+              }
             },
             "log": {
               "stdout": {
@@ -133,24 +155,29 @@
             }
           },
           "tenderdash": {
+            "mode": {% if mode is defined and mode == 'seed' %}"seed"{% else %}"validator"{% endif %},
             "docker": {
               "image": "{{ tendermint_image }}"
             },
             "p2p": {
-               "port": {{ tendermint_p2p_port }},
-               "persistentPeers": [],
-               "seeds": [
-               {% for seed in template_bootstrap_peers %}
-                 {
-                   "id": "{{ seed_nodes[seed].node_key.id }}",
-                   "host": "{{ hostvars[seed].public_ip }}",
-                   "port": {{ tendermint_p2p_port }}
-                 }{% if not loop.last %},{% endif %}
-                 {% endfor %}
-               ]
+              "port": {{ tendermint_p2p_port }},
+              "persistentPeers": [],
+              "seeds": [
+                {%- for seed in template_bootstrap_peers +%}
+                {
+                  "id": "{{ seed_nodes[seed].node_key.id }}",
+                  "host": "{{ hostvars[seed].public_ip }}",
+                  "port": {{ tendermint_p2p_port }}
+                }{% if not loop.last %},{% endif %}
+                {% endfor +%}
+              ]
             },
             "rpc": {
               "port": {{ tendermint_rpc_port }}
+            },
+            "pprof": {
+              "enabled": {% if dashmate_platform_tenderdash_pprof_enable %}true{% else %}false{% endif %},
+              "port": 6060
             },
             "consensus": {
               "createEmptyBlocks": true,
@@ -224,7 +251,6 @@
           "masterPublicKey": "{{ feature_flags_hd_master_public_key }}",
           "secondPublicKey": "{{ feature_flags_hd_second_public_key }}"
         },
-        "sourcePath": null,
         "masternodeRewardShares": {
           "contract": {
             "id": "rUnsWrFu3PKyRMGk2mxmZVBPbQuZx2qtHeFjURoQevX"
@@ -232,9 +258,10 @@
           "masterPublicKey": "{{ mn_reward_shares_hd_master_public_key }}",
           "secondPublicKey": "{{ mn_reward_shares_hd_second_public_key }}"
         },
+        "sourcePath": null,
         "withdrawals": {
           "contract": {
-           "id": "4fJLR2GYTPFdomuTVvNy3VRrvWgvkKPzqehEBpNf2nk6"
+            "id": "4fJLR2GYTPFdomuTVvNy3VRrvWgvkKPzqehEBpNf2nk6"
           },
           "masterPublicKey": "{{ withdrawals_hd_master_public_key }}",
           "secondPublicKey": "{{ withdrawals_hd_second_public_key }}"
@@ -243,11 +270,16 @@
       "dashmate": {
         "helper": {
           "docker": {
-            "image": "{{ dashmate_helper_image if dashmate_version is defined else 'dashmate_local' }}"
+            "build": {
+              "enabled": false,
+              "context": "{{ dashmate_source_dir }}",
+              "dockerFile": "{{ dashmate_source_dir }}/Dockerfile",
+              "target": ""
+            }
           },
           "api": {
             "enable": true,
-            "port": "{{ dashmate_api_port }}"
+            "port": {{ dashmate_api_port }}
           }
         }
       },

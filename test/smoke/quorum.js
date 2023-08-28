@@ -1,6 +1,7 @@
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { createDocker, execJSONDockerCommand, getContainerId } = require('../../lib/test/docker');
+const wait = require("@dashevo/dapi-client/lib/utils/wait");
 
 const { inventory, network, variables } = getNetworkConfig();
 
@@ -14,9 +15,8 @@ const allHosts = inventory.masternodes.hosts.concat(
 const ansibleHosts = inventory.masternodes.hosts.concat(
   inventory.wallet_nodes.hosts,
   inventory.miners.hosts,
-  inventory.seed_nodes.hosts,
 );
-const dashmateHosts = inventory.hp_masternodes.hosts;
+const dashmateHosts = inventory.hp_masternodes.hosts.concat(inventory.seed_nodes.hosts);
 
 const quorumCheckTypes = {
   testnet: {
@@ -95,7 +95,9 @@ describe('Quorums', () => {
       }
 
       for (const hostName of dashmateHosts) {
-        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
+        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
+          timeout: 15000,
+        });
 
         const promise = getContainerId(docker, 'core')
           .then((containerId) => {
@@ -125,14 +127,14 @@ describe('Quorums', () => {
     before('Collect quorum info', () => {
       const promises = [];
 
+      const timeout = 15000; // set individual rpc client timeout
+
       for (const hostName of ansibleHosts) {
         if (!quorumLists[hostName]
           || quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
           // eslint-disable-next-line no-continue
           continue;
         }
-
-        const timeout = 15000; // set individual rpc client timeout
 
         const client = createRpcClientFromConfig(hostName);
 
@@ -158,7 +160,9 @@ describe('Quorums', () => {
           continue;
         }
 
-        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
+        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
+          timeout,
+        });
 
         const promise = execJSONDockerCommand(
           docker,
@@ -193,15 +197,13 @@ describe('Quorums', () => {
     before('Collect instantsend info', async () => {
       // Wait six seconds here before checking for IS locks
       // TODO: implement this.slow() and await IS ZMQ message to mark test response speed yellow/red
-      await new Promise((resolve) => {
-        setTimeout(resolve, 6000);
-      });
+      await wait(6000);
 
       const promises = [];
 
-      for (const hostName of ansibleHosts) {
-        const timeout = 15000; // set individual rpc client timeout
+      const timeout = 15000; // set individual rpc client timeout
 
+      for (const hostName of ansibleHosts) {
         const client = createRpcClientFromConfig(hostName);
 
         client.setTimeout(timeout);
@@ -216,7 +218,9 @@ describe('Quorums', () => {
       }
 
       for (const hostName of dashmateHosts) {
-        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
+        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
+          timeout,
+        });
 
         const promise = execJSONDockerCommand(
           docker,

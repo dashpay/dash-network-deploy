@@ -1,0 +1,14 @@
+---
+- name: Set vars
+  ansible.builtin.import_tasks: ./set_vars.yml
+
+- name: Reindex dashmate node
+  ansible.builtin.command: "{{ dashmate_cmd }} reindex -d --force"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_reindex
+  changed_when: dashmate_reindex.rc == 0
+  when:
+    - 'not filter_hostname or filter_hostname == inventory_hostname'
