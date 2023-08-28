@@ -1,0 +1,11 @@
+---
+- name: Check group existence
+  ansible.builtin.fail:
+    msg: 'Group {{ target_group }} does not exists'
+  when: 'groups[target_group] is not defined'
+
+- name: Reindex node (dashmate)
+  ansible.builtin.import_role:
+    name: dashmate
+    tasks_from: reindex
+  when: 'inventory_hostname in groups[target_group]'

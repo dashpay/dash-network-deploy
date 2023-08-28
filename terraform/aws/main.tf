@@ -162,6 +162,7 @@ resource "aws_lb_listener" "seed" {
   protocol          = "TLS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = aws_acm_certificate.seed.arn
+  alpn_policy       = "HTTP2Optional"
 
   default_action {
     type             = "forward"

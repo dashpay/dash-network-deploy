@@ -1,0 +1,6 @@
+---
+- name: Reindex network
+  hosts: all
+  become: true
+  roles:
+    - role: reindex_network

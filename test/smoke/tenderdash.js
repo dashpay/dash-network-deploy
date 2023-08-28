@@ -22,7 +22,9 @@ describe('Tenderdash', () => {
       }
 
       const promises = dashmateHosts.map(async (hostName) => {
-        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip);
+        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
+          timeout: this.timeout() - 5000,
+        });
 
         let containerId;
         try {
