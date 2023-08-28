@@ -80,7 +80,8 @@ sporkkey={{ dashd_sporkkey }}
 
 {% if dashd_walletnode is not none and coinjoin_wallet_count is defined %}
 coinjoinmultisession=1
-coinjoinsessions=16
+coinjoinsessions=10
+coinjoinautostart=1
 {% endif %}
 
 {% if dash_network == 'regtest' %}
