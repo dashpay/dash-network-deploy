@@ -19,13 +19,13 @@ const allHosts = [
 ];
 
 const ansibleHosts = [
-  ...(inventory.seed_nodes?.hosts ?? []),
   ...(inventory.masternodes?.hosts ?? []),
   ...(inventory.wallet_nodes?.hosts ?? []),
   ...(inventory.miners?.hosts ?? []),
 ];
 
 const dashmateHosts = [
+  ...(inventory.seed_nodes?.hosts ?? []),
   ...(inventory.hp_masternodes?.hosts ?? []),
 ];
 

@@ -244,7 +244,7 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart
   when:
-    - dashmate_start_platform.skipped and dashmate_start.skipped
+    - not dashmate_start_platform.changed and not dashmate_start.changed
     - is_core_images_updated or is_dashmate_package_changed or is_dashmate_config_changed
   changed_when: dashmate_restart.rc == 0
 

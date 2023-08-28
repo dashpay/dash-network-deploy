@@ -4,6 +4,11 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
+const dashmateHosts = [
+  ...(inventory.seed_nodes?.hosts ?? []),
+  ...(inventory.hp_masternodes?.hosts ?? []),
+];
+
 describe('DAPI', () => {
   describe('All nodes', () => {
     // Set up vars and functions to hold DAPI responses
@@ -22,7 +27,7 @@ describe('DAPI', () => {
       }
 
       const promises = [];
-      for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
+      for (const hostName of dashmateHosts) {
         const timeout = 15000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32).fill(1);
 
@@ -71,7 +76,7 @@ describe('DAPI', () => {
       return Promise.all(promises).catch(() => Promise.resolve());
     });
 
-    for (const hostName of inventory.hp_masternodes?.hosts ?? []) {
+    for (const hostName of dashmateHosts) {
       describe(hostName, () => {
         it('should return data from Core', async () => {
           if (bestBlockHashError[hostName]) {
