@@ -33,7 +33,7 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id
   changed_when: dashmate_zerossl_id.rc == 0
-  when: 
+  when:
     - dashmate_zerossl_ssm_certificate_id != ''
     - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
