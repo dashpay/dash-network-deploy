@@ -44,11 +44,12 @@
     cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} getaddressinfo {{ mnlist[item].owner.address }}'
   with_items: '{{ mnlist }}'
   register: owner_address_info
+  changed_when: owner_address_info.rc == 0
 
 - name: Add unimported owner addresses to list
   ansible.builtin.set_fact:
     unimported_owner_addresses: '{{ unimported_owner_addresses + [item.item] }}'
-  when: item.stdout | from_json | json_query("ismine") == false
+  when: item.stdout | from_json | not json_query("ismine")
   with_items: '{{ owner_address_info.results }}'
 
 - name: Unimported owner addresses list
@@ -64,11 +65,12 @@
     cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} getaddressinfo {{ mnlist[item].collateral.address }}'
   with_items: '{{ mnlist }}'
   register: collateral_address_info
+  changed_when: collateral_address_info.rc == 0
 
 - name: Add unimported collateral addresses to list
   ansible.builtin.set_fact:
     unimported_collateral_addresses: '{{ unimported_collateral_addresses + [item.item] }}'
-  when: item.stdout | from_json | json_query("ismine") == false
+  when: item.stdout | from_json | not json_query("ismine")
   with_items: '{{ collateral_address_info.results }}'
 
 - name: Unimported collateral addresses list
@@ -92,7 +94,7 @@
 - name: Rescan blockchain
   ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} rescanblockchain'
   register: rescan_result
-  when: owner_import_result.changed or collateral_import_result.changed
+  when: owner_import_result.changed or collateral_import_result.changed  # noqa: no-handler
   changed_when: rescan_result.stdout | to_json | json_query('stop_height') | int > 1
 
 - name: Get list of ProTx transactions from the wallet
