@@ -49,7 +49,7 @@
 - name: Add unimported owner addresses to list
   ansible.builtin.set_fact:
     unimported_owner_addresses: '{{ unimported_owner_addresses + [item.item] }}'
-  when: item.stdout | from_json | not json_query("ismine")
+  when: not (item.stdout | from_json | json_query("ismine"))
   with_items: '{{ owner_address_info.results }}'
 
 - name: Unimported owner addresses list
@@ -70,7 +70,7 @@
 - name: Add unimported collateral addresses to list
   ansible.builtin.set_fact:
     unimported_collateral_addresses: '{{ unimported_collateral_addresses + [item.item] }}'
-  when: item.stdout | from_json | not json_query("ismine")
+  when: not (item.stdout | from_json | json_query("ismine"))
   with_items: '{{ collateral_address_info.results }}'
 
 - name: Unimported collateral addresses list
