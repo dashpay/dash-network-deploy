@@ -35,7 +35,24 @@
   until: mnsync_status.stdout | from_json | json_query('IsSynced') == true
   changed_when: mnsync_status.stdout | from_json | json_query('IsSynced') == true
 
-# Make this more idempotent with `getaddressinfo`
+# - name: Initialize array for owner addresses to be imported
+#   ansible.builtin.set_fact:
+#     owner_addresses: []
+
+# - name: Get list of owner addresses that should be in wallet
+#   ansible.builtin.set_fact:
+#     owner_addresses: ' {{ owner_addresses + [item] }}'
+#   with_items: '{{ mnlist }}'
+
+# - name: Get list of addresses already imported to wallet
+#   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} listaddressbalances
+#   register: address_balances
+
+# - name: Register list of addresses
+#   set_fact:
+#     wallet_addresses: '{{ (address_balances.stdout | from_json).keys() | list }}'
+
+
 - name: Import masternode owner private key
   ansible.builtin.command:
     cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ mnlist[item].owner.private_key }} "" false'
