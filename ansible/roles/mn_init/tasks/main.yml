@@ -35,42 +35,65 @@
   until: mnsync_status.stdout | from_json | json_query('IsSynced') == true
   changed_when: mnsync_status.stdout | from_json | json_query('IsSynced') == true
 
-# - name: Initialize array for owner addresses to be imported
-#   ansible.builtin.set_fact:
-#     owner_addresses: []
+- name: Initialize array for unimported owner addresses
+  ansible.builtin.set_fact:
+    unimported_owner_addresses: []
 
-# - name: Get list of owner addresses that should be in wallet
-#   ansible.builtin.set_fact:
-#     owner_addresses: ' {{ owner_addresses + [item] }}'
-#   with_items: '{{ mnlist }}'
+- name: Get list of info on owner addresses to be imported
+  ansible.builtin.command:
+    cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} getaddressinfo {{ mnlist[item].owner.address }}'
+  with_items: '{{ mnlist }}'
+  register: owner_address_info
 
-# - name: Get list of addresses already imported to wallet
-#   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} listaddressbalances
-#   register: address_balances
+- name: Add unimported owner addresses to list
+  ansible.builtin.set_fact:
+    unimported_owner_addresses: '{{ unimported_owner_addresses + [item.item] }}'
+  when: item.stdout | from_json | json_query("ismine") == false
+  with_items: '{{ owner_address_info.results }}'
 
-# - name: Register list of addresses
-#   set_fact:
-#     wallet_addresses: '{{ (address_balances.stdout | from_json).keys() | list }}'
+- name: Unimported owner addresses list
+  ansible.builtin.debug:
+    var: unimported_owner_addresses
 
+- name: Initialize array for unimported collateral addresses
+  ansible.builtin.set_fact:
+    unimported_collateral_addresses: []
+
+- name: Get list of info on collateral addresses to be imported
+  ansible.builtin.command:
+    cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} getaddressinfo {{ mnlist[item].collateral.address }}'
+  with_items: '{{ mnlist }}'
+  register: collateral_address_info
+
+- name: Add unimported collateral addresses to list
+  ansible.builtin.set_fact:
+    unimported_collateral_addresses: '{{ unimported_collateral_addresses + [item.item] }}'
+  when: item.stdout | from_json | json_query("ismine") == false
+  with_items: '{{ collateral_address_info.results }}'
+
+- name: Unimported collateral addresses list
+  ansible.builtin.debug:
+    var: unimported_collateral_addresses
 
 - name: Import masternode owner private key
   ansible.builtin.command:
     cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ mnlist[item].owner.private_key }} "" false'
-  with_items: '{{ mnlist }}'
-  register: result
-  changed_when: result.rc == 0
+  with_items: '{{ unimported_owner_addresses }}'
+  register: owner_import_result
+  changed_when: owner_import_result.rc == 0
 
 - name: Import masternode collateral private keys
   ansible.builtin.command:
     cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} importprivkey {{ mnlist[item].collateral.private_key }} "" false'
-  with_items: '{{ mnlist }}'
-  register: result
-  changed_when: result.rc == 0
+  with_items: '{{ unimported_collateral_addresses }}'
+  register: collateral_import_result
+  changed_when: collateral_import_result.rc == 0
 
 - name: Rescan blockchain
   ansible.builtin.command: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} rescanblockchain'
-  register: result
-  changed_when: result.stdout | to_json | json_query('stop_height') | int > 1
+  register: rescan_result
+  when: owner_import_result.changed or collateral_import_result.changed
+  changed_when: rescan_result.stdout | to_json | json_query('stop_height') | int > 1
 
 - name: Get list of ProTx transactions from the wallet
   ansible.builtin.command:
