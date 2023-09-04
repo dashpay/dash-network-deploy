@@ -212,7 +212,7 @@ describe('Core', () => {
               inventory.meta.hostvars[hostName].public_ip === node.address.split(':')[0]
             ));
 
-          const masternodeType = hostName.startsWith('hp-') ? 'HighPerformance' : 'Regular';
+          const masternodeType = hostName.startsWith('hp-') ? 'Evo' : 'Regular';
 
           expect(nodeFromList, `${hostName} is not present in masternode list`).to.exist();
           expect(nodeFromList.type).to.be.equal(masternodeType);
