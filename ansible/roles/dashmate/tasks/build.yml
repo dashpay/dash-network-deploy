@@ -94,6 +94,8 @@
 
 - name: Check if default config is set
   ansible.builtin.command: "{{ dashmate_cmd }} config"
+  become: true
+  become_user: dashmate
   register: dashmate_config_result
   ignore_errors: true
   changed_when: true
