@@ -92,6 +92,11 @@
   when: git.changed # noqa: no-handler
   changed_when: true
 
+- name: Check if default config is set
+  ansible.builtin.command: "{{ dashmate_cmd }} config"
+  register: dashmate_config_result
+  ignore_errors: true
+
 - name: Enable dashmate helper build
   ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.build.enabled true
   become: true
@@ -100,3 +105,4 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
   changed_when: build_dashmate_helper.rc == 0
+  when: dashmate_config_result.rc == 0
