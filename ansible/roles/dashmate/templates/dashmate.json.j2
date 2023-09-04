@@ -64,11 +64,6 @@
           "mediantime": null,
           "address": null
         },
-        "sentinel": {
-          "docker": {
-            "image": "{{ sentinel_image }}"
-          }
-        },
         "devnet": {
           "name": {% if dash_network == 'devnet' %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
           "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
