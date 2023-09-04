@@ -107,15 +107,10 @@
   ansible.builtin.set_fact:
     dashmate_config_version: "{{ (dashmate_version_result.stdout | split(' ') | first() | split('/'))[1] }}"
 
-- name: Check if default config is set
-  ansible.builtin.command: "{{ dashmate_cmd }} config"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
+- name: Check if dashmate is configured
+  ansible.builtin.stat:
+    path: '{{ dashmate_config_dir }}/config.json'
   register: dashmate_config_result
-  ignore_errors: true
-  changed_when: true
 
 - name: Retrieve existing ZeroSSL certificate ID
   ansible.builtin.command: "{{ dashmate_cmd }} config get platform.dapi.envoy.ssl.providerConfigs.zerossl.id"
@@ -125,12 +120,12 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id_result
   changed_when: dashmate_zerossl_id_result.rc == 0
-  when: dashmate_config_result.rc == 0
+  when: dashmate_config_result.stat.exists
 
 - name: Extract ZeroSSL certificate ID
   ansible.builtin.set_fact:
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
-  when: dashmate_config_result.rc == 0
+  when: dashmate_config_result.stat.exists
 
 - name: Write dashmate config file
   vars:
