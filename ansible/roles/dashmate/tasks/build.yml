@@ -96,6 +96,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config"
   register: dashmate_config_result
   ignore_errors: true
+  changed_when: true
 
 - name: Enable dashmate helper build
   ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.build.enabled true

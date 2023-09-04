@@ -111,6 +111,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config"
   register: dashmate_config_result
   ignore_errors: true
+  changed_when: true
 
 - name: Retrieve existing ZeroSSL certificate ID
   ansible.builtin.command: "{{ dashmate_cmd }} config get platform.dapi.envoy.ssl.providerConfigs.zerossl.id"
