@@ -37,7 +37,7 @@
     . "$HOME/.cargo/env"
     rustup toolchain install stable
     rustup target add wasm32-unknown-unknown --toolchain stable
-    cargo install wasm-bindgen-cli
+    cargo install wasm-bindgen-cli@0.2.86
   become: true
   become_user: dashmate
   args:
