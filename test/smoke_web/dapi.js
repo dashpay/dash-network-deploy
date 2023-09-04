@@ -55,6 +55,7 @@ describe('DAPI', () => {
 
       for (const hostName of inventory.hp_masternodes.hosts) {
         if (!blockByHeight[hostName]) {
+          // eslint-disable-next-line no-continue
           continue;
         }
 
