@@ -109,7 +109,7 @@
               "providerConfigs": {
                 "zerossl": {
                   "apiKey": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key is not none and dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
-                  "id": null
+                  "id": {% if dashmate_zerossl_config_certificate_id != 'null' %}"{{ dashmate_zerossl_config_certificate_id }}"{% else %}null{% endif +%}
                 }
               }
             }
