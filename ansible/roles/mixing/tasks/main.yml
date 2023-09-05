@@ -3,10 +3,10 @@
 # Mixing
 
 - name: Ensure jq is installed
-  apt:
+  ansible.builtin.apt:
     name: jq
     state: present
-    update_cache: yes
+    update_cache: true
   become: true
 
 - name: Create CoinJoin wallets
@@ -51,7 +51,7 @@
     mode: "0755"
 
 - name: Schedule remix.sh to run every 10 minutes
-  cron:
+  ansible.builtin.cron:
     name: "Run remix.sh every 10 minutes"
     minute: "*/5"
     job: "/dash/remix.sh"
