@@ -50,7 +50,7 @@ case ${i} in
     -s=*|--seeds-count=*)
     SEEDS_COUNT="${i#*=}"
     ;;
-    -s=*|--mixer-count=*)
+    -m=*|--mixer-count=*)
     MIXER_COUNT="${i#*=}"
     ;;
 esac
