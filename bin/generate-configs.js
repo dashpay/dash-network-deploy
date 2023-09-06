@@ -12,7 +12,7 @@ async function main() {
     hpMasternodesAmdCount,
     hpMasternodesArmCount,
     seedsCount,
-    mixerCount = 4,
+    mixerCount,
   ] = process.argv.slice(2);
 
   const masternodesCount = parseInt(masternodesAmdCount, 10)
@@ -37,6 +37,7 @@ async function main() {
       masternodesArmCount,
       hpMasternodesAmdCount,
       hpMasternodesArmCount,
+      mixerCount,
     );
   } else {
     console.error('seeds_count and total masternodes_count must both be positive integers');

@@ -204,20 +204,6 @@
       mnlist: "{{ masternodes }}"
       funding_amount: "{{ masternode_collaterals.mn | int }}"
 
-- name: Fund 10 coins for mixing
-  hosts: wallet_nodes
-  become: true
-  tasks:
-    - name: Extract mixer addresses
-      ansible.builtin.set_fact:
-        mixer_addresses: "{{ mixers.values() | map(attribute='owner.address') | list }}"
-
-    - name: Include funding for mixers
-      ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
-      vars:
-        payment_targets: "{{ mixer_addresses }}"
-        amount: 100
-
 - name: Update inventory with protx values
   hosts: wallet_nodes
   roles:

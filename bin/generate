@@ -10,6 +10,7 @@ Usage: generate <network_name> <masternodes_amd_count> <masternodes_arm_count> <
 
 Options:
   -s=<count> --seeds-count=<count> - Number of seed nodes on the network
+  -m=<count> --mixer-count=<count> - Number of mixer nodes on the network (default 0)
   -h         --help                - Show help"
 
 for i in "$@"
@@ -41,12 +42,16 @@ if [[ -z ${HP_MASTERNODES_AMD_COUNT} ]] || [[ -z ${HP_MASTERNODES_ARM_COUNT} ]];
 fi
 
 SEEDS_COUNT="1"
+MIXER_COUNT="0"
 
 for i in "${@:4}"
 do
 case ${i} in
     -s=*|--seeds-count=*)
     SEEDS_COUNT="${i#*=}"
+    ;;
+    -s=*|--mixer-count=*)
+    MIXER_COUNT="${i#*=}"
     ;;
 esac
 done
@@ -56,4 +61,4 @@ done
 node ./bin/generate-configs.js ${NETWORK} ${NETWORK_NAME} \
   ${MASTERNODES_AMD_COUNT}    ${MASTERNODES_ARM_COUNT}    \
   ${HP_MASTERNODES_AMD_COUNT} ${HP_MASTERNODES_ARM_COUNT} \
-  ${SEEDS_COUNT}
+  ${SEEDS_COUNT} ${MIXER_COUNT}
