@@ -185,7 +185,7 @@
             "moniker": "{{ inventory_hostname }}",
             "node": {
               "id": "{{ node.node_key.id }}",
-              "key": "{{ node.node_key.private_key }}"
+              "key": "{{ node.node_key.cachedKeyString }}"
             },
             "genesis": {
               "genesis_time": "{{ genesis_time }}",
