@@ -4,7 +4,7 @@
   ansible.builtin.import_role:
     name: dashmate
     tasks_from: destroy_platform
-  when: inventory_hostname in groups["hp_masternodes"] or inventory_hostname in groups["seeds"]
+  when: inventory_hostname in groups["hp_masternodes"] or inventory_hostname in groups["seed_nodes"]
 
 - name: Remove any remaining docker data
   community.docker.docker_prune:

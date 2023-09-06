@@ -1,7 +1,7 @@
+const wait = require('@dashevo/dapi-client/lib/utils/wait');
 const createRpcClientFromConfig = require('../../lib/test/createRpcClientFromConfig');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { createDocker, execJSONDockerCommand, getContainerId } = require('../../lib/test/docker');
-const wait = require("@dashevo/dapi-client/lib/utils/wait");
 
 const { inventory, network, variables } = getNetworkConfig();
 

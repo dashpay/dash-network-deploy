@@ -64,11 +64,6 @@
           "mediantime": null,
           "address": null
         },
-        "sentinel": {
-          "docker": {
-            "image": "{{ sentinel_image }}"
-          }
-        },
         "devnet": {
           "name": {% if dash_network == 'devnet' %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
           "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
@@ -109,7 +104,7 @@
               "providerConfigs": {
                 "zerossl": {
                   "apiKey": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key is not none and dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
-                  "id": null
+                  "id": {% if dashmate_zerossl_config_certificate_id is defined and dashmate_zerossl_config_certificate_id != 'null' %}"{{ dashmate_zerossl_config_certificate_id }}"{% else %}null{% endif +%}
                 }
               }
             }
@@ -195,7 +190,7 @@
             "genesis": {
               "genesis_time": "{{ genesis_time }}",
               "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
-              "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
+              {% if initial_core_chain_locked_height is defined and initial_core_chain_locked_height != "" %}"initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},{% endif %}
               "consensus_params": {
                 "timeout": {
                   "propose": "50000000000",
