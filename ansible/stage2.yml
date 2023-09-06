@@ -1,5 +1,7 @@
 ---
 
+#Ensure quorums exist before running this, otherwise conf for funding will take 10+ minutes
+
 - name: Fund X coins for mixing
   hosts: wallet_nodes
   become: true
@@ -12,7 +14,7 @@
       ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
       vars:
         payment_targets: "{{ mixer_addresses }}"
-        amount: {{ mix_amount }}
+        amount: "{{ mix_amount }}"
 
 - name: Include mixing role
   hosts: mixer_nodes

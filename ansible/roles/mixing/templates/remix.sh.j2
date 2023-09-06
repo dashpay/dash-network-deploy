@@ -3,7 +3,7 @@
 result=$(dash-cli getbalances)
 coinjoin_value=$(echo "$result" | jq '.mine.coinjoin')
 
-# Check if coinjoin_value is greater than 30
-if (( $(echo "$coinjoin_value > 30" | bc -l) )); then
-    dash-cli sendtoaddress {{ mixers[inventory_hostname].owner.address }} 30 "" "" true true true
+# Check if coinjoin_value is greater than remix_amount (default 30)
+if (( $(echo "$coinjoin_value > {{ remix_amount }}" | bc -l) )); then
+    dash-cli sendtoaddress {{ mixers[inventory_hostname].owner.address }} {{ remix_amount }} "" "" true true true
 fi
