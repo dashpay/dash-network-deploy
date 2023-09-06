@@ -19,4 +19,3 @@
   become: true
   roles:
     - role: mixing
-      mnlist: "{{ mixers }}"
