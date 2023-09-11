@@ -43,3 +43,11 @@ filebeat_platform_inputs:
           fields:
             - from: "json.level"
             - to: "log.level"
+      - rename:
+          fields:
+            - from: "json.span.height"
+            - to: "json.height"
+      - rename:
+          fields:
+            - from: "json.span.round"
+            - to: "json.round"
