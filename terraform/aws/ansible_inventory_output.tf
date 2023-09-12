@@ -152,14 +152,14 @@ locals {
           local.vpn.*,
         ),
       )
-      web_hosts            = join("\n", concat(aws_instance.web.*.tags.Hostname))
-      logs_hosts           = join("\n", concat(aws_instance.logs.*.tags.Hostname))
-      wallet_node_hosts    = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
-      mixer_hosts    = join("\n", concat(aws_instance.mixer.*.tags.Hostname))
-      miner_hosts          = join("\n", concat(aws_instance.miner.*.tags.Hostname))
-      masternode_hosts     = join("\n", concat(aws_instance.masternode_amd.*.tags.Hostname), concat(aws_instance.masternode_arm.*.tags.Hostname))
-      hp_masternode_hosts  = join("\n", concat(aws_instance.hp_masternode_amd.*.tags.Hostname), concat(aws_instance.hp_masternode_arm.*.tags.Hostname))
-      seed_hosts           = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
+      web_hosts           = join("\n", concat(aws_instance.web.*.tags.Hostname))
+      logs_hosts          = join("\n", concat(aws_instance.logs.*.tags.Hostname))
+      wallet_node_hosts   = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
+      mixer_hosts         = join("\n", concat(aws_instance.mixer.*.tags.Hostname))
+      miner_hosts         = join("\n", concat(aws_instance.miner.*.tags.Hostname))
+      masternode_hosts    = join("\n", concat(aws_instance.masternode_amd.*.tags.Hostname), concat(aws_instance.masternode_arm.*.tags.Hostname))
+      hp_masternode_hosts = join("\n", concat(aws_instance.hp_masternode_amd.*.tags.Hostname), concat(aws_instance.hp_masternode_arm.*.tags.Hostname))
+      seed_hosts          = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
     }
   )
 }
