@@ -1,6 +1,6 @@
 ---
 
-#Ensure quorums exist before running this, otherwise conf for funding will take 10+ minutes
+# Ensure quorums exist before running this, otherwise conf for funding will take 10+ minutes
 
 - name: Fund X coins for mixing
   hosts: wallet_nodes
