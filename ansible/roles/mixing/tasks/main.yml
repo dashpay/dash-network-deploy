@@ -16,7 +16,7 @@
 
 - name: Import mixer addresses
   ansible.builtin.command:
-    cmd: 'dash-cli -rpcwallet={{ coinjoin_wallet_name }} importprivkey {{ mixers[inventory_hostname].owner.private_key }}'
+    cmd: dash-cli -rpcwallet={{ coinjoin_wallet_name }} importprivkey {{ mixers[inventory_hostname].owner.private_key }}
   register: result
   changed_when: result.rc == 0
 
