@@ -107,7 +107,8 @@ describe('DAPI', () => {
           }
 
           expect(dataContract[hostName]).to.be.undefined();
-          expect(dataContractError[hostName].code).to.be.equal(5);
+          expect(dataContractError[hostName].message)
+            .to.equal('Invalid response: DataContract is not defined');
         });
       });
     }
