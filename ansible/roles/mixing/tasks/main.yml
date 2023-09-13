@@ -32,7 +32,7 @@
 
 - name: Set CoinJoin amount
   ansible.builtin.command:
-    cmd: dash-cli -rpcwallet={{ coinjoin_wallet_name }} setcoinjoinamount 100
+    cmd: dash-cli -rpcwallet={{ coinjoin_wallet_name }} setcoinjoinamount {{ mix_amount }}
   register: setcoinjoinamount_result
   changed_when: setcoinjoinamount_result.rc == 0
 
