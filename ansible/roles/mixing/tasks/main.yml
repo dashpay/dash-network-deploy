@@ -16,7 +16,7 @@
 
 - name: Import mixer addresses
   ansible.builtin.command:
-    cmd: 'dash-cli -rpcwallet={{ coinjoin_wallet_name }} importprivkey {{ mixers[inventory_hostname].owner.private_key }}'
+    cmd: dash-cli -rpcwallet={{ coinjoin_wallet_name }} importprivkey {{ mixers[inventory_hostname].owner.private_key }}
   register: result
   changed_when: result.rc == 0
 
@@ -24,6 +24,7 @@
   ansible.builtin.command:
     cmd: dash-cli -rpcwallet={{ coinjoin_wallet_name }} getbalance
   register: getbalance_result
+  changed_when: getbalance_result.rc == 0
 
 - name: Print balances
   ansible.builtin.debug:
@@ -32,6 +33,8 @@
 - name: Set CoinJoin amount
   ansible.builtin.command:
     cmd: dash-cli -rpcwallet={{ coinjoin_wallet_name }} setcoinjoinamount 100
+  register: setcoinjoinamount_result
+  changed_when: setcoinjoinamount_result.rc == 0
 
 - name: Start mixing
   ansible.builtin.command:
@@ -43,6 +46,7 @@
   ansible.builtin.command:
     cmd: dash-cli -rpcwallet={{ coinjoin_wallet_name }} getcoinjoininfo
   register: getcoinjoininfo_result
+  changed_when: getcoinjoininfo_result.rc == 0
 
 - name: Copy remixing script
   ansible.builtin.template:
