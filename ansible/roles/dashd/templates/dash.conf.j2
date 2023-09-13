@@ -79,11 +79,6 @@ sporkaddr={{ dashd_sporkaddr }}
 sporkkey={{ dashd_sporkkey }}
 {% endif %}
 
-{% if dashd_walletnode is not none and coinjoin_wallet_count is defined %}
-coinjoinmultisession=1
-coinjoinsessions=10
-{% endif %}
-
 {% if dash_network == 'regtest' %}
 [regtest]
 {% elif dash_network == 'mainnet' %}

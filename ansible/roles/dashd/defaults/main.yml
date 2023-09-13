@@ -8,7 +8,6 @@ dashd_zmq: false
 dashd_listen: false
 dashd_externalip: '{{ public_ip }}'
 dashd_isseednode: '{{ dashd_externalip == dashd_seednode }}'
-dashd_iswalletnode: '{{ dashd_externalip == dashd_walletnode }}'
 
 dashd_private_net_prefix: 16
 dashd_private_cidr: '{{ private_ip | ansible.utils.ipsubnet(dashd_private_net_prefix) }}'
