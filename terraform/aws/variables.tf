@@ -212,7 +212,3 @@ variable "create_eip" {
   default     = true
 }
 
-variable "mixing_enabled" {
-  default     = false
-  description = "setup mixing nodes"
-}
