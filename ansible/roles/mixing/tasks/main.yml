@@ -54,6 +54,12 @@
     dest: '/dash/remix.sh'
     mode: "0755"
 
+- name: Copy timestamp script
+  ansible.builtin.copy:
+    src: 'timestamp.sh'
+    dest: '/dash/timestamp.sh'
+    mode: "0755"
+
 - name: Schedule remix.sh to run every 5 minutes
   ansible.builtin.cron:
     name: "Run remix.sh every 5 minutes"

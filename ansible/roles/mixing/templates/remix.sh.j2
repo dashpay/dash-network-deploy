@@ -5,5 +5,5 @@ coinjoin_value=$(echo "$result" | jq '.mine.coinjoin')
 
 # Check if coinjoin_value is greater than remix_amount (default 30)
 if (( $(echo "$coinjoin_value > {{ remix_amount }}" | bc -l) )); then
-    dash-cli sendtoaddress {{ mixers[inventory_hostname].owner.address }} {{ remix_amount }} "" "" true true true
+    dash-cli sendtoaddress {{ mixers[inventory_hostname].owner.address }} {{ remix_amount }} "" "" true true true 2>&1 | /dash/timestamp.sh >> /dash/remix.cron.log
 fi
