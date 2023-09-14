@@ -18,7 +18,7 @@ describe('Drive', () => {
 
       const statusPromises = dashmateHosts.map(async (hostName) => {
         const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`, {
-          timeout: this.timeout() - 1000,
+          timeout: this.timeout() - 5000,
         });
 
         let containerId;

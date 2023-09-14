@@ -119,6 +119,6 @@ bind=0.0.0.0
 
 port={{ dashd_port }}
 
-{% if dashd_seednode is not none and not dashd_isseednode %}
-addnode={{ dashd_seednode }}:{{ dashd_port }}
-{% endif %}
+{% for seed_node in groups.seed_nodes %}
+addnode={{ hostvars[seed_node]["public_ip"] }}:{{ dashd_port }}
+{% endfor %}
