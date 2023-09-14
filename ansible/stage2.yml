@@ -1,14 +1,24 @@
 ---
-- name: Execute getbestchainlock
-  hosts: wallet_nodes
-  tasks:
-    - name: Run dash-cli getbestchainlock
-      ansible.builtin.command: dash-cli getbestchainlock
-      register: chainlock_output
-      ignore_errors: true
-      changed_when: chainlock_output.rc == 0
 
-    - name: Check for chainlock
-      ansible.builtin.fail:
-        msg: "Chainlock failure: no chainlock found."
-      when: '"error" in chainlock_output.stderr'
+# Ensure quorums exist before running this, otherwise conf for funding will take 10+ minutes
+
+- name: Fund mixing nodes with {{ mix_amount ~ ' Dash'}}
+  hosts: wallet_nodes
+  become: true
+  tasks:
+    - name: Extract mixer addresses
+      ansible.builtin.set_fact:
+        mixer_addresses: "{{ mixers.values() | map(attribute='owner.address') | list }}"
+
+    - name: Include funding for mixers
+      ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
+      vars:
+        payment_targets: "{{ mixer_addresses }}"
+        amount: "{{ mix_amount }}"
+
+- name: Include mixing role
+  hosts: mixer_nodes
+  become: true
+  roles:
+    - role: mixing
+      when: mixers != {}

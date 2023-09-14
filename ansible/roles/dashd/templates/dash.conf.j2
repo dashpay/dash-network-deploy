@@ -65,6 +65,12 @@ listen=0
 
 externalip={{ dashd_externalip }}
 
+{% if 'mixer' in inventory_hostname %}
+coinjoinmultisession=1
+coinjoinsessions=10
+coinjoinrounds={{ coinjoin_rounds }}
+{% endif %}
+
 dnsseed=0
 allowprivatenet={{ dashd_allowprivatenet }}
 

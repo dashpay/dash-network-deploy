@@ -9,6 +9,9 @@ ${logs_hosts}
 [wallet_nodes]
 ${wallet_node_hosts}
 
+[mixer_nodes]
+${mixer_hosts}
+
 [miners]
 ${miner_hosts}
 

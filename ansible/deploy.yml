@@ -92,6 +92,17 @@
     - role: elastic_beats
       core_container_name: dashd
 
+- name: Set up mixers
+  hosts: mixer_nodes
+  become: true
+  roles:
+    - role: dash_cli
+    - role: dashd
+      tags:
+        - dashd
+    - role: elastic_beats
+      core_container_name: dashd
+
 - name: Set up core and platform on seed nodes
   hosts: seed_nodes
   become: true
@@ -223,11 +234,11 @@
 
 # todo: partially working code causes errors in deploy, comment out for now and fix later
 # - name: Create governance proposals
-#  hosts: wallet_nodes
-#  become: true
-#  roles:
-#    - role: generate_proposals
-#      when: governance_proposal_count > 0
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: generate_proposals
+#       when: governance_proposal_count > 0
 
 - name: Set up core and platform on HP masternodes
   hosts: hp_masternodes
