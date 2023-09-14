@@ -144,6 +144,7 @@ masternode_collaterals:
 # Proposal stuff
 
 governance_proposal_count: 2
+coinjoin_rounds: 12
 
 # Disk space allocated for swap file on each host
 swap_space: 2G
