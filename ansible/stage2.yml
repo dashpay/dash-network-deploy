@@ -2,7 +2,7 @@
 
 # Ensure quorums exist before running this, otherwise conf for funding will take 10+ minutes
 
-- name: Fund X coins for mixing
+- name: Fund mixing nodes with {{ mix_amount ~ ' Dash'}}
   hosts: wallet_nodes
   become: true
   tasks:
