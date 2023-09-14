@@ -144,12 +144,15 @@ masternode_collaterals:
 # Proposal stuff
 
 governance_proposal_count: 2
+
+# CoinJoin stuff
+coinjoin_amount: 10
 coinjoin_rounds: 12
 
 # Disk space allocated for swap file on each host
 swap_space: 2G
 
-# Elastic
+# Elastic stuff
 
 elastic_username: elastic
 elastic_password:
@@ -167,7 +170,6 @@ masternode_network_latency: false
 masternode_network_latency_min: 10
 masternode_network_latency_max: 100
 
-# Dashmate
+# Dashmate stuff
 dashmate_home: /home/dashmate
 dashmate_logs_dir: '{{ dashmate_home }}/logs'
-coinjoin_amount: 10
