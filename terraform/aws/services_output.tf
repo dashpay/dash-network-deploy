@@ -125,7 +125,6 @@ locals {
             "\n",
             [
               "   - dashd",
-              "   - sentinel",
               "   - insight",
             ],
           ),
@@ -172,7 +171,6 @@ locals {
             "\n",
             [
               "   - dashd",
-              "   - sentinel",
               "   - insight",
             ],
           ),
@@ -231,7 +229,6 @@ hp_masternodes_amd = [
             "   - dapi_envoy",
             "   - drive_abci",
             "   - tendermint",
-            "   - sentinel",
             "   - insight",
           ],
         ),
@@ -288,7 +285,6 @@ hp_masternodes_amd = [
             "   - dapi_envoy",
             "   - drive_abci",
             "   - tendermint",
-            "   - sentinel",
             "   - insight",
           ],
         ),
@@ -404,7 +400,6 @@ hp_masternodes_amd = [
           "   - dapi_envoy",
           "   - drive_abci",
           "   - tendermint",
-          "   - sentinel",
           "   - insight",
         ]))
       }

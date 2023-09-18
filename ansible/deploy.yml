@@ -142,7 +142,6 @@
       dashd_indexes: true
       tags:
         - dashd
-    - mn_sentinel
     - mn_status_report
     - role: elastic_beats
       core_container_name: dashd

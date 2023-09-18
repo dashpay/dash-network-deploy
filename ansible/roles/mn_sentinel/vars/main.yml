@@ -1,4 +1,0 @@
----
-
-mn_sentinel_compose_project_name: mn_sentinel
-mn_sentinel_path: '{{ dashd_home }}/{{ mn_sentinel_compose_project_name }}'
