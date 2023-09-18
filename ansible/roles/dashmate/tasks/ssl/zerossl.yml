@@ -25,7 +25,7 @@
   ansible.builtin.set_fact:
     dashmate_zerossl_ssm_certificate_id: "{{ lookup('aws_ssm', '{{ dashmate_zerossl_ssm_path }}-id', on_missing='skip') }}"
 
-- name: Set ZeroSSL certificate ID to dashmate config from SSM
+- name: Set ZeroSSL certificate ID to dashmate config from SSM if not set
   ansible.builtin.command: "{{ dashmate_cmd }} config set {{ dashmate_zerossl_config_path }}.id {{ dashmate_zerossl_ssm_certificate_id }}"
   become: true
   become_user: dashmate
@@ -35,7 +35,7 @@
   changed_when: dashmate_zerossl_id.rc == 0
   when:
     - dashmate_zerossl_ssm_certificate_id != ''
-    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+    - dashmate_zerossl_config_certificate_id is not defined
 
 # Copy ZeroSSL files if they are not present
 
@@ -88,27 +88,32 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id
   changed_when: dashmate_zerossl_id.rc == 0
-  when: dashmate_zerossl_ssm_certificate_id == ''
+  when: dashmate_obtain is defined and dashmate_obtain.changed
 
-- name: Update ZeroSSL certificate ID in AWS SSM parameter store
+- name: Set new ZeroSSL certificate ID from config
+  ansible.builtin.set_fact:
+    dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id.stdout }}"
+  when: dashmate_obtain is defined and dashmate_obtain.changed
+
+- name: Update ZeroSSL certificate ID in AWS SSM parameter store if changed
   delegate_to: localhost
   become: false
   community.aws.ssm_parameter:
     name: '{{ dashmate_zerossl_ssm_path }}-id'
     value: '{{ dashmate_zerossl_id.stdout }}'
-  when: dashmate_zerossl_ssm_certificate_id == ''
+  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Read new generated ZeroSSL private key file to variable
   ansible.builtin.slurp:
     src: '{{ dashmate_zerossl_keys_path }}/{{ dashmate_zerossl_private_key_file_name }}'
   register: dashmate_zerossl_private_key_file
-  when: dashmate_zerossl_ssm_certificate_id == ''
+  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Read new generated ZeroSSL CSR file to variable
   ansible.builtin.slurp:
     src: '{{ dashmate_zerossl_keys_path }}/{{ dashmate_zerossl_csr_file_name }}'
   register: dashmate_zerossl_csr_file
-  when: dashmate_zerossl_ssm_certificate_id == ''
+  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Set new generated ZeroSSL CSR and private key files
   ansible.builtin.set_fact:
@@ -117,7 +122,7 @@
         content: '{{ dashmate_zerossl_private_key_file.content | b64decode }}'
       - name: "{{ dashmate_zerossl_csr_file_name }}"
         content: '{{ dashmate_zerossl_csr_file.content | b64decode }}'
-  when: dashmate_zerossl_ssm_certificate_id == ''
+  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Update ZeroSSL private key and CSR files in AWS SSM parameter store
   delegate_to: localhost
@@ -126,4 +131,4 @@
     name: '{{ dashmate_zerossl_ssm_path }}-{{ item.name }}'
     value: '{{ item.content }}'
   loop: '{{ dashmate_zerossl_files }}'
-  when: dashmate_zerossl_ssm_certificate_id == ''
+  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
