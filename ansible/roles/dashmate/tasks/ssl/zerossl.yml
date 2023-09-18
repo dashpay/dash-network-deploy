@@ -95,7 +95,7 @@
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id.stdout }}"
   when: dashmate_obtain is defined and dashmate_obtain.changed
 
-- name: Update ZeroSSL certificate ID in AWS SSM parameter store if changed
+- name: Update ZeroSSL certificate ID in AWS SSM parameter store
   delegate_to: localhost
   become: false
   community.aws.ssm_parameter:
