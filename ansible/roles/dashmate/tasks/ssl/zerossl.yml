@@ -100,7 +100,7 @@
   become: false
   community.aws.ssm_parameter:
     name: '{{ dashmate_zerossl_ssm_path }}-id'
-    value: '{{ dashmate_zerossl_id.stdout }}'
+    value: '{{ dashmate_zerossl_config_certificate_id }}'
   when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Read new generated ZeroSSL private key file to variable
