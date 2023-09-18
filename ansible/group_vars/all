@@ -19,9 +19,6 @@ platform_initial_core_chain_locked_height: ""
 # Install OpenVPN
 openvpn_enabled: true
 
-# Sentinel Docker image
-sentinel_image: dashpay/sentinel:latest
-
 # Drive
 drive_image: dashpay/drive
 drive_log_stdout_level: info

@@ -191,14 +191,14 @@
       {{
         dashmate_services_status.stdout |
         from_json |
-        json_query('[?service!=`core`&&service!=`sentinel`&&status!=`not_started`]') |
+        json_query('[?service!=`core`&&status!=`not_started`]') |
         length | int > 0
       }}
     is_core_images_updated: >-
       {{
         dashmate_update.stdout |
         from_json |
-        json_query('[?name==`core`||name==`sentinel`]') |
+        json_query('[?name==`core`]') |
         sort(attribute='updated', reverse=true) |
         first() |
         json_query('updated')
@@ -207,7 +207,7 @@
       {{
         dashmate_update.stdout |
         from_json |
-        json_query('[?name!=`core`&&name!=`sentinel`]') |
+        json_query('[?name!=`core`]') |
         sort(attribute='updated', reverse=true) |
         first() |
         json_query('updated')
@@ -257,7 +257,7 @@ Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
 
 # Restart logic
 # if any of platform images were updated => restart platform
-# if core or sentinel images updated => restart all
+# if core image updated => restart all
 # dashmate version is changed => restart all
 # dashmate config is changed => restart all
 
