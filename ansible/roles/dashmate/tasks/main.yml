@@ -107,7 +107,8 @@
   ansible.builtin.set_fact:
     dashmate_config_version: "{{ (dashmate_version_result.stdout | split(' ') | first() | split('/'))[1] }}"
 
-- name: Check if default config is set
+# This check will return an error code if config is missing, config schema is invalid or default config is not yet set
+- name: Check state of dashmate config
   ansible.builtin.command: "{{ dashmate_cmd }} config"
   become: true
   become_user: dashmate
