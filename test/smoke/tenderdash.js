@@ -21,59 +21,56 @@ describe('Tenderdash', () => {
         this.skip('platform is disabled for this network');
       }
 
-      const promises = dashmateHosts.map(async (hostName) => {
-        const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
-          timeout: this.timeout() - 5000,
+      const promises = dashmateHosts
+        .filter((hostName) => inventory.meta.hostvars[hostName])
+        .map(async (hostName) => {
+          try {
+            const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
+              timeout: this.timeout() - 5000,
+            });
+
+            const containerId = await getContainerId(docker, 'dashmate_helper');
+
+            if (!containerId) {
+              throw new Error('dashmate helper container is not running');
+            }
+
+            currentTimeStrings[hostName] = await execDockerCommand(
+              docker,
+              containerId,
+              ['date'],
+            );
+
+            const { result, error } = await execJSONDockerCommand(
+              docker,
+              containerId,
+              [
+                'curl',
+                '--silent',
+                '-X',
+                'POST',
+                '-H',
+                'Content-Type: application/json',
+                '-d',
+                '{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}',
+                'localhost:9000',
+              ],
+            );
+
+            if (error) {
+              // noinspection ExceptionCaughtLocallyJS
+              throw new Error(error.message);
+            }
+
+            const status = JSON.parse(result);
+
+            tenderdashStatuses[hostName] = status.tenderdash;
+          } catch (e) {
+            errors[hostName] = e;
+          }
         });
 
-        let containerId;
-        try {
-          containerId = await getContainerId(docker, 'dashmate_helper');
-        } catch (e) {
-          errors[hostName] = e;
-        }
-
-        if (!containerId) {
-          return;
-        }
-
-        try {
-          currentTimeStrings[hostName] = await execDockerCommand(
-            docker,
-            containerId,
-            ['date'],
-          );
-
-          const { result, error } = await execJSONDockerCommand(
-            docker,
-            containerId,
-            [
-              'curl',
-              '--silent',
-              '-X',
-              'POST',
-              '-H',
-              'Content-Type: application/json',
-              '-d',
-              '{"jsonrpc":"2.0","id":"id","method":"status platform","params": {"format": "json"}}',
-              'localhost:9000',
-            ],
-          );
-
-          if (error) {
-            // noinspection ExceptionCaughtLocallyJS
-            throw new Error(error.message);
-          }
-
-          const status = JSON.parse(result);
-
-          tenderdashStatuses[hostName] = status.tenderdash;
-        } catch (e) {
-          errors[hostName] = e;
-        }
-      });
-
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises);
     });
 
     for (const hostName of dashmateHosts) {
