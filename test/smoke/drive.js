@@ -66,6 +66,10 @@ describe('Drive', () => {
             expect.fail(statusError[hostName]);
           }
 
+          if (!statusInfo[hostName]) {
+            expect.fail('no status info');
+          }
+
           const { drive } = statusInfo[hostName];
 
           expect(drive.dockerStatus).to.be.equal('running');
