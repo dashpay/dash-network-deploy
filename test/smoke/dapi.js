@@ -88,9 +88,11 @@ describe('DAPI', () => {
             expect.fail(null, null, bestBlockHashError[hostName]);
           }
 
-          if (bestBlockHash[hostName]) {
+          if (!bestBlockHash[hostName]) {
             expect.fail('no block info');
           }
+
+          expect(bestBlockHash[hostName]).to.be.a('string');
         });
 
         it('should return data from Core using gRPC', async () => {
@@ -117,6 +119,9 @@ describe('DAPI', () => {
           }
 
           expect(dataContract[hostName]).to.be.undefined();
+          // expect(dataContractError[hostName].code).to.be.equal(5);
+
+          // TODO: Revert to error code when it's fixed
           expect(dataContractError[hostName].message)
             .to.equal('Invalid response: DataContract is not defined');
         });
