@@ -436,12 +436,6 @@ resource "aws_instance" "logs" {
     volume_type = var.volume_type
   }
 
-  ebs_block_device {
-    volume_size = var.logs_node_disk_size
-    device_name = "/dev/sdf"
-    volume_type = var.volume_type
-  }
-
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
   vpc_security_group_ids = [
