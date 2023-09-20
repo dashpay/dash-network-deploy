@@ -88,9 +88,12 @@ describe('DAPI', () => {
             expect.fail(null, null, bestBlockHashError[hostName]);
           }
 
-          if (bestBlockHash[hostName]) {
+          if (!bestBlockHash[hostName]) {
             expect.fail('no block info');
           }
+
+          expect(bestBlockHash[hostName]).to.be.a('string');
+          expect(bestBlockHash[hostName]).to.be.not.empty();
         });
 
         it('should return data from Core using gRPC', async () => {
