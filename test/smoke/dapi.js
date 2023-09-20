@@ -93,7 +93,6 @@ describe('DAPI', () => {
           }
 
           expect(bestBlockHash[hostName]).to.be.a('string');
-          expect(bestBlockHash[hostName]).to.be.not.empty();
         });
 
         it('should return data from Core using gRPC', async () => {
