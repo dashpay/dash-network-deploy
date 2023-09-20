@@ -13,6 +13,11 @@ function ansible_run_playbook() {
         print_error "Ansible network config '$ANSIBLE_CONFIG_PATH' is not found. Please read README.md how to configure networks"
     fi
 
+    # Disable fork safety on macOS to avoid Ansible error when interacting with AWS SSM
+    if [ "$(uname)" == "Darwin" ]; then
+        export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+    fi
+
     ansible-playbook --private-key="$PRIVATE_KEY_PATH" \
                      -i "../$INVENTORY_FILE" \
                      -e "@../$ANSIBLE_CONFIG_PATH" \

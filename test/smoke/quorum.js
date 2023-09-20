@@ -44,6 +44,7 @@ const quorumCheckTypes = {
 describe('Quorums', () => {
   describe('All nodes', () => {
     // Set up vars to hold mn responses
+    const errors = {};
     const blockCount = {};
     const bestChainLock = {};
     const quorumLists = {};
@@ -59,6 +60,11 @@ describe('Quorums', () => {
       const promises = [];
 
       for (const hostName of ansibleHosts) {
+        if (!inventory.meta.hostvars[hostName]) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+
         const timeout = 15000; // set individual rpc client timeout
 
         const client = createRpcClientFromConfig(hostName);
@@ -69,21 +75,29 @@ describe('Quorums', () => {
           // eslint-disable-next-line no-loop-func
           .then(({ result }) => {
             blockCount[hostName] = result;
+          }).catch((error) => {
+            errors[hostName] = error;
           });
 
         const requestBestChainLockPromise = client.getBestChainLock()
           .then(({ result }) => {
             bestChainLock[hostName] = result;
+          }).catch((error) => {
+            errors[hostName] = error;
           });
 
         const requestQuorumListPromise = client.quorum('list')
           .then(({ result }) => {
             quorumLists[hostName] = result;
+          }).catch((error) => {
+            errors[hostName] = error;
           });
 
         const requestBlockchainInfoPromise = client.getBlockchainInfo()
           .then(({ result }) => {
             blockchainInfo[hostName] = result;
+          }).catch((error) => {
+            errors[hostName] = error;
           });
 
         promises.push(
@@ -95,6 +109,11 @@ describe('Quorums', () => {
       }
 
       for (const hostName of dashmateHosts) {
+        if (!inventory.meta.hostvars[hostName]) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+
         const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
           timeout: 15000,
         });
@@ -116,12 +135,15 @@ describe('Quorums', () => {
               bestChainLock[hostName] = getBestChainLock;
               blockchainInfo[hostName] = getBlockchainInfo;
               quorumLists[hostName] = quorumList;
-            }));
+            }))
+          .catch((error) => {
+            errors[hostName] = error;
+          });
 
         promises.push(promise);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises);
     });
 
     before('Collect quorum info', () => {
@@ -148,12 +170,19 @@ describe('Quorums', () => {
           // eslint-disable-next-line no-loop-func
           .then(({ result }) => {
             firstQuorumInfo[hostName] = result;
+          }).catch((error) => {
+            errors[hostName] = error;
           });
 
         promises.push(requestFirstQuorumInfo);
       }
 
       for (const hostName of dashmateHosts) {
+        if (!inventory.meta.hostvars[hostName]) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+
         if (!quorumLists[hostName]
           || quorumLists[hostName][quorumCheckTypes[network.type].name].length === 0) {
           // eslint-disable-next-line no-continue
@@ -176,12 +205,14 @@ describe('Quorums', () => {
           ],
         ).then((result) => {
           firstQuorumInfo[hostName] = result;
+        }).catch((error) => {
+          errors[hostName] = error;
         });
 
         promises.push(promise);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises);
     });
 
     before('Send a transaction', async () => {
@@ -204,6 +235,11 @@ describe('Quorums', () => {
       const timeout = 15000; // set individual rpc client timeout
 
       for (const hostName of ansibleHosts) {
+        if (!inventory.meta.hostvars[hostName]) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+
         const client = createRpcClientFromConfig(hostName);
 
         client.setTimeout(timeout);
@@ -212,12 +248,19 @@ describe('Quorums', () => {
           // eslint-disable-next-line no-loop-func
           .then(({ result }) => {
             rawMemPool[hostName] = result;
+          }).catch((error) => {
+            errors[hostName] = error;
           });
 
         promises.push(requestGetRawMemPool);
       }
 
       for (const hostName of dashmateHosts) {
+        if (!inventory.meta.hostvars[hostName]) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+
         const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
           timeout,
         });
@@ -228,37 +271,56 @@ describe('Quorums', () => {
           ['dash-cli', 'getrawmempool', 'true'],
         ).then((result) => {
           rawMemPool[hostName] = result;
+        }).catch((error) => {
+          errors[hostName] = error;
         });
 
         promises.push(promise);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises);
     });
 
     for (const hostName of allHosts) {
       // eslint-disable-next-line no-loop-func
       describe(hostName, () => {
         it('should see quorums of the correct type', () => {
+          if (errors[hostName]) {
+            expect.fail(errors[hostName]);
+          }
+
           expect(quorumLists).to.have.property(hostName);
 
           expect(quorumLists[hostName][quorumCheckTypes[network.type].name]).to.not.be.empty();
         });
 
         it('should see chainlocks at the chain tip', () => {
+          if (errors[hostName]) {
+            expect.fail(errors[hostName]);
+          }
+
           expect(bestChainLock).to.have.property(hostName);
 
           expect(blockCount[hostName]).to.equal(bestChainLock[hostName].height);
         });
 
         it('should see the first quorum was created recently', () => {
+          if (errors[hostName]) {
+            expect.fail(errors[hostName]);
+          }
+
           expect(firstQuorumInfo).to.have.property(hostName);
+          expect(blockCount).to.have.property(hostName);
 
           expect(blockCount[hostName] - firstQuorumInfo[hostName].height)
             .to.be.lessThanOrEqual(quorumCheckTypes[network.type].dkgInterval * 1.5);
         });
 
         it('should see an instantsend lock', () => {
+          if (errors[hostName]) {
+            expect.fail(errors[hostName]);
+          }
+
           expect(rawMemPool).to.have.property(hostName);
           expect(rawMemPool[hostName]).to.have.property(instantsendTestTxid);
           expect(rawMemPool[hostName][instantsendTestTxid].instantlock).to.equal('true');

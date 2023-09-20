@@ -28,6 +28,11 @@ describe('DAPI', () => {
 
       const promises = [];
       for (const hostName of dashmateHosts) {
+        if (!inventory.meta.hostvars[hostName]) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+
         const timeout = 15000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32).fill(1);
 
@@ -83,13 +88,18 @@ describe('DAPI', () => {
             expect.fail(null, null, bestBlockHashError[hostName]);
           }
 
-          expect(bestBlockHash[hostName]).to.be.a('string');
-          expect(bestBlockHash[hostName]).to.be.not.empty();
+          if (bestBlockHash[hostName]) {
+            expect.fail('no block info');
+          }
         });
 
         it('should return data from Core using gRPC', async () => {
           if (statusError[hostName]) {
             expect.fail(null, null, statusError[hostName]);
+          }
+
+          if (!status[hostName]) {
+            expect.fail('no status info');
           }
 
           expect(status[hostName]).to.have.a.property('version');
