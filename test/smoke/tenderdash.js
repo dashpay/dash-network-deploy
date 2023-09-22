@@ -5,23 +5,28 @@ const {
   execDockerCommand,
   getContainerId,
 } = require('../../lib/test/docker');
+const fetchPrometheusMetrics = require('../../lib/test/fetchPrometheusMetrics');
 
 const { variables, inventory, network } = getNetworkConfig();
 
-const dashmateHosts = inventory.hp_masternodes.hosts;
+const evoMasternodes = inventory.hp_masternodes?.hosts ?? [];
+const seedNodes = inventory.seed_nodes?.hosts ?? [];
 
 describe('Tenderdash', () => {
-  const currentTimeStrings = {};
-  const tenderdashStatuses = {};
   const errors = {};
 
-  describe('HP and seed nodes', () => {
+  describe('Evo masternodes', () => {
+    const currentTimeStrings = {};
+    const tenderdashStatuses = {};
+
     before('Collect tenderdash info', function collect() {
       if (variables.dashmate_platform_enable === false) {
         this.skip('platform is disabled for this network');
       }
 
-      const promises = dashmateHosts
+      this.timeout(40000); // set mocha timeout
+
+      const promises = evoMasternodes
         .filter((hostName) => inventory.meta.hostvars[hostName])
         .map(async (hostName) => {
           try {
@@ -30,10 +35,6 @@ describe('Tenderdash', () => {
             });
 
             const containerId = await getContainerId(docker, 'dashmate_helper');
-
-            if (!containerId) {
-              throw new Error('dashmate helper container is not running');
-            }
 
             currentTimeStrings[hostName] = await execDockerCommand(
               docker,
@@ -73,7 +74,7 @@ describe('Tenderdash', () => {
       return Promise.all(promises);
     });
 
-    for (const hostName of dashmateHosts) {
+    for (const hostName of evoMasternodes) {
       // eslint-disable-next-line no-loop-func
       describe(hostName, () => {
         it('should be connected to the network', () => {
@@ -124,6 +125,82 @@ describe('Tenderdash', () => {
           emptyBlockWindow.setMinutes(currentDate.getMinutes() - 5);
 
           expect(latestBlockTime).to.be.within(emptyBlockWindow, currentDate);
+        });
+      });
+    }
+  });
+
+  describe('Seed nodes', () => {
+    const tenderdashMetrics = {};
+
+    before('Collect tenderdash metrics', function collect() {
+      if (variables.dashmate_platform_enable === false) {
+        this.skip('platform is disabled for this network');
+      }
+
+      this.timeout(40000); // set mocha timeout
+
+      const promises = seedNodes
+        .filter((hostName) => inventory.meta.hostvars[hostName])
+        .map(async (hostName) => {
+          try {
+            const host = inventory.meta.hostvars[hostName].public_ip;
+            const port = 26660;
+            const url = `http://${host}:${port}/metrics`;
+
+            tenderdashMetrics[hostName] = await fetchPrometheusMetrics(url);
+          } catch (e) {
+            errors[hostName] = e;
+          }
+        });
+
+      return Promise.all(promises);
+    });
+
+    for (const hostName of seedNodes) {
+      // eslint-disable-next-line no-loop-func
+      describe(hostName, () => {
+        it('should be connected to the network', () => {
+          if (errors[hostName]) {
+            expect.fail(errors[hostName]);
+          }
+
+          if (!tenderdashMetrics[hostName]) {
+            expect.fail('can\'t get tenderdash metrics');
+          }
+
+          const p2pMetrics = tenderdashMetrics.find((m) => m.name === 'tendermint_p2p_peers_stored');
+          const chainId = p2pMetrics?.metrics[0]?.labels?.chain_id;
+
+          if (!chainId) {
+            expect.fail('can\'t get chain id from p2p metric');
+          }
+
+          let networkName = `dash-${network.name}`;
+          if (variables.tenderdash_chain_id !== undefined) {
+            networkName = `dash-${variables.tenderdash_chain_id}`;
+          }
+
+          expect(chainId).to.be.equal(networkName);
+        });
+
+        it('should be connected to peers', () => {
+          if (errors[hostName]) {
+            expect.fail(errors[hostName]);
+          }
+
+          if (!tenderdashMetrics[hostName]) {
+            expect.fail('can\'t get tenderdash metrics');
+          }
+
+          const p2pMetrics = tenderdashMetrics.find((m) => m.name === 'tendermint_p2p_peers_stored');
+          const value = p2pMetrics?.metrics[0]?.value;
+
+          if (!value) {
+            expect.fail('can\'t get number of peers from p2p metric');
+          }
+
+          expect(value).to.be.greaterThan(0);
         });
       });
     }

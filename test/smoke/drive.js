@@ -16,47 +16,46 @@ describe('Drive', () => {
         this.skip('platform is disabled for this network');
       }
 
-      const statusPromises = dashmateHosts.map(async (hostName) => {
-        const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`, {
-          timeout: this.timeout() - 5000,
+      this.timeout(40000); // set mocha timeout
+
+      const statusPromises = dashmateHosts
+        .filter((hostName) => inventory.meta.hostvars[hostName])
+        .map(async (hostName) => {
+          try {
+            const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`, {
+              timeout: this.timeout() - 5000,
+            });
+
+            const containerId = await getContainerId(docker, 'dashmate_helper');
+
+            const { result, error } = await execJSONDockerCommand(
+              docker,
+              containerId,
+              [
+                'curl',
+                '--silent',
+                '-X',
+                'POST',
+                '-H',
+                'Content-Type: application/json',
+                '-d',
+                '{"jsonrpc":"2.0","id":"id","method":"status platform","params":{"format":"json"}}',
+                'localhost:9000',
+              ],
+            );
+
+            if (error) {
+              // noinspection ExceptionCaughtLocallyJS
+              throw new Error(error.message);
+            }
+
+            statusInfo[hostName] = JSON.parse(result);
+          } catch (e) {
+            statusError[hostName] = e;
+          }
         });
 
-        let containerId;
-        try {
-          containerId = await getContainerId(docker, 'dashmate_helper');
-        } catch (e) {
-          statusError[hostName] = e;
-        }
-
-        try {
-          const { result, error } = await execJSONDockerCommand(
-            docker,
-            containerId,
-            [
-              'curl',
-              '--silent',
-              '-X',
-              'POST',
-              '-H',
-              'Content-Type: application/json',
-              '-d',
-              '{"jsonrpc":"2.0","id":"id","method":"status platform","params":{"format":"json"}}',
-              'localhost:9000',
-            ],
-          );
-
-          if (error) {
-            // noinspection ExceptionCaughtLocallyJS
-            throw new Error(error.message);
-          }
-
-          statusInfo[hostName] = JSON.parse(result);
-        } catch (e) {
-          statusError[hostName] = e;
-        }
-      });
-
-      return Promise.all(statusPromises).catch(() => Promise.resolve());
+      return Promise.all(statusPromises);
     });
 
     for (const hostName of dashmateHosts) {

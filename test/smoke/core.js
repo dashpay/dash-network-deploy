@@ -4,8 +4,6 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const { inventory, network, variables } = getNetworkConfig();
 const { createDocker, execJSONDockerCommand, getContainerId } = require('../../lib/test/docker');
 
-const timeout = 15000; // set individual rpc client timeout
-
 const allMasternodes = [
   ...(inventory.masternodes?.hosts ?? []),
   ...(inventory.hp_masternodes?.hosts ?? []),
@@ -73,15 +71,13 @@ describe('Core', () => {
           }
         });
 
-      await Promise.all(promises);
-
-      promises = ansibleHosts
+      promises = promises.concat(ansibleHosts
         .filter((hostName) => inventory.meta.hostvars[hostName])
         .map(async (hostName) => {
           try {
             const client = createRpcClientFromConfig(hostName);
 
-            client.setTimeout(timeout);
+            client.setTimeout(this.timeout() - 5000);
 
             const blockchainInfoResult = await client.getBlockchainInfo();
 
@@ -97,10 +93,10 @@ describe('Core', () => {
           } catch (e) {
             errors[hostName] = e;
           }
-        });
+        }));
 
       // Collect data for dashd role based hosts
-      await Promise.all(promises);
+      await Promise.all(promises).catch(() => Promise.resolve());
     });
 
     for (const hostName of allHosts) {
@@ -155,14 +151,14 @@ describe('Core', () => {
     const errors = {};
 
     before('Collect masternode list info', async function func() {
-      this.timeout(30000); // set mocha timeout
+      this.timeout(80000); // set mocha timeout
 
       const promises = dashmateHosts
         .filter((hostName) => inventory.meta.hostvars[hostName])
         .map(async (hostName) => {
           try {
             const docker = createDocker(`http://${inventory.meta.hostvars[hostName].public_ip}`, {
-              timeout: this.timeout() - 1000,
+              timeout: this.timeout() - 10000,
             });
 
             const containerId = await getContainerId(docker, 'core');
@@ -173,9 +169,6 @@ describe('Core', () => {
           }
         });
 
-      // Collect info from dashmate-based hosts
-      await Promise.all(promises);
-
       // Collect info from dashd role based hosts
       for (const hostName of ansibleHosts) {
         if (!inventory.meta.hostvars[hostName]) {
@@ -185,7 +178,7 @@ describe('Core', () => {
 
         const client = createRpcClientFromConfig(hostName);
 
-        client.setTimeout(timeout);
+        client.setTimeout(15000);
 
         const requestMasternodeListInfoPromise = client.masternodelist()
           .then(({ result }) => {
@@ -197,7 +190,7 @@ describe('Core', () => {
         promises.push(requestMasternodeListInfoPromise);
       }
 
-      await Promise.all(promises);
+      await Promise.all(promises).catch(() => Promise.resolve());
     });
 
     for (const hostName of allMasternodes) {
