@@ -169,7 +169,7 @@ describe('Tenderdash', () => {
             expect.fail('can\'t get tenderdash metrics');
           }
 
-          const p2pMetrics = tenderdashMetrics.find((m) => m.name === 'drive_tendermint_p2p_peers_connected');
+          const p2pMetrics = tenderdashMetrics.find((m) => m.name === 'drive_tenderdash_p2p_peers_connected');
           const chainId = p2pMetrics?.metrics[0]?.labels?.chain_id;
 
           if (!chainId) {
@@ -193,7 +193,7 @@ describe('Tenderdash', () => {
             expect.fail('can\'t get tenderdash metrics');
           }
 
-          const p2pMetrics = tenderdashMetrics.find((m) => m.name === 'drive_tendermint_p2p_peers_connected');
+          const p2pMetrics = tenderdashMetrics.find((m) => m.name === 'drive_tenderdash_p2p_peers_connected');
           const value = p2pMetrics?.metrics[0]?.value;
 
           if (!value) {
