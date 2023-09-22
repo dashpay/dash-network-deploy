@@ -145,7 +145,7 @@ describe('Tenderdash', () => {
         .map(async (hostName) => {
           try {
             const host = inventory.meta.hostvars[hostName].public_ip;
-            const port = 26660;
+            const port = 36660;
             const url = `http://${host}:${port}/metrics`;
 
             tenderdashMetrics[hostName] = await fetchPrometheusMetrics(url);
