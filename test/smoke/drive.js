@@ -4,7 +4,7 @@ const { inventory, variables } = getNetworkConfig();
 
 const { createDocker, execJSONDockerCommand, getContainerId } = require('../../lib/test/docker');
 
-const dashmateHosts = inventory.hp_masternodes.hosts.concat(inventory.seed_nodes.hosts);
+const evoNodes = inventory?.hp_masternodes?.hosts || [];
 
 describe('Drive', () => {
   describe('HP masternodes', () => {
@@ -18,7 +18,7 @@ describe('Drive', () => {
 
       this.timeout(40000); // set mocha timeout
 
-      const statusPromises = dashmateHosts
+      const statusPromises = evoNodes
         .filter((hostName) => inventory.meta.hostvars[hostName])
         .map(async (hostName) => {
           try {
@@ -58,7 +58,7 @@ describe('Drive', () => {
       return Promise.all(statusPromises);
     });
 
-    for (const hostName of dashmateHosts) {
+    for (const hostName of evoNodes) {
       describe(hostName, () => {
         it('drive status should be running and responding', () => {
           if (statusError[hostName]) {

@@ -320,6 +320,19 @@ resource "aws_security_group" "hp_masternode" {
     ])
   }
 
+  # Tendermint Metrics
+  ingress {
+    from_port   = 36660
+    to_port     = 36660
+    protocol    = "tcp"
+    description = "Tendermint RPC"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
+  }
+
   # ZeroSSL IP verification
   ingress {
     from_port   = 80
@@ -462,12 +475,17 @@ resource "aws_security_group" "seed" {
   description = "DAPI access"
   vpc_id      = aws_vpc.default.id
 
+  # Tendermint Metrics
   ingress {
-    description = "DAPI from internet"
-    from_port   = var.dapi_port
-    to_port     = var.dapi_port
+    from_port   = 36660
+    to_port     = 36660
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description = "Tendermint RPC"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
   }
 
   tags = {
