@@ -4,13 +4,10 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
-const dashmateHosts = [
-  ...(inventory.seed_nodes?.hosts ?? []),
-  ...(inventory.hp_masternodes?.hosts ?? []),
-];
+const evoMasternodes = inventory.hp_masternodes?.hosts ?? [];
 
 describe('DAPI', () => {
-  describe('All nodes', () => {
+  describe('Evo masternodes', () => {
     // Set up vars and functions to hold DAPI responses
     const bestBlockHash = {};
     const bestBlockHashError = {};
@@ -27,7 +24,7 @@ describe('DAPI', () => {
       }
 
       const promises = [];
-      for (const hostName of dashmateHosts) {
+      for (const hostName of evoMasternodes) {
         if (!inventory.meta.hostvars[hostName]) {
           // eslint-disable-next-line no-continue
           continue;
@@ -78,10 +75,10 @@ describe('DAPI', () => {
         promises.push(requestBestBlockHash, requestStatus, requestDataContract);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises);
     });
 
-    for (const hostName of dashmateHosts) {
+    for (const hostName of evoMasternodes) {
       describe(hostName, () => {
         it('should return data from Core', async () => {
           if (bestBlockHashError[hostName]) {
