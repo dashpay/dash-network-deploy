@@ -21,16 +21,10 @@
       name: abci
   register: drive_host_info
 
-- name: Set core container id
+- name: Set container ids
   ansible.builtin.set_fact:
     core_container_id: '{{ core_host_info.containers[0].Id if (core_host_info.containers | length > 0) else "null" }}'
-
-- name: Set tenderdash container id
-  ansible.builtin.set_fact:
     tenderdash_container_id: '{{ tenderdash_host_info.containers[0].Id if (tenderdash_host_info.containers | length > 0) else "null" }}'
-
-- name: Set drive container id
-  ansible.builtin.set_fact:
     drive_container_id: '{{ drive_host_info.containers[0].Id if (drive_host_info.containers | length > 0) else "null" }}'
 
 - name: Load common filebeat config
