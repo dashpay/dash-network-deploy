@@ -41,6 +41,7 @@
     core_container_id: '{{ core_host_info.containers[0].Id if (core_host_info.containers | length > 0) else "null" }}'
     drive_container_id: '{{ drive_host_info.containers[0].Id if (drive_host_info.containers | length > 0) else "null" }}'
     tenderdash_container_id: '{{ tenderdash_host_info.containers[0].Id if (tenderdash_host_info.containers | length > 0) else "null" }}'
+  when: filebeat_platform_inputs is defined
 
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:
