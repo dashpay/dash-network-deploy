@@ -2,7 +2,7 @@
 
 filebeat_inputs:
   - type: container
-    enabled: true
+    enabled: "{{ core_host_info.containers | length > 0 }}"
     index: "logs-core-{{ dash_network_name }}-%{[agent.version]}"
     paths:
       - '/var/lib/docker/containers/{{ core_container_id }}/*.log'
