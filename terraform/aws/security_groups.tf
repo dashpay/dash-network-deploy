@@ -320,19 +320,6 @@ resource "aws_security_group" "hp_masternode" {
     ])
   }
 
-  # Tendermint Metrics
-  ingress {
-    from_port   = 36660
-    to_port     = 36660
-    protocol    = "tcp"
-    description = "Tendermint RPC"
-
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn[0].public_ip}/32",
-    ])
-  }
-
   # ZeroSSL IP verification
   ingress {
     from_port   = 80
@@ -472,23 +459,23 @@ resource "aws_security_group" "vpn" {
 
 resource "aws_security_group" "seed" {
   name        = "${terraform.workspace}-seed"
-  description = "DAPI access"
+  description = "seed node"
   vpc_id      = aws_vpc.default.id
 
-  # Tendermint Metrics
+  # Tendermint P2P
   ingress {
-    from_port   = 36660
-    to_port     = 36660
+    from_port   = var.tendermint_p2p_port
+    to_port     = var.tendermint_p2p_port
     protocol    = "tcp"
-    description = "Tendermint RPC"
+    description = "Tendermint P2P"
 
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn[0].public_ip}/32",
-    ])
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
   }
 
   tags = {
-    Name = "seed-1"
+    Name        = "dn-${terraform.workspace}-seed"
+    DashNetwork = terraform.workspace
   }
 }
