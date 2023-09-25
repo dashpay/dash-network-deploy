@@ -42,6 +42,7 @@
   loop:
     - config.toml
     - genesis.json
+    - node_key.json
 
 - name: Start tenderdash
   community.docker.docker_compose:
