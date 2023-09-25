@@ -37,12 +37,12 @@ core_llmq_types:
     101: llmq_devnet
     102: llmq_test_v17
 
-# Tendermint
+# Tenderdash
 tendermint_image: dashpay/tenderdash
 tendermint_p2p_port: 36656
 tendermint_rpc_port: 36657
-tendermint_uid: "100"
-tendermint_gid: "1000"
+tenderdash_uid: "100"
+tenderdash_gid: "1000"
 # tenderdash_chain_id:
 tenderdash_max_validators_count: 50
 tenderdash_log_level: debug

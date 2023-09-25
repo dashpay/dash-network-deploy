@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  tenderdash:
+    image: {{ tendermint_image }}
+    container_name: tenderdash
+    entrypoint: sh -c "/usr/bin/tenderdash node"
+    restart: always
+    ports:
+      - {{ tendermint_p2p_port }}:{{ tendermint_p2p_port }}
+    volumes:
+      - {{ tenderdash_compose_path }}/tenderdash:/tenderdash

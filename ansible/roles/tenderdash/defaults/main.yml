@@ -1,0 +1,4 @@
+---
+
+tenderdash_compose_project_name: tenderdash
+tenderdash_compose_path: '{{ dashd_home }}/{{ tenderdash_compose_project_name }}'
