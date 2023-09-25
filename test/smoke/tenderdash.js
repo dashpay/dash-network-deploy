@@ -1,3 +1,4 @@
+const parsePrometheusTextFormat = require('parse-prometheus-text-format');
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 const {
   createDocker,
@@ -5,7 +6,6 @@ const {
   execDockerCommand,
   getContainerId,
 } = require('../../lib/test/docker');
-const fetchPrometheusMetrics = require('../../lib/test/fetchPrometheusMetrics');
 
 const { variables, inventory, network } = getNetworkConfig();
 
@@ -144,11 +144,23 @@ describe('Tenderdash', () => {
         .filter((hostName) => inventory.meta.hostvars[hostName])
         .map(async (hostName) => {
           try {
-            const host = inventory.meta.hostvars[hostName].public_ip;
-            const port = 36660;
-            const url = `http://${host}:${port}/metrics`;
+            const docker = createDocker(inventory.meta.hostvars[hostName].public_ip, {
+              timeout: this.timeout() - 5000,
+            });
 
-            tenderdashMetrics[hostName] = await fetchPrometheusMetrics(url);
+            const containerId = await getContainerId(docker, 'tenderdash');
+
+            const result = await execDockerCommand(
+              docker,
+              containerId,
+              [
+                'curl',
+                '--silent',
+                'localhost:36660/metrics',
+              ],
+            );
+
+            tenderdashMetrics[hostName] = parsePrometheusTextFormat(result);
           } catch (e) {
             errors[hostName] = e;
           }
@@ -169,7 +181,7 @@ describe('Tenderdash', () => {
             expect.fail('can\'t get tenderdash metrics');
           }
 
-          const p2pMetrics = tenderdashMetrics.find((m) => m.name === 'drive_tenderdash_p2p_peers_connected');
+          const p2pMetrics = tenderdashMetrics[hostName].find((m) => m.name === 'drive_tenderdash_p2p_peers_connected');
           const chainId = p2pMetrics?.metrics[0]?.labels?.chain_id;
 
           if (!chainId) {
@@ -193,8 +205,8 @@ describe('Tenderdash', () => {
             expect.fail('can\'t get tenderdash metrics');
           }
 
-          const p2pMetrics = tenderdashMetrics.find((m) => m.name === 'drive_tenderdash_p2p_peers_connected');
-          const value = p2pMetrics?.metrics[0]?.value;
+          const p2pMetrics = tenderdashMetrics[hostName].find((m) => m.name === 'drive_tenderdash_p2p_peers_connected');
+          const value = parseInt(p2pMetrics?.metrics[0]?.value, 10);
 
           if (!value) {
             expect.fail('can\'t get number of peers from p2p metric');
