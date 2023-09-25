@@ -52,7 +52,7 @@ describe('DAPI', () => {
         promises.push(requestBlockByHeight);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises);
     });
 
     before('Collect block hash and contract info', async () => {
