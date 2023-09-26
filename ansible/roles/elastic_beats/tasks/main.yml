@@ -1,25 +1,31 @@
 ---
 
-- name: Get core container id
+- name: Get core container host info
   community.docker.docker_host_info:
     containers: true
     containers_filters:
       name: '{{ core_container_name }}'
   register: core_host_info
 
-- name: Get tenderdash container id
+- name: Get tenderdash container host info
   community.docker.docker_host_info:
     containers: true
     containers_filters:
       name: tender
   register: tenderdash_host_info
 
-- name: Get drive container id
+- name: Get drive container host info
   community.docker.docker_host_info:
     containers: true
     containers_filters:
       name: abci
   register: drive_host_info
+
+- name: Set container ids
+  ansible.builtin.set_fact:
+    core_container_id: '{{ core_host_info.containers[0].Id if (core_host_info.containers | length > 0) else "null" }}'
+    tenderdash_container_id: '{{ tenderdash_host_info.containers[0].Id if (tenderdash_host_info.containers | length > 0) else "null" }}'
+    drive_container_id: '{{ drive_host_info.containers[0].Id if (drive_host_info.containers | length > 0) else "null" }}'
 
 - name: Load common filebeat config
   ansible.builtin.include_vars:
@@ -37,7 +43,7 @@
 - name: Merge input configs
   ansible.builtin.set_fact:
     filebeat_inputs: "{{ [filebeat_inputs, filebeat_platform_inputs] | community.general.lists_mergeby('index') }}"
-  when: tenderdash_host_info.containers | length > 0
+  when: filebeat_platform_inputs is defined
 
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:

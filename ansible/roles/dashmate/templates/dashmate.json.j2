@@ -150,7 +150,7 @@
             }
           },
           "tenderdash": {
-            "mode": {% if mode is defined and mode == 'seed' %}"seed"{% else %}"validator"{% endif %},
+            "mode": "validator",
             "docker": {
               "image": "{{ tendermint_image }}"
             },

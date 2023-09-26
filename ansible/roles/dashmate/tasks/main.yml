@@ -135,7 +135,7 @@
 
 - name: Write dashmate config file
   vars:
-    template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
+    template_bootstrap_peers: "{{ groups.seed_nodes }}"
   ansible.builtin.template:
     src: dashmate.json.j2
     dest: '{{ dashmate_config_dir }}/config.json'

@@ -85,7 +85,7 @@ resource "aws_instance" "seed_node" {
   count = var.seed_count
 
   ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
-  instance_type        = var.main_host_arch == "arm64" ? "t4g.medium" : "t3.medium"
+  instance_type        = var.main_host_arch == "arm64" ? "t4g.small" : "t3.small"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
