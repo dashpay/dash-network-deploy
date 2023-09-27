@@ -18,6 +18,9 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v3
 
+      - name: Run ESLint
+        run: npm run lint
+
       - name: Install requirements
         run: ansible-galaxy install -r ansible/requirements.yml
 
