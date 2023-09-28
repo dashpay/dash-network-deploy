@@ -1,10 +1,5 @@
 ---
 
-- name: Install jq
-  ansible.builtin.package:
-    name: jq
-    state: present
-
 - name: Copy report generation script
   ansible.builtin.copy:
     src: templates/mn-status-report.sh

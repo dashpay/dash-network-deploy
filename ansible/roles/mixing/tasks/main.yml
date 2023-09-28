@@ -2,13 +2,6 @@
 
 # Mixing
 
-- name: Ensure jq is installed
-  ansible.builtin.apt:
-    name: jq
-    state: present
-    update_cache: true
-  become: true
-
 - name: Create CoinJoin wallets
   ansible.builtin.command:
     cmd: dash-cli createwallet {{ coinjoin_wallet_name }} false false "" false true
