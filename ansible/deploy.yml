@@ -35,12 +35,14 @@
       when: openvpn_enabled
       tags: vpn
 
-- name: Setup Python and Docker
+- name: Setup jq, Python and Docker
   hosts: all
   become: true
   pre_tasks:
-    - name: Update apt cache
+    - name: Update apt cache and install jq
       ansible.builtin.apt:
+        name: jq
+        state: present
         update_cache: true
   vars:
     pip_package: python3-pip
