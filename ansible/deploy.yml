@@ -61,14 +61,7 @@
           - ubuntu
     - docker_options
     - eternal_terminal
-
-- name: Install AWS monitoring scripts
-  hosts: all
-  become: true
-  roles:
-    - role: Restless-ET.aws-scripts-mon
-      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
-      aws_scripts_mon_use_iam: true
+    - christiangda.amazon_cloudwatch_agent
 
 - name: Configure tcpdump
   hosts: all

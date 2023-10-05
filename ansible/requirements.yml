@@ -23,6 +23,9 @@ roles:
   - src: arillso.logrotate
     version: 1.6.1
 
+  - src: christiangda.amazon_cloudwatch_agent
+    version: 2.1.2
+
   - src: geerlingguy.docker
     version: 6.1.0
 
@@ -37,6 +40,3 @@ roles:
 
   - src: kyl191.openvpn
     version: v0.9.1
-
-  - src: Restless-ET.aws-scripts-mon
-    version: 1.0.1
