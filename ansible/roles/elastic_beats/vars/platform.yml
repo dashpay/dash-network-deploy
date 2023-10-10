@@ -21,12 +21,10 @@ filebeat_platform_inputs:
           fields:
             - from: "json.fields.message"
               to: "message"
-          ignore_missing: true
-          fail_on_error: true
-      - rename:
-          fields:
             - from: "json.level"
               to: "log.level"
+          ignore_missing: true
+          fail_on_error: true
   - type: container
     enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
     json.message_key: message
@@ -47,4 +45,4 @@ filebeat_platform_inputs:
       - rename:
           fields:
             - from: "json.level"
-            - to: "log.level"
+              to: "log.level"
