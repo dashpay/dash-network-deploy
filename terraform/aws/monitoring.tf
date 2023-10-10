@@ -6,7 +6,11 @@ locals {
     aws_instance.miner.*.id,
     aws_instance.masternode_amd.*.id,
     aws_instance.masternode_arm.*.id,
+    aws_instance.hp_masternode_amd.*.id,
+    aws_instance.hp_masternode_arm.*.id,
     aws_instance.vpn.*.id,
+    aws_instance.mixer.*.id,
+    aws_instance.logs.*.id,
   )
   instance_hostnames = concat(
     aws_instance.web.*.tags.Hostname,
@@ -15,7 +19,11 @@ locals {
     aws_instance.miner.*.tags.Hostname,
     aws_instance.masternode_amd.*.tags.Hostname,
     aws_instance.masternode_arm.*.tags.Hostname,
+    aws_instance.hp_masternode_amd.*.tags.Hostname,
+    aws_instance.hp_masternode_arm.*.tags.Hostname,
     aws_instance.vpn.*.tags.Hostname,
+    aws_instance.mixer.*.tags.Hostname,
+    aws_instance.logs.*.tags.Hostname,
   )
 }
 
