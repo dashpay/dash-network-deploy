@@ -147,7 +147,8 @@
             },
             "validatorSet": {
               "llmqType": {{ platform_drive_validator_set_llmq_type }}
-            }
+            },
+            "epochTime": {{ platform_drive_abci_epoch_time }}
           },
           "tenderdash": {
             "mode": "validator",
@@ -184,7 +185,8 @@
             },
             "log": {
               "level": "{{ tenderdash_log_level }}",
-              "format": "json"
+              "format": "json",
+              "path": "{{ dashmate_logs_dir }}/tenderdash.log"
             },
             "moniker": "{{ inventory_hostname }}",
             "node": {
