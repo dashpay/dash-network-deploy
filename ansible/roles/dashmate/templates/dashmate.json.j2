@@ -185,7 +185,8 @@
             },
             "log": {
               "level": "{{ tenderdash_log_level }}",
-              "format": "json"
+              "format": "json",
+              "path": "{{ dashmate_logs_dir }}/tenderdash.log"
             },
             "moniker": "{{ inventory_hostname }}",
             "node": {
