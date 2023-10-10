@@ -151,7 +151,7 @@ variable "main_domain" {
   default     = ""
 }
 
-variable "montitoring_sns_arn" {
+variable "monitoring_sns_arn" {
   description = "ARN of SNS topic that will receive notifications from monitoring"
   default     = ""
 }
