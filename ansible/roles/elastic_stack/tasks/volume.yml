@@ -8,9 +8,20 @@
     state: directory
     mode: "0755"
 
+- name: Ensure nvme-cli is installed
+  ansible.builtin.apt:
+    name: nvme-cli
+    state: present
+    update_cache: true
+  become: true
+
+- name: Get current block height
+  ansible.builtin.shell: sudo nvme list | grep 'Amazon EC2 NVMe Instance Storage' | awk '{ print $1 }'
+  register: elastic_data_block_device
+
 - name: Create partition
   community.general.parted:
-    device: '{{ elastic_data_block_device }}'
+    device: '{{ elastic_data_block_device.stdout }}'
     number: 1
     label: gpt
     name: data
@@ -18,13 +29,13 @@
 
 - name: Format partition
   community.general.filesystem:
-    dev: '{{ elastic_data_block_device }}p1'
+    dev: '{{ elastic_data_block_device.stdout }}p1'
     fstype: ext4
 
 - name: Mount partition
   ansible.posix.mount:
     path: '{{ data_path }}'
-    src: '{{ elastic_data_block_device }}p1'
+    src: '{{ elastic_data_block_device.stdout }}p1'
     fstype: ext4
     state: mounted
 
