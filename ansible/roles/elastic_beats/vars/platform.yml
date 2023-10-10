@@ -1,13 +1,18 @@
 ---
 
 filebeat_platform_inputs:
-  - type: container
+  - type: log
     enabled: "{{ drive_host_info.containers | length > 0 }}"
     json.message_key: message
+    exclude_files: ['\.gz$']
     index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - '/var/lib/docker/containers/{{ drive_container_id }}/*.log'
+      - "{{ abci_logs_path }}/drive-json*.log*"
     processors:
+      - timestamp:
+          field: json.timestamp
+          layouts:
+            - UNIX_MS
       - add_fields:
           target: event
           fields:
@@ -16,12 +21,10 @@ filebeat_platform_inputs:
           fields:
             - from: "json.fields.message"
               to: "message"
+            - from: "json.level"
+              to: "log.level"
           ignore_missing: true
           fail_on_error: true
-      - rename:
-          fields:
-            - from: "json.level"
-            - to: "log.level"
   - type: container
     enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
     json.message_key: message
@@ -42,4 +45,4 @@ filebeat_platform_inputs:
       - rename:
           fields:
             - from: "json.level"
-            - to: "log.level"
+              to: "log.level"

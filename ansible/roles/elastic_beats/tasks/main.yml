@@ -14,18 +14,10 @@
       name: tender
   register: tenderdash_host_info
 
-- name: Get drive container host info
-  community.docker.docker_host_info:
-    containers: true
-    containers_filters:
-      name: abci
-  register: drive_host_info
-
 - name: Set container ids
   ansible.builtin.set_fact:
     core_container_id: '{{ core_host_info.containers[0].Id if (core_host_info.containers | length > 0) else "null" }}'
     tenderdash_container_id: '{{ tenderdash_host_info.containers[0].Id if (tenderdash_host_info.containers | length > 0) else "null" }}'
-    drive_container_id: '{{ drive_host_info.containers[0].Id if (drive_host_info.containers | length > 0) else "null" }}'
 
 - name: Load common filebeat config
   ansible.builtin.include_vars:
@@ -38,6 +30,7 @@
 - name: Load platform input config
   ansible.builtin.include_vars:
     file: platform.yml
+  # We make sure that we running it on a node with platform started
   when: tenderdash_host_info.containers | length > 0
 
 - name: Merge input configs
