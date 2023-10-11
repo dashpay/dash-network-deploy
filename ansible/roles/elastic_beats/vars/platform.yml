@@ -2,7 +2,7 @@
 
 filebeat_platform_inputs:
   - type: log
-    enabled: "{{ drive_host_info.containers | length > 0 }}"
+    enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
     json.message_key: message
     exclude_files: ['\.gz$']
     index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
