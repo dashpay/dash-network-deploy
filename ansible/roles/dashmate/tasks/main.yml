@@ -256,7 +256,7 @@
   when:
     - not dashmate_start_all.changed
     - is_dashmate_package_changed or is_dashmate_config_changed
-  changed_when: dashmate_restart.rc == 0
+  changed_when: dashmate_restart_all.rc == 0
 
 # Force start logic
 # Force start is equivalent to `docker compose up` and will replace services that have changed
