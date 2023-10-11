@@ -32,7 +32,6 @@ filebeat_platform_inputs:
     index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
     paths:
       - "{{ abci_logs_path }}/tenderdash.log*"
-      - '/var/lib/docker/containers/{{ tenderdash_container_id }}/*.log'
     processors:
       - add_fields:
           target: event
