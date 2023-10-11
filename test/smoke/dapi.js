@@ -115,17 +115,8 @@ describe('DAPI', () => {
             expect.fail(null, null, 'no dapi error info');
           }
 
-          expect(dataContractError[hostName].message)
-            .to.equal('Invalid response: DataContract is not defined');
-
-          // TODO: Revert to error code when it's fixed
-
-          // if (!dataContractError[hostName]) {
-          //   expect.fail(null, null, 'no dapi error info');
-          // }
-          //
-          // expect(dataContract[hostName]).to.be.undefined();
-          // expect(dataContractError[hostName].code).to.be.equal(5);
+          expect(dataContract[hostName]).to.be.undefined();
+          expect(dataContractError[hostName].code).to.be.equal(5);
         });
       });
     }
