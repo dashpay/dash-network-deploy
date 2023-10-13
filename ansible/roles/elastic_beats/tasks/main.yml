@@ -14,7 +14,14 @@
       name: tender
   register: tenderdash_host_info
 
-- name: Set container ids
+- name: Get drive container host info
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: abci
+  register: drive_host_info
+
+- name: Set container ids for core and tenderdash
   ansible.builtin.set_fact:
     core_container_id: '{{ core_host_info.containers[0].Id if (core_host_info.containers | length > 0) else "null" }}'
     tenderdash_container_id: '{{ tenderdash_host_info.containers[0].Id if (tenderdash_host_info.containers | length > 0) else "null" }}'
@@ -27,16 +34,25 @@
   ansible.builtin.include_vars:
     file: core.yml
 
-- name: Load platform input config
+- name: Load tenderdash input config
   ansible.builtin.include_vars:
-    file: platform.yml
-  # We make sure that we running it on a node with platform started
+    file: tenderdash.yml
   when: tenderdash_host_info.containers | length > 0
 
-- name: Merge input configs
+- name: Load drive input config
+  ansible.builtin.include_vars:
+    file: drive.yml
+  when: drive_host_info.containers | length > 0
+
+- name: Merge drive and tenderdash input configs
   ansible.builtin.set_fact:
-    filebeat_inputs: "{{ [filebeat_inputs, filebeat_platform_inputs] | community.general.lists_mergeby('index') }}"
-  when: filebeat_platform_inputs is defined
+    platform_filebeat_inputs: "{{ [platform_filebeat_inputs, drive_filebeat_inputs] | community.general.lists_mergeby('index') }}"
+  when: platform_filebeat_inputs is defined and drive_filebeat_inputs is defined
+
+- name: Merge platform and core input configs
+  ansible.builtin.set_fact:
+    filebeat_inputs: "{{ [filebeat_inputs, platform_filebeat_inputs] | community.general.lists_mergeby('index') }}"
+  when: platform_filebeat_inputs is defined
 
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:
