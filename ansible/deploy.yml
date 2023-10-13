@@ -35,7 +35,7 @@
       when: openvpn_enabled
       tags: vpn
 
-- name: Setup jq, Python and Docker
+- name: Setup jq, Python, CWAgent and Docker
   hosts: all
   become: true
   pre_tasks:
@@ -61,7 +61,8 @@
           - ubuntu
     - docker_options
     - eternal_terminal
-    - christiangda.amazon_cloudwatch_agent
+    - cwagent
+
 
 - name: Configure tcpdump
   hosts: all
