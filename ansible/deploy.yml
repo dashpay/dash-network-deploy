@@ -35,7 +35,7 @@
       when: openvpn_enabled
       tags: vpn
 
-- name: Setup jq, Python, cwagent and Docker
+- name: Setup jq, Python, CWAgent and Docker
   hosts: all
   become: true
   pre_tasks:
