@@ -25,13 +25,12 @@ filebeat_platform_inputs:
               to: "log.level"
           ignore_missing: true
           fail_on_error: true
-  - type: log
+  - type: container
     enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
     json.message_key: message
-    exclude_files: ['\.gz$']
     index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - "{{ abci_logs_path }}/tenderdash.log*"
+      - '/var/lib/docker/containers/{{ tenderdash_container_id }}/*.log'
     processors:
       - add_fields:
           target: event
