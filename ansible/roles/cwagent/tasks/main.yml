@@ -1,5 +1,6 @@
 ---
-- name: Set up cloudwatch
+
+- name: Set up CloudWatch
   ansible.builtin.include_role:
     name: christiangda.amazon_cloudwatch_agent
   vars:
