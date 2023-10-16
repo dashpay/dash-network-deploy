@@ -48,7 +48,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
     InstanceId = local.instance_ids[count.index]
   }
 
-  alarm_description = "This metric monitors ec2 cpu utilization"
+  alarm_description = "This alarm monitors ec2 cpu utilization"
 }
 
 resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
@@ -72,7 +72,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
     InstanceId = local.instance_ids[count.index]
   }
 
-  alarm_description = "This metric monitors ec2 memory utilization"
+  alarm_description = "This alarm monitors ec2 memory utilization"
 }
 
 resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
@@ -96,7 +96,7 @@ resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
     InstanceId = local.instance_ids[count.index]
   }
 
-  alarm_description = "This metric monitors ec2 swap utilization"
+  alarm_description = "This alarm monitors ec2 swap utilization"
 }
 
 resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
@@ -122,5 +122,5 @@ resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
     Filesystem = "/dev/nvme0n1p1"
   }
 
-  alarm_description = "This metric monitors ec2 disk utilization"
+  alarm_description = "This alarm monitors ec2 disk utilization"
 }
