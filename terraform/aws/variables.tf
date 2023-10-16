@@ -161,8 +161,23 @@ variable "public_network_name" {
   default     = ""
 }
 
-variable "monitoring_enabled" {
-  description = "enable monitoring with CloudWatch"
+variable "monitoring_cpu_enabled" {
+  description = "enable CPU utilization alarm with CloudWatch"
+  default     = false
+}
+
+variable "monitoring_mem_enabled" {
+  description = "enable memory used alarm with CloudWatch"
+  default     = false
+}
+
+variable "monitoring_swap_enabled" {
+  description = "enable swap used alarm with CloudWatch"
+  default     = false
+}
+
+variable "monitoring_disk_enabled" {
+  description = "enable disk used alarm with CloudWatch"
   default     = false
 }
 
