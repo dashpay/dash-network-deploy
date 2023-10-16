@@ -181,11 +181,6 @@ variable "monitoring_disk_enabled" {
   default     = false
 }
 
-variable "monitoring_enabled" {
-  description = "enable monitoring with CloudWatch"
-  default     = false
-}
-
 variable "core_node_disk_size" {
   description = "Default disk size for nodes, increase for testnet"
   default     = 20
