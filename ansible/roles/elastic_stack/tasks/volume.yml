@@ -15,10 +15,12 @@
     update_cache: true
   become: true
 
-- name: Get current block height
+- name: Get instance store volume label
   ansible.builtin.shell: set -o pipefail && sudo nvme list | grep 'Amazon EC2 NVMe Instance Storage' | awk '{ print $1 }'
   register: elastic_data_block_device
   changed_when: true
+  args:
+    executable: /bin/bash
 
 - name: Create partition
   community.general.parted:
