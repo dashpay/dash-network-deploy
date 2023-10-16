@@ -427,7 +427,7 @@ resource "aws_instance" "logs" {
   count = var.logs_count
 
   ami                  = data.aws_ami.ubuntu_arm.id
-  instance_type        = join(".", ["x2gd", var.logs_node_instance_size])
+  instance_type        = join(".", ["i4g", var.logs_node_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
