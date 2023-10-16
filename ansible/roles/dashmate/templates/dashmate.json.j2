@@ -132,18 +132,31 @@
                 "target": ""
               }
             },
-            "log": {
+            "logs": {
               "stdout": {
-                "level": "{{ drive_log_stdout_level }}"
+                "destination": "stdout",
+                "format": "pretty",
+                "level": "{{ drive_log_stdout_level }}",
+                "color": true
               },
               "prettyFile": {
+                "destination": "{{ dashmate_logs_dir }}/drive-pretty.log",
                 "level": "{{ drive_log_pretty_file_level }}",
-                "path": "{{ dashmate_logs_dir }}/drive-pretty.log"
+                "format": "pretty",
+                "color": false
               },
               "jsonFile": {
+                "destination": "{{ dashmate_logs_dir }}/drive-json.log",
                 "level": "{{ drive_log_json_file_level }}",
-                "path": "{{ dashmate_logs_dir }}/drive-json.log"
-              }
+                "format": "json",
+                "color": null
+              },
+              "groveDbOperationsFile": {
+                "destination": "{{ dashmate_logs_dir }}/drive-grovedb-operations.log",
+                "level": "debug,tenderdash_abci=trace,drive_abci=trace,drive=trace,dpp=trace",
+                "format": "json",
+                "color": null
+              },
             },
             "validatorSet": {
               "llmqType": {{ platform_drive_validator_set_llmq_type }}
