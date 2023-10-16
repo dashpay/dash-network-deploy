@@ -1,6 +1,6 @@
 ---
 
-filebeat_platform_inputs:
+drive_filebeat_inputs:
   - type: log
     enabled: "{{ drive_host_info.containers | length > 0 }}"
     json.message_key: message
@@ -25,25 +25,3 @@ filebeat_platform_inputs:
               to: "log.level"
           ignore_missing: true
           fail_on_error: true
-  - type: log
-    enabled: "{{ tenderdash_host_info.containers | length > 0 }}"
-    json.message_key: message
-    exclude_files: ['\.gz$']
-    index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
-    paths:
-      - "{{ abci_logs_path }}/tenderdash.log*"
-    processors:
-      - add_fields:
-          target: event
-          fields:
-            dataset: "drive.tenderdash-{{ dash_network_name }}"
-      - rename:
-          fields:
-            - from: "json.message"
-              to: "message"
-          ignore_missing: true
-          fail_on_error: true
-      - rename:
-          fields:
-            - from: "json.level"
-              to: "log.level"
