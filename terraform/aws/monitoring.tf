@@ -29,7 +29,7 @@ locals {
 
 resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
 
-  count = var.monitoring_enabled ? length(local.instance_ids) : 0
+  count = var.monitoring_cpu_enabled ? length(local.instance_ids) : 0
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-cpu-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -53,7 +53,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
 
 resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
 
-  count = var.monitoring_enabled ? length(local.instance_ids) : 0
+  count = var.monitoring_mem_enabled ? length(local.instance_ids) : 0
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-memory-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -77,7 +77,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
 
 resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
 
-  count = var.monitoring_enabled ? length(local.instance_ids) : 0
+  count = var.monitoring_swap_enabled ? length(local.instance_ids) : 0
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-swap-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -101,7 +101,7 @@ resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
 
 resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
 
-  count = var.monitoring_enabled ? length(local.instance_ids) : 0
+  count = var.monitoring_disk_enabled ? length(local.instance_ids) : 0
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-diskspace-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
