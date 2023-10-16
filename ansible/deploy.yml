@@ -41,8 +41,9 @@
   pre_tasks:
     - name: Update apt cache and install jq
       ansible.builtin.apt:
-        name: jq
-        state: present
+        pkg:
+          - jq
+          - unzip
         update_cache: true
   vars:
     pip_package: python3-pip
