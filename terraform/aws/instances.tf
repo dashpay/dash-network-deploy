@@ -426,19 +426,13 @@ resource "aws_instance" "mixer" {
 resource "aws_instance" "logs" {
   count = var.logs_count
 
-  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  ami                  = data.aws_ami.ubuntu_arm.id
   instance_type        = join(".", ["x2gd", var.logs_node_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   root_block_device {
     volume_size = var.logs_node_root_disk_size
-    volume_type = var.volume_type
-  }
-
-  ebs_block_device {
-    volume_size = var.logs_node_disk_size
-    device_name = "/dev/sdf"
     volume_type = var.volume_type
   }
 
