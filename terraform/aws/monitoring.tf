@@ -33,12 +33,12 @@ resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-cpu-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = 2
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = "360"
+  period              = 300
   statistic           = "Average"
-  threshold           = "60"
+  threshold           = 60
 
   insufficient_data_actions = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
   alarm_actions             = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
@@ -57,12 +57,12 @@ resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-memory-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = 2
   metric_name         = "mem_used_percent"
   namespace           = "CWAgent"
-  period              = "360"
+  period              = 300
   statistic           = "Average"
-  threshold           = "85"
+  threshold           = 85
 
   insufficient_data_actions = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
   alarm_actions             = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
@@ -81,12 +81,12 @@ resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-swap-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = 2
   metric_name         = "swap_used_percent"
   namespace           = "CWAgent"
-  period              = "360"
+  period              = 300
   statistic           = "Average"
-  threshold           = "60"
+  threshold           = 60
 
   insufficient_data_actions = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
   alarm_actions             = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
@@ -105,12 +105,12 @@ resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
 
   alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-diskspace-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = 2
   metric_name         = "disk_used_percent"
   namespace           = "CWAgent"
-  period              = "360"
+  period              = 300
   statistic           = "Average"
-  threshold           = "80"
+  threshold           = 80
 
   insufficient_data_actions = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
   alarm_actions             = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
