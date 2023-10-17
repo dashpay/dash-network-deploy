@@ -1,37 +1,31 @@
 locals {
-  instance_ids = concat(
-    aws_instance.web.*.id,
-    aws_instance.dashd_wallet.*.id,
-    aws_instance.seed_node.*.id,
-    aws_instance.miner.*.id,
-    aws_instance.masternode_amd.*.id,
-    aws_instance.masternode_arm.*.id,
-    aws_instance.hp_masternode_amd.*.id,
-    aws_instance.hp_masternode_arm.*.id,
-    aws_instance.vpn.*.id,
-    aws_instance.mixer.*.id,
-    aws_instance.logs.*.id,
-  )
-  instance_hostnames = concat(
-    aws_instance.web.*.tags.Hostname,
-    aws_instance.dashd_wallet.*.tags.Hostname,
-    aws_instance.seed_node.*.tags.Hostname,
-    aws_instance.miner.*.tags.Hostname,
-    aws_instance.masternode_amd.*.tags.Hostname,
-    aws_instance.masternode_arm.*.tags.Hostname,
-    aws_instance.hp_masternode_amd.*.tags.Hostname,
-    aws_instance.hp_masternode_arm.*.tags.Hostname,
-    aws_instance.vpn.*.tags.Hostname,
-    aws_instance.mixer.*.tags.Hostname,
-    aws_instance.logs.*.tags.Hostname,
-  )
+  instance_data = [
+    for instance in concat(
+      aws_instance.web,
+      aws_instance.dashd_wallet,
+      aws_instance.seed_node,
+      aws_instance.miner,
+      aws_instance.masternode_amd,
+      aws_instance.masternode_arm,
+      aws_instance.hp_masternode_amd,
+      aws_instance.hp_masternode_arm,
+      aws_instance.vpn,
+      aws_instance.mixer,
+      aws_instance.logs,
+    ) : {
+      Hostname     = instance.tags.Hostname
+      InstanceId   = instance.id
+      ImageId      = instance.ami
+      InstanceType = instance.instance_type
+    }
+  ]
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
 
-  count = var.monitoring_cpu_enabled ? length(local.instance_ids) : 0
+  count = var.monitoring_cpu_enabled ? length(local.instance_data) : 0
 
-  alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-cpu-monitoring"
+  alarm_name          = "${terraform.workspace}-${local.instance_data[count.index].Hostname}-cpu-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
   metric_name         = "CPUUtilization"
@@ -43,7 +37,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
   alarm_actions = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
 
   dimensions = {
-    InstanceId = local.instance_ids[count.index]
+    InstanceId = local.instance_data[count.index].InstanceId
   }
 
   alarm_description = "This alarm monitors ec2 cpu utilization"
@@ -51,9 +45,9 @@ resource "aws_cloudwatch_metric_alarm" "cpu_monitoring" {
 
 resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
 
-  count = var.monitoring_mem_enabled ? length(local.instance_ids) : 0
+  count = var.monitoring_mem_enabled ? length(local.instance_data) : 0
 
-  alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-memory-monitoring"
+  alarm_name          = "${terraform.workspace}-${local.instance_data[count.index].Hostname}-memory-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
   metric_name         = "mem_used_percent"
@@ -65,7 +59,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
   alarm_actions = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
 
   dimensions = {
-    InstanceId = local.instance_ids[count.index]
+    InstanceId = local.instance_data[count.index].InstanceId
   }
 
   alarm_description = "This alarm monitors ec2 memory utilization"
@@ -73,9 +67,9 @@ resource "aws_cloudwatch_metric_alarm" "memory_monitoring" {
 
 resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
 
-  count = var.monitoring_swap_enabled ? length(local.instance_ids) : 0
+  count = var.monitoring_swap_enabled ? length(local.instance_data) : 0
 
-  alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-swap-monitoring"
+  alarm_name          = "${terraform.workspace}-${local.instance_data[count.index].Hostname}-swap-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
   metric_name         = "swap_used_percent"
@@ -87,7 +81,7 @@ resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
   alarm_actions = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
 
   dimensions = {
-    InstanceId = local.instance_ids[count.index]
+    InstanceId = local.instance_data[count.index].InstanceId
   }
 
   alarm_description = "This alarm monitors ec2 swap utilization"
@@ -95,9 +89,9 @@ resource "aws_cloudwatch_metric_alarm" "swap_monitoring" {
 
 resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
 
-  count = var.monitoring_disk_enabled ? length(local.instance_ids) : 0
+  count = var.monitoring_disk_enabled ? length(local.instance_data) : 0
 
-  alarm_name          = "${terraform.workspace}-${local.instance_hostnames[count.index]}-diskspace-monitoring"
+  alarm_name          = "${terraform.workspace}-${local.instance_data[count.index].Hostname}-diskspace-monitoring"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
   metric_name         = "disk_used_percent"
@@ -109,9 +103,12 @@ resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
   alarm_actions = length(var.monitoring_sns_arn) > 1 ? [var.monitoring_sns_arn] : []
 
   dimensions = {
-    InstanceId = local.instance_ids[count.index]
-    MountPath  = "/"
-    Filesystem = "/dev/nvme0n1p1"
+    ImageId      = local.instance_data[count.index].ImageId
+    InstanceId   = local.instance_data[count.index].InstanceId
+    InstanceType = local.instance_data[count.index].InstanceType
+    device       = "nvme0n1p1"
+    fstype       = "ext4"
+    path         = "/"
   }
 
   alarm_description = "This alarm monitors ec2 disk utilization"
