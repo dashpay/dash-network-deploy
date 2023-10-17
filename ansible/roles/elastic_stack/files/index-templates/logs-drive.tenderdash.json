@@ -43,7 +43,7 @@
           "norms": false
         },
         "json.error": {
-          "type": "text"
+          "type": "match_only_text"
         }
       }
     }
