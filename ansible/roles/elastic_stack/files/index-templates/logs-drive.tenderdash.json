@@ -41,6 +41,9 @@
         "message": {
           "type": "text",
           "norms": false
+        },
+        "json.error": {
+          "type": "match_only_text"
         }
       }
     }
