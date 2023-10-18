@@ -64,7 +64,6 @@
     - eternal_terminal
     - cwagent
 
-
 - name: Configure tcpdump
   hosts: all
   become: true
