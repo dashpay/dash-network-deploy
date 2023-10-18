@@ -106,9 +106,9 @@ resource "aws_cloudwatch_metric_alarm" "diskspace_monitoring" {
     ImageId      = local.instance_data[count.index].ImageId
     InstanceId   = local.instance_data[count.index].InstanceId
     InstanceType = local.instance_data[count.index].InstanceType
-    device       = "nvme0n1p1"
+    device       = strcontains(local.instance_data[count.index].Hostname, "logs") ? "nvme1n1p1" : "nvme0n1p1"
     fstype       = "ext4"
-    path         = "/"
+    path         = strcontains(local.instance_data[count.index].Hostname, "logs") ? "/dash/elastic/data" : "/"
   }
 
   alarm_description = "This alarm monitors ec2 disk utilization"
