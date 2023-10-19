@@ -87,4 +87,4 @@
     name: generate_blocks
   vars:
     generate: blocks
-    num_blocks: 1
+    num_blocks: 2
