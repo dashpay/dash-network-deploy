@@ -1,0 +1,7 @@
+---
+
+- name: Generate dash.conf file
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: '../networks/{{ dash_network_name }}.conf'
+    mode: "0644"
