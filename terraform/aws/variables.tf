@@ -201,6 +201,11 @@ variable "logs_node_root_disk_size" {
   default     = 20
 }
 
+variable "logs_node_instance_type" {
+  description = "Instance type of log nodes"
+  default     = "i4g"
+}
+
 variable "logs_node_instance_size" {
   description = "Instance size of log nodes"
   default     = "large"
