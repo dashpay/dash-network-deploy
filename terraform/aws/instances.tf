@@ -85,7 +85,7 @@ resource "aws_instance" "seed_node" {
   count = var.seed_count
 
   ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
-  instance_type        = var.main_host_arch == "arm64" ? "t4g.medium" : "t3.medium"
+  instance_type        = var.main_host_arch == "arm64" ? "t4g.small" : "t3.small"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
@@ -385,22 +385,54 @@ resource "aws_instance" "vpn" {
 
 }
 
+resource "aws_instance" "mixer" {
+  count = var.mixer_count
+
+  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  instance_type        = var.main_host_arch == "arm64" ? "t4g.nano" : "t3.nano"
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.dashd_public.id,
+  ]
+
+  volume_tags = {
+    Name        = "dh-${terraform.workspace}-mixer-${count.index + 1}"
+    Hostname    = "mixer-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dh-${terraform.workspace}-mixer-${count.index + 1}"
+    Hostname    = "mixer-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  root_block_device {
+    volume_size = 15
+    volume_type = var.volume_type
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
+}
+
 resource "aws_instance" "logs" {
   count = var.logs_count
 
-  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
-  instance_type        = join(".", ["x2gd", var.logs_node_instance_size])
+  ami                  = data.aws_ami.ubuntu_arm.id
+  instance_type        = join(".", ["i4g", var.logs_node_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   root_block_device {
     volume_size = var.logs_node_root_disk_size
-    volume_type = var.volume_type
-  }
-
-  ebs_block_device {
-    volume_size = var.logs_node_disk_size
-    device_name = "/dev/sdf"
     volume_type = var.volume_type
   }
 

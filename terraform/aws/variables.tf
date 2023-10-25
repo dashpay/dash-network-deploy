@@ -101,6 +101,10 @@ variable "miner_count" {
   default = 1
 }
 
+variable "mixer_count" {
+  default = 0
+}
+
 variable "masternode_amd_count" {
   default = 3
 }
@@ -147,7 +151,7 @@ variable "main_domain" {
   default     = ""
 }
 
-variable "montitoring_sns_arn" {
+variable "monitoring_sns_arn" {
   description = "ARN of SNS topic that will receive notifications from monitoring"
   default     = ""
 }
@@ -157,8 +161,23 @@ variable "public_network_name" {
   default     = ""
 }
 
-variable "monitoring_enabled" {
-  description = "enable monitoring with CloudWatch"
+variable "monitoring_cpu_enabled" {
+  description = "enable CPU utilization alarm with CloudWatch"
+  default     = false
+}
+
+variable "monitoring_mem_enabled" {
+  description = "enable memory used alarm with CloudWatch"
+  default     = false
+}
+
+variable "monitoring_swap_enabled" {
+  description = "enable swap used alarm with CloudWatch"
+  default     = false
+}
+
+variable "monitoring_disk_enabled" {
+  description = "enable disk used alarm with CloudWatch"
   default     = false
 }
 
@@ -182,11 +201,6 @@ variable "logs_node_root_disk_size" {
   default     = 20
 }
 
-variable "logs_node_disk_size" {
-  description = "Disk size of log nodes"
-  default     = 100
-}
-
 variable "logs_node_instance_size" {
   description = "Instance size of log nodes"
   default     = "large"
@@ -207,3 +221,4 @@ variable "create_eip" {
   type        = bool
   default     = true
 }
+

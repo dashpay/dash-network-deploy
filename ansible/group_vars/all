@@ -19,9 +19,6 @@ platform_initial_core_chain_locked_height: ""
 # Install OpenVPN
 openvpn_enabled: true
 
-# Sentinel Docker image
-sentinel_image: dashpay/sentinel:latest
-
 # Drive
 drive_image: dashpay/drive
 drive_log_stdout_level: info
@@ -40,15 +37,17 @@ core_llmq_types:
     101: llmq_devnet
     102: llmq_test_v17
 
-# Tendermint
+# Tenderdash
 tendermint_image: dashpay/tenderdash
 tendermint_p2p_port: 36656
 tendermint_rpc_port: 36657
-tendermint_uid: "100"
-tendermint_gid: "1000"
-# tenderdash_chain_id:
-tenderdash_max_validators_count: 50
+tenderdash_uid: "100"
+tenderdash_gid: "1000"
+
 tenderdash_log_level: debug
+
+tenderdash_compose_project_name: tenderdash
+tenderdash_compose_path: '{{ dashd_home }}/{{ tenderdash_compose_project_name }}'
 
 # DAPI
 dapi_image: dashpay/dapi
@@ -99,9 +98,6 @@ dashd_minimumdifficultyblocks: 4032
 # dashd_sporkaddr:
 # dashd_sporkkey:
 
-# You can provide your own seed node in network config. May be useful if you want to connect to another network
-dashd_seednode: '{{ hostvars[groups.seed_nodes[0]]["public_ip"] if groups.seed_nodes else none }}'
-
 # Faucet stuff
 
 wallet_rpc_host: '{{ hostvars[groups.wallet_nodes[0]]["private_ip"] }}'
@@ -148,17 +144,22 @@ masternode_collaterals:
 
 governance_proposal_count: 2
 
+# CoinJoin stuff
+coinjoin_amount: 10
+coinjoin_rounds: 12
+
 # Disk space allocated for swap file on each host
 swap_space: 2G
 
-# Elastic
+# Elastic stuff
 
 elastic_username: elastic
 elastic_password:
 elastic_version: 8.7.0
-elastic_data_block_device: /dev/nvme1n1
 kibana_encryptionkey:
-elastic_heap_size: 3g
+# Set to 50% of instance memory 
+# https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
+elastic_heap_size: 16g
 
 elastic_compose_project_name: elastic
 elastic_path: '{{ dashd_home }}/{{ elastic_compose_project_name }}'
@@ -169,6 +170,6 @@ masternode_network_latency: false
 masternode_network_latency_min: 10
 masternode_network_latency_max: 100
 
-# Dashmate
+# Dashmate stuff
 dashmate_home: /home/dashmate
 dashmate_logs_dir: '{{ dashmate_home }}/logs'

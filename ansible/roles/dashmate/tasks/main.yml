@@ -107,7 +107,18 @@
   ansible.builtin.set_fact:
     dashmate_config_version: "{{ (dashmate_version_result.stdout | split(' ') | first() | split('/'))[1] }}"
 
-- name: Retrieve existing ZeroSSL certificate ID
+# This check will return an error code if config is missing, config schema is invalid or default config is not yet set
+- name: Check state of dashmate config
+  ansible.builtin.command: "{{ dashmate_cmd }} config"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_config_result
+  ignore_errors: true
+  changed_when: true
+
+- name: Get ZeroSSL certificate ID from config
   ansible.builtin.command: "{{ dashmate_cmd }} config get platform.dapi.envoy.ssl.providerConfigs.zerossl.id"
   become: true
   become_user: dashmate
@@ -115,14 +126,16 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id_result
   changed_when: dashmate_zerossl_id_result.rc == 0
+  when: dashmate_config_result.rc == 0
 
-- name: Extract ZeroSSL certificate ID
+- name: Set ZeroSSL certificate ID from config
   ansible.builtin.set_fact:
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
+  when: dashmate_config_result.rc == 0 and dashmate_zerossl_id_result.stdout != 'null'
 
 - name: Write dashmate config file
   vars:
-    template_bootstrap_peers: "{{ groups.seed_nodes | reject('equalto', inventory_hostname) }}"
+    template_bootstrap_peers: "{{ groups.seed_nodes }}"
   ansible.builtin.template:
     src: dashmate.json.j2
     dest: '{{ dashmate_config_dir }}/config.json'
@@ -179,14 +192,14 @@
       {{
         dashmate_services_status.stdout |
         from_json |
-        json_query('[?service!=`core`&&service!=`sentinel`&&status!=`not_started`]') |
+        json_query('[?service!=`core`&&status!=`not_started`]') |
         length | int > 0
       }}
     is_core_images_updated: >-
       {{
         dashmate_update.stdout |
         from_json |
-        json_query('[?name==`core`||name==`sentinel`]') |
+        json_query('[?name==`core`]') |
         sort(attribute='updated', reverse=true) |
         first() |
         json_query('updated')
@@ -195,7 +208,7 @@
       {{
         dashmate_update.stdout |
         from_json |
-        json_query('[?name!=`core`&&name!=`sentinel`]') |
+        json_query('[?name!=`core`]') |
         sort(attribute='updated', reverse=true) |
         first() |
         json_query('updated')
@@ -205,73 +218,60 @@
 
 - name: Print status
   ansible.builtin.debug:
-    msg: "\n
-Core Started: {{ is_core_started }}\n
-Platform Started: {{ is_platform_started }}\n
-Core Images Updated: {{ is_core_images_updated }}\n
-Platform Images Updated: {{ is_platform_images_updated }}\n
-Dashmate Package Updated: {{ is_dashmate_package_changed }}\n
-Dashmate Config Changed: {{ is_dashmate_config_changed }}\n"
+    msg: "\nCore Started: {{ is_core_started }}
+          \nPlatform Started: {{ is_platform_started }}
+          \nCore Images Updated: {{ is_core_images_updated }}
+          \nPlatform Images Updated: {{ is_platform_images_updated }}
+          \nDashmate Package Updated: {{ is_dashmate_package_changed }}
+          \nDashmate Config Changed: {{ is_dashmate_config_changed }}"
 
 # Start logic:
 # start ALL when (core is down and platform is down)
 # start platform when (core is up and platform is down)
 
 # Start all if everything is stopped (not started yet)
-- name: Start dashmate services
+- name: Start all dashmate services
   ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_cwd }}'
-  register: dashmate_start
+  register: dashmate_start_all
   when:
     - not is_core_started
     - not is_platform_started
-  changed_when: dashmate_start.rc == 0
-
-# Start platform in case core is running
-- name: Start dashmate platform services
-  ansible.builtin.command: "{{ dashmate_cmd }} start --platform --verbose"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_start_platform
-  when:
-    - is_core_started
-    - not is_platform_started
-  changed_when: dashmate_start_platform.rc == 0
+  changed_when: dashmate_start_all.rc == 0
 
 # Restart logic
-# if any of platform images were updated => restart platform
-# if core or sentinel images updated => restart all
 # dashmate version is changed => restart all
 # dashmate config is changed => restart all
 
-- name: Restart dashmate services
+- name: Restart all dashmate services
   ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_cwd }}'
-  register: dashmate_restart
+  register: dashmate_restart_all
   when:
-    - not dashmate_start_platform.changed and not dashmate_start.changed
-    - is_core_images_updated or is_dashmate_package_changed or is_dashmate_config_changed
-  changed_when: dashmate_restart.rc == 0
+    - not dashmate_start_all.changed
+    - is_dashmate_package_changed or is_dashmate_config_changed
+  changed_when: dashmate_restart_all.rc == 0
 
-- name: Restart dashmate platform services
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --platform --verbose"
+# Force start logic
+# Force start is equivalent to `docker compose up` and will replace services that have changed
+
+- name: Start not started services and replace updated services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose"
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_cwd }}'
-  register: dashmate_restart_platform
+  register: dashmate_force_start
   when:
-    - not dashmate_start_platform.changed and not dashmate_start.changed and not dashmate_restart.changed
-    - is_platform_images_updated
-  changed_when: dashmate_restart_platform.rc == 0
+    - not dashmate_start_all.changed
+    - not dashmate_restart_all.changed
+  changed_when: dashmate_force_start.rc == 0
 
 - name: Disable dashmate helper build
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"

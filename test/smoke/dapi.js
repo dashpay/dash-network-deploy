@@ -4,13 +4,10 @@ const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { variables, inventory } = getNetworkConfig();
 
-const dashmateHosts = [
-  ...(inventory.seed_nodes?.hosts ?? []),
-  ...(inventory.hp_masternodes?.hosts ?? []),
-];
+const evoMasternodes = inventory.hp_masternodes?.hosts ?? [];
 
 describe('DAPI', () => {
-  describe('All nodes', () => {
+  describe('Evo masternodes', () => {
     // Set up vars and functions to hold DAPI responses
     const bestBlockHash = {};
     const bestBlockHashError = {};
@@ -27,7 +24,12 @@ describe('DAPI', () => {
       }
 
       const promises = [];
-      for (const hostName of dashmateHosts) {
+      for (const hostName of evoMasternodes) {
+        if (!inventory.meta.hostvars[hostName]) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+
         const timeout = 15000; // set individual dapi client timeout
         const unknownContractId = Buffer.alloc(32).fill(1);
 
@@ -73,23 +75,30 @@ describe('DAPI', () => {
         promises.push(requestBestBlockHash, requestStatus, requestDataContract);
       }
 
-      return Promise.all(promises).catch(() => Promise.resolve());
+      return Promise.all(promises);
     });
 
-    for (const hostName of dashmateHosts) {
+    for (const hostName of evoMasternodes) {
       describe(hostName, () => {
         it('should return data from Core', async () => {
           if (bestBlockHashError[hostName]) {
             expect.fail(null, null, bestBlockHashError[hostName]);
           }
 
+          if (!bestBlockHash[hostName]) {
+            expect.fail('no block info');
+          }
+
           expect(bestBlockHash[hostName]).to.be.a('string');
-          expect(bestBlockHash[hostName]).to.be.not.empty();
         });
 
         it('should return data from Core using gRPC', async () => {
           if (statusError[hostName]) {
             expect.fail(null, null, statusError[hostName]);
+          }
+
+          if (!status[hostName]) {
+            expect.fail('no status info');
           }
 
           expect(status[hostName]).to.have.a.property('version');

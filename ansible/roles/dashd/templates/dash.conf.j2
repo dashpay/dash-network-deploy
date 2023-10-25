@@ -17,6 +17,8 @@ uacomment=dcg-{{ inventory_hostname }}
 
 printtoconsole=1
 
+fallbackfee=0.00001
+
 {% if dashd_indexes %}
 # optional indices (required for Insight)
 txindex=1
@@ -39,6 +41,7 @@ zmqpubrawtxlocksig=tcp://0.0.0.0:{{ dashd_zmq_port }}
 server=1
 rpcuser={{ dashd_rpc_user }}
 rpcpassword={{ dashd_rpc_password }}
+deprecatedrpc=hpmn
 
 {% if dashd_rpc_allow_public %}
 rpcallowip=::/0
@@ -61,6 +64,12 @@ listen=0
 {% endif %}
 
 externalip={{ dashd_externalip }}
+
+{% if 'mixer' in inventory_hostname %}
+coinjoinmultisession=1
+coinjoinsessions=10
+coinjoinrounds={{ coinjoin_rounds }}
+{% endif %}
 
 dnsseed=0
 allowprivatenet={{ dashd_allowprivatenet }}
@@ -111,6 +120,6 @@ bind=0.0.0.0
 
 port={{ dashd_port }}
 
-{% if dashd_seednode is not none and not dashd_isseednode %}
-addnode={{ dashd_seednode }}:{{ dashd_port }}
-{% endif %}
+{% for seed_node in groups.seed_nodes %}
+addnode={{ hostvars[seed_node]["public_ip"] }}:{{ dashd_port }}
+{% endfor %}

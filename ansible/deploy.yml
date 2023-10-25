@@ -35,12 +35,15 @@
       when: openvpn_enabled
       tags: vpn
 
-- name: Setup Python and Docker
+- name: Setup jq, Python, CWAgent and Docker
   hosts: all
   become: true
   pre_tasks:
-    - name: Update apt cache
+    - name: Update apt cache and install jq
       ansible.builtin.apt:
+        pkg:
+          - jq
+          - unzip
         update_cache: true
   vars:
     pip_package: python3-pip
@@ -59,14 +62,7 @@
           - ubuntu
     - docker_options
     - eternal_terminal
-
-- name: Install AWS monitoring scripts
-  hosts: all
-  become: true
-  roles:
-    - role: Restless-ET.aws-scripts-mon
-      aws_scripts_mon_options: "--mem-util --disk-space-util --disk-path=/ --swap-util"
-      aws_scripts_mon_use_iam: true
+    - cwagent
 
 - name: Configure tcpdump
   hosts: all
@@ -92,7 +88,18 @@
     - role: elastic_beats
       core_container_name: dashd
 
-- name: Set up core and platform on seed nodes
+- name: Set up mixers
+  hosts: mixer_nodes
+  become: true
+  roles:
+    - role: dash_cli
+    - role: dashd
+      tags:
+        - dashd
+    - role: elastic_beats
+      core_container_name: dashd
+
+- name: Set up core and tenderdash on seed nodes
   hosts: seed_nodes
   become: true
   pre_tasks:
@@ -104,11 +111,12 @@
       when: inventory_hostname in seed_nodes
   roles:
     - role: dash_cli
-    - role: dashmate
-    - role: mn_status_report
+    - role: dashd
+      tags:
+        - dashd
+    - role: tenderdash
     - role: elastic_beats
-      core_container_name: core
-      abci_logs_path: "{{ dashmate_logs_dir }}"
+      core_container_name: dashd
 
 - name: Set up core on masternodes
   hosts: masternodes
@@ -131,7 +139,6 @@
       dashd_indexes: true
       tags:
         - dashd
-    - mn_sentinel
     - mn_status_report
     - role: elastic_beats
       core_container_name: dashd
@@ -223,11 +230,11 @@
 
 # todo: partially working code causes errors in deploy, comment out for now and fix later
 # - name: Create governance proposals
-#  hosts: wallet_nodes
-#  become: true
-#  roles:
-#    - role: generate_proposals
-#      when: governance_proposal_count > 0
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: generate_proposals
+#       when: governance_proposal_count > 0
 
 - name: Set up core and platform on HP masternodes
   hosts: hp_masternodes
@@ -260,6 +267,11 @@
       when: masternode_network_latency
     - role: remove_fake_latency
       when: not masternode_network_latency
+
+- name: Generate dash.conf for configs repo
+  hosts: localhost
+  roles:
+    - dash-conf
 
 - name: Clean up
   hosts: all

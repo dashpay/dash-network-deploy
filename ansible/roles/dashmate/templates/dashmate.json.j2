@@ -64,11 +64,6 @@
           "mediantime": null,
           "address": null
         },
-        "sentinel": {
-          "docker": {
-            "image": "{{ sentinel_image }}"
-          }
-        },
         "devnet": {
           "name": {% if dash_network == 'devnet' %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
           "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
@@ -109,7 +104,7 @@
               "providerConfigs": {
                 "zerossl": {
                   "apiKey": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key is not none and dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
-                  "id": {% if dashmate_zerossl_config_certificate_id != 'null' %}"{{ dashmate_zerossl_config_certificate_id }}"{% else %}null{% endif +%}
+                  "id": {% if dashmate_zerossl_config_certificate_id is defined %}"{{ dashmate_zerossl_config_certificate_id }}"{% else %}null{% endif +%}
                 }
               }
             }
@@ -137,25 +132,39 @@
                 "target": ""
               }
             },
-            "log": {
+            "logs": {
               "stdout": {
-                "level": "{{ drive_log_stdout_level }}"
+                "destination": "stdout",
+                "format": "pretty",
+                "level": "{{ drive_log_stdout_level }}",
+                "color": true
               },
               "prettyFile": {
+                "destination": "{{ dashmate_logs_dir }}/drive-pretty.log",
                 "level": "{{ drive_log_pretty_file_level }}",
-                "path": "{{ dashmate_logs_dir }}/drive-pretty.log"
+                "format": "pretty",
+                "color": false
               },
               "jsonFile": {
+                "destination": "{{ dashmate_logs_dir }}/drive-json.log",
                 "level": "{{ drive_log_json_file_level }}",
-                "path": "{{ dashmate_logs_dir }}/drive-json.log"
+                "format": "json",
+                "color": null
+              },
+              "groveDbOperationsFile": {
+                "destination": "{{ dashmate_logs_dir }}/drive-grovedb-operations.log",
+                "level": "tenderdash_abci=error,drive_grovedb_operations=trace",
+                "format": "json",
+                "color": null
               }
             },
             "validatorSet": {
               "llmqType": {{ platform_drive_validator_set_llmq_type }}
-            }
+            },
+            "epochTime": {{ platform_drive_abci_epoch_time }}
           },
           "tenderdash": {
-            "mode": {% if mode is defined and mode == 'seed' %}"seed"{% else %}"validator"{% endif %},
+            "mode": "validator",
             "docker": {
               "image": "{{ tendermint_image }}"
             },
@@ -179,13 +188,18 @@
               "enabled": {% if dashmate_platform_tenderdash_pprof_enable %}true{% else %}false{% endif %},
               "port": 6060
             },
+            "metrics": {
+              "enabled": true,
+              "port": 36660
+            },
             "consensus": {
               "createEmptyBlocks": true,
               "createEmptyBlocksInterval": "3m"
             },
             "log": {
               "level": "{{ tenderdash_log_level }}",
-              "format": "json"
+              "format": "json",
+              "path": "{{ dashmate_logs_dir }}/tenderdash.log"
             },
             "moniker": "{{ inventory_hostname }}",
             "node": {
@@ -195,7 +209,8 @@
             "genesis": {
               "genesis_time": "{{ genesis_time }}",
               "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
-              "initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
+              {%+ if platform_initial_core_chain_locked_height is defined and platform_initial_core_chain_locked_height != "" %}"initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
+              {% endif %}
               "consensus_params": {
                 "timeout": {
                   "propose": "50000000000",

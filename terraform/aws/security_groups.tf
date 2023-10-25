@@ -459,18 +459,23 @@ resource "aws_security_group" "vpn" {
 
 resource "aws_security_group" "seed" {
   name        = "${terraform.workspace}-seed"
-  description = "DAPI access"
+  description = "seed node"
   vpc_id      = aws_vpc.default.id
 
+  # Tendermint P2P
   ingress {
-    description = "DAPI from internet"
-    from_port   = var.dapi_port
-    to_port     = var.dapi_port
+    from_port   = var.tendermint_p2p_port
+    to_port     = var.tendermint_p2p_port
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description = "Tendermint P2P"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
   }
 
   tags = {
-    Name = "seed-1"
+    Name        = "dn-${terraform.workspace}-seed"
+    DashNetwork = terraform.workspace
   }
 }
