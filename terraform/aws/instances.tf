@@ -241,7 +241,6 @@ resource "aws_instance" "masternode_arm" {
 resource "aws_eip" "hpmn_arm_eip" {
   instance = null
   count = var.create_eip ? var.hp_masternode_arm_count : 0
-  
   tags = {
     Name        = "dn-${terraform.workspace}-hp-masternode-arm-${count.index+1}"
     DashNetwork = terraform.workspace
