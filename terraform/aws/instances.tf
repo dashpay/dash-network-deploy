@@ -241,7 +241,6 @@ resource "aws_instance" "masternode_arm" {
 resource "aws_eip" "hpmn_arm_eip" {
   instance = null
   count = var.create_eip ? var.hp_masternode_arm_count : 0
-  
   tags = {
     Name        = "dn-${terraform.workspace}-hp-masternode-arm-${count.index+1}"
     DashNetwork = terraform.workspace
@@ -427,7 +426,7 @@ resource "aws_instance" "logs" {
   count = var.logs_count
 
   ami                  = data.aws_ami.ubuntu_arm.id
-  instance_type        = join(".", ["i4g", var.logs_node_instance_size])
+  instance_type        = join(".", [var.logs_node_instance_type, var.logs_node_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
