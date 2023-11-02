@@ -23,7 +23,8 @@
       },
       "core": {
         "docker": {
-          "image": "{{ dashd_image }}"
+          "image": "{{ dashd_image }}",
+          "commandArgs": []
         },
         "p2p": {
           "port": {{ dashd_port }},
