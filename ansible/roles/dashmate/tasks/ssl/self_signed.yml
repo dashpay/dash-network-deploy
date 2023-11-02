@@ -1,8 +1,12 @@
 ---
 
+- name: Set vars
+  ansible.builtin.set_fact:
+    dashmate_zerossl_keys_path: "{{ dashmate_config_dir }}/{{ dash_network_name }}/platform/dapi/envoy/ssl"
+
 - name: Create dashmate ssl directory
   ansible.builtin.file:
-    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}'
+    path: '{{ dashmate_zerossl_keys_path }}'
     state: directory
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
@@ -10,23 +14,23 @@
 
 - name: Generate an OpenSSL private key
   community.crypto.openssl_privatekey:
-    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    path: '{{ dashmate_zerossl_keys_path }}/private.key'
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
 
 - name: Generate an OpenSSL Certificate Signing Request
   community.crypto.openssl_csr:
-    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
-    privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    path: '{{ dashmate_zerossl_keys_path }}/bundle.csr'
+    privatekey_path: '{{ dashmate_zerossl_keys_path }}/private.key'
     common_name: '{{ inventory_hostname }}'
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
 
 - name: Generate a Self Signed OpenSSL certificate
   community.crypto.x509_certificate:
-    path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.crt'
-    csr_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/bundle.csr'
-    privatekey_path: '{{ dashmate_config_dir }}/ssl/{{ dash_network_name }}/private.key'
+    path: '{{ dashmate_zerossl_keys_path }}/bundle.crt'
+    csr_path: '{{ dashmate_zerossl_keys_path }}/bundle.csr'
+    privatekey_path: '{{ dashmate_zerossl_keys_path }}/private.key'
     provider: selfsigned
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
