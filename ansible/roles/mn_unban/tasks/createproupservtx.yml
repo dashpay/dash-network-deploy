@@ -14,7 +14,7 @@
   when: 'masternode_name is not match ("hp*")'
 
 - name: Create HP ProUpServTx for {{ masternode_name ~ '/' ~ masternode.owner.address }}
-  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx update_service_hpmn
+  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx update_service_evo
             {{ vars['protx_' + masternode_name | replace('-', '_')] }}
             {{ hostvars[masternode_name].public_ip }}:{{ dashd_port }}
             {{ masternode.operator.private_key }}
