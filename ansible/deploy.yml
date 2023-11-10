@@ -112,6 +112,9 @@
   roles:
     - role: dash_cli
     - role: dashd
+      dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
       tags:
         - dashd
     - role: tenderdash
