@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 const getNetworkConfig = require('../../lib/test/getNetworkConfig');
 
 const { inventory, variables } = getNetworkConfig();
