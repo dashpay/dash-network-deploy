@@ -22,6 +22,19 @@
         }
       },
       "core": {
+        "insight": {
+          "enabled": false,
+          "ui": {
+            "enabled": false,
+            "docker": {
+              "image": "{{ insight_image }}"
+            }
+          },
+          "docker": {
+            "image": "{{ insight_api_image }}"
+          },
+          "port": 3001
+        },
         "docker": {
           "image": "{{ dashd_image }}",
           "commandArgs": []

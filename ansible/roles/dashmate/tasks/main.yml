@@ -144,6 +144,16 @@
     mode: "0644"
   register: template_result
 
+# We need to modify any config option to force dashmate render service configs
+- name: Render service configs
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.api.enable true"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_render_configs_result
+  changed_when: dashmate_render_configs_result.rc == 0
+
 - name: Generate self-signed SSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/self_signed.yml
   when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
