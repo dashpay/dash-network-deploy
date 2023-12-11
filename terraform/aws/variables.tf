@@ -102,7 +102,7 @@ variable "miner_count" {
 }
 
 variable "mixer_count" {
-  default = 0
+  default = 4
 }
 
 variable "masternode_amd_count" {
@@ -226,4 +226,3 @@ variable "create_eip" {
   type        = bool
   default     = true
 }
-

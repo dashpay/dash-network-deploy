@@ -10,8 +10,8 @@ locals {
       aws_instance.hp_masternode_amd,
       aws_instance.hp_masternode_arm,
       aws_instance.vpn,
-      aws_instance.mixer,
       aws_instance.logs,
+      aws_instance.mixer,
     ) : {
       Hostname     = instance.tags.Hostname
       InstanceId   = instance.id
