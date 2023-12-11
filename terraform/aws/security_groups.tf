@@ -295,6 +295,18 @@ resource "aws_security_group" "hp_masternode" {
     ]
   }
 
+  # Tenderdash prometheus
+  ingress {
+    from_port   = 36660
+    to_port     = 36660
+    protocol    = "tcp"
+    description = "Tenderdash prometheus"
+
+    cidr_blocks = [
+      "10.0.0.0/8",
+    ]
+  }
+
   # Tendermint ABCI
   ingress {
     from_port   = var.tendermint_abci_port
