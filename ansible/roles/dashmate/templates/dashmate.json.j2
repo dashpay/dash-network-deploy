@@ -9,8 +9,7 @@
       "group": null,
       "docker": {
         "network": {
-          "subnet": "172.25.24.0/24",
-          "bindIp": "0.0.0.0"
+          "subnet": "172.25.24.0/24"
         },
         "baseImage": {
           "build": {
@@ -40,6 +39,7 @@
           "commandArgs": []
         },
         "p2p": {
+          "host": "0.0.0.0",
           "port": {{ dashd_port }},
           "seeds": [
             {%- for seed in template_bootstrap_peers +%}
@@ -51,6 +51,7 @@
           ]
         },
         "rpc": {
+          "host": "127.0.0.1",
           "port": {{ dashd_rpc_port }},
           "user": "{{ dashd_rpc_user }}",
           "password": "{{ dashd_rpc_password }}",
@@ -104,6 +105,7 @@
               "image": "{{ dapi_envoy_image }}"
             },
             "http": {
+              "host": "0.0.0.0",
               "port": {{ dapi_port }}
             },
             "rateLimiter": {
@@ -183,6 +185,7 @@
               "image": "{{ tendermint_image }}"
             },
             "p2p": {
+              "host": "0.0.0.0",
               "port": {{ tendermint_p2p_port }},
               "persistentPeers": [],
               "seeds": [
@@ -196,6 +199,7 @@
               ]
             },
             "rpc": {
+              "host": "127.0.0.1",
               "port": {{ tendermint_rpc_port }}
             },
             "pprof": {
@@ -204,6 +208,7 @@
             },
             "metrics": {
               "enabled": true,
+              "host": "{{ hostvars[seed].private_ip }}",
               "port": 36660
             },
             "consensus": {
