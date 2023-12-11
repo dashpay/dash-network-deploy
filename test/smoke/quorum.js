@@ -217,7 +217,7 @@ describe('Quorums', () => {
     });
 
     before('Send a transaction', async () => {
-      const timeout = 15000; // set individual rpc client timeout
+      const timeout = 25000; // set individual rpc client timeout
 
       const client = createRpcClientFromConfig(inventory.wallet_nodes.hosts[0]);
 
