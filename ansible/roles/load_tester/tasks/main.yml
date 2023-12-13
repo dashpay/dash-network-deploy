@@ -1,9 +1,15 @@
 ---
 
-- name: Increase ulimit -n
+- name: Increase ulimit hard
   lineinfile:
     path: /etc/security/limits.conf
     line: "*         hard    nofile      60240"
+    state: present
+
+- name: Increase ulimit soft
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: "*         soft    nofile      60240"
     state: present
 
 - name: Install system dependencies
