@@ -1,0 +1,62 @@
+---
+
+- name: Increase ulimit -n
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: "*         hard    nofile      60240"
+    state: present
+
+- name: Install system dependencies
+  ansible.builtin.package:
+    name:
+      - cmake
+      - clang
+      - build-essential
+      - libc-dev
+      - libssl-dev
+      - pkg-config
+      - protobuf-compiler
+    state: present
+  when: dashmate_platform_enable
+
+- name: Download Rustup
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: '/home/ubuntu/rustup.sh'
+    owner: 'ubuntu'
+    group: 'ubuntu'
+    mode: '0755'
+  register: rustup
+
+- name: Install Rust
+  ansible.builtin.shell: '/home/ubuntu/rustup.sh -y'
+  become: true
+  become_user: ubuntu
+  when: rustup.changed # noqa: no-handler
+  changed_when: true
+
+- name: Clone platform
+  git:
+    repo: 'https://github.com/dashpay/platform.git'
+    dest: /home/ubuntu/load-test/platform
+    version: chore/broadcast-100
+  become: true
+  become_user: ubuntu
+
+- name: Clone explorer
+  git:
+    repo: 'https://github.com/dashpay/rs-platform-explorer.git'
+    dest: /home/ubuntu/load-test/rs-platform-explorer
+    version: load-test
+  become: true
+  become_user: ubuntu
+
+- name: Create .env file
+  template:
+    src: .env.j2
+    dest: /home/ubuntu/load-test/rs-platform-explorer/.env
+    owner: ubuntu
+    group: ubuntu
+    mode: "0644"
+  become: true
+  become_user: ubuntu
