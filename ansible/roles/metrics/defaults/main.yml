@@ -1,0 +1,4 @@
+---
+
+metrics_path: '/home/ubuntu/metrics'
+metrics_user: 'ubuntu'

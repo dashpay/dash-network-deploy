@@ -1,0 +1,33 @@
+  version: '3'
+  services:
+    haproxy:
+      image: haproxy:latest
+      build:
+        context: ./haproxy
+        dockerfile: ./haproxy/Dockerfile
+      ports:
+        - "80:80"
+      volumes:
+        - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    prometheus:
+      image: prom/prometheus:latest
+      command:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+        - '--web.external-url=http://{{ ansible_host }}/prometheus'
+        - '--log.level=debug'
+      volumes:
+        - ./prometheus/config:/etc/prometheus
+        - /mnt/prometheus:/prometheus
+      expose:
+        - 9090
+
+    grafana:
+      image: grafana/grafana:latest
+      volumes:
+        - ./grafana/data:/var/lib/grafana # TODO: Must be mounted on a volume or mnt?
+      environment:
+        - GF_SERVER_ROOT_URL=/grafana
+        - GF_SERVER_SERVE_FROM_SUB_PATH=true
+        - GF_SERVER_ROUTER_LOGGING=true
+      expose:
+        - 3000

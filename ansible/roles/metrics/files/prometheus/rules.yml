@@ -1,0 +1,21 @@
+---
+groups:
+  - name: Tenderdash chain
+    rules:
+      - alert: ChainHalt
+        expr: rate(drive_tenderdash_consensus_latest_block_height[10m]) == 0
+        for: 10m
+        labels:
+          severity: major
+          service: tenderdash
+        annotations:
+          description: 'Chain appears to be halted'
+
+      - alert: RoundTooHigh
+        expr: 'drive_tenderdash_consensus_rounds > 3'
+        for: 1m
+        labels:
+          severity: minor
+          service: tenderdash
+        annotations:
+          description: 'Voting round too high'
