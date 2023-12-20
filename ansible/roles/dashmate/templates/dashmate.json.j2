@@ -106,13 +106,15 @@
             },
             "http": {
               "host": "0.0.0.0",
-              "port": {{ dapi_port }}
+              "port": {{ dapi_port }},
+              "connectTimeout": "{{ dashmate_platform_dapi_envoy_http_connect_timeout }}",
+              "responseTimeout": "{{ dashmate_platform_dapi_envoy_http_response_timeout }}"
             },
             "rateLimiter": {
               "maxTokens": 300,
               "tokensPerFill": 150,
               "fillInterval": "60s",
-              "enabled": true
+              "enabled": {% if dashmate_platform_dapi_envoy_rate_limiter_enabled %}true{% else %}false{% endif %}
             },
             "ssl": {
               "enabled": true,
@@ -196,11 +198,20 @@
                   "port": {{ tendermint_p2p_port }}
                 }{% if not loop.last %},{% endif %}
                 {% endfor +%}
-              ]
+              ],
+              "flushThrottleTimeout": "{{dashmate_platform_drive_tenderdash_p2p_flush_throttle_timeout}}",
+              "maxPacketMsgPayloadSize": {{dashmate_platform_drive_tenderdash_p2p_max_packet_msg_payload_size}},
+              "sendRate": {{dashmate_platform_drive_tenderdash_p2p_send_rate}},
+              "recvRate": {{dashmate_platform_drive_tenderdash_p2p_recv_rate}}
+            },
+            "mempool": {
+              "size": {{dashmate_platform_drive_tenderdash_mempool_size}},
+              "maxTxsBytes": {{dashmate_platform_drive_tenderdash_mempool_max_txs_bytes}}
             },
             "rpc": {
               "host": "127.0.0.1",
-              "port": {{ tendermint_rpc_port }}
+              "port": {{ tendermint_rpc_port }},
+              "maxOpenConnections": {{dashmate_platform_drive_tenderdash_rpc_max_open_connections}}
             },
             "pprof": {
               "enabled": {% if dashmate_platform_tenderdash_pprof_enable %}true{% else %}false{% endif %},
@@ -213,7 +224,25 @@
             },
             "consensus": {
               "createEmptyBlocks": true,
-              "createEmptyBlocksInterval": "3m"
+              "createEmptyBlocksInterval": "3m",
+              "peer": {
+                "gossipSleepDuration": "{{dashmate_platform_drive_tenderdash_consensus_peer_gossip_sleep_duration}}",
+                "queryMaj23SleepDuration": "{{dashmate_platform_drive_tenderdash_consensus_peer_query_maj23_sleep_duration}}"
+              },
+              "unsafeOverride": {
+                "propose": {
+                  "timeout": {{if dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout|length }}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout}}"{{ else }}null{% endif %},
+                  "delta": {{if dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_delta|length }}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_delta}}"{{ else }}null{% endif %}"
+                },
+                "vote": {
+                  "timeout": {{if dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_timeout|length }}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_timeout}}"{{ else }}null{% endif %},
+                  "delta": {{if dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_delta|length }}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_delta}}"{{ else }}null{% endif %}"
+                },
+                "commit": {
+                  "timeout": null,
+                  "bypass": null
+                }
+              }
             },
             "log": {
               "level": "{{ tenderdash_log_level }}",
