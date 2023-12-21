@@ -168,13 +168,13 @@
                 "level": "{{ drive_log_json_file_level }}",
                 "format": "json",
                 "color": null
-              },
+              }{% if drive_log_grovedb_operations %},
               "groveDbOperationsFile": {
                 "destination": "{{ dashmate_logs_dir }}/drive-grovedb-operations.log",
                 "level": "tenderdash_abci=error,drive_grovedb_operations=trace",
                 "format": "json",
                 "color": null
-              }
+              }{% endif %}
             },
             "validatorSet": {
               "llmqType": {{ platform_drive_validator_set_llmq_type }}
@@ -231,12 +231,12 @@
               },
               "unsafeOverride": {
                 "propose": {
-                  "timeout": {{if dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout|length }}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout}}"{{ else }}null{% endif %},
-                  "delta": {{if dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_delta|length }}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_delta}}"{{ else }}null{% endif %}"
+                  "timeout": {% if dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout|length %}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout}}"{% else %}null{% endif %},
+                  "delta": {% if dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_delta|length %}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_delta}}"{% else %}null{% endif %}"
                 },
                 "vote": {
-                  "timeout": {{if dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_timeout|length }}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_timeout}}"{{ else }}null{% endif %},
-                  "delta": {{if dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_delta|length }}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_delta}}"{{ else }}null{% endif %}"
+                  "timeout": {% if dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_timeout|length %}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_timeout}}"{% else %}null{% endif %},
+                  "delta": {% if dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_delta|length %}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_delta}}"{% else %}null{% endif %}"
                 },
                 "commit": {
                   "timeout": null,
