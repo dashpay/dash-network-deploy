@@ -12,11 +12,23 @@
     state: unmounted
   when: inventory_hostname in groups['logs_nodes']
 
-
 - name: Delete elastic dir
   ansible.builtin.file:
     state: absent
     path: '{{ elastic_path }}'
+
+- name: Get instance store volume label
+  ansible.builtin.shell: set -o pipefail && sudo nvme list | grep 'Amazon EC2 NVMe Instance Storage' | awk '{ print $1 }'
+  register: elastic_data_block_device
+  changed_when: true
+  args:
+    executable: /bin/bash
+
+- name: Format partition
+  community.general.filesystem:
+    dev: '{{ elastic_data_block_device.stdout }}p1'
+    fstype: ext4
+    force: true
 
 - name: Remove any remaining docker data
   community.docker.docker_prune:
