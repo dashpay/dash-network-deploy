@@ -261,12 +261,12 @@
               {% endif %}
               "consensus_params": {
                 "timeout": {
-                  "propose": "30s",
-                  "propose_delta": "5s",
-                  "vote": "20s",
-                  "vote_delta": "1s",
-                  "commit": "100ms",
-                  "bypass_commit_timeout": true
+                  "propose": "30000000000",
+                  "propose_delta": "1000000000",
+                  "vote": "2000000000",
+                  "vote_delta": "500000000",
+                  "commit": "1000000000",
+                  "bypass_commit_timeout": false
                 },
                 "block": {
                   "max_bytes": "2097152",
