@@ -130,6 +130,9 @@
           "api": {
             "docker": {
               "image": "{{ dapi_image }}",
+              "deploy": {
+                "replicas": {{ dashmate_platform_dapi_api_docker_deploy_replicas }}
+              },
               "build": {
                 "enabled": false,
                 "context": "{{ dashmate_source_dir }}",
