@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/cli/utils.sh
+
+CMD_USAGE="SSH to Dash Network node
+
+Usage: ssh <network_name> <host_name>
+"
+
+for i in "$@"
+do
+case ${i} in
+    -h|--help)
+        echo "$CMD_USAGE"
+        exit 0
+    ;;
+esac
+done
+
+NETWORK_NAME="$1"
+HOST_NAME="$2"
+
+. ./lib/cli/init.sh
+. ./lib/cli/ansible.sh
+
+if [[ -z ${HOST_NAME} ]]; then
+    print_error "Host name is required"
+fi
+
+ANSIBLE_HOST=$(ansible_get_ip_by_host ${HOST_NAME})
+
+if [[ -z ${ANSIBLE_HOST} ]]; then
+    print_error "Invalid host name: ${HOST_NAME}. Please use host names from your inventory file '${INVENTORY_FILE}'"
+fi
+
+# SSH into the node
+ssh -i $PRIVATE_KEY_PATH ubuntu@$ANSIBLE_HOST
