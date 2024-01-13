@@ -1,3 +1,37 @@
+# [0.25.0](https://github.com/dashpay/dash-network-deploy/compare/v0.25.0-dev.8...v0.25.0) (2024-01-13)
+
+
+### Bug Fixes
+
+* *_hpmn methods are deprecated. Use the related *_evo methods ([3ab0275](https://github.com/dashpay/dash-network-deploy/commit/3ab027592e5474e9d7348d50fe185e2189859fb7))
+* drive log specification missing grovedb ops ([#589](https://github.com/dashpay/dash-network-deploy/issues/589)) ([d4d7897](https://github.com/dashpay/dash-network-deploy/commit/d4d7897f496fac78bd7ad201c7c4d872509ee98f))
+* ensure seed listens - devnets will not deploy ([#599](https://github.com/dashpay/dash-network-deploy/issues/599)) ([6f7483a](https://github.com/dashpay/dash-network-deploy/commit/6f7483a3f56b22a65e3f2409bb676eac96548f5f))
+* extra comma causing json schema validation error ([ac76671](https://github.com/dashpay/dash-network-deploy/commit/ac766718fffa357b9a1045f696a0450cf9781d16))
+* increase timeout ([#602](https://github.com/dashpay/dash-network-deploy/issues/602)) ([129306e](https://github.com/dashpay/dash-network-deploy/commit/129306ea83fe9a4bae09926b187df1100a0166a5))
+* indentation ([cc5cede](https://github.com/dashpay/dash-network-deploy/commit/cc5cedef40341126e25f692d572b268275e37253))
+* indentation ([49f18a2](https://github.com/dashpay/dash-network-deploy/commit/49f18a2e1100ef46b98290e865614ca1a4d2293a))
+* invalid tenderdash metrics host ([#606](https://github.com/dashpay/dash-network-deploy/issues/606)) ([c5f00cc](https://github.com/dashpay/dash-network-deploy/commit/c5f00cc9c56a0d359268c3b3b1fe9121c86f619d))
+* monitoring wrong mount on logs nodes ([59af29b](https://github.com/dashpay/dash-network-deploy/commit/59af29b497adabacf4fd0ce4a433283621934f2e))
+* newline ([eb8280a](https://github.com/dashpay/dash-network-deploy/commit/eb8280a3de0715db7f29201b14a893eff644133d))
+* object of type 'NoneType' has no len() ([#610](https://github.com/dashpay/dash-network-deploy/issues/610)) ([f874297](https://github.com/dashpay/dash-network-deploy/commit/f874297f44717ea9569d48fdaec1aa3dfb6368ba))
+* typo ([d935bed](https://github.com/dashpay/dash-network-deploy/commit/d935bed926f19d34fbb94bca15c356995ca8ac5c))
+
+
+### Features
+
+* add GroveDb operations log ([#582](https://github.com/dashpay/dash-network-deploy/issues/582)) ([24c469e](https://github.com/dashpay/dash-network-deploy/commit/24c469e7381fa34c19a6c05ac49a7938fe0064c9))
+* configure grovedb operation logs ([#609](https://github.com/dashpay/dash-network-deploy/issues/609)) ([2fd07ba](https://github.com/dashpay/dash-network-deploy/commit/2fd07ba5f6c46d2c06678d0592a1b96618e0d3da))
+* generate minimal dash.conf file in configs repo ([5da3efe](https://github.com/dashpay/dash-network-deploy/commit/5da3efe2291cd8dc101897cd907b17c6271c7205))
+* ssh to host command ([#614](https://github.com/dashpay/dash-network-deploy/issues/614)) ([1186161](https://github.com/dashpay/dash-network-deploy/commit/1186161dd40e97e373e1e7d7d728a44a165cfda0))
+* upgrade Node to 20 (LTS) ([#600](https://github.com/dashpay/dash-network-deploy/issues/600)) ([df5e4f1](https://github.com/dashpay/dash-network-deploy/commit/df5e4f1ca39896193acd998dc46eda7549012260))
+
+
+### Reverts
+
+* Revert "chore: update filebeat platform template for tenderdash logs (#576)" ([d0af455](https://github.com/dashpay/dash-network-deploy/commit/d0af455b0ee73f264590b0884a59edd84c065182)), closes [#576](https://github.com/dashpay/dash-network-deploy/issues/576)
+
+
+
 # [0.23.0](https://github.com/dashpay/dash-network-deploy/compare/v0.23.0-dev.4...v0.23.0) (2022-12-07)
 
 ### Bug Fixes
