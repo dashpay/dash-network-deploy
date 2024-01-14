@@ -137,7 +137,7 @@ variable "logs_count" {
 }
 
 variable "load_test_count" {
-  default     = 1
+  default     = 0
   description = "number of load testing nodes to create. set to 0 to disable load testing for the network"
 }
 
