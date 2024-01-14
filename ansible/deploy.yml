@@ -36,7 +36,7 @@
       tags: vpn
 
 - name: Setup load tester
-  hosts: load_test_nodes
+  hosts: load_test
   become: true
   roles:
     - role: load_tester
