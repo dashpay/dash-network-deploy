@@ -35,6 +35,12 @@
       when: openvpn_enabled
       tags: vpn
 
+- name: Setup load tester
+  hosts: load_test_nodes
+  become: true
+  roles:
+    - role: load_tester
+
 - name: Setup jq, Python, CWAgent and Docker
   hosts: all
   become: true

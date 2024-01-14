@@ -136,6 +136,11 @@ variable "logs_count" {
   description = "number of logging nodes to create. set to 0 to disable logging for the network"
 }
 
+variable "load_test_count" {
+  default     = 1
+  description = "number of load testing nodes to create. set to 0 to disable load testing for the network"
+}
+
 variable "main_host_arch" {
   description = "use amd64 (t3.*) or arm64 (t4g.*) EC2 instances for non-masternodes"
   default     = "arm64"
@@ -207,6 +212,21 @@ variable "logs_node_instance_type" {
 }
 
 variable "logs_node_instance_size" {
+  description = "Instance size of log nodes"
+  default     = "large"
+}
+
+variable "load_test_root_disk_size" {
+  description = "Default disk size for load testing nodes"
+  default     = 20
+}
+
+variable "load_test_instance_type" {
+  description = "Instance type of log nodes"
+  default     = "i4g"
+}
+
+variable "load_test_instance_size" {
   description = "Instance size of log nodes"
   default     = "large"
 }

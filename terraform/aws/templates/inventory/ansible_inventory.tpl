@@ -23,3 +23,6 @@ ${hp_masternode_hosts}
 
 [seed_nodes]
 ${seed_hosts}
+
+[load_test]
+${load_test_hosts}
