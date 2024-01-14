@@ -144,9 +144,8 @@
     mode: "0644"
   register: template_result
 
-# We need to modify any config option to force dashmate render service configs
 - name: Render service configs
-  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.api.enable true"
+  ansible.builtin.command: "{{ dashmate_cmd }} config render"
   become: true
   become_user: dashmate
   args:
