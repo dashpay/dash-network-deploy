@@ -223,12 +223,12 @@ variable "load_test_root_disk_size" {
 
 variable "load_test_instance_type" {
   description = "Instance type of log nodes"
-  default     = "i4g"
+  default     = "c6a"
 }
 
 variable "load_test_instance_size" {
   description = "Instance size of log nodes"
-  default     = "large"
+  default     = "xlarge"
 }
 
 variable "wallet_node_instance_size" {
