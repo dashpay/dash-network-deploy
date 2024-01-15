@@ -26,3 +26,6 @@ ${seed_hosts}
 
 [load_test]
 ${load_test_hosts}
+
+[prometheus]
+${prometheus_hosts}

@@ -39,6 +39,14 @@ locals {
     }
   )
 
+    service_prometheus = templatefile(
+    "${path.module}/templates/services/service.tpl",
+    {
+      name = "Prometheus"
+      port = var.prometheus_port
+    }
+  )
+
   service_tendermint_rpc = templatefile(
     "${path.module}/templates/services/service.tpl",
     {

@@ -495,3 +495,41 @@ resource "aws_instance" "load_test" {
   }
 
 }
+
+resource "aws_instance" "prometheus" {
+  count = var.prometheus_count
+
+  ami                  = data.aws_ami.ubuntu_arm.id
+  instance_type        = join(".", [var.prometheus_instance_type, var.prometheus_instance_size])
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  root_block_device {
+    volume_size = var.prometheus_root_disk_size
+    volume_type = var.volume_type
+  }
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.prometheus.id,
+  ]
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-prometheus-${count.index + 1}"
+    Hostname    = "prometheus-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-prometheus-${count.index + 1}"
+    Hostname    = "prometheus-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
+}
