@@ -1,3 +1,82 @@
+# [0.25.0](https://github.com/dashpay/dash-network-deploy/compare/v0.25.0-dev.8...v0.25.0) (2024-01-13)
+
+* fix(terraform): InvalidInput error by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/499
+* feat!: core v20 and platform v0.25 updates by @strophy in https://github.com/dashpay/dash-network-deploy/pull/490
+* feat: initial multi-stage deployment by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/520
+* chore: merge master by @strophy in https://github.com/dashpay/dash-network-deploy/pull/523
+* fix: multiple initilalizations of bls by @markin-io in https://github.com/dashpay/dash-network-deploy/pull/512
+* fix: ansible-lint no-changed-when by @strophy in https://github.com/dashpay/dash-network-deploy/pull/532
+* chore: update logs syntax for drive 0.25 by @strophy in https://github.com/dashpay/dash-network-deploy/pull/526
+* feat: dashmate for seeds by @pshenmic in https://github.com/dashpay/dash-network-deploy/pull/535
+* fix: dashmate config changed on every run by @strophy in https://github.com/dashpay/dash-network-deploy/pull/537
+* chore: remove unused todo tasks by @strophy in https://github.com/dashpay/dash-network-deploy/pull/538
+* chore: speedup address import by @strophy in https://github.com/dashpay/dash-network-deploy/pull/539
+* fix: hpmn methods are deprecated by @strophy in https://github.com/dashpay/dash-network-deploy/pull/540
+* chore: support Platform v0.25 by @strophy in https://github.com/dashpay/dash-network-deploy/pull/541
+* feat(dashmate): optional initial core chain locked height by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/542
+* fix: misnamed vars by @strophy in https://github.com/dashpay/dash-network-deploy/pull/543
+* chore: remove sentinel tests by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/544
+* chore: revert var name to private_key by @strophy in https://github.com/dashpay/dash-network-deploy/pull/546
+* chore: revert replace dashmate config command with config file stat by @strophy in https://github.com/dashpay/dash-network-deploy/pull/547
+* chore(release): release 0.25.0-dev.2 by @strophy in https://github.com/dashpay/dash-network-deploy/pull/548
+* fix: initial_core_chain_locked_height missing even if defined by @strophy in https://github.com/dashpay/dash-network-deploy/pull/549
+* test(dapi): fix data contract not found test by @markin-io in https://github.com/dashpay/dash-network-deploy/pull/550
+* refactor: remove `isseednode` by @strophy in https://github.com/dashpay/dash-network-deploy/pull/552
+* fix: Error: Timeout of 20000ms exceeded by @strophy in https://github.com/dashpay/dash-network-deploy/pull/553
+* feat: coinjoin mixing by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/528
+* fix(dashmate): switch back to outdated certificate on deploy by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/556
+* chore: remove sentinel by @strophy in https://github.com/dashpay/dash-network-deploy/pull/555
+* chore: update docker release and deps by @strophy in https://github.com/dashpay/dash-network-deploy/pull/557
+* fix: objc[32080]: +[__NSCFConstantString initialize] may have been in… by @strophy in https://github.com/dashpay/dash-network-deploy/pull/558
+* docs: clarify the purpose of running `dashmate config` by @strophy in https://github.com/dashpay/dash-network-deploy/pull/559
+* chore: update default versions in config and add vars by @strophy in https://github.com/dashpay/dash-network-deploy/pull/560
+* feat(tests): improve smoke tests error reporting by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/561
+* fix: AssertionError: no block info by @strophy in https://github.com/dashpay/dash-network-deploy/pull/562
+* fix(tests): invalid DAPI error handling by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/564
+* fix(tests): unsupported DAPI tests for seed nodes by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/565
+* chore: create tenderdash role for seed nodes by @strophy in https://github.com/dashpay/dash-network-deploy/pull/567
+* chore: fix linting errors by @strophy in https://github.com/dashpay/dash-network-deploy/pull/568
+* chore: install jq once only by @strophy in https://github.com/dashpay/dash-network-deploy/pull/569
+* chore: replace cloudwatch mon script with cloudwatch agent by @strophy in https://github.com/dashpay/dash-network-deploy/pull/570
+* chore: add drive abci epoch time to config by @strophy in https://github.com/dashpay/dash-network-deploy/pull/571
+* chore: push Drive logs from the file by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/573
+* fix: dashmate restart logic by @strophy in https://github.com/dashpay/dash-network-deploy/pull/575
+* chore: update filebeat platform template for tenderdash logs by @strophy in https://github.com/dashpay/dash-network-deploy/pull/576
+* fix(test)!: wrong error expected by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/578
+* chore(release): bump version to 0.25.0-dev.8 by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/579
+* chore: limit metrics collection by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/580
+* chore: update cloudwatch monitoring by @strophy in https://github.com/dashpay/dash-network-deploy/pull/572
+* chore: update filebeat templates to support drive from file and tenderdash only on logs nodes by @strophy in https://github.com/dashpay/dash-network-deploy/pull/581
+* chore: use instance store for logs data by @strophy in https://github.com/dashpay/dash-network-deploy/pull/563
+* chore: make monitoring config more granular by @strophy in https://github.com/dashpay/dash-network-deploy/pull/583
+* chore: change instance type by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/584
+* feat!: add GroveDb operations log by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/582
+* fix: extra comma causing json schema validation error by @strophy in https://github.com/dashpay/dash-network-deploy/pull/586
+* chore: enable full text indexing on tenderdash errors by @strophy in https://github.com/dashpay/dash-network-deploy/pull/588
+* fix: drive log specification missing grovedb ops by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/589
+* chore: update terraform and deps by @strophy in https://github.com/dashpay/dash-network-deploy/pull/590
+* fix: alarm dimensions by @strophy in https://github.com/dashpay/dash-network-deploy/pull/587
+* chore: log only grovedb operaions by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/592
+* feat: generate minimal dash.conf file in configs repo by @strophy in https://github.com/dashpay/dash-network-deploy/pull/593
+* chore: make logs node type a variable by @strophy in https://github.com/dashpay/dash-network-deploy/pull/594
+* chore(dashmate): change ssl dir path by @pshenmic in https://github.com/dashpay/dash-network-deploy/pull/595
+* chore(dashmate): add `core.docker.commandArgs` option by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/597
+* fix: *_hpmn methods are deprecated. Use the related *_evo methods by @strophy in https://github.com/dashpay/dash-network-deploy/pull/598
+* Fix: ensure seed listens by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/599
+* chore: update to new dashmate version by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/601
+* feat: upgrade Node to 20 (LTS) by @pshenmic in https://github.com/dashpay/dash-network-deploy/pull/600
+* fix: increase timeout on sendtx test by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/602
+* chore: fix mixer nodes by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/603
+* chore: open tenderdash metrics port for private network by @ktechmidas in https://github.com/dashpay/dash-network-deploy/pull/604
+* chore!: update to dashmate 0.25.16 by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/605
+* fix: invalid tenderdash metrics host by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/606
+* chore!: update dashmate config for v0.25.20 by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/608
+* feat: configure grovedb operation logs by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/609
+* fix: object of type 'NoneType' has no len() by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/610
+* chore: update es 8.11.3 by @strophy in https://github.com/dashpay/dash-network-deploy/pull/611
+* feat: ssh to host command by @shumkov in https://github.com/dashpay/dash-network-deploy/pull/614
+
+
 # [0.23.0](https://github.com/dashpay/dash-network-deploy/compare/v0.23.0-dev.4...v0.23.0) (2022-12-07)
 
 ### Bug Fixes

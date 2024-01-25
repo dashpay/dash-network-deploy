@@ -24,6 +24,7 @@ drive_image: dashpay/drive
 drive_log_stdout_level: info
 drive_log_pretty_file_level: silent
 drive_log_json_file_level: silent
+drive_log_grovedb_operations: false
 platform_drive_validator_set_llmq_type:
 
 core_llmq_types:
@@ -158,9 +159,9 @@ swap_space: 2G
 
 elastic_username: elastic
 elastic_password:
-elastic_version: 8.7.0
+elastic_version: 8.11.3
 kibana_encryptionkey:
-# Set to 50% of instance memory 
+# Set to 50% of instance memory
 # https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
 elastic_heap_size: 16g
 
