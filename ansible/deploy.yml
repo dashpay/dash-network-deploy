@@ -39,6 +39,12 @@
   hosts: load_test
   become: true
   roles:
+    - role: load_tool
+
+- name: Setup load testers
+  hosts: load_test
+  become: true
+  roles:
     - role: load_tester
 
 - name: Setup jq, Python, CWAgent and Docker

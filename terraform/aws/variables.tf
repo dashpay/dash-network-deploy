@@ -146,9 +146,9 @@ variable "load_test_count" {
   description = "number of load testing nodes to create. set to 0 to disable load testing for the network"
 }
 
-variable "prometheus_count" {
-  default     = 1
-  description = "number of prometheus nodes to create. set to 0 to disable. Should generally not be higher than 1"
+variable "metrics_count" {
+  default     = 0
+  description = "number of metrics nodes to create. set to 0 to disable. Should generally not be higher than 1"
 }
 
 variable "main_host_arch" {
@@ -241,17 +241,17 @@ variable "load_test_instance_size" {
   default     = "xlarge"
 }
 
-variable "prometheus_root_disk_size" {
+variable "metrics_root_disk_size" {
   description = "Default disk size for load testing nodes"
   default     = 20
 }
 
-variable "prometheus_instance_type" {
+variable "metrics_instance_type" {
   description = "Instance type of log nodes"
   default     = "c6a"
 }
 
-variable "prometheus_instance_size" {
+variable "metrics_instance_size" {
   description = "Instance size of log nodes"
   default     = "xlarge"
 }

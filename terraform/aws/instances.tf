@@ -496,16 +496,16 @@ resource "aws_instance" "load_test" {
 
 }
 
-resource "aws_instance" "prometheus" {
-  count = var.prometheus_count
+resource "aws_instance" "metrics" {
+  count = var.metrics_count
 
   ami                  = data.aws_ami.ubuntu_arm.id
-  instance_type        = join(".", [var.prometheus_instance_type, var.prometheus_instance_size])
+  instance_type        = join(".", [var.metrics_instance_type, var.metrics_instance_size])
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   root_block_device {
-    volume_size = var.prometheus_root_disk_size
+    volume_size = var.metrics_root_disk_size
     volume_type = var.volume_type
   }
 
