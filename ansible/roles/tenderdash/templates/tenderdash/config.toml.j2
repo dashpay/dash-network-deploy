@@ -492,7 +492,7 @@ psql-conn = ""
 prometheus = true
 
 # Address to listen for Prometheus collector(s) connections
-prometheus-listen-addr = ":36660"
+prometheus-listen-addr = ":{{ prometheus_port }}"
 
 # Maximum number of simultaneous connections.
 # If you want to accept a larger number than the default, make sure

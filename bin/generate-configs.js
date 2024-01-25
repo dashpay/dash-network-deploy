@@ -13,6 +13,7 @@ async function main() {
     hpMasternodesArmCount,
     seedsCount,
     mixerCount,
+    loadTestCount,
   ] = process.argv.slice(2);
 
   const masternodesCount = parseInt(masternodesAmdCount, 10)
@@ -29,6 +30,7 @@ async function main() {
       hpMasternodesCount,
       seedsCount,
       mixerCount,
+      loadTestCount,
     );
     await generateTerraformConfig(
       network,
@@ -38,6 +40,7 @@ async function main() {
       hpMasternodesAmdCount,
       hpMasternodesArmCount,
       mixerCount,
+      loadTestCount,
     );
   } else {
     console.error('seeds_count and total masternodes_count must both be positive integers');

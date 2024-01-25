@@ -223,7 +223,7 @@
             "metrics": {
               "enabled": true,
               "host": "{{ private_ip }}",
-              "port": 36660
+              "port": {{ prometheus_port }}
             },
             "consensus": {
               "createEmptyBlocks": true,

@@ -9,11 +9,12 @@
         - "80:80"
       volumes:
         - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
     prometheus:
       image: prom/prometheus:latest
       command:
         - '--config.file=/etc/prometheus/prometheus.yml'
-        - '--web.external-url=http://{{ ansible_host }}/prometheus'
+        - '--web.external-url=http://{{ public_ip }}/prometheus'
         - '--log.level=debug'
       volumes:
         - ./prometheus/config:/etc/prometheus

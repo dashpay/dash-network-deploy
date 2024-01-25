@@ -177,3 +177,8 @@ masternode_network_latency_max: 100
 # Dashmate stuff
 dashmate_home: /home/dashmate
 dashmate_logs_dir: '{{ dashmate_home }}/logs'
+
+# Wallet funding amount for load testing nodes
+load_tester_wallet_amount: 100
+
+prometheus_port: 36660

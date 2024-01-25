@@ -7,33 +7,36 @@
     recurse: yes
     owner: '{{ metrics_user }}'
     group: '{{ metrics_user }}'
-    mode: "0755"
+    mode: '0755'
   loop:
-    - /home/{{ ansible_user }}/metrics/prometheus/config
-    - /home/{{ ansible_user }}/metrics/grafana
-    - /home/{{ ansible_user }}/metrics/haproxy
+    - '{{ metrics_path }}/prometheus/config'
+    - '{{ metrics_path }}/grafana'
+    - '{{ metrics_path }}/haproxy'
 
-- name: Copy haproxy and prometheus rules
+- name: Copy haproxy configs and prometheus rules
   ansible.builtin.copy:
-      src: "{{ item }}"
-      dest: "{{ item }}"
-      owner: '{{ metrics_user }}'
-      group: '{{ metrics_user }}'
-      mode: "0644"
+    src: '{{ item }}'
+    dest: '{{ metrics_path }}/{{ item }}'
+    owner: '{{ metrics_user }}'
+    group: '{{ metrics_user }}'
+    mode: '0644'
   loop:
-      - haproxy/haproxy.cfg
-      - prometheus/rules.yml
+    - haproxy/haproxy.cfg
+    - prometheus/rules.yml
 
-- name: Copy prometheus config
+- name: Render prometheus and docker compose configs
   ansible.builtin.template:
-      src: prometheus.yml.j2
-      dest: prometheus.yml
-      owner: '{{ metrics_user }}'
-      group: '{{ metrics_user }}'
-      mode: "0644"
+    src: '{{ item }}.j2'
+    dest: '{{ metrics_path }}/{{ item }}'
+    owner: '{{ metrics_user }}'
+    group: '{{ metrics_user }}'
+    mode: '0644'
+  loop:
+    - prometheus.yml
+    - docker-compose.yml
 
 - name: Start metrics
   community.docker.docker_compose:
-    project_src: /path/to/docker-compose-file-directory
+    project_src: '{{ metrics_path }}'
     restart: yes
     state: present

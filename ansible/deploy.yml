@@ -35,18 +35,6 @@
       when: openvpn_enabled
       tags: vpn
 
-- name: Setup load tester
-  hosts: load_test
-  become: true
-  roles:
-    - role: load_tool
-
-- name: Setup load testers
-  hosts: load_test
-  become: true
-  roles:
-    - role: load_tester
-
 - name: Setup jq, Python, CWAgent and Docker
   hosts: all
   become: true
@@ -88,6 +76,18 @@
   become: true
   roles:
     - elastic_stack
+
+- name: Setup load tester
+  hosts: load_test
+  become: true
+  roles:
+    - role: load_tool
+
+- name: Setup metrics
+  hosts: metrics
+  become: true
+  roles:
+    - role: metrics
 
 - name: Set up miners
   hosts: miners
@@ -242,6 +242,21 @@
     - role: activate_dashd_sporks
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
+
+
+- name: Fund load tester nodes
+  hosts: wallet_nodes
+  become: true
+  tasks:
+    - name: Extract load tester addresses
+      ansible.builtin.set_fact:
+        load_tester_addresses: "{{ load_testers.values() | map(attribute='wallet.address') | list }}"
+
+    - name: Include funding for load testers
+      ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
+      vars:
+        payment_targets: "{{ load_tester_addresses }}"
+        amount: "{{ load_tester_wallet_amount }}"
 
 # todo: partially working code causes errors in deploy, comment out for now and fix later
 # - name: Create governance proposals

@@ -71,14 +71,14 @@ locals {
     )
   ]
 
-  prometheus_hosts = [
-    for n in range(length(aws_instance.prometheus)) : templatefile(
+  metrics_hosts = [
+    for n in range(length(aws_instance.metrics)) : templatefile(
       "${path.module}/templates/inventory/hostname.tpl",
       {
         index      = n + 1
-        name       = element(aws_instance.prometheus.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.prometheus.*.public_ip, n)
-        private_ip = element(aws_instance.prometheus.*.private_ip, n)
+        name       = element(aws_instance.metrics.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.metrics.*.public_ip, n)
+        private_ip = element(aws_instance.metrics.*.private_ip, n)
       }
     )
   ]
@@ -175,7 +175,7 @@ locals {
           local.hp_masternode_hosts.*,
           local.vpn.*,
           local.load_test_hosts.*,
-          local.prometheus_hosts.*,
+          local.metrics_hosts.*,
         ),
       )
       web_hosts           = join("\n", concat(aws_instance.web.*.tags.Hostname))
@@ -187,7 +187,7 @@ locals {
       hp_masternode_hosts = join("\n", concat(aws_instance.hp_masternode_amd.*.tags.Hostname), concat(aws_instance.hp_masternode_arm.*.tags.Hostname))
       seed_hosts          = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
       load_test_hosts     = join("\n", concat(aws_instance.load_test.*.tags.Hostname))
-      prometheus_hosts     = join("\n", concat(aws_instance.prometheus.*.tags.Hostname))
+      metrics_hosts     = join("\n", concat(aws_instance.metrics.*.tags.Hostname))
     }
   )
 }

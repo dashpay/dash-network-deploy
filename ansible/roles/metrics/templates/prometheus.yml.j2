@@ -37,8 +37,8 @@ scrape_configs:
     # scheme defaults to 'http'.
 
     static_configs:
-{% for host in groups['hp_masternodes'] %}
-      - targets: ["{{ hostvars[host]['private_ip'] }}:36660"]
+{% for hp_name in groups["hp_masternodes"] %}
+      - targets: ["{{ hostvars[hp_name]['private_ip'] }}:{{ prometheus_port }}"]
         labels:
-          node: "{{ host }}"
+          node: "{{ hp_name }}"
 {% endfor %}
