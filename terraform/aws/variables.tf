@@ -233,7 +233,7 @@ variable "load_test_root_disk_size" {
 
 variable "load_test_instance_type" {
   description = "Instance type of log nodes"
-  default     = "c6a"
+  default     = "c6g"
 }
 
 variable "load_test_instance_size" {
@@ -248,7 +248,7 @@ variable "metrics_root_disk_size" {
 
 variable "metrics_instance_type" {
   description = "Instance type of log nodes"
-  default     = "c6a"
+  default     = "c6g"
 }
 
 variable "metrics_instance_size" {
