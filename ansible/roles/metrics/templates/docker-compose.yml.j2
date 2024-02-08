@@ -2,15 +2,13 @@
   services:
     haproxy:
       image: haproxy:latest
-      build:
-        context: ./haproxy
-        dockerfile: ./haproxy/Dockerfile
       ports:
         - "80:80"
       volumes:
         - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
 
     prometheus:
+      user: root
       image: prom/prometheus:latest
       command:
         - '--config.file=/etc/prometheus/prometheus.yml'
@@ -24,6 +22,7 @@
 
     grafana:
       image: grafana/grafana:latest
+      user: root 
       volumes:
         - ./grafana/data:/var/lib/grafana # TODO: Must be mounted on a volume or mnt?
       environment:
