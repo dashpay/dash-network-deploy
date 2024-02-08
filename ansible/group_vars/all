@@ -60,9 +60,6 @@ insight_image: dashpay/insight
 insight_api_image: dashpay/insight-api
 insight_port: 3001
 
-#Prometheus
-prometheus_port: 80
-
 # Multifaucet
 multifaucet_image: dashpay/multifaucet:latest
 
