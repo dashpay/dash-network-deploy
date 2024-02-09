@@ -1,0 +1,6 @@
+protoc_version: "25.2"
+protoc_dest_path: "/opt/protoc"
+protoc_bin_path: "/usr/bin/protoc"
+protoc_zip_file_name: "protoc-{{ protoc_version }}-linux-{{ 'aarch_64' if ansible_architecture == 'aarch64' else 'x86_64' }}.zip"
+protoc_zip_url: "https://github.com/protocolbuffers/protobuf/releases/download/v{{ protoc_version }}/{{ protoc_zip_file_name }}"
+protoc_zip_path: "/tmp"

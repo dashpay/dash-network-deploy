@@ -1,0 +1,27 @@
+- name: Download protoc zip file
+  ansible.builtin.get_url:
+    url: "{{ protoc_zip_url }}"
+    dest: "/tmp/"
+    mode: '0644'
+
+- name: Ensure destination directory exists
+  ansible.builtin.file:
+    path: "{{ protoc_dest_path }}"
+    state: directory
+    mode: '0755'
+
+- name: Unzip protoc to the destination
+  ansible.builtin.unarchive:
+    src: "{{ protoc_zip_path }}/{{ protoc_zip_file_name }}"
+    dest: "{{ protoc_dest_path }}"
+    remote_src: yes
+# TODO: Create an empty file with version and then check if it's exists
+#    creates: "{{ protoc_dest_path }}/{{ protoc_version }}-installed"
+    mode: '755'
+
+- name: Create symlink for protoc
+  ansible.builtin.file:
+    src: "{{ protoc_dest_path }}/bin/protoc"
+    dest: "{{ protoc_bin_path }}"
+    state: link
+    force: yes

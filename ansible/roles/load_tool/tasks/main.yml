@@ -16,7 +16,6 @@
       - libc-dev
       - libssl-dev
       - pkg-config
-      - protobuf-compiler
     state: present
   when: dashmate_platform_enable
 
