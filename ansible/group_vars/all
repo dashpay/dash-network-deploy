@@ -160,7 +160,7 @@ elastic_version: 8.11.3
 kibana_encryptionkey:
 # Set to 50% of instance memory
 # https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
-elastic_heap_size: 16g
+elastic_heap_size: 8g
 
 elastic_compose_project_name: elastic
 elastic_path: '{{ dashd_home }}/{{ elastic_compose_project_name }}'
