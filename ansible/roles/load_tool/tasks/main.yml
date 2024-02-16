@@ -39,7 +39,6 @@
   git:
     repo: 'https://github.com/dashpay/platform.git'
     dest: /home/ubuntu/load-test/platform
-    version: feat/register
   become: true
   become_user: ubuntu
 
