@@ -2,93 +2,93 @@
 
 - name: Set vars
   ansible.builtin.import_tasks: ./set_vars.yml
-#
-#- name: Create dashmate group
-#  ansible.builtin.group:
-#    name: '{{ dashmate_group }}'
-#
-#- name: Create dashmate user
-#  ansible.builtin.user:
-#    name: '{{ dashmate_user }}'
-#    comment: 'Dashmate user'
-#    group: '{{ dashmate_group }}'
-#    home: '{{ dashmate_home }}'
-#    create_home: true
-#    shell: /bin/bash
-#    umask: '0002'
-#
-#- name: Add dashmate user to docker group
-#  ansible.builtin.user:
-#    name: 'dashmate'
-#    groups: docker
-#    append: true
-#
-#- name: Write dash.conf for dash-cli
-#  ansible.builtin.template:
-#    src: dash.conf.j2
-#    dest: /etc/dash.conf
-#    owner: root
-#    group: root
-#    mode: "0644"
-#
-#- name: Configure users for dash-cli
-#  ansible.builtin.include_role:
-#    name: dash_cli
-#    tasks_from: configure_users
-#  vars:
-#    dashmate_user_dict:
-#      user: '{{ dashmate_user }}'
-#      group: '{{ dashmate_group }}'
-#      dir: '{{ dashmate_home }}'
-#    users: '{{ system_users + [dashmate_user_dict] }}'
-#
-#- name: Create logs dir
-#  ansible.builtin.file:
-#    path: '{{ dashmate_logs_dir }}'
-#    state: directory
-#    owner: '{{ dashmate_user }}'
-#    group: '{{ dashmate_group }}'
-#    recurse: true
-#
-#- name: Configure log rotation
-#  ansible.builtin.include_role:
-#    name: arillso.logrotate
-#  vars:
-#    logrotate_applications:
-#      - name: platform-logs
-#        definitions:
-#          - logs:
-#              - '{{ dashmate_logs_dir }}/*.log'
-#            options:
-#              - rotate 7
-#              - daily
-#              - maxsize 1G
-#              - missingok
-#              - notifempty
-#              - copytruncate
-#              - compress
-#              - delaycompress
-#
-#- name: Ensure logrotate runs hourly under systemd timer
-#  ansible.builtin.lineinfile:
-#    path: /lib/systemd/system/logrotate.timer
-#    regexp: '^OnCalendar=hourly'
-#    insertafter: '^OnCalendar=daily'
-#    line: OnCalendar=hourly
-#
-#- name: Create dashmate config dir
-#  ansible.builtin.file:
-#    path: '{{ item }}'
-#    state: directory
-#    owner: '{{ dashmate_user }}'
-#    group: '{{ dashmate_group }}'
-#    mode: '0755'
-#  loop:
-#    - '{{ dashmate_config_dir }}'
-#
-#- name: Build dashmate
-#  ansible.builtin.import_tasks: ./build.yml
-#  when: dashmate_branch is defined
+
+- name: Create dashmate group
+  ansible.builtin.group:
+    name: '{{ dashmate_group }}'
+
+- name: Create dashmate user
+  ansible.builtin.user:
+    name: '{{ dashmate_user }}'
+    comment: 'Dashmate user'
+    group: '{{ dashmate_group }}'
+    home: '{{ dashmate_home }}'
+    create_home: true
+    shell: /bin/bash
+    umask: '0002'
+
+- name: Add dashmate user to docker group
+  ansible.builtin.user:
+    name: 'dashmate'
+    groups: docker
+    append: true
+
+- name: Write dash.conf for dash-cli
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: /etc/dash.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure users for dash-cli
+  ansible.builtin.include_role:
+    name: dash_cli
+    tasks_from: configure_users
+  vars:
+    dashmate_user_dict:
+      user: '{{ dashmate_user }}'
+      group: '{{ dashmate_group }}'
+      dir: '{{ dashmate_home }}'
+    users: '{{ system_users + [dashmate_user_dict] }}'
+
+- name: Create logs dir
+  ansible.builtin.file:
+    path: '{{ dashmate_logs_dir }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    recurse: true
+
+- name: Configure log rotation
+  ansible.builtin.include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_applications:
+      - name: platform-logs
+        definitions:
+          - logs:
+              - '{{ dashmate_logs_dir }}/*.log'
+            options:
+              - rotate 7
+              - daily
+              - maxsize 1G
+              - missingok
+              - notifempty
+              - copytruncate
+              - compress
+              - delaycompress
+
+- name: Ensure logrotate runs hourly under systemd timer
+  ansible.builtin.lineinfile:
+    path: /lib/systemd/system/logrotate.timer
+    regexp: '^OnCalendar=hourly'
+    insertafter: '^OnCalendar=daily'
+    line: OnCalendar=hourly
+
+- name: Create dashmate config dir
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  loop:
+    - '{{ dashmate_config_dir }}'
+
+- name: Build dashmate
+  ansible.builtin.import_tasks: ./build.yml
+  when: dashmate_branch is defined
 
 - name: Install dashmate
   ansible.builtin.import_tasks: ./install.yml
@@ -240,47 +240,47 @@
 
 # Start all if everything is stopped (not started yet)
 - name: Start all dashmate services
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --platform --verbose"
+  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start_all
-#  when:
-#    - not is_core_started
-#    - not is_platform_started
+  when:
+    - not is_core_started
+    - not is_platform_started
   changed_when: dashmate_start_all.rc == 0
 
 # Restart logic
 # dashmate version is changed => restart all
 # dashmate config is changed => restart all
-#
-#- name: Restart all dashmate services
-#  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_restart_all
-#  when:
-#    - not dashmate_start_all.changed
-#    - is_dashmate_package_changed or is_dashmate_config_changed
-#  changed_when: dashmate_restart_all.rc == 0
-#
-## Force start logic
-## Force start is equivalent to `docker compose up` and will replace services that have changed
-#
-#- name: Start not started services and replace updated services
-#  ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_force_start
-#  when:
-#    - not dashmate_start_all.changed
-#    - not dashmate_restart_all.changed
-#  changed_when: dashmate_force_start.rc == 0
+
+- name: Restart all dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_restart_all
+  when:
+    - not dashmate_start_all.changed
+    - is_dashmate_package_changed or is_dashmate_config_changed
+  changed_when: dashmate_restart_all.rc == 0
+
+# Force start logic
+# Force start is equivalent to `docker compose up` and will replace services that have changed
+
+- name: Start not started services and replace updated services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_force_start
+  when:
+    - not dashmate_start_all.changed
+    - not dashmate_restart_all.changed
+  changed_when: dashmate_force_start.rc == 0
 
 - name: Disable dashmate helper build
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
