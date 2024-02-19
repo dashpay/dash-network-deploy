@@ -29,7 +29,7 @@
   register: rustup
 
 - name: Install Rust
-  ansible.builtin.command: 
+  ansible.builtin.command:
     cmd: "/home/ubuntu/rustup.sh -y"
   become: true
   become_user: ubuntu
