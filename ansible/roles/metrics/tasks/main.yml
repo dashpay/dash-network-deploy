@@ -4,7 +4,7 @@
   ansible.builtin.file:
     path: '{{ metrics_path }}/{{ item }}'
     state: directory
-    recurse: yes
+    recurse: true
     owner: '{{ metrics_user }}'
     group: '{{ metrics_user }}'
     mode: '0755'
@@ -43,5 +43,5 @@
 - name: Start metrics
   community.docker.docker_compose:
     project_src: '{{ metrics_path }}'
-    restarted: yes
+    restarted: true
     state: present

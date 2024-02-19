@@ -14,7 +14,7 @@
   ansible.builtin.unarchive:
     src: "{{ protoc_zip_path }}/{{ protoc_zip_file_name }}"
     dest: "{{ protoc_dest_path }}"
-    remote_src: yes
+    remote_src: true
 # TODO: Create an empty file with version and then check if it's exists
 #    creates: "{{ protoc_dest_path }}/{{ protoc_version }}-installed"
     mode: '755'
@@ -24,4 +24,4 @@
     src: "{{ protoc_dest_path }}/bin/protoc"
     dest: "{{ protoc_bin_path }}"
     state: link
-    force: yes
+    force: true

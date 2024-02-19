@@ -29,14 +29,15 @@
   register: rustup
 
 - name: Install Rust
-  ansible.builtin.shell: '/home/ubuntu/rustup.sh -y'
+  ansible.builtin.command: 
+    cmd: "/home/ubuntu/rustup.sh -y"
   become: true
   become_user: ubuntu
   when: rustup.changed # noqa: no-handler
   changed_when: true
 
 - name: Clone platform
-  git:
+  ansible.builtin.git:
     repo: 'https://github.com/dashpay/platform.git'
     dest: /home/ubuntu/load-test/platform
     version: feat/register
@@ -44,7 +45,7 @@
   become_user: ubuntu
 
 - name: Clone explorer
-  git:
+  ansible.builtin.git:
     repo: 'https://github.com/dashpay/rs-platform-explorer.git'
     dest: /home/ubuntu/load-test/rs-platform-explorer
     version: load-test
@@ -52,7 +53,7 @@
   become_user: ubuntu
 
 - name: Create .env file
-  template:
+  ansible.builtin.template:
     src: .env.j2
     dest: /home/ubuntu/load-test/rs-platform-explorer/.env
     owner: ubuntu
