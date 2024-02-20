@@ -42,20 +42,12 @@ if [[ -z ${HP_MASTERNODES_AMD_COUNT} ]] || [[ -z ${HP_MASTERNODES_ARM_COUNT} ]];
 fi
 
 SEEDS_COUNT="1"
-MIXER_COUNT="0"
-LOAD_TEST_COUNT="0"
 
 for i in "${@:4}"
 do
 case ${i} in
     -s=*|--seeds-count=*)
     SEEDS_COUNT="${i#*=}"
-    ;;
-    -m=*|--mixer-count=*)
-    MIXER_COUNT="${i#*=}"
-    ;;
-    -l=*|--load-test-count=*)
-    LOAD_TEST_COUNT="${i#*=}"
     ;;
 esac
 done
@@ -65,4 +57,4 @@ done
 node ./bin/generate-configs.js ${NETWORK} ${NETWORK_NAME} \
   ${MASTERNODES_AMD_COUNT}    ${MASTERNODES_ARM_COUNT}    \
   ${HP_MASTERNODES_AMD_COUNT} ${HP_MASTERNODES_ARM_COUNT} \
-  ${SEEDS_COUNT} ${MIXER_COUNT} ${LOAD_TEST_COUNT}
+  ${SEEDS_COUNT}
