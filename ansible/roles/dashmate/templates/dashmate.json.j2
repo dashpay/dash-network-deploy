@@ -179,6 +179,12 @@
                 "color": null
               }{% endif %}
             },
+            "tokioConsole": {
+              "enabled": false,
+              "host": "127.0.0.1",
+              "port": 6669,
+              "retention_secs": 180
+            },
             "validatorSet": {
               "llmqType": {{ platform_drive_validator_set_llmq_type }}
             },
@@ -298,7 +304,7 @@
                   ]
                 },
                 "abci": {
-                  "recheck_tx": false
+                  "recheck_tx": true
                 },
                 "version": {
                   "app_version": "1"
