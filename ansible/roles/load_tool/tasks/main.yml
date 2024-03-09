@@ -40,8 +40,7 @@
   ansible.builtin.git:
     repo: 'https://github.com/dashpay/platform.git'
     dest: /home/ubuntu/load-test/platform
-    bare: yes
-    update: no
+    version: '{{ dashmate_branch }}'
   become: true
   become_user: ubuntu
 
