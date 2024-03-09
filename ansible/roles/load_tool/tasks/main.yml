@@ -40,6 +40,8 @@
   ansible.builtin.git:
     repo: 'https://github.com/dashpay/platform.git'
     dest: /home/ubuntu/load-test/platform
+    bare: yes
+    update: no
   become: true
   become_user: ubuntu
 
