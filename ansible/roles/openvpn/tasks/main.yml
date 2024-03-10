@@ -8,7 +8,7 @@
 
 - name: Setup OpenVPN
   ansible.builtin.include_role:
-    name: kyl191.openvpn
+    name: ktechmidas.openvpn
   vars:
     clients:
       - '{{ dash_network_name }}'
