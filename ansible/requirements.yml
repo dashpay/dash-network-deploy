@@ -38,5 +38,5 @@ roles:
   - src: geerlingguy.pip
     version: 2.2.0
 
-  - src: kyl191.openvpn
-    version: v0.9.1
+  - src: ktechmidas.openvpn
+    version: 1.0.0
