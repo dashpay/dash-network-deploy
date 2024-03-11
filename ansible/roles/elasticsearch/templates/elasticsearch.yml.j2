@@ -1,0 +1,5 @@
+cluster.name: elasticsearch-cluster
+node.name: "{{ ansible_hostname }}"
+network.host: 0.0.0.0
+http.port: 9200
+discovery.type: single-node
