@@ -9,7 +9,7 @@ function terraform_init() {
 
     # Initialize terraform w/remote AWS backend configuration
 
-    terraform init -reconfigure \
+    terraform init \
         -backend-config="bucket=$TERRAFORM_S3_BUCKET" \
         -backend-config="key=$TERRAFORM_S3_KEY" \
         -backend-config="region=$AWS_REGION" \
