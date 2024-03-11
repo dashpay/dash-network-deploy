@@ -15,30 +15,14 @@
   ansible.builtin.apt:
     name: kibana
     state: present
-    update_cache: yes
+    update_cache: true
   become: true
 
 - name: Configure Kibana
   ansible.builtin.template:
     src: kibana.yml.j2
     dest: /etc/kibana/kibana.yml
-  notify: Restart Kibana
-  become: true
-
-- name: Enable and start Kibana service
-  ansible.builtin.systemd:
-    name: kibana
-    enabled: true
-    state: started
-  become: true
-
-
-
-- name: Configure Kibana
-  ansible.builtin.template:
-    src: kibana.yml.j2
-    dest: /etc/kibana/kibana.yml
-    mode: '0644'  # Set file permissions to read/write for owner, read for group and others
+    mode: '0644'
   notify: Restart Kibana
   become: true
 

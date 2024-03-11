@@ -15,13 +15,14 @@
   ansible.builtin.apt:
     name: elasticsearch
     state: present
-    update_cache: yes
+    update_cache: true
   become: true
 
 - name: Configure Elasticsearch
   ansible.builtin.template:
     src: elasticsearch.yml.j2
     dest: /etc/elasticsearch/elasticsearch.yml
+    mode: '0644'
   notify: Restart Elasticsearch
   become: true
 
@@ -31,20 +32,4 @@
     enabled: true
     state: started
   become: true
-
-- name: Configure Elasticsearch
-  ansible.builtin.template:
-    src: elasticsearch.yml.j2
-    dest: /etc/elasticsearch/elasticsearch.yml
-    mode: '0644'  # Set file permissions to read/write for owner, read for group and others
-  notify: Restart Elasticsearch
-  become: true
-
-- name: Enable and start Elasticsearch service
-  ansible.builtin.systemd:
-    name: elasticsearch
-    enabled: true
-    state: started
-  become: true
-
   
