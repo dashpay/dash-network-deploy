@@ -12,7 +12,7 @@ dashd_private_net_prefix: 16
 dashd_private_cidr: '{{ private_ip | ansible.utils.ipsubnet(dashd_private_net_prefix) }}'
 
 # When running devnet/regtest in local networks, we have to allow RFC1918/private addresses
-dashd_allowprivatenet: '{% if dashd_externalip | ansible.utils.ipaddr("private") == dashd_externalip %}1{% else %}0{% endif %}'
-
+#dashd_allowprivatenet: '{% if dashd_externalip | ansible.utils.ipaddr("private") == dashd_externalip %}1{% else %}0{% endif %}'
+dashd_allowprivatenet: "0"
 dashd_compose_project_name: dashcore
 dashd_compose_path: '{{ dashd_home }}/{{ dashd_compose_project_name }}'

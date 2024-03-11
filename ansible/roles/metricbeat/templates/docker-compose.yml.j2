@@ -1,0 +1,18 @@
+version: '3'
+services:
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}
+    user: root
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /:/hostfs:ro
+      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    environment:
+      ELASTICSEARCH_HOST: "{{ elasticsearch_host }}"
+      ELASTICSEARCH_PORT: "{{ elasticsearch_port }}"
+      ELASTICSEARCH_USERNAME: "{{ elasticsearch_username }}"
+      ELASTICSEARCH_PASSWORD: "{{ elasticsearch_password }}"
+    command:
+      - "--strict.perms=false"
+      - "-system.hostfs=/hostfs"

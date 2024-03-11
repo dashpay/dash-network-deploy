@@ -1,0 +1,12 @@
+---
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+output.elasticsearch:
+  hosts: ["{{ elasticsearch_host }}:{{ elasticsearch_port }}"]
+  username: "{{ elasticsearch_username }}"
+  password: "{{ elasticsearch_password }}"
+
+setup.kibana:
+  host: "{{ kibana_host }}:{{ kibana_port }}"

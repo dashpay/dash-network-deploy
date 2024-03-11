@@ -1,0 +1,8 @@
+---
+metricbeat_version: "7.13.2" # Use the desired Metricbeat version
+elasticsearch_host: "elasticsearch" # Use the actual hostname of your Elasticsearch
+elasticsearch_port: 9200
+elasticsearch_username: "elastic"
+elasticsearch_password: "password" # Replace with your actual password
+kibana_host: "kibana" # Use the actual hostname of your Kibana
+kibana_port: 5601

@@ -1,0 +1,18 @@
+---
+- name: Deploy Metricbeat Docker container
+  docker_container:
+    name: metricbeat
+    image: "docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}"
+    state: started
+    restart_policy: always
+    volumes:
+      - "/proc:/hostfs/proc:ro"
+      - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
+      - "/:/hostfs:ro"
+      - "./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro"
+    command: "--strict.perms=false -system.hostfs=/hostfs"
+    env:
+      ELASTICSEARCH_HOST: "{{ elasticsearch_host }}"
+      ELASTICSEARCH_PORT: "{{ elasticsearch_port }}"
+      ELASTICSEARCH_USERNAME: "{{ elasticsearch_username }}"
+      ELASTICSEARCH_PASSWORD: "{{ elasticsearch_password }}"
