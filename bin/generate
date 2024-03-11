@@ -10,7 +10,6 @@ Usage: generate <network_name> <masternodes_amd_count> <masternodes_arm_count> <
 
 Options:
   -s=<count> --seeds-count=<count> - Number of seed nodes on the network
-  -m=<count> --mixer-count=<count> - Number of mixer nodes on the network (default 0)
   -h         --help                - Show help"
 
 for i in "$@"
