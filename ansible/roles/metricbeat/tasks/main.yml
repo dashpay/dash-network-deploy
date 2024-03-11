@@ -1,29 +1,29 @@
 ---
 - name: Install Metricbeat
-  apt:
+  ansible.builtin.apt:
     name: metricbeat
     state: present
     update_cache: yes
   become: true
 
 - name: Copy Metricbeat module configurations
-  copy:
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: "/etc/metricbeat/modules.d/{{ item | basename }}"
-  loop: "{{ lookup('fileglob', 'modules.d/*.yml', wantlist=True) }}"
+  loop: "{{ query('ansible.builtin.fileglob', 'modules.d/*.yml', wantlist=True) }}"
   notify: Restart Metricbeat
   become: true
 
 - name: Configure Metricbeat
-  template:
+  ansible.builtin.template:
     src: metricbeat.yml.j2
     dest: /etc/metricbeat/metricbeat.yml
   notify: Restart Metricbeat
   become: true
 
 - name: Enable and start Metricbeat service
-  systemd:
+  ansible.builtin.systemd:
     name: metricbeat
-    enabled: yes
+    enabled: true
     state: started
   become: true
