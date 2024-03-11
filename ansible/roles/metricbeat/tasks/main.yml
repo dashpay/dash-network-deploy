@@ -27,4 +27,22 @@
     enabled: true
     state: started
   become: true
+
+- name: Copy Metricbeat module configurations
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/metricbeat/modules.d/{{ item | basename }}"
+    mode: '0644'  # Set file permissions to read/write for owner, read for group and others
+  loop: "{{ query('ansible.builtin.fileglob', 'modules.d/*.yml', wantlist=True) }}"
+  notify: Restart Metricbeat
+  become: true
+
+- name: Configure Metricbeat
+  ansible.builtin.template:
+    src: metricbeat.yml.j2
+    dest: /etc/metricbeat/metricbeat.yml
+    mode: '0644'  # Set file permissions to read/write for owner, read for group and others
+  notify: Restart Metricbeat
+  become: true
+
   

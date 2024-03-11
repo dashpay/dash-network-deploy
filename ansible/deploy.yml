@@ -303,3 +303,4 @@
   roles:
     - elasticsearch
     - kibana
+    
