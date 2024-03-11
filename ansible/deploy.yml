@@ -289,3 +289,17 @@
         networks: true
         volumes: false
         builder_cache: true
+
+- name: Deploy Metricbeat to all hosts
+  hosts: all   # this needs to changes based on what we are targetting to monitor
+  become: true
+  roles:
+    - metricbeat
+
+
+- name: Set up Elasticsearch and Kibana
+  hosts: host_IP   # This needs to be changed
+  become: true
+  roles:
+    - elasticsearch
+    - kibana

@@ -1,0 +1,33 @@
+---
+- name: Import Elasticsearch GPG key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  become: true
+
+- name: Add Elasticsearch repository
+  apt_repository:
+    repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
+    state: present
+  become: true
+
+- name: Install Elasticsearch
+  apt:
+    name: elasticsearch
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Configure Elasticsearch
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+  notify: Restart Elasticsearch
+  become: true
+
+- name: Enable and start Elasticsearch service
+  systemd:
+    name: elasticsearch
+    enabled: yes
+    state: started
+  become: true

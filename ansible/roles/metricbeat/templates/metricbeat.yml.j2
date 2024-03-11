@@ -1,0 +1,12 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: true
+  reload.period: 10s
+
+output.elasticsearch:
+  hosts: ["localhost:9200"] # This needs to be modified with the ip of the server where elasticsearch is running
+  username: "{{ elastic_username | default('elastic') }}"
+  password: "{{ elastic_password | default('changeme') }}"
+
+setup.kibana:
+  host: "localhost:5601"  ## This needs to be modified with the ip of the server where kibana is running

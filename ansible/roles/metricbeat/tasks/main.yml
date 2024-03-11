@@ -1,0 +1,29 @@
+---
+- name: Install Metricbeat
+  apt:
+    name: metricbeat
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Copy Metricbeat module configurations
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/metricbeat/modules.d/{{ item | basename }}"
+  loop: "{{ lookup('fileglob', 'modules.d/*.yml', wantlist=True) }}"
+  notify: Restart Metricbeat
+  become: true
+
+- name: Configure Metricbeat
+  template:
+    src: metricbeat.yml.j2
+    dest: /etc/metricbeat/metricbeat.yml
+  notify: Restart Metricbeat
+  become: true
+
+- name: Enable and start Metricbeat service
+  systemd:
+    name: metricbeat
+    enabled: yes
+    state: started
+  become: true
