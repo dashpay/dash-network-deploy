@@ -1,7 +1,23 @@
 ---
+metricbeat.modules:
+  - module: prometheus
+    period: 5s  # kept same as  Prometheus
+    hosts: ["localhost:9090"]
+    metrics_path: /prometheus/metrics
+
+  - module: prometheus
+    period: 5s  # Matching the scrape interval of Prometheus
+    hosts: 
+      {% for hp_name in groups['hp_masternodes'] %}
+      - "{{ hostvars[hp_name]['ansible_host'] }}:{{ hostvars[hp_name]['prometheus_port'] }}"
+      {% endfor %}
+    metrics_path: /metrics
+    
+
 metricbeat.config.modules:
   path: ${path.config}/modules.d/*.yml
-  reload.enabled: false
+  reload.enabled: true
+  reload.period: 10s
 
 output.elasticsearch:
   hosts: ["{{ elasticsearch_host }}:{{ elasticsearch_port }}"]
