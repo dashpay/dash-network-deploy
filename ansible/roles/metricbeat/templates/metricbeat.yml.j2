@@ -1,18 +1,17 @@
 ---
 metricbeat.modules:
   - module: prometheus
-    period: 5s  # kept same as  Prometheus
+    period: 5s
     hosts: ["localhost:9090"]
     metrics_path: /prometheus/metrics
 
   - module: prometheus
-    period: 5s  # Matching the scrape interval of Prometheus
+    period: 5s
     hosts: 
       {% for hp_name in groups['hp_masternodes'] %}
       - "{{ hostvars[hp_name]['ansible_host'] }}:{{ hostvars[hp_name]['prometheus_port'] }}"
       {% endfor %}
     metrics_path: /metrics
-    
 
 metricbeat.config.modules:
   path: ${path.config}/modules.d/*.yml
@@ -20,9 +19,9 @@ metricbeat.config.modules:
   reload.period: 10s
 
 output.elasticsearch:
-  hosts: ["{{ elasticsearch_host }}:{{ elasticsearch_port }}"]
-  username: "{{ elasticsearch_username }}"
-  password: "{{ elasticsearch_password }}"
+  hosts: ["http://elasticsearch:9200"]  # Using HTTP protocol as a common setup
+  username: "{{ elastic_username }}"
+  password: "{{ elastic_password }}"
 
 setup.kibana:
-  host: "{{ kibana_host }}:{{ kibana_port }}"
+  host: "http://kibana:5601"  # Using HTTP protocol and default Kibana port

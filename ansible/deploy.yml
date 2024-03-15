@@ -76,6 +76,7 @@
   become: true
   roles:
     - elastic_stack
+    #- metricbeat 
 
 - name: Setup load tester
   hosts: load_test
@@ -89,7 +90,6 @@
   become: true
   roles:
     - role: metrics
-    # - role: metricbeat adding metricbeat role
 
 - name: Set up miners
   hosts: miners
