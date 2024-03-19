@@ -221,12 +221,17 @@
             "mempool": {
               "cacheSize": {{dashmate_platform_drive_tenderdash_mempool_cache_size}},
               "size": {{dashmate_platform_drive_tenderdash_mempool_size}},
-              "maxTxsBytes": {{dashmate_platform_drive_tenderdash_mempool_max_txs_bytes}}
+              "maxTxsBytes": {{dashmate_platform_drive_tenderdash_mempool_max_txs_bytes}},
+              "timeoutCheckTx": "{{dashmate_platform_drive_tenderdash_mempool_timeout_check_tx}}",
+              "txEnqueueTimeout": "{{dashmate_platform_drive_tenderdash_mempool_tx_enqueue_timeout}}",
+              "txSendRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_send_rate_limit}},
+              "txRecvRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_recv_rate_limit}}
             },
             "rpc": {
               "host": "127.0.0.1",
               "port": {{ tendermint_rpc_port }},
-              "maxOpenConnections": {{dashmate_platform_drive_tenderdash_rpc_max_open_connections}}
+              "maxOpenConnections": {{dashmate_platform_drive_tenderdash_rpc_max_open_connections}},
+              "timeoutBroadcastTx": "{{dashmate_platform_drive_tenderdash_rpc_timeout_broadcast_tx}}"
             },
             "pprof": {
               "enabled": {% if dashmate_platform_tenderdash_pprof_enable %}true{% else %}false{% endif %},
