@@ -216,8 +216,9 @@ describe('Quorums', () => {
       return Promise.all(promises);
     });
 
-    before('Send a transaction', async () => {
-      const timeout = 25000; // set individual rpc client timeout
+    before('Send a transaction', async function before() {
+      const timeout = 60000; // set individual rpc client timeout
+      this.timeout(timeout); // set mocha timeout
 
       const client = createRpcClientFromConfig(inventory.wallet_nodes.hosts[0]);
 
