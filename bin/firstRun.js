@@ -6,8 +6,6 @@ async function main() {
         networkName,
     ] = process.argv.slice(2);
 
-    console.log(network);
-
     await firstRunConfig(
         network,
         networkName,
