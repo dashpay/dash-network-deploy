@@ -457,5 +457,79 @@ resource "aws_instance" "logs" {
   lifecycle {
     ignore_changes = [ami]
   }
+}
+
+resource "aws_instance" "load_test" {
+  count = var.load_test_count
+
+  ami                  = data.aws_ami.ubuntu_arm.id
+  instance_type        = join(".", [var.load_test_instance_type, var.load_test_instance_size])
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  root_block_device {
+    volume_size = var.load_test_root_disk_size
+    volume_type = var.volume_type
+  }
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+  ]
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-load-test-${count.index + 1}"
+    Hostname    = "load-test-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-load-test-${count.index + 1}"
+    Hostname    = "load-test-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
+}
+
+resource "aws_instance" "metrics" {
+  count = var.metrics_count
+
+  ami                  = data.aws_ami.ubuntu_arm.id
+  instance_type        = join(".", [var.metrics_instance_type, var.metrics_instance_size])
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  root_block_device {
+    volume_size = var.metrics_root_disk_size
+    volume_type = var.volume_type
+  }
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.prometheus.id,
+  ]
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-prometheus-${count.index + 1}"
+    Hostname    = "prometheus-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-prometheus-${count.index + 1}"
+    Hostname    = "prometheus-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
 
 }

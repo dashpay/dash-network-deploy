@@ -59,6 +59,30 @@ locals {
     )
   ]
 
+  load_test_hosts = [
+    for n in range(length(aws_instance.load_test)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.load_test.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.load_test.*.public_ip, n)
+        private_ip = element(aws_instance.load_test.*.private_ip, n)
+      }
+    )
+  ]
+
+  metrics_hosts = [
+    for n in range(length(aws_instance.metrics)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.metrics.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.metrics.*.public_ip, n)
+        private_ip = element(aws_instance.metrics.*.private_ip, n)
+      }
+    )
+  ]
+
   miner_hosts = [
     for n in range(length(aws_instance.miner)) : templatefile(
       "${path.module}/templates/inventory/hostname.tpl",
@@ -150,6 +174,8 @@ locals {
           local.masternode_hosts.*,
           local.hp_masternode_hosts.*,
           local.vpn.*,
+          local.load_test_hosts.*,
+          local.metrics_hosts.*,
         ),
       )
       web_hosts           = join("\n", concat(aws_instance.web.*.tags.Hostname))
@@ -160,6 +186,8 @@ locals {
       masternode_hosts    = join("\n", concat(aws_instance.masternode_amd.*.tags.Hostname), concat(aws_instance.masternode_arm.*.tags.Hostname))
       hp_masternode_hosts = join("\n", concat(aws_instance.hp_masternode_amd.*.tags.Hostname), concat(aws_instance.hp_masternode_arm.*.tags.Hostname))
       seed_hosts          = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
+      load_test_hosts     = join("\n", concat(aws_instance.load_test.*.tags.Hostname))
+      metrics_hosts     = join("\n", concat(aws_instance.metrics.*.tags.Hostname))
     }
   )
 }

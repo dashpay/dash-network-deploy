@@ -1,0 +1,4 @@
+---
+
+metrics_user: 'ubuntu'
+metrics_path: '/home/{{ metrics_user }}/metrics'

@@ -491,3 +491,26 @@ resource "aws_security_group" "seed" {
     DashNetwork = terraform.workspace
   }
 }
+
+resource "aws_security_group" "prometheus" {
+  name        = "${terraform.workspace}-prometheus"
+  description = "prometheus"
+  vpc_id      = aws_vpc.default.id
+
+  # Prometheus
+  ingress {
+    from_port   = var.prometheus_port
+    to_port     = var.prometheus_port
+    protocol    = "tcp"
+    description = "Prometheus port"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-seed"
+    DashNetwork = terraform.workspace
+  }
+}

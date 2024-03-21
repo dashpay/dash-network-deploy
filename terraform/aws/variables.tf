@@ -56,6 +56,11 @@ variable "tendermint_p2p_port" {
   default     = 36656
 }
 
+variable "prometheus_port" {
+  description = "Prometheus port"
+  default     = 80
+}
+
 variable "tendermint_rpc_port" {
   description = "Tendermint RPC port"
   default     = 36657
@@ -102,7 +107,7 @@ variable "miner_count" {
 }
 
 variable "mixer_count" {
-  default = 4
+  default = 0
 }
 
 variable "masternode_amd_count" {
@@ -134,6 +139,16 @@ variable "web_count" {
 variable "logs_count" {
   default     = 1
   description = "number of logging nodes to create. set to 0 to disable logging for the network"
+}
+
+variable "load_test_count" {
+  default     = 0
+  description = "number of load testing nodes to create. set to 0 to disable load testing for the network"
+}
+
+variable "metrics_count" {
+  default     = 0
+  description = "number of metrics nodes to create. set to 0 to disable. Should generally not be higher than 1"
 }
 
 variable "main_host_arch" {
@@ -209,6 +224,36 @@ variable "logs_node_instance_type" {
 variable "logs_node_instance_size" {
   description = "Instance size of log nodes"
   default     = "large"
+}
+
+variable "load_test_root_disk_size" {
+  description = "Default disk size for load testing nodes"
+  default     = 20
+}
+
+variable "load_test_instance_type" {
+  description = "Instance type of log nodes"
+  default     = "c6g"
+}
+
+variable "load_test_instance_size" {
+  description = "Instance size of log nodes"
+  default     = "xlarge"
+}
+
+variable "metrics_root_disk_size" {
+  description = "Default disk size for load testing nodes"
+  default     = 20
+}
+
+variable "metrics_instance_type" {
+  description = "Instance type of log nodes"
+  default     = "c6g"
+}
+
+variable "metrics_instance_size" {
+  description = "Instance size of log nodes"
+  default     = "xlarge"
 }
 
 variable "wallet_node_instance_size" {

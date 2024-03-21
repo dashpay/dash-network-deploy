@@ -1,0 +1,33 @@
+  version: '3'
+  services:
+    haproxy:
+      image: haproxy:latest
+      ports:
+        - "80:80"
+      volumes:
+        - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
+    prometheus:
+      user: root
+      image: prom/prometheus:latest
+      command:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+        - '--web.external-url=http://{{ public_ip }}/prometheus'
+        - '--log.level=debug'
+      volumes:
+        - ./prometheus/config:/etc/prometheus
+        - /mnt/prometheus:/prometheus
+      expose:
+        - 9090
+
+    grafana:
+      image: grafana/grafana:latest
+      user: root 
+      volumes:
+        - ./grafana/data:/var/lib/grafana # TODO: Must be mounted on a volume or mnt?
+      environment:
+        - GF_SERVER_ROOT_URL=/grafana
+        - GF_SERVER_SERVE_FROM_SUB_PATH=true
+        - GF_SERVER_ROUTER_LOGGING=true
+      expose:
+        - 3000

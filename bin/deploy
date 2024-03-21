@@ -19,7 +19,6 @@ Options:
             --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
   -h        --help                        - Show help"
 
-
 STAGE=1 #Default
 for i in "$@"
 do
@@ -55,6 +54,8 @@ done
 . ./lib/cli/init.sh
 . ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
+
+node ./bin/firstRun.js ${NETWORK} ${NETWORK_NAME}
 
 case ${STAGE} in
     1)

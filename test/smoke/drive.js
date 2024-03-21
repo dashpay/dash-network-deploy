@@ -7,7 +7,7 @@ const { createDocker, execJSONDockerCommand, getContainerId } = require('../../l
 const evoNodes = inventory?.hp_masternodes?.hosts || [];
 
 describe('Drive', () => {
-  describe('HP masternodes', () => {
+  describe('Evo masternodes', () => {
     const statusInfo = {};
     const statusError = {};
 

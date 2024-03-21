@@ -1,0 +1,47 @@
+---
+
+- name: Create a directories for the project
+  ansible.builtin.file:
+    path: '{{ metrics_path }}/{{ item }}'
+    state: directory
+    recurse: true
+    owner: '{{ metrics_user }}'
+    group: '{{ metrics_user }}'
+    mode: '0755'
+  loop:
+    - 'prometheus/config'
+    - 'grafana'
+    - 'haproxy'
+
+- name: Copy haproxy configs and prometheus rules
+  ansible.builtin.copy:
+    src: '{{ item }}'
+    dest: '{{ metrics_path }}/{{ item }}'
+    owner: '{{ metrics_user }}'
+    group: '{{ metrics_user }}'
+    mode: '0644'
+  loop:
+    - haproxy/haproxy.cfg
+    - prometheus/rules.yml
+
+- name: Render docker compose configs
+  ansible.builtin.template:
+    src: 'docker-compose.yml.j2'
+    dest: '{{ metrics_path }}/docker-compose.yml'
+    owner: '{{ metrics_user }}'
+    group: '{{ metrics_user }}'
+    mode: '0644'
+
+- name: Render prometheus configs
+  ansible.builtin.template:
+    src: 'prometheus.yml.j2'
+    dest: '{{ metrics_path }}/prometheus/config/prometheus.yml'
+    owner: '{{ metrics_user }}'
+    group: '{{ metrics_user }}'
+    mode: '0644'
+
+- name: Start metrics
+  community.docker.docker_compose:
+    project_src: '{{ metrics_path }}'
+    restarted: true
+    state: present

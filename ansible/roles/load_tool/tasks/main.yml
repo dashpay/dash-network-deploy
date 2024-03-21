@@ -1,0 +1,63 @@
+---
+
+- name: Increase nofile limit
+  community.general.pam_limits:
+    domain: '*'
+    limit_type: "-"
+    limit_item: nofile
+    value: 60240
+
+- name: Install system dependencies
+  ansible.builtin.package:
+    name:
+      - cmake
+      - clang
+      - build-essential
+      - libc-dev
+      - libssl-dev
+      - pkg-config
+    state: present
+  when: dashmate_platform_enable
+
+- name: Download Rustup
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: '/home/ubuntu/rustup.sh'
+    owner: 'ubuntu'
+    group: 'ubuntu'
+    mode: '0755'
+  register: rustup
+
+- name: Install Rust
+  ansible.builtin.command:
+    cmd: "/home/ubuntu/rustup.sh -y"
+  become: true
+  become_user: ubuntu
+  when: rustup.changed # noqa: no-handler
+  changed_when: true
+
+- name: Clone platform
+  ansible.builtin.git:
+    repo: 'https://github.com/dashpay/platform.git'
+    dest: /home/ubuntu/load-test/platform
+    version: '{{ dashmate_branch }}'
+  become: true
+  become_user: ubuntu
+
+- name: Clone explorer
+  ansible.builtin.git:
+    repo: 'https://github.com/dashpay/rs-platform-explorer.git'
+    dest: /home/ubuntu/load-test/rs-platform-explorer
+    version: load-test
+  become: true
+  become_user: ubuntu
+
+- name: Create .env file
+  ansible.builtin.template:
+    src: .env.j2
+    dest: /home/ubuntu/load-test/rs-platform-explorer/.env
+    owner: ubuntu
+    group: ubuntu
+    mode: "0644"
+  become: true
+  become_user: ubuntu
