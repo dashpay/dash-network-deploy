@@ -19,7 +19,6 @@ Options:
             --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
   -h        --help                        - Show help"
 
-
 STAGE=1 #Default
 for i in "$@"
 do
@@ -56,15 +55,23 @@ done
 . ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
 
+node ./bin/firstRun.js ${NETWORK} ${NETWORK_NAME}
+
 case ${STAGE} in
     1)
         echo "Deploying $NETWORK_NAME network... stage (1)";
 
-        # TODO: this fails if not at the HEAD of a given branch
-        BRANCH=$(git symbolic-ref --short HEAD)
-        if [[ $BRANCH == "devnet-"* ]]; then
-            if [[ $BRANCH != $NETWORK_NAME ]] && [[ $FORCED_DEPLOYMENT != 1 ]]; then
-                echo "Wrong Devnet - Check you're in the correct branch. Use -f to force if you're sure"
+        if [[ $FORCED_DEPLOYMENT != 1 ]]; then
+            if git symbolic-ref --quiet HEAD 2>/dev/null; then
+                BRANCH=$(git symbolic-ref --short HEAD)
+                if [[ $BRANCH == "devnet-"* ]]; then
+                    if [[ $BRANCH != $NETWORK_NAME ]]; then
+                        echo "Wrong Devnet - Check you're in the correct branch. Use -f to force if you're sure"
+                        exit 1
+                    fi
+                fi
+            else
+                echo "Unable to make sure you're not deploying onto a bad network because the head is detached! Please use -f"
                 exit 1
             fi
         fi

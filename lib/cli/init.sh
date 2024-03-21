@@ -2,7 +2,7 @@
 
 networks=("regtest testnet devnet mainnet")
 
-if grep -q "devnet" <<< "$NETWORK_NAME"; then
+if grep -q "devnet-" <<< "$NETWORK_NAME"; then
     NETWORK="devnet"
     NETWORK_DEVNET_NAME="${NETWORK_NAME:7}"
     if [ -z $NETWORK_DEVNET_NAME ]; then
