@@ -91,11 +91,11 @@
               - socket         # Sockets and connection info (linux only)
             enabled: true
             period: 10s
-            processes: [ '.*' ]
+            processes: ['.*']
 
             # Configure the metric types that are included by these metricsets.
-            cpu.metrics: [ "percentages","normalized_percentages" ]  # The other available option is ticks.
-            core.metrics: [ "percentages" ]  # The other available option is ticks.
+            cpu.metrics: ["percentages", "normalized_percentages"]  # The other available option is ticks.
+            core.metrics: ["percentages"]  # The other available option is ticks.
           - module: docker
             metricsets:
               - "container"
@@ -107,7 +107,7 @@
               - "memory"
               - "network"
               #- "network_summary"
-            hosts: [ "unix:///var/run/docker.sock" ]
+            hosts: ["unix:///var/run/docker.sock"]
             period: 10s
             enabled: true
     output_conf:
