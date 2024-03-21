@@ -107,7 +107,7 @@ variable "miner_count" {
 }
 
 variable "mixer_count" {
-  default = 4
+  default = 0
 }
 
 variable "masternode_amd_count" {
