@@ -29,3 +29,4 @@ metricbeat_modules:
     hosts: ["localhost:{{ prometheus_port }}"]  
     metrics_path: "/metrics"
     namespace: "drive_tenderdash"  
+    
