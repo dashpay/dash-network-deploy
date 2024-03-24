@@ -146,4 +146,3 @@
   loop_control:
     label: "{{ item.name }}"
   when: inventory_hostname in groups['elasticsearch']
-  
