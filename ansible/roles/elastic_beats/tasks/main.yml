@@ -110,7 +110,7 @@
             hosts: ["unix:///var/run/docker.sock"]
             period: 10s
             enabled: true
-         
+
           - module: prometheus
             period: 10s
             hosts: ["{{ private_ip }}:{{ prometheus_port }}"]
