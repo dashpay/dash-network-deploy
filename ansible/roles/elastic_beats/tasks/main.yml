@@ -113,7 +113,7 @@
          
           - module: prometheus
             period: 10s
-            hosts: ["{{private_ip}}:{{ prometheus_port }}"]
+            hosts: ["{{ private_ip }}:{{ prometheus_port }}"]
             metrics_path: "/metrics"
             namespace: "drive_tenderdash"
     output_conf:
