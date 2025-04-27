@@ -56,6 +56,8 @@ jobs:
           sudo apt-get install -y python3-pip
           pip3 install ansible
 
+
+      #this is a dummy comment to test the workflow
       # Run Ansible Playbook with correct SSH private key
       - name: Run Ansible Playbook
         run: |
@@ -63,3 +65,4 @@ jobs:
             -i networks/${{ github.event.inputs.network_name }}.inventory \
             --tags ${{ github.event.inputs.deploy_tag }} \
             --private-key ~/.ssh/id_rsa_server
+
