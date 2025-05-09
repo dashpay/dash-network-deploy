@@ -1,0 +1,68 @@
+name: Manual Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      network_name:
+        description: "Network to deploy (e.g., devnet-cobblet, testnet)"
+        required: true
+        type: string
+      deploy_tag:
+        description: "Ansible tag to run (e.g., full_deploy, platform_update)"
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy Dash Network
+    runs-on: ubuntu-latest
+
+    # Allow only vivekgsharma and ktechmidas to trigger the deploy manually
+    if: github.actor == 'vivekgsharma' || github.actor == 'ktechmidas'
+
+    steps:
+      - name: Checkout dash-network-deploy
+        uses: actions/checkout@v4
+
+      # Setup SSH key to pull private dash-network-configs repo
+      - name: Set up GitHub SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      # Setup SSH key to connect to deployment servers
+      - name: Set up Server SSH Key
+        run: |
+          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa_server
+          chmod 600 ~/.ssh/id_rsa_server
+
+      # Clone latest configs into networks/ folder
+      - name: Clone dash-network-configs
+        run: |
+          rm -rf networks
+          git clone git@github.com:dashpay/dash-network-configs.git networks
+
+      # Generate basic .env file with selected network name
+      - name: Generate .env file
+        run: |
+          echo "NETWORK=${{ github.event.inputs.network_name }}" > .env
+
+      # Install Ansible and Python dependencies
+      - name: Install Ansible and Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install ansible
+
+
+      #this is a dummy comment to test the workflow
+      # Run Ansible Playbook with correct SSH private key
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook deploy.yml \
+            -i networks/${{ github.event.inputs.network_name }}.inventory \
+            --tags ${{ github.event.inputs.deploy_tag }} \
+            --private-key ~/.ssh/id_rsa_server
+
