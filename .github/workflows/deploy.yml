@@ -66,7 +66,7 @@ jobs:
           echo "PRESET=${{ github.event.inputs.network_name }}" >> .env
           echo "NODE_ENV=development" >> .env
 
-      # Run firstRun.js to generate initial configuration (with env var fix)
+      # Run firstRun.js to generate initial configuration
       - name: Generate initial configuration
         run: |
           NETWORK=${{ github.event.inputs.network_name }} node bin/firstRun.js
@@ -95,4 +95,4 @@ jobs:
       - name: Run Deploy Script
         run: |
           chmod +x ./bin/deploy
-          ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
+          NETWORK=${{ github.event.inputs.network_name }} ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
