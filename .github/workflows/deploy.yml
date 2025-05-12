@@ -47,20 +47,10 @@ jobs:
           rm -rf networks
           git clone git@github.com:dashpay/dash-network-configs.git networks
 
-      # Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
       # Generate basic .env file with selected network name
       - name: Generate .env file
         run: |
           echo "NETWORK=${{ github.event.inputs.network_name }}" > .env
-          echo "COMPOSE_PROJECT_NAME=${{ github.event.inputs.network_name }}" >> .env
-          echo "PRESET=${{ github.event.inputs.network_name }}" >> .env
-          echo "NODE_ENV=development" >> .env
-          echo "NETWORK_PATH=networks/${{ github.event.inputs.network_name }}.yml" >> .env
 
       # Install Ansible and Python dependencies
       - name: Install Ansible and Dependencies
@@ -91,4 +81,4 @@ jobs:
       - name: Run Deploy Script
         run: |
           chmod +x ./bin/deploy
-          ./bin/deploy ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
+          NETWORK=${{ github.event.inputs.network_name }} ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
