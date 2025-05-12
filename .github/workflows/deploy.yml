@@ -64,6 +64,11 @@ jobs:
         run: |
           ansible-galaxy install -r ansible/requirements.yml
 
+      # Install Node.js dependencies (required for firstRun.js)
+      - name: Install Node.js dependencies
+        run: |
+          npm ci || npm install
+
       # Optional: Check if inventory file exists
       - name: Check inventory file exists
         run: |
