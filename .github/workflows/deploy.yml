@@ -47,27 +47,41 @@ jobs:
           rm -rf networks
           git clone git@github.com:dashpay/dash-network-configs.git networks
 
-      # Generate basic .env file with selected network name
-      - name: Generate .env file
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Install Node.js dependencies first (required for firstRun.js)
+      - name: Install Node.js dependencies
+        run: |
+          npm ci
+
+      # Create initial .env file
+      - name: Create initial .env
         run: |
           echo "NETWORK=${{ github.event.inputs.network_name }}" > .env
+          echo "COMPOSE_PROJECT_NAME=${{ github.event.inputs.network_name }}" >> .env
+          echo "PRESET=${{ github.event.inputs.network_name }}" >> .env
+          echo "NODE_ENV=development" >> .env
+
+      # Run firstRun.js to generate initial configuration
+      - name: Generate initial configuration
+        run: |
+          node bin/firstRun.js ${{ github.event.inputs.network_name }}
 
       # Install Ansible and Python dependencies
       - name: Install Ansible and Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip
+          sudo apt-get install -y python3-pip python3-netaddr
           pip3 install ansible
 
       # Install required Ansible roles from Galaxy
       - name: Install Ansible Galaxy Roles
         run: |
           ansible-galaxy install -r ansible/requirements.yml
-
-      # Install Node.js dependencies (required for firstRun.js)
-      - name: Install Node.js dependencies
-        run: |
-          npm ci || npm install
 
       # Optional: Check if inventory file exists
       - name: Check inventory file exists
@@ -81,4 +95,4 @@ jobs:
       - name: Run Deploy Script
         run: |
           chmod +x ./bin/deploy
-          NETWORK=${{ github.event.inputs.network_name }} ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
+          ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
