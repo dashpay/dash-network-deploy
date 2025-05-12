@@ -61,20 +61,43 @@ jobs:
       # Create initial .env file
       - name: Create initial .env
         run: |
-          echo "NETWORK=${{ github.event.inputs.network_name }}" > .env
-          echo "COMPOSE_PROJECT_NAME=${{ github.event.inputs.network_name }}" >> .env
-          echo "PRESET=${{ github.event.inputs.network_name }}" >> .env
-          echo "NODE_ENV=development" >> .env
+          cat > .env << EOL
+          NETWORK=${{ github.event.inputs.network_name }}
+          COMPOSE_PROJECT_NAME=${{ github.event.inputs.network_name }}
+          PRESET=${{ github.event.inputs.network_name }}
+          NODE_ENV=development
+          NETWORK_PATH=networks/${{ github.event.inputs.network_name }}.yml
+          PRESETS_PATH=configs/presets
+          COMPOSE_FILE=docker-compose.yml
+          DRIVE_BRANCH=master
+          DAPI_BRANCH=master
+          DASHMATE_BRANCH=master
+          EOL
 
-      # Run firstRun.js to generate initial configuration
-      - name: Generate initial configuration
+      # Install Docker
+      - name: Install Docker
         run: |
-          NETWORK=${{ github.event.inputs.network_name }} node bin/firstRun.js
+          sudo apt-get update
+          sudo apt-get install -y docker.io docker-compose
+          sudo systemctl start docker
+          sudo usermod -aG docker $USER
 
       # Install Ansible and Python dependencies
       - name: Install Ansible and Dependencies
         run: |
           sudo apt-get update
+          sudo apt-get install -y python3-pip python3-netaddr sshpass
+          pip3 install ansible docker docker-compose
+
+      # Install required Ansible roles from Galaxy
+      - name: Install Ansible Galaxy Roles
+        run: |
+          ansible-galaxy install -r ansible/requirements.yml
+
+      # Run firstRun.js to generate initial configuration
+      - name: Generate initial configuration
+        run: |
+          node bin/firstRun.js ${{ github.event.inputs.network_name }}
           sudo apt-get install -y python3-pip python3-netaddr
           pip3 install ansible
 
@@ -91,8 +114,22 @@ jobs:
             exit 1
           fi
 
+      # Set up SSH config for Ansible
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "Host *" > ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
       # Run the deploy wrapper script with the selected tag and network
       - name: Run Deploy Script
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+          ANSIBLE_DEPRECATION_WARNINGS: "False"
+          OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
+          ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
         run: |
           chmod +x ./bin/deploy
-          NETWORK=${{ github.event.inputs.network_name }} ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
+          ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
