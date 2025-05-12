@@ -17,10 +17,13 @@ jobs:
     name: Deploy Dash Network
     runs-on: ubuntu-latest
 
-    # Allow only vivekgsharma and ktechmidas to trigger the deploy manually
-    if: github.actor == 'vivekgsharma' || github.actor == 'ktechmidas'
-
     steps:
+      - name: Fail if unauthorized user
+        if: ${{ github.actor != 'vivekgsharma' && github.actor != 'ktechmidas' }}
+        run: |
+          echo "❌ Unauthorized user: ${{ github.actor }}"
+          exit 1
+
       - name: Checkout dash-network-deploy
         uses: actions/checkout@v4
 
@@ -56,13 +59,18 @@ jobs:
           sudo apt-get install -y python3-pip
           pip3 install ansible
 
+      # Optional: Check if inventory file exists
+      - name: Check inventory file exists
+        run: |
+          if [ ! -f "networks/${{ github.event.inputs.network_name }}.inventory" ]; then
+            echo "❌ Inventory file not found: networks/${{ github.event.inputs.network_name }}.inventory"
+            exit 1
+          fi
 
-      #this is a dummy comment to test the workflow
       # Run Ansible Playbook with correct SSH private key
       - name: Run Ansible Playbook
         run: |
-          ansible-playbook deploy.yml \
+          ansible-playbook ansible/deploy.yml \
             -i networks/${{ github.event.inputs.network_name }}.inventory \
             --tags ${{ github.event.inputs.deploy_tag }} \
             --private-key ~/.ssh/id_rsa_server
-
