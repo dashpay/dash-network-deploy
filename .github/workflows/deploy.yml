@@ -66,10 +66,10 @@ jobs:
           echo "PRESET=${{ github.event.inputs.network_name }}" >> .env
           echo "NODE_ENV=development" >> .env
 
-      # Run firstRun.js to generate initial configuration
+      # Run firstRun.js to generate initial configuration (with env var fix)
       - name: Generate initial configuration
         run: |
-          node bin/firstRun.js ${{ github.event.inputs.network_name }}
+          NETWORK=${{ github.event.inputs.network_name }} node bin/firstRun.js
 
       # Install Ansible and Python dependencies
       - name: Install Ansible and Dependencies
