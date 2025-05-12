@@ -72,10 +72,8 @@ jobs:
             exit 1
           fi
 
-      # Run Ansible Playbook with correct SSH private key
-      - name: Run Ansible Playbook
+      # Run the deploy wrapper script with the selected tag and network
+      - name: Run Deploy Script
         run: |
-          ansible-playbook ansible/deploy.yml \
-            -i networks/${{ github.event.inputs.network_name }}.inventory \
-            --tags ${{ github.event.inputs.deploy_tag }} \
-            --private-key ~/.ssh/id_rsa_server
+          chmod +x ./bin/deploy
+          ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
