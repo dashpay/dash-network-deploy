@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -ea
+
+. ./lib/cli/utils.sh
+
+ansible_playbook="deploy.yml"
+
+# Parse command line arguments
+NETWORK_NAME=""
+ANSIBLE_TAGS=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -p|--preset)
+      NETWORK_NAME="$2"
+      shift 2
+      ;;
+    --tags)
+      ANSIBLE_TAGS="$2"
+      shift 2
+      ;;
+    *)
+      echo "Error: Unknown argument $1"
+      exit 1
+      ;;
+  esac
+done
+
+if [ -z "$NETWORK_NAME" ] || [ -z "$ANSIBLE_TAGS" ]; then
+  echo "Usage: github-deploy -p <network_name> --tags <ansible_tags>"
+  exit 1
+fi
+
+. ./lib/cli/init.sh
+. ./lib/cli/terraform.sh
+. ./lib/cli/ansible.sh
+
+echo "Deploying $NETWORK_NAME network with tags: $ANSIBLE_TAGS"
+
+# Set required environment variables
+export NETWORK="$NETWORK_NAME"
+export NETWORK_PATH="networks/$NETWORK_NAME.yml"
+
+# Skip Terraform for platform updates
+echo "Skipping Terraform infrastructure deployment"
+
+# Run Ansible playbook with specified tags
+ansible_run_playbook "$ansible_playbook" --tags "$ANSIBLE_TAGS"
