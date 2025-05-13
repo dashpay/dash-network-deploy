@@ -106,5 +106,4 @@ jobs:
           ls -la
           ls -la networks/
           chmod +x ./bin/deploy
-          node ./bin/firstRun.js ${{ github.event.inputs.network_type }} ${{ github.event.inputs.network_name }} || exit 1
           ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
