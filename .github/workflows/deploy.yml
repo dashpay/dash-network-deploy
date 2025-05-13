@@ -30,18 +30,12 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/id_rsa
-          # Add GitHub and AWS hosts to known_hosts
+          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa_server
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/id_rsa_server
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-          for host in $(grep ansible_host networks/devnet-cobblet.inventory | cut -d= -f2 | tr -d "'"); do
-            ssh-keyscan $host >> ~/.ssh/known_hosts
-          done
-          # Configure SSH
           echo "Host *" > ~/.ssh/config
           echo "  StrictHostKeyChecking no" >> ~/.ssh/config
           echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/id_rsa" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
 
       # Set up Node.js and clone configs
@@ -72,13 +66,12 @@ jobs:
           sudo apt-get install -y python3-pip python3-netaddr sshpass
           pip3 install ansible
 
-      # Install required Ansible roles
+      # Install required Ansible roles from Galaxy and local roles
       - name: Install Ansible Roles
         run: |
-          # Create roles directory
-          mkdir -p ~/.ansible/roles
-          
-          # Copy local roles (these contain our dashmate role)
+          # Install from Galaxy
+          ansible-galaxy install -r ansible/requirements.yml
+          # Copy local roles
           cp -r ansible/roles/* ~/.ansible/roles/
 
       # Run deploy
