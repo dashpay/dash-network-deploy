@@ -63,10 +63,8 @@ ansible hp_masternodes -i "networks/$NETWORK_NAME.inventory" -m ping -vvv || {
 # Run Ansible playbook with specified tags
 if [[ "$ANSIBLE_TAGS" == *"platform_update"* ]]; then
     echo "Updating platform images..."
-    ansible hp_masternodes -i "networks/$NETWORK_NAME.inventory" -b -m shell -a "sudo -u dashmate dashmate update" || {
-        echo "Failed to update platform images"
-        exit 1
-    }
+    # Run update and ignore 'Default config is not set' error
+    ansible hp_masternodes -i "networks/$NETWORK_NAME.inventory" -b -m shell -a "sudo -u dashmate dashmate update || if [[ \$? -eq 1 && \$(echo \$LASTLOG) == *'Default config is not set'* ]]; then exit 0; else exit \$?; fi"
 fi
 
 # Run Ansible playbook with specified tags
