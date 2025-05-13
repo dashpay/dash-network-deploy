@@ -59,29 +59,6 @@ jobs:
             exit 1
           fi
 
-      # Create .env files
-      - name: Create .env files
-        run: |
-          cat > .env << EOL
-          NETWORK=${{ github.event.inputs.network_name }}
-          COMPOSE_PROJECT_NAME=${{ github.event.inputs.network_name }}
-          PRESET=${{ github.event.inputs.network_name }}
-          NODE_ENV=development
-          NETWORK_PATH=networks/${{ github.event.inputs.network_name }}.yml
-          PRESETS_PATH=configs/presets
-          COMPOSE_FILE=docker-compose.yml
-          DRIVE_BRANCH=master
-          DAPI_BRANCH=master
-          DASHMATE_BRANCH=master
-          EOL
-
-          cat > networks/.env << EOL
-          TERRAFORM_S3_BUCKET="dash-networks-deploy-state"
-          TERRAFORM_S3_KEY="terraform/state"
-          TERRAFORM_DYNAMODB_TABLE="dash-networks-deploy-terraform-lock"
-          AWS_REGION="us-west-2"
-          EOL
-
       # Install Ansible and Python dependencies
       - name: Install Ansible and Dependencies
         run: |
@@ -105,5 +82,5 @@ jobs:
           pwd
           ls -la
           ls -la networks/
-          chmod +x ./bin/deploy
-          ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
+          chmod +x ./bin/github-deploy
+          ./bin/github-deploy -p ${{ github.event.inputs.network_name }} --tags ${{ github.event.inputs.deploy_tag }}
