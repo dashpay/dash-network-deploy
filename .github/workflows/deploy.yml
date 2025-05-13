@@ -66,16 +66,18 @@ jobs:
           sudo apt-get install -y python3-pip python3-netaddr sshpass
           pip3 install ansible
 
-      # Install required Ansible roles from Galaxy
-      - name: Install Ansible Galaxy Roles
-        run: ansible-galaxy install -r ansible/requirements.yml
+      # Install required Ansible roles from Galaxy and local roles
+      - name: Install Ansible Roles
+        run: |
+          # Install from Galaxy
+          ansible-galaxy install -r ansible/requirements.yml
+          # Copy local roles
+          cp -r ansible/roles/* ~/.ansible/roles/
 
       # Run deploy
       - name: Run Deploy Script
         env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
-          ANSIBLE_DEPRECATION_WARNINGS: "False"
-          ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
+          ANSIBLE_CONFIG: ansible.cfg
           NETWORK: ${{ github.event.inputs.network_name }}
           NETWORK_PATH: networks/${{ github.event.inputs.network_name }}.yml
         run: |
