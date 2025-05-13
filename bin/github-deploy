@@ -45,5 +45,30 @@ export NETWORK_PATH="networks/$NETWORK_NAME.yml"
 # Skip Terraform for platform updates
 echo "Skipping Terraform infrastructure deployment"
 
+# Debug inventory
+echo "Checking inventory file: networks/$NETWORK_NAME.inventory"
+cat "networks/$NETWORK_NAME.inventory"
+
+# List HP masternodes
+echo "\nListing HP masternodes:"
+ansible hp_masternodes -i "networks/$NETWORK_NAME.inventory" --list-hosts
+
+# Test SSH connection to HP masternodes
+echo "\nTesting SSH connection to HP masternodes..."
+ansible hp_masternodes -i "networks/$NETWORK_NAME.inventory" -m ping -vvv || {
+    echo "Failed to connect to HP masternodes"
+    exit 1
+}
+
 # Run Ansible playbook with specified tags
-ansible_run_playbook "$ansible_playbook" --tags "$ANSIBLE_TAGS"
+if [[ "$ANSIBLE_TAGS" == *"platform_update"* ]]; then
+    echo "Updating platform images..."
+    ansible hp_masternodes -i "networks/$NETWORK_NAME.inventory" -b -m shell -a "sudo -u dashmate dashmate update" || {
+        echo "Failed to update platform images"
+        exit 1
+    }
+fi
+
+# Run Ansible playbook with specified tags
+echo "Running Ansible playbook with inventory: networks/$NETWORK_NAME.inventory"
+ansible_run_playbook "$ansible_playbook" --tags "$ANSIBLE_TAGS" -i "networks/$NETWORK_NAME.inventory" -vv
