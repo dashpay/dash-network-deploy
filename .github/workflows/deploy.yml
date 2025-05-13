@@ -44,6 +44,14 @@ jobs:
           rm -rf networks
           git clone git@github.com:dashpay/dash-network-configs.git networks
 
+      # Verify network config exists
+      - name: Check network config
+        run: |
+          if [ ! -f "networks/${{ github.event.inputs.network_name }}.yml" ]; then
+            echo "Error: Network config networks/${{ github.event.inputs.network_name }}.yml not found"
+            exit 1
+          fi
+
       # Create .env files
       - name: Create .env files
         run: |
@@ -84,6 +92,9 @@ jobs:
           ANSIBLE_HOST_KEY_CHECKING: "False"
           ANSIBLE_DEPRECATION_WARNINGS: "False"
           ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
+          NETWORK: ${{ github.event.inputs.network_name }}
+          NETWORK_PATH: networks/${{ github.event.inputs.network_name }}.yml
         run: |
           chmod +x ./bin/deploy
+          node ./bin/firstRun.js ${{ github.event.inputs.network_name }} || exit 1
           ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
