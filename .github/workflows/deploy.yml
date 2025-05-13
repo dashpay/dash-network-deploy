@@ -67,13 +67,16 @@ jobs:
           AWS_REGION="us-west-2"
           EOL
 
-      # Install Ansible
-      - name: Install Ansible
+      # Install Ansible and Python dependencies
+      - name: Install Ansible and Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip python3-netaddr sshpass
-          python3 -m pip install --user ansible==7.7.0
-          ansible-galaxy install -r ansible/requirements.yml --ignore-errors
+          pip3 install ansible
+
+      # Install required Ansible roles from Galaxy
+      - name: Install Ansible Galaxy Roles
+        run: ansible-galaxy install -r ansible/requirements.yml
 
       # Run deploy
       - name: Run Deploy Script
