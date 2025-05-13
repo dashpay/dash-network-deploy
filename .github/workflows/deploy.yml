@@ -3,6 +3,10 @@ name: Manual Deployment
 on:
   workflow_dispatch:
     inputs:
+      network_type:
+        description: "Network type (e.g., devnet, testnet, regtest)"
+        required: true
+        type: string
       network_name:
         description: "Network to deploy (e.g., devnet-cobblet, testnet)"
         required: true
@@ -94,7 +98,8 @@ jobs:
           ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
           NETWORK: ${{ github.event.inputs.network_name }}
           NETWORK_PATH: networks/${{ github.event.inputs.network_name }}.yml
+        working-directory: /home/runner/work/dash-network-deploy/dash-network-deploy
         run: |
           chmod +x ./bin/deploy
-          node ./bin/firstRun.js ${{ github.event.inputs.network_name }} || exit 1
+          node ./bin/firstRun.js ${{ github.event.inputs.network_type }} ${{ github.event.inputs.network_name }} || exit 1
           ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
