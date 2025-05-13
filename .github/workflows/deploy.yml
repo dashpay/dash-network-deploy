@@ -29,13 +29,28 @@ jobs:
       - name: Set up SSH Keys
         run: |
           mkdir -p ~/.ssh
+          
+          # GitHub deploy key for cloning configs
           echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa_server
-          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/id_rsa_server
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          echo "Host *" > ~/.ssh/config
-          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-          echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Server SSH key for connecting to nodes
+          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # SSH config
+          cat > ~/.ssh/config << 'EOL'
+          Host github.com
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+          
+          Host *
+            IdentityFile ~/.ssh/id_rsa
+            User ubuntu
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOL
+          
           chmod 600 ~/.ssh/config
 
       # Set up Node.js and clone configs
@@ -46,6 +61,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Clone network configs
       - name: Clone network configs
         run: |
           rm -rf networks
@@ -69,9 +85,7 @@ jobs:
       # Install required Ansible roles from Galaxy and local roles
       - name: Install Ansible Roles
         run: |
-          # Install from Galaxy
-          ansible-galaxy install -r ansible/requirements.yml
-          # Copy local roles
+          mkdir -p ~/.ansible/roles
           cp -r ansible/roles/* ~/.ansible/roles/
 
       # Run deploy
@@ -80,6 +94,7 @@ jobs:
           ANSIBLE_CONFIG: ansible.cfg
           NETWORK: ${{ github.event.inputs.network_name }}
           NETWORK_PATH: networks/${{ github.event.inputs.network_name }}.yml
+          ANSIBLE_HOST_KEY_CHECKING: "false"
         run: |
           pwd
           ls -la
