@@ -43,8 +43,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: npm ci
-      - run: |
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Clone network configs
+        run: |
           rm -rf networks
           git clone git@github.com:dashpay/dash-network-configs.git networks
 
@@ -98,8 +101,10 @@ jobs:
           ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
           NETWORK: ${{ github.event.inputs.network_name }}
           NETWORK_PATH: networks/${{ github.event.inputs.network_name }}.yml
-        working-directory: /home/runner/work/dash-network-deploy/dash-network-deploy
         run: |
+          pwd
+          ls -la
+          ls -la networks/
           chmod +x ./bin/deploy
           node ./bin/firstRun.js ${{ github.event.inputs.network_type }} ${{ github.event.inputs.network_name }} || exit 1
           ./bin/deploy -p ${{ github.event.inputs.network_name }} --tags=${{ github.event.inputs.deploy_tag }}
