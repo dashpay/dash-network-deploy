@@ -13,6 +13,8 @@ resource "aws_security_group" "default" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # ET SSH access from anywhere
@@ -25,6 +27,8 @@ resource "aws_security_group" "default" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # Docker API
@@ -50,6 +54,8 @@ resource "aws_security_group" "default" {
       "0.0.0.0/0",
       aws_subnet.public.*.cidr_block,
     ])
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   tags = {
@@ -124,6 +130,8 @@ resource "aws_security_group" "dashd_public" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # DashCore RPC access
@@ -185,6 +193,8 @@ resource "aws_security_group" "http" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # Insight Explorer HTTPS
@@ -197,6 +207,8 @@ resource "aws_security_group" "http" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   tags = {
@@ -293,6 +305,8 @@ resource "aws_security_group" "hp_masternode" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # Tendermint P2P
@@ -305,6 +319,8 @@ resource "aws_security_group" "hp_masternode" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   ingress {
@@ -316,6 +332,8 @@ resource "aws_security_group" "hp_masternode" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # Tenderdash prometheus
@@ -395,6 +413,8 @@ resource "aws_security_group" "hp_masternode" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   tags = {
@@ -418,6 +438,8 @@ resource "aws_security_group" "elb" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # Faucet HTTPS
@@ -430,6 +452,8 @@ resource "aws_security_group" "elb" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # Insight Explorer
@@ -442,6 +466,8 @@ resource "aws_security_group" "elb" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # Insight Explorer HTTPS
@@ -454,6 +480,8 @@ resource "aws_security_group" "elb" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # outbound internet access
@@ -465,6 +493,8 @@ resource "aws_security_group" "elb" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   tags = {
@@ -490,6 +520,8 @@ resource "aws_security_group" "vpn" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # VPN Client
@@ -502,6 +534,8 @@ resource "aws_security_group" "vpn" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   # outbound internet access
@@ -514,6 +548,8 @@ resource "aws_security_group" "vpn" {
       "0.0.0.0/0",
       aws_subnet.public.*.cidr_block,
     ])
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   tags = {
@@ -537,6 +573,8 @@ resource "aws_security_group" "seed" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   tags = {
@@ -560,6 +598,8 @@ resource "aws_security_group" "prometheus" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
+    
+    ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
   }
 
   tags = {

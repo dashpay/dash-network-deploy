@@ -282,3 +282,9 @@ variable "grovedb_visualizer_port" {
   default     = "8083"
 }
 
+variable "enable_ipv6" {
+  description = "Enable IPv6 support for VPC and instances"
+  type        = bool
+  default     = false
+}
+
