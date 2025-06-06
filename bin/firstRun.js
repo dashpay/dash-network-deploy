@@ -12,4 +12,7 @@ async function main() {
   );
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error.message}\n`);
+  process.exit(1);
+});
