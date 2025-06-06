@@ -16,7 +16,7 @@ data "aws_ami" "ubuntu_amd" {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-2023*",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server*",
     ]
   }
 
@@ -33,7 +33,7 @@ data "aws_ami" "ubuntu_arm" {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-2023*",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server*",
     ]
   }
 
@@ -45,7 +45,8 @@ data "aws_ami" "ubuntu_arm" {
 
 # Create a VPC to launch our instances into
 resource "aws_vpc" "default" {
-  cidr_block = var.vpc_cidr
+  cidr_block                       = var.vpc_cidr
+  assign_generated_ipv6_cidr_block = var.enable_ipv6
 
   tags = {
     Name        = "dn-${terraform.workspace}"
@@ -70,6 +71,14 @@ resource "aws_route" "internet_access" {
   gateway_id             = aws_internet_gateway.default.id
 }
 
+# Grant the VPC IPv6 internet access on its main route table
+resource "aws_route" "ipv6_internet_access" {
+  count                       = var.enable_ipv6 ? 1 : 0
+  route_table_id              = aws_vpc.default.main_route_table_id
+  destination_ipv6_cidr_block = "::/0"
+  gateway_id                  = aws_internet_gateway.default.id
+}
+
 # Create subnets to launch our instances into
 resource "aws_subnet" "public" {
   count                   = 3
@@ -77,6 +86,11 @@ resource "aws_subnet" "public" {
   cidr_block              = var.subnet_public_cidr[count.index]
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[count.index]
+  
+  # IPv6 support
+  ipv6_cidr_block                 = var.enable_ipv6 ? cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, count.index) : null
+  assign_ipv6_address_on_creation = var.enable_ipv6
+  
   tags = {
     Name        = "${terraform.workspace}-public${count.index}"
     DashNetwork = terraform.workspace
@@ -327,13 +341,13 @@ resource "aws_route53_record" "metrics" {
 }
 
 resource "aws_route53_record" "logs" {
-  zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
+  zone_id = data.aws_route53_zone.main_domain[0].zone_id
   name    = "logs.${var.public_network_name}.${var.main_domain}"
   type    = "A"
   ttl     = "300"
   records = [aws_instance.logs[count.index].public_ip]
 
-  count = length(var.main_domain) > 1 ? 1 : 0
+  count = var.logs_count > 0 && length(var.main_domain) > 0 ? var.logs_count : 0
 }
 
 locals {
