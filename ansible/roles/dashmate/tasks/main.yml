@@ -253,6 +253,15 @@
     path: '{{ dashmate_home }}/.dashmate/docker-compose.yml'
   register: docker_compose_stat
 
+- name: Ensure .dashmate directory exists
+  ansible.builtin.file:
+    path: '{{ dashmate_home }}/.dashmate'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  when: dashmate_user_check.rc == 0
+
 - name: Render service configs
   ansible.builtin.command: "{{ dashmate_cmd }} config render"
   become: true
