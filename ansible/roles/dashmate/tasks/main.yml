@@ -257,12 +257,28 @@
   when: existing_dashmate_config_stat.stat.exists
   failed_when: false
 
-- name: Generate new dashmate config content
+- name: Generate new dashmate config content as string
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes }}"
+  ansible.builtin.template:
+    src: dashmate.json.j2
+    dest: /tmp/new_dashmate_config.json
+  register: new_config_template
+
+- name: Read new dashmate config content
+  ansible.builtin.slurp:
+    src: /tmp/new_dashmate_config.json
+  register: new_dashmate_config_file
+
+- name: Parse new dashmate config
   ansible.builtin.set_fact:
-    new_dashmate_config_content: "{{ lookup('template', 'dashmate.json.j2') }}"
-    new_dashmate_config_parsed: "{{ lookup('template', 'dashmate.json.j2') | from_json }}"
+    new_dashmate_config_content: "{{ new_dashmate_config_file.content | b64decode }}"
+    new_dashmate_config_parsed: "{{ new_dashmate_config_file.content | b64decode | from_json }}"
+
+- name: Clean up temp file
+  ansible.builtin.file:
+    path: /tmp/new_dashmate_config.json
+    state: absent
 
 - name: Parse existing and new configs for core comparison
   ansible.builtin.set_fact:
