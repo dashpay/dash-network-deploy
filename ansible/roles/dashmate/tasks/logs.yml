@@ -20,23 +20,22 @@
   register: logrotate_stat
 
 - name: Configure log rotation
-  ansible.builtin.include_role:
-    name: arillso.logrotate
-  vars:
-    logrotate_applications:
-      - name: platform-logs
-        definitions:
-          - logs:
-              - '{{ dashmate_logs_dir }}/*.log'
-            options:
-              - rotate 7
-              - daily
-              - maxsize 1G
-              - missingok
-              - notifempty
-              - copytruncate
-              - compress
-              - delaycompress
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/platform-logs
+    content: |
+      {{ dashmate_logs_dir }}/*.log {
+          rotate 7
+          daily
+          maxsize 1G
+          missingok
+          notifempty
+          copytruncate
+          compress
+          delaycompress
+      }
+    owner: root
+    group: root
+    mode: '0644'
   when: not logrotate_stat.stat.exists or force_logrotate_config | default(false)
 
 - name: Check if logrotate timer is already hourly
