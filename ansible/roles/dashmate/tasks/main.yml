@@ -179,6 +179,7 @@
 - name: Configure logs
   ansible.builtin.import_tasks: ./logs.yml
   when: 
+    - not (skip_dashmate_image_update | default(false))
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
     - dashmate_user_check.rc == 0  # Only configure logs if user exists
 
