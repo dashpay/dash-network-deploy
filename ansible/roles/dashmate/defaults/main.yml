@@ -85,3 +85,17 @@ dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_delta:
 
 restart_chunk_size: 10
 restart_delay_minutes: 10
+
+# Optimization flags - set these to skip certain operations
+force_dashmate_rebuild: false           # Force rebuild dashmate from source
+force_dashmate_reinstall: false         # Force reinstall dashmate package
+force_ssl_regenerate: false             # Force regenerate SSL certificates
+force_logs_config: false                # Force reconfigure logging
+force_config_render: false              # Force re-render service configs
+force_env_export: false                 # Force export environment variables
+force_logrotate_config: false           # Force reconfigure logrotate
+force_filebeat_restart: false           # Force restart filebeat
+force_rust_deps: false                  # Force reinstall Rust dependencies
+force_git_clone: false                  # Force re-clone git repository
+force_build: false                      # Force rebuild from source
+skip_dashmate_image_update: false       # Skip Docker image updates (use with caution)

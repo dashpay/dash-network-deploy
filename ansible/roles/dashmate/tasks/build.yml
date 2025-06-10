@@ -1,17 +1,39 @@
 ---
 
+# Check for existing tools and packages
+- name: Check if required packages are installed
+  ansible.builtin.command: dpkg -s {{ item }}
+  register: package_check
+  loop:
+    - cmake
+    - libzmq3-dev
+    - clang
+    - build-essential
+    - libc-dev
+    - libssl-dev
+    - pkg-config
+    - docker-compose-plugin
+  failed_when: false
+  changed_when: false
+  when: dashmate_platform_enable
+
+- name: Get list of missing packages
+  ansible.builtin.set_fact:
+    missing_packages: "{{ package_check.results | selectattr('rc', 'ne', 0) | map(attribute='item') | list }}"
+  when: dashmate_platform_enable
+
 - name: Install system dependencies
   ansible.builtin.package:
-    name:
-      - cmake
-      - libzmq3-dev
-      - clang
-      - build-essential
-      - libc-dev
-      - libssl-dev
-      - pkg-config
-      - docker-compose-plugin
+    name: "{{ missing_packages }}"
     state: present
+  when: 
+    - dashmate_platform_enable
+    - missing_packages | length > 0
+
+- name: Check if Rust is installed
+  ansible.builtin.stat:
+    path: '{{ dashmate_home }}/.cargo/bin/rustc'
+  register: rust_installed
   when: dashmate_platform_enable
 
 - name: Download Rustup
@@ -22,14 +44,25 @@
     group: '{{ dashmate_group }}'
     mode: '0755'
   register: rustup
-  when: dashmate_platform_enable
+  when: 
+    - dashmate_platform_enable
+    - not rust_installed.stat.exists
 
 - name: Install Rust
   ansible.builtin.command: '{{ dashmate_home }}/rustup.sh -y'
   become: true
   become_user: dashmate
-  when: rustup.changed and dashmate_platform_enable # noqa: no-handler
+  when: 
+    - rustup.changed 
+    - dashmate_platform_enable
+    - not rust_installed.stat.exists
   changed_when: true
+
+- name: Check if wasm-bindgen is installed
+  ansible.builtin.stat:
+    path: '{{ dashmate_home }}/.cargo/bin/wasm-bindgen'
+  register: wasm_bindgen_installed
+  when: dashmate_platform_enable
 
 # TODO: it should work without sourcing cargo env
 - name: Install Rust dependencies
@@ -43,13 +76,36 @@
   args:
     executable: /bin/bash
   changed_when: true
-  when: dashmate_platform_enable
+  when: 
+    - dashmate_platform_enable
+    - not wasm_bindgen_installed.stat.exists or force_rust_deps | default(false)
+
+- name: Check if Node.js is installed with correct version
+  ansible.builtin.command: node --version
+  register: node_version
+  failed_when: false
+  changed_when: false
 
 - name: Setup Node.JS and NPM
   ansible.builtin.include_role:
     name: geerlingguy.nodejs
   vars:
     nodejs_version: "18.x"
+  when: node_version.rc != 0 or not node_version.stdout.startswith('v18.')
+
+- name: Check if dashmate source exists
+  ansible.builtin.stat:
+    path: '{{ dashmate_source_dir }}/.git'
+  register: dashmate_source_exists
+
+- name: Check current git branch
+  ansible.builtin.command: git rev-parse --abbrev-ref HEAD
+  args:
+    chdir: '{{ dashmate_source_dir }}'
+  register: current_branch
+  when: dashmate_source_exists.stat.exists
+  failed_when: false
+  changed_when: false
 
 - name: Clone dashmate source
   become: true
@@ -61,6 +117,7 @@
     single_branch: true
     depth: 1
   register: git
+  when: not dashmate_source_exists.stat.exists or current_branch.stdout != dashmate_branch or force_git_clone | default(false)
 
 - name: Enable corepack
   ansible.builtin.shell: |
@@ -79,6 +136,11 @@
     chdir: '{{ dashmate_source_dir }}'
     creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
 
+- name: Check if dashmate build exists
+  ansible.builtin.stat:
+    path: '{{ dashmate_source_dir }}/packages/dashmate/build'
+  register: dashmate_build_exists
+
 - name: Build sources
   ansible.builtin.shell: |
     . "$HOME/.cargo/env"
@@ -89,7 +151,7 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
     executable: /bin/bash
-  when: git.changed # noqa: no-handler
+  when: (git is defined and git.changed) or not dashmate_build_exists.stat.exists or force_build | default(false)
   changed_when: true
 
 - name: Check if default config is set

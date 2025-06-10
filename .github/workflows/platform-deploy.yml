@@ -1,0 +1,178 @@
+name: Platform Version Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: "Network to deploy (e.g., testnet, devnet-cobblet)"
+        required: true
+        type: choice
+        options:
+          - testnet
+          - devnet-cobblet
+          - mainnet-support
+        default: testnet
+      platform_version:
+        description: "Platform version to deploy (e.g., 2.0.0-rc.16)"
+        required: true
+        type: string
+        default: "2.0.0-rc.16"
+      fast_mode:
+        description: "Use fast deployment mode (skip non-essential operations)"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  deploy:
+    name: Deploy Platform Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout dash-network-deploy
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      # Setup SSH keys
+      - name: Install Ansible roles
+        run: |
+          ansible-galaxy install -r ansible/requirements.yml
+
+      - name: Set up SSH Keys
+        run: |
+          mkdir -p ~/.ssh
+          
+          # GitHub deploy key for cloning configs
+          echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Server SSH key for connecting to nodes
+          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # SSH config
+          cat > ~/.ssh/config << 'EOL'
+          Host github.com
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+          
+          Host *
+            IdentityFile ~/.ssh/id_rsa
+            User ubuntu
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOL
+          
+          chmod 600 ~/.ssh/config
+
+      # Set up Node.js and clone configs
+      - name: Install dependencies
+        run: npm ci
+
+      # Clone network configs
+      - name: Clone network configs
+        run: |
+          rm -rf networks
+          git clone git@github.com:dashpay/dash-network-configs.git networks
+
+      # Verify network config exists
+      - name: Check network config
+        run: |
+          if [ ! -f "networks/${{ github.event.inputs.network }}.yml" ]; then
+            echo "Error: Network config networks/${{ github.event.inputs.network }}.yml not found"
+            exit 1
+          fi
+
+      # Install Ansible and Python dependencies
+      - name: Install Ansible and Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-netaddr sshpass
+          pip3 install ansible
+
+      # Install required Ansible roles from Galaxy and local roles
+      - name: Install Ansible Roles
+        run: |
+          mkdir -p ~/.ansible/roles
+          cp -r ansible/roles/* ~/.ansible/roles/
+
+      # Update platform version in network config
+      - name: Update platform version in network config
+        run: |
+          # Update dashmate_version
+          sed -i "s/dashmate_version: .*/dashmate_version: ${{ github.event.inputs.platform_version }}/" networks/${{ github.event.inputs.network }}.yml
+          
+          # Update platform service image versions
+          sed -i "s/drive_image: dashpay\/drive:[^ ]*/drive_image: dashpay\/drive:${{ github.event.inputs.platform_version }}/" networks/${{ github.event.inputs.network }}.yml
+          sed -i "s/dapi_image: dashpay\/dapi:[^ ]*/dapi_image: dashpay\/dapi:${{ github.event.inputs.platform_version }}/" networks/${{ github.event.inputs.network }}.yml
+          
+          echo "Updated network config:"
+          grep -E "(dashmate_version|drive_image|dapi_image)" networks/${{ github.event.inputs.network }}.yml
+
+      # Commit and push updated config back to repository
+      - name: Commit and push updated network config
+        run: |
+          cd networks
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # Check if there are changes to commit
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add ${{ github.event.inputs.network }}.yml
+            git commit -m "Update ${{ github.event.inputs.network }} platform version to ${{ github.event.inputs.platform_version }}
+
+            🤖 Generated with [GitHub Actions](https://github.com/dashpay/dash-network-deploy/actions)
+            
+            Co-Authored-By: GitHub Actions <actions@github.com>"
+            git push origin main
+            echo "Successfully pushed updated config to repository"
+          fi
+
+      # Run platform deployment
+      - name: Run Platform Deployment
+        env:
+          ANSIBLE_CONFIG: ansible.cfg
+          NETWORK: ${{ github.event.inputs.network }}
+          NETWORK_PATH: networks/${{ github.event.inputs.network }}.yml
+          ANSIBLE_HOST_KEY_CHECKING: "false"
+        run: |
+          pwd
+          ls -la
+          ls -la networks/
+          chmod +x ./bin/deploy
+          
+          # Build deployment command
+          DEPLOY_CMD="./bin/deploy -p"
+          
+          # Add fast mode flag if enabled
+          if [ "${{ github.event.inputs.fast_mode }}" == "true" ]; then
+            DEPLOY_CMD="$DEPLOY_CMD --fast"
+          fi
+          
+          # Add dashmate deployment tag
+          DEPLOY_CMD="$DEPLOY_CMD --tags=dashmate_deploy"
+          
+          # Add network
+          DEPLOY_CMD="$DEPLOY_CMD ${{ github.event.inputs.network }}"
+          
+          echo "Running: $DEPLOY_CMD"
+          $DEPLOY_CMD
+
+      # Verify deployment
+      - name: Verify Platform Services
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "false"
+        run: |
+          echo "Verifying platform services are running..."
+          ansible hp_masternodes -i "networks/${{ github.event.inputs.network }}.inventory" -b -m shell -a 'sudo -u dashmate dashmate status services --format=json | jq -r ".[] | select(.service != \"core\") | \"\(.service): \(.status)\""' || true

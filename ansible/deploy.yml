@@ -333,6 +333,9 @@
 - name: Set up core and platform on HP masternodes
   hosts: hp_masternodes
   become: true
+  gather_facts: false
+  strategy: free
+  serial: 0
   pre_tasks:
     - name: Check inventory for HP masternodes
       ansible.builtin.set_fact:
@@ -341,11 +344,15 @@
       when: inventory_hostname in hp_masternodes
   roles:
     - role: dash_cli
+      when: not skip_dashmate_image_update | default(false)
     - role: dashmate
     - role: mn_status_report
+      when: not skip_dashmate_image_update | default(false)
     - role: metricbeat
+      when: not skip_dashmate_image_update | default(false)
   tags:
     - full_deploy
+    - dashmate_deploy
 
 
 - name: Set up protx diff script

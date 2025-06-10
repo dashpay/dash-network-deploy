@@ -1,5 +1,10 @@
 ---
 
+- name: Check if logs directory exists
+  ansible.builtin.stat:
+    path: '{{ dashmate_logs_dir }}'
+  register: logs_dir_stat
+
 - name: Create logs dir
   ansible.builtin.file:
     path: '{{ dashmate_logs_dir }}'
@@ -7,6 +12,12 @@
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     recurse: true
+  when: not logs_dir_stat.stat.exists
+
+- name: Check if logrotate config exists
+  ansible.builtin.stat:
+    path: /etc/logrotate.d/platform-logs
+  register: logrotate_stat
 
 - name: Configure log rotation
   ansible.builtin.include_role:
@@ -26,6 +37,13 @@
               - copytruncate
               - compress
               - delaycompress
+  when: not logrotate_stat.stat.exists or force_logrotate_config | default(false)
+
+- name: Check if logrotate timer is already hourly
+  ansible.builtin.command: grep -q '^OnCalendar=hourly' /lib/systemd/system/logrotate.timer
+  register: logrotate_timer_check
+  failed_when: false
+  changed_when: false
 
 - name: Ensure logrotate runs hourly under systemd timer
   ansible.builtin.lineinfile:
@@ -33,6 +51,7 @@
     regexp: '^OnCalendar=hourly'
     insertafter: '^OnCalendar=daily'
     line: OnCalendar=hourly
+  when: logrotate_timer_check.rc != 0
 
 - name: Load common filebeat config
   ansible.builtin.include_vars:
@@ -46,8 +65,13 @@
   ansible.builtin.include_role:
     name: geerlingguy.filebeat
 
+- name: Check if filebeat configuration changed
+  ansible.builtin.set_fact:
+    filebeat_config_changed: "{{ filebeat_config_file_result is defined and filebeat_config_file_result.changed }}"
+
 - name: Make sure filebeat is restarted
   ansible.builtin.service:
     name: filebeat
     state: restarted
     enabled: true
+  when: filebeat_config_changed | default(false) or force_filebeat_restart | default(false)
