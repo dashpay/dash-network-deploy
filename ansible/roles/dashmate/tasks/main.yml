@@ -290,12 +290,19 @@
     - dashmate_user_check.rc == 0
     - new_dashmate_config_parsed is defined
 
+- name: Set default core restart variables if user doesn't exist
+  ansible.builtin.set_fact:
+    existing_config_parsed: {}
+    new_config_parsed: {}
+    existing_core_image: ""
+    new_core_image: ""
+  when: dashmate_user_check.rc != 0
+
 - name: Determine if core restart is needed
   ansible.builtin.set_fact:
     core_config_changed: "{{ existing_config_parsed != new_config_parsed }}"
     core_image_changed: "{{ existing_core_image != new_core_image }}"
     force_core_restart: "{{ core_config_changed or core_image_changed or not existing_dashmate_config_stat.stat.exists }}"
-  when: dashmate_user_check.rc == 0
 
 - name: Debug core restart decision
   ansible.builtin.debug:
