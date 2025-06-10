@@ -295,6 +295,15 @@
   when: existing_dashmate_config_stat.stat.exists
   failed_when: false
 
+- name: Debug config comparison details
+  ansible.builtin.debug:
+    msg: |
+      Config file exists: {{ existing_dashmate_config_stat.stat.exists }}
+      Existing config defined: {{ existing_config_slurp is defined }}
+      Existing config length: {{ (existing_config_slurp.content | b64decode | length) if existing_config_slurp is defined else 'N/A' }}
+      New config length: {{ new_config_content | length }}
+      Contents equal: {{ (existing_config_slurp.content | b64decode) == new_config_content if existing_config_slurp is defined else 'N/A' }}
+
 - name: Check if config actually needs updating
   ansible.builtin.set_fact:
     config_needs_update: "{{ not existing_dashmate_config_stat.stat.exists or (existing_config_slurp.content | b64decode) != new_config_content }}"
