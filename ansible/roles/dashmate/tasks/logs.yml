@@ -75,7 +75,12 @@
 
 - name: Set architecture fact based on detection
   ansible.builtin.set_fact:
-    detected_arch: "{{ 'x86_64' if detected_architecture.stdout in ['x86_64', 'amd64'] else 'aarch64' if detected_architecture.stdout in ['aarch64', 'arm64'] else detected_architecture.stdout }}"
+    detected_arch: >-
+      {{
+        'x86_64' if detected_architecture.stdout in ['x86_64', 'amd64']
+        else 'aarch64' if detected_architecture.stdout in ['aarch64', 'arm64']
+        else detected_architecture.stdout
+      }}
 
 - name: Set facts for filebeat role (assume Ubuntu/Debian)
   ansible.builtin.set_fact:

@@ -26,7 +26,7 @@
   ansible.builtin.package:
     name: "{{ missing_packages }}"
     state: present
-  when: 
+  when:
     - dashmate_platform_enable
     - missing_packages | length > 0
 
@@ -44,7 +44,7 @@
     group: '{{ dashmate_group }}'
     mode: '0755'
   register: rustup
-  when: 
+  when:
     - dashmate_platform_enable
     - not rust_installed.stat.exists
 
@@ -52,8 +52,8 @@
   ansible.builtin.command: '{{ dashmate_home }}/rustup.sh -y'
   become: true
   become_user: dashmate
-  when: 
-    - rustup.changed 
+  when:
+    - rustup.changed
     - dashmate_platform_enable
     - not rust_installed.stat.exists
   changed_when: true
@@ -76,7 +76,7 @@
   args:
     executable: /bin/bash
   changed_when: true
-  when: 
+  when:
     - dashmate_platform_enable
     - not wasm_bindgen_installed.stat.exists or force_rust_deps | default(false)
 

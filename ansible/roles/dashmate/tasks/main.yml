@@ -32,7 +32,12 @@
 
 - name: Extract installed version number
   ansible.builtin.set_fact:
-    installed_dashmate_version: "{{ current_dashmate_version.stdout | regex_search('dashmate/([0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?)', '\\1') | first if current_dashmate_version.stdout is defined else 'none' }}"
+    installed_dashmate_version: >-
+      {{
+        current_dashmate_version.stdout |
+        regex_search('dashmate/([0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?)', '\\1') |
+        first if current_dashmate_version.stdout is defined else 'none'
+      }}
 
 - name: Compare versions
   ansible.builtin.set_fact:
@@ -47,13 +52,13 @@
 # ============================================================================
 
 - name: Check if dashmate group exists
-  ansible.builtin.shell: "getent group {{ dashmate_group }}"
+  ansible.builtin.command: "getent group {{ dashmate_group }}"
   register: dashmate_group_check
   failed_when: false
   changed_when: false
 
 - name: Check if dashmate user exists
-  ansible.builtin.shell: "id {{ dashmate_user }}"
+  ansible.builtin.command: "id {{ dashmate_user }}"
   register: dashmate_user_check
   failed_when: false
   changed_when: false
@@ -70,7 +75,7 @@
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - dashmate_group_check.rc != 0
 
@@ -83,7 +88,7 @@
     create_home: true
     shell: /bin/bash
     umask: '0002'
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc != 0
 
@@ -92,7 +97,7 @@
     name: 'dashmate'
     groups: docker
     append: true
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc != 0
 
@@ -113,13 +118,13 @@
     - '{{ dashmate_home }}/.dashmate'
     - '{{ dashmate_config_dir }}'
     - '{{ dashmate_logs_dir }}'
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc == 0
 
 - name: Fix ownership of any existing files in dashmate directories
   ansible.builtin.command: chown -R {{ dashmate_user }}:{{ dashmate_group }} {{ dashmate_home }}
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc == 0
   changed_when: false
@@ -141,7 +146,7 @@
   ansible.builtin.slurp:
     src: /etc/dash.conf
   register: existing_dash_conf
-  when: 
+  when:
     - (dash_conf_stat.stat.exists | default(false))
   failed_when: false
 
@@ -152,7 +157,7 @@
     owner: root
     group: root
     mode: "0644"
-  when: 
+  when:
     - not (dash_conf_stat.stat.exists | default(false)) or (existing_dash_conf.content | default('') | b64decode != dash_conf_content)
   register: dash_conf_changed
 
@@ -162,7 +167,7 @@
     tasks_from: configure_users
   vars:
     users: '{{ system_users }}'
-  when: 
+  when:
     - dash_conf_changed is defined
     - dash_conf_changed is changed
 
@@ -175,9 +180,9 @@
       user: '{{ dashmate_user }}'
       group: '{{ dashmate_group }}'
       dir: '{{ dashmate_home }}'
-    users: 
+    users:
       - "{{ dashmate_user_dict }}"
-  when: 
+  when:
     - dash_conf_changed is defined
     - dash_conf_changed is changed
     - dashmate_user_check.rc == 0
@@ -193,7 +198,7 @@
 
 - name: Configure logs
   ansible.builtin.import_tasks: ./logs.yml
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
     - dashmate_user_check.rc == 0  # Only configure logs if user exists
@@ -206,13 +211,13 @@
 
 - name: Build dashmate
   ansible.builtin.import_tasks: ./build.yml
-  when: 
+  when:
     - dashmate_branch is defined
     - dashmate_installed.rc != 0 or force_dashmate_rebuild | default(false)
 
 - name: Install dashmate
   ansible.builtin.import_tasks: ./install.yml
-  when: 
+  when:
     - dashmate_version is defined
     - (dashmate_needs_update | default(true)) or force_dashmate_reinstall | default(false)
 
@@ -240,7 +245,7 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id_result
   changed_when: dashmate_zerossl_id_result.rc == 0
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - dashmate_config_result is defined
     - dashmate_config_result.rc == 0
@@ -248,11 +253,11 @@
 - name: Set ZeroSSL certificate ID from config
   ansible.builtin.set_fact:
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - dashmate_config_result is defined
-    - dashmate_config_result.rc == 0 
-    - dashmate_zerossl_id_result is defined 
+    - dashmate_config_result.rc == 0
+    - dashmate_zerossl_id_result is defined
     - dashmate_zerossl_id_result.stdout != 'null'
 
 - name: Check if existing dashmate config exists
@@ -296,7 +301,7 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
   register: template_result_fast
-  when: 
+  when:
     - dashmate_user_check.rc == 0
     - skip_dashmate_image_update | default(false)
 
@@ -306,6 +311,7 @@
   ansible.builtin.template:
     src: dashmate.json.j2
     dest: /tmp/new_dashmate_config.json
+    mode: '0644'
   when: not (skip_dashmate_image_update | default(false))
 
 - name: Read generated config content (regular mode)
@@ -318,14 +324,18 @@
   ansible.builtin.slurp:
     src: '{{ dashmate_config_dir }}/config.json'
   register: existing_config_slurp
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - existing_dashmate_config_stat.stat.exists
   failed_when: false
 
 - name: Check if config actually needs updating (regular mode)
   ansible.builtin.set_fact:
-    config_needs_update: "{{ not existing_dashmate_config_stat.stat.exists or (existing_config_slurp.content | b64decode) != (new_config_slurp.content | b64decode) }}"
+    config_needs_update: >-
+      {{
+        not existing_dashmate_config_stat.stat.exists or
+        (existing_config_slurp.content | b64decode) != (new_config_slurp.content | b64decode)
+      }}
   when: not (skip_dashmate_image_update | default(false))
 
 - name: Write dashmate config file only if changed (regular mode)
@@ -336,7 +346,7 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
   register: template_result_regular
-  when: 
+  when:
     - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc == 0
     - config_needs_update
@@ -359,7 +369,7 @@
       Config file changed: {{ template_result.changed | default('undefined') }}
       Backup file: {{ template_result.backup_file | default('no backup') }}
       Dest: {{ template_result.dest | default('undefined') }}
-  when: 
+  when:
     - template_result is defined
     - template_result.changed
 
@@ -403,16 +413,16 @@
 
 - name: Generate self-signed SSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/self_signed.yml
-  when: 
-    - dashmate_platform_enable 
+  when:
+    - dashmate_platform_enable
     - dashmate_platform_gateway_ssl_provider == 'self-signed'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
     - not (skip_dashmate_image_update | default(false))
 
 - name: Obtain ZeroSSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/zerossl.yml
-  when: 
-    - dashmate_platform_enable 
+  when:
+    - dashmate_platform_enable
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
     - not (skip_dashmate_image_update | default(false))
@@ -427,7 +437,7 @@
   register: env_file_stat
 
 - name: Export current dashmate config
-  ansible.builtin.shell: "{{ dashmate_cmd }} config envs"
+  ansible.builtin.command: "{{ dashmate_cmd }} config envs"
   become: true
   become_user: dashmate
   args:
@@ -443,7 +453,7 @@
     owner: "{{ dashmate_user }}"
     group: "{{ dashmate_group }}"
     mode: '0644'
-  when: 
+  when:
     - not (env_file_stat.stat.exists | default(false)) or template_result.changed or force_env_export | default(false)
     - dashmate_envs_output is defined
     - dashmate_envs_output.stdout is defined
@@ -491,8 +501,20 @@
         json_query('[?service!=`core`&&status!=`not_started`]') |
         length | int > 0
       }}
-    is_core_images_updated: "{{ false if skip_dashmate_image_update | default(false) else ((dashmate_update.stdout | default('[]') | from_json | json_query('[?name==`core`]') | sort(attribute='updated', reverse=true) | first | default({})).updated | default(false)) }}"
-    is_platform_images_updated: "{{ false if skip_dashmate_image_update | default(false) else ((dashmate_update.stdout | default('[]') | from_json | json_query('[?name!=`core`]') | sort(attribute='updated', reverse=true) | first | default({})).updated | default(false)) }}"
+    is_core_images_updated: >-
+      {{
+        false if skip_dashmate_image_update | default(false) else
+        ((dashmate_update.stdout | default('[]') | from_json |
+        json_query('[?name==`core`]') | sort(attribute='updated', reverse=true) |
+        first | default({})).updated | default(false))
+      }}
+    is_platform_images_updated: >-
+      {{
+        false if skip_dashmate_image_update | default(false) else
+        ((dashmate_update.stdout | default('[]') | from_json |
+        json_query('[?name!=`core`]') | sort(attribute='updated', reverse=true) |
+        first | default({})).updated | default(false))
+      }}
     is_dashmate_package_changed: "{{ dashmate_install_result.changed if dashmate_install_result is defined else false }}"
     is_dashmate_config_changed: "{{ template_result.changed if template_result is defined else false }}"
 
