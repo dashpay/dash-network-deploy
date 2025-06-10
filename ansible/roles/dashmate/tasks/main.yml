@@ -3,25 +3,9 @@
 - name: Set vars
   ansible.builtin.import_tasks: ./set_vars.yml
 
-# Pre-flight checks to determine what needs to be done
-- name: Check if dashmate group exists
-  ansible.builtin.getent:
-    database: group
-    key: '{{ dashmate_group }}'
-  register: dashmate_group_check
-  failed_when: false
-
-- name: Check if dashmate user exists
-  ansible.builtin.getent:
-    database: passwd
-    key: '{{ dashmate_user }}'
-  register: dashmate_user_check
-  failed_when: false
-
-- name: Check if dash.conf exists
-  ansible.builtin.stat:
-    path: /etc/dash.conf
-  register: dash_conf_stat
+# ============================================================================
+# PHASE 1: Initial checks (always run)
+# ============================================================================
 
 - name: Check if dashmate config directory exists
   ansible.builtin.stat:
@@ -57,12 +41,30 @@
   ansible.builtin.debug:
     msg: "Installed: {{ installed_dashmate_version }}, Required: {{ dashmate_version }}, Needs update: {{ dashmate_needs_update }}"
 
+# ============================================================================
+# PHASE 2: User and system setup (skip in fast mode)
+# ============================================================================
+
+- name: Check if dashmate group exists
+  ansible.builtin.getent:
+    database: group
+    key: '{{ dashmate_group }}'
+  register: dashmate_group_check
+  failed_when: false
+
+- name: Check if dashmate user exists
+  ansible.builtin.getent:
+    database: passwd
+    key: '{{ dashmate_user }}'
+  register: dashmate_user_check
+  failed_when: false
+
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_group_check.failed | default(false)
+    - dashmate_group_check.rc != 0
 
 - name: Create dashmate user
   ansible.builtin.user:
@@ -75,7 +77,7 @@
     umask: '0002'
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_user_check.failed | default(false)
+    - dashmate_user_check.rc != 0
 
 - name: Add dashmate user to docker group
   ansible.builtin.user:
@@ -84,7 +86,16 @@
     append: true
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_user_check.failed | default(false)
+    - dashmate_user_check.rc != 0
+
+# ============================================================================
+# PHASE 3: Dash configuration (skip in fast mode)
+# ============================================================================
+
+- name: Check if dash.conf exists
+  ansible.builtin.stat:
+    path: /etc/dash.conf
+  register: dash_conf_stat
 
 - name: Generate dash.conf content
   ansible.builtin.set_fact:
@@ -112,15 +123,11 @@
     - not (dash_conf_stat.stat.exists | default(false)) or (existing_dash_conf.content | default('') | b64decode != dash_conf_content)
   register: dash_conf_changed
 
-- name: Configure users for dash-cli
+- name: Configure system users for dash-cli
   ansible.builtin.include_role:
     name: dash_cli
     tasks_from: configure_users
   vars:
-    dashmate_user_dict:
-      user: '{{ dashmate_user }}'
-      group: '{{ dashmate_group }}'
-      dir: '{{ dashmate_home }}'
     users: '{{ system_users }}'
   when: 
     - not skip_dashmate_image_update | default(false)
@@ -142,7 +149,11 @@
     - not skip_dashmate_image_update | default(false)
     - dash_conf_changed is defined
     - dash_conf_changed is changed
-    - not (dashmate_user_check.failed | default(false))
+    - dashmate_user_check.rc == 0
+
+# ============================================================================
+# PHASE 4: Logging setup (skip in fast mode)
+# ============================================================================
 
 - name: Check if log configuration exists
   ansible.builtin.stat:
@@ -154,6 +165,11 @@
   when: 
     - not skip_dashmate_image_update | default(false)
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
+    - dashmate_user_check.rc == 0  # Only configure logs if user exists
+
+# ============================================================================
+# PHASE 5: Dashmate installation and configuration (always run)
+# ============================================================================
 
 - name: Create dashmate config dir
   ansible.builtin.file:
@@ -164,7 +180,9 @@
     mode: '0755'
   loop:
     - '{{ dashmate_config_dir }}'
-  when: not (dashmate_config_dir_stat.stat.exists | default(false))
+  when: 
+    - not (dashmate_config_dir_stat.stat.exists | default(false))
+    - dashmate_user_check.rc == 0  # Only create if user exists
 
 - name: Build dashmate
   ansible.builtin.import_tasks: ./build.yml
@@ -227,6 +245,7 @@
     group: '{{ dashmate_group }}'
     mode: "0644"
   register: template_result
+  when: dashmate_user_check.rc == 0  # Only write if user exists
 
 - name: Check if service configs need rendering
   ansible.builtin.stat:
@@ -243,6 +262,10 @@
   changed_when: dashmate_render_configs_result.rc == 0
   when: not (docker_compose_stat.stat.exists | default(false)) or template_result.changed or force_config_render | default(false)
 
+# ============================================================================
+# PHASE 6: SSL certificates (skip in fast mode)
+# ============================================================================
+
 - name: Check if SSL certificates exist
   ansible.builtin.stat:
     path: '{{ dashmate_home }}/.dashmate/ssl/bundle.crt'
@@ -255,6 +278,7 @@
     - dashmate_platform_enable 
     - dashmate_platform_gateway_ssl_provider == 'self-signed'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
+    - not skip_dashmate_image_update | default(false)
 
 - name: Obtain ZeroSSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/zerossl.yml
@@ -262,6 +286,11 @@
     - dashmate_platform_enable 
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
+    - not skip_dashmate_image_update | default(false)
+
+# ============================================================================
+# PHASE 7: Environment and Docker images
+# ============================================================================
 
 - name: Check if .env file exists
   ansible.builtin.stat:
@@ -276,7 +305,7 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_envs
   changed_when: dashmate_envs.rc == 0
-  when: not (env_file_stat.stat.exists | default(false)) or template_result.changed or force_env_export | default(false))
+  when: not (env_file_stat.stat.exists | default(false)) or template_result.changed or force_env_export | default(false)
 
 - name: Check if images need update
   ansible.builtin.set_fact:
@@ -291,6 +320,10 @@
     chdir: '{{ dashmate_cwd }}'
   changed_when: dashmate_update.rc == 0
   when: not skip_image_update
+
+# ============================================================================
+# PHASE 8: Service management
+# ============================================================================
 
 - name: Get service statuses
   ansible.builtin.command: "{{ dashmate_cmd }} status services --format=json"
