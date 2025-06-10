@@ -262,14 +262,17 @@
     template_bootstrap_peers: "{{ groups.seed_nodes }}"
   ansible.builtin.set_fact:
     new_dashmate_config_content: "{{ lookup('template', 'dashmate.json.j2') }}"
+    new_dashmate_config_parsed: "{{ lookup('template', 'dashmate.json.j2') | from_json }}"
 
 - name: Parse existing and new configs for core comparison
   ansible.builtin.set_fact:
     existing_config_parsed: "{{ (existing_dashmate_config.content | default('{}') | b64decode | from_json).configs[dash_network_name].core | default({}) }}"
-    new_config_parsed: "{{ (new_dashmate_config_content | from_json).configs[dash_network_name].core }}"
+    new_config_parsed: "{{ new_dashmate_config_parsed.configs[dash_network_name].core }}"
     existing_core_image: "{{ ((existing_dashmate_config.content | default('{}') | b64decode | from_json).configs[dash_network_name].core.docker.image | default('')) if existing_dashmate_config_stat.stat.exists else '' }}"
-    new_core_image: "{{ (new_dashmate_config_content | from_json).configs[dash_network_name].core.docker.image }}"
-  when: dashmate_user_check.rc == 0
+    new_core_image: "{{ new_dashmate_config_parsed.configs[dash_network_name].core.docker.image }}"
+  when: 
+    - dashmate_user_check.rc == 0
+    - new_dashmate_config_parsed is defined
 
 - name: Determine if core restart is needed
   ansible.builtin.set_fact:
