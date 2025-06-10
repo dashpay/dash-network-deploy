@@ -60,6 +60,13 @@
   ansible.builtin.include_vars:
     file: filebeat_inputs.yml
 
+- name: Set facts for filebeat role (assume Ubuntu/Debian)
+  ansible.builtin.set_fact:
+    ansible_os_family: "Debian"
+    ansible_distribution: "Ubuntu"
+    ansible_distribution_major_version: "22"
+    ansible_pkg_mgr: "apt"
+
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:
     name: geerlingguy.filebeat
