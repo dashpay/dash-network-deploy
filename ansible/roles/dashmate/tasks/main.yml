@@ -70,7 +70,7 @@
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
   when: 
-    - not skip_dashmate_image_update | default(false)
+    - not (skip_dashmate_image_update | default(false))
     - dashmate_group_check.rc != 0
 
 - name: Create dashmate user
@@ -83,7 +83,7 @@
     shell: /bin/bash
     umask: '0002'
   when: 
-    - not skip_dashmate_image_update | default(false)
+    - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc != 0
 
 - name: Add dashmate user to docker group
@@ -92,8 +92,17 @@
     groups: docker
     append: true
   when: 
-    - not skip_dashmate_image_update | default(false)
+    - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc != 0
+
+- name: Ensure dashmate home directory has correct ownership
+  ansible.builtin.file:
+    path: '{{ dashmate_home }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  when: dashmate_user_check.rc == 0
 
 # ============================================================================
 # PHASE 3: Dash configuration (always run)
@@ -273,7 +282,7 @@
   when: not (docker_compose_stat.stat.exists | default(false)) or template_result.changed or force_config_render | default(false)
 
 # ============================================================================
-# PHASE 6: SSL certificates (skip in fast mode)
+# PHASE 6: SSL certificates (only skip in fast mode)
 # ============================================================================
 
 - name: Check if SSL certificates exist
@@ -288,7 +297,7 @@
     - dashmate_platform_enable 
     - dashmate_platform_gateway_ssl_provider == 'self-signed'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
-    - not skip_dashmate_image_update | default(false)
+    - not (skip_dashmate_image_update | default(false))
 
 - name: Obtain ZeroSSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/zerossl.yml
@@ -296,7 +305,7 @@
     - dashmate_platform_enable 
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
-    - not skip_dashmate_image_update | default(false)
+    - not (skip_dashmate_image_update | default(false))
 
 # ============================================================================
 # PHASE 7: Environment and Docker images
@@ -308,14 +317,26 @@
   register: env_file_stat
 
 - name: Export current dashmate config
-  ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"
+  ansible.builtin.shell: "{{ dashmate_cmd }} config envs"
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_cwd }}'
-  register: dashmate_envs
-  changed_when: dashmate_envs.rc == 0
+  register: dashmate_envs_output
+  changed_when: false
   when: not (env_file_stat.stat.exists | default(false)) or template_result.changed or force_env_export | default(false)
+
+- name: Write .env file
+  ansible.builtin.copy:
+    content: "{{ dashmate_envs_output.stdout }}"
+    dest: "{{ dashmate_home }}/.env"
+    owner: "{{ dashmate_user }}"
+    group: "{{ dashmate_group }}"
+    mode: '0644'
+  when: 
+    - not (env_file_stat.stat.exists | default(false)) or template_result.changed or force_env_export | default(false)
+    - dashmate_envs_output is defined
+    - dashmate_envs_output.stdout is defined
 
 - name: Check if images need update
   ansible.builtin.set_fact:
