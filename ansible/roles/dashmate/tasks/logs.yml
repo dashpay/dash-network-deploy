@@ -14,6 +14,14 @@
     recurse: true
   when: not logs_dir_stat.stat.exists
 
+- name: Ensure logs dir has correct ownership
+  ansible.builtin.file:
+    path: '{{ dashmate_logs_dir }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    recurse: true
+
 - name: Check if logrotate config exists
   ansible.builtin.stat:
     path: /etc/logrotate.d/platform-logs
