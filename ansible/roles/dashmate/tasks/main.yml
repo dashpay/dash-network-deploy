@@ -96,14 +96,33 @@
     - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc != 0
 
-- name: Ensure dashmate home directory has correct ownership
+# ============================================================================
+# EARLY PERMISSION FIXES - Ensure all dashmate directories have correct ownership
+# ============================================================================
+
+- name: Ensure dashmate home directory and subdirectories have correct ownership
   ansible.builtin.file:
-    path: '{{ dashmate_home }}'
+    path: '{{ item }}'
     state: directory
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     mode: '0755'
-  when: dashmate_user_check.rc == 0
+    recurse: true
+  loop:
+    - '{{ dashmate_home }}'
+    - '{{ dashmate_home }}/.dashmate'
+    - '{{ dashmate_config_dir }}'
+    - '{{ dashmate_logs_dir }}'
+  when: 
+    - not (skip_dashmate_image_update | default(false))
+    - dashmate_user_check.rc == 0
+
+- name: Fix ownership of any existing files in dashmate directories
+  ansible.builtin.command: chown -R {{ dashmate_user }}:{{ dashmate_group }} {{ dashmate_home }}
+  when: 
+    - not (skip_dashmate_image_update | default(false))
+    - dashmate_user_check.rc == 0
+  changed_when: false
 
 # ============================================================================
 # PHASE 3: Dash configuration (always run)
@@ -183,18 +202,7 @@
 # PHASE 5: Dashmate installation and configuration (always run)
 # ============================================================================
 
-- name: Create dashmate config dir
-  ansible.builtin.file:
-    path: '{{ item }}'
-    state: directory
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-    mode: '0755'
-  loop:
-    - '{{ dashmate_config_dir }}'
-  when: 
-    - not (dashmate_config_dir_stat.stat.exists | default(false))
-    - dashmate_user_check.rc == 0  # Only create if user exists
+# Config dir already created in early permission fixes section
 
 - name: Build dashmate
   ansible.builtin.import_tasks: ./build.yml
@@ -360,14 +368,7 @@
     path: '{{ dashmate_home }}/.dashmate/docker-compose.yml'
   register: docker_compose_stat
 
-- name: Ensure .dashmate directory exists
-  ansible.builtin.file:
-    path: '{{ dashmate_home }}/.dashmate'
-    state: directory
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-    mode: '0755'
-  when: dashmate_user_check.rc == 0
+# .dashmate directory already created in early permission fixes section
 
 - name: Render service configs
   ansible.builtin.command: "{{ dashmate_cmd }} config render"
