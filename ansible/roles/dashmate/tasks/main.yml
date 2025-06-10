@@ -89,7 +89,7 @@
     - (dashmate_user_check.rc | default(0)) != 0
 
 # ============================================================================
-# PHASE 3: Dash configuration (skip in fast mode)
+# PHASE 3: Dash configuration (always run)
 # ============================================================================
 
 - name: Check if dash.conf exists
@@ -100,14 +100,12 @@
 - name: Generate dash.conf content
   ansible.builtin.set_fact:
     dash_conf_content: "{{ lookup('template', 'dash.conf.j2') }}"
-  when: not skip_dashmate_image_update | default(false)
 
 - name: Check existing dash.conf content
   ansible.builtin.slurp:
     src: /etc/dash.conf
   register: existing_dash_conf
   when: 
-    - not skip_dashmate_image_update | default(false)
     - (dash_conf_stat.stat.exists | default(false))
   failed_when: false
 
@@ -119,7 +117,6 @@
     group: root
     mode: "0644"
   when: 
-    - not skip_dashmate_image_update | default(false)
     - not (dash_conf_stat.stat.exists | default(false)) or (existing_dash_conf.content | default('') | b64decode != dash_conf_content)
   register: dash_conf_changed
 
@@ -130,7 +127,6 @@
   vars:
     users: '{{ system_users }}'
   when: 
-    - not skip_dashmate_image_update | default(false)
     - dash_conf_changed is defined
     - dash_conf_changed is changed
 
@@ -146,7 +142,6 @@
     users: 
       - "{{ dashmate_user_dict }}"
   when: 
-    - not skip_dashmate_image_update | default(false)
     - dash_conf_changed is defined
     - dash_conf_changed is changed
     - (dashmate_user_check.rc | default(1)) == 0
@@ -163,7 +158,6 @@
 - name: Configure logs
   ansible.builtin.import_tasks: ./logs.yml
   when: 
-    - not skip_dashmate_image_update | default(false)
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
     - (dashmate_user_check.rc | default(1)) == 0  # Only configure logs if user exists
 
