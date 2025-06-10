@@ -212,18 +212,9 @@
     - dashmate_version is defined
     - (dashmate_needs_update | default(true)) or force_dashmate_reinstall | default(false)
 
-- name: Retrieve dashmate version
-  ansible.builtin.command: "{{ dashmate_cmd }} --version"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_version_result
-  changed_when: dashmate_version_result.rc == 0
-
-- name: Extract dashmate version
+- name: Set dashmate config version from already extracted version
   ansible.builtin.set_fact:
-    dashmate_config_version: "{{ (dashmate_version_result.stdout | split(' ') | first() | split('/'))[1] }}"
+    dashmate_config_version: "{{ installed_dashmate_version }}"
 
 # This check will return an error code if config is missing, config schema is invalid or default config is not yet set
 - name: Check state of dashmate config
