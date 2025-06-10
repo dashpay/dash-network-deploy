@@ -66,7 +66,7 @@
   when: 
     - not skip_dashmate_image_update | default(false)
     - dashmate_group_check is defined
-    - dashmate_group not in dashmate_group_check.ansible_facts.getent_group
+    - dashmate_group_check.failed | default(false)
 
 - name: Create dashmate user
   ansible.builtin.user:
@@ -80,7 +80,7 @@
   when: 
     - not skip_dashmate_image_update | default(false)
     - dashmate_user_check is defined
-    - dashmate_user not in dashmate_user_check.ansible_facts.getent_passwd
+    - dashmate_user_check.failed | default(false)
 
 - name: Add dashmate user to docker group
   ansible.builtin.user:
@@ -90,7 +90,7 @@
   when: 
     - not skip_dashmate_image_update | default(false)
     - dashmate_user_check is defined
-    - dashmate_user not in dashmate_user_check.ansible_facts.getent_passwd
+    - dashmate_user_check.failed | default(false)
 
 - name: Generate dash.conf content
   ansible.builtin.set_fact:
@@ -104,7 +104,7 @@
   when: 
     - not skip_dashmate_image_update | default(false)
     - dash_conf_stat is defined
-    - dash_conf_stat.stat.exists
+    - (dash_conf_stat.stat.exists | default(false))
   failed_when: false
 
 - name: Write dash.conf for dash-cli
@@ -117,7 +117,7 @@
   when: 
     - not skip_dashmate_image_update | default(false)
     - dash_conf_stat is defined
-    - not dash_conf_stat.stat.exists or (existing_dash_conf.content | default('') | b64decode != dash_conf_content)
+    - not (dash_conf_stat.stat.exists | default(false)) or (existing_dash_conf.content | default('') | b64decode != dash_conf_content)
   register: dash_conf_changed
 
 - name: Configure users for dash-cli
@@ -146,7 +146,7 @@
   when: 
     - not skip_dashmate_image_update | default(false)
     - logrotate_config_stat is defined
-    - not logrotate_config_stat.stat.exists or force_logs_config | default(false)
+    - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
 
 - name: Create dashmate config dir
   ansible.builtin.file:
@@ -157,7 +157,7 @@
     mode: '0755'
   loop:
     - '{{ dashmate_config_dir }}'
-  when: not dashmate_config_dir_stat.stat.exists
+  when: not (dashmate_config_dir_stat.stat.exists | default(false))
 
 - name: Build dashmate
   ansible.builtin.import_tasks: ./build.yml
@@ -208,7 +208,7 @@
 - name: Set ZeroSSL certificate ID from config
   ansible.builtin.set_fact:
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
-  when: dashmate_config_result.rc == 0 and dashmate_zerossl_id_result.stdout != 'null'
+  when: dashmate_config_result.rc == 0 and dashmate_zerossl_id_result is defined and dashmate_zerossl_id_result.stdout != 'null'
 
 - name: Write dashmate config file
   vars:
@@ -234,7 +234,7 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_render_configs_result
   changed_when: dashmate_render_configs_result.rc == 0
-  when: not docker_compose_stat.stat.exists or template_result.changed or force_config_render | default(false)
+  when: not (docker_compose_stat.stat.exists | default(false)) or template_result.changed or force_config_render | default(false)
 
 - name: Check if SSL certificates exist
   ansible.builtin.stat:
@@ -247,14 +247,14 @@
   when: 
     - dashmate_platform_enable 
     - dashmate_platform_gateway_ssl_provider == 'self-signed'
-    - not ssl_cert_stat.stat.exists or force_ssl_regenerate | default(false)
+    - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
 
 - name: Obtain ZeroSSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/zerossl.yml
   when: 
     - dashmate_platform_enable 
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
-    - not ssl_cert_stat.stat.exists or force_ssl_regenerate | default(false)
+    - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
 
 - name: Check if .env file exists
   ansible.builtin.stat:
@@ -269,7 +269,7 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_envs
   changed_when: dashmate_envs.rc == 0
-  when: not env_file_stat.stat.exists or template_result.changed or force_env_export | default(false)
+  when: not (env_file_stat.stat.exists | default(false)) or template_result.changed or force_env_export | default(false))
 
 - name: Check if images need update
   ansible.builtin.set_fact:
@@ -310,8 +310,8 @@
         json_query('[?service!=`core`&&status!=`not_started`]') |
         length | int > 0
       }}
-    is_core_images_updated: "{{ false if skip_dashmate_image_update | default(false) else (dashmate_update.stdout | from_json | json_query('[?name==`core`]') | sort(attribute='updated', reverse=true) | first() | json_query('updated')) }}"
-    is_platform_images_updated: "{{ false if skip_dashmate_image_update | default(false) else (dashmate_update.stdout | from_json | json_query('[?name!=`core`]') | sort(attribute='updated', reverse=true) | first() | json_query('updated')) }}"
+    is_core_images_updated: "{{ false if skip_dashmate_image_update | default(false) else (dashmate_update.stdout | default('[]') | from_json | json_query('[?name==`core`]') | sort(attribute='updated', reverse=true) | first(default={}) | json_query('updated') | default(false)) }}"
+    is_platform_images_updated: "{{ false if skip_dashmate_image_update | default(false) else (dashmate_update.stdout | default('[]') | from_json | json_query('[?name!=`core`]') | sort(attribute='updated', reverse=true) | first(default={}) | json_query('updated') | default(false)) }}"
     is_dashmate_package_changed: "{{ dashmate_install_result.changed if dashmate_install_result is defined else false }}"
     is_dashmate_config_changed: "{{ template_result.changed if template_result is defined else false }}"
 
@@ -386,7 +386,7 @@
 
 - name: Print chunks info
   ansible.builtin.debug:
-    msg: "Split {{ play_hosts | length }} into {{ host_chunks | length }} chunks to restart all services"
+    msg: "Split {{ play_hosts | length }} into {{ host_chunks | default([]) | length }} chunks to restart all services"
   when:
     - not (dashmate_start_all.changed | default(false))
     - is_dashmate_package_changed or is_dashmate_config_changed
@@ -395,7 +395,7 @@
 
 - name: Restart all dashmate services by chunks (regular mode)
   ansible.builtin.include_tasks: rolling_restart.yml
-  loop: "{{ host_chunks }}"
+  loop: "{{ host_chunks | default([]) }}"
   loop_control:
     loop_var: current_chunk
     index_var: current_chunk_index
