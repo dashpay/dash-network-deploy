@@ -303,12 +303,14 @@
     - name: Extract load tester addresses
       ansible.builtin.set_fact:
         load_tester_addresses: "{{ load_testers.values() | map(attribute='wallet.address') | list }}"
+      when: load_testers is defined and load_testers | length > 0
 
     - name: Include funding for load testers
       ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
       vars:
         payment_targets: "{{ load_tester_addresses }}"
         amount: "{{ load_tester_wallet_amount }}"
+      when: load_testers is defined and load_testers | length > 0
   tags:
     - full_deploy
 
