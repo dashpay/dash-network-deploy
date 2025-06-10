@@ -291,6 +291,17 @@
   register: ssl_cert_stat
   when: dashmate_platform_enable
 
+- name: Debug SSL conditions
+  ansible.builtin.debug:
+    msg: |
+      dashmate_platform_enable: {{ dashmate_platform_enable | default('undefined') }}
+      dashmate_platform_gateway_ssl_provider: {{ dashmate_platform_gateway_ssl_provider | default('undefined') }}
+      ssl_cert_stat.stat.exists: {{ ssl_cert_stat.stat.exists | default('undefined') }}
+      force_ssl_regenerate: {{ force_ssl_regenerate | default('undefined') }}
+      skip_dashmate_image_update: {{ skip_dashmate_image_update | default('undefined') }}
+      SSL cert condition: {{ not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false) }}
+      Skip condition: {{ not (skip_dashmate_image_update | default(false)) }}
+
 - name: Generate self-signed SSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/self_signed.yml
   when: 
@@ -381,8 +392,8 @@
         json_query('[?service!=`core`&&status!=`not_started`]') |
         length | int > 0
       }}
-    is_core_images_updated: "{{ false if skip_dashmate_image_update | default(false) else (dashmate_update.stdout | default('[]') | from_json | json_query('[?name==`core`]') | sort(attribute='updated', reverse=true) | first(default={}) | json_query('updated') | default(false)) }}"
-    is_platform_images_updated: "{{ false if skip_dashmate_image_update | default(false) else (dashmate_update.stdout | default('[]') | from_json | json_query('[?name!=`core`]') | sort(attribute='updated', reverse=true) | first(default={}) | json_query('updated') | default(false)) }}"
+    is_core_images_updated: "{{ false if skip_dashmate_image_update | default(false) else ((dashmate_update.stdout | default('[]') | from_json | json_query('[?name==`core`]') | sort(attribute='updated', reverse=true) | first | default({})).updated | default(false)) }}"
+    is_platform_images_updated: "{{ false if skip_dashmate_image_update | default(false) else ((dashmate_update.stdout | default('[]') | from_json | json_query('[?name!=`core`]') | sort(attribute='updated', reverse=true) | first | default({})).updated | default(false)) }}"
     is_dashmate_package_changed: "{{ dashmate_install_result.changed if dashmate_install_result is defined else false }}"
     is_dashmate_config_changed: "{{ template_result.changed if template_result is defined else false }}"
 
