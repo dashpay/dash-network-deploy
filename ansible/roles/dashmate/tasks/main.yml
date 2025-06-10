@@ -282,41 +282,40 @@
   ansible.builtin.set_fact:
     needs_core_restart: "{{ include_core_restart | default(false) or core_image_changed or not existing_dashmate_config_stat.stat.exists }}"
 
-- name: Generate config content to variable first
+- name: Generate new config content
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes }}"
   ansible.builtin.set_fact:
     new_config_content: "{{ lookup('template', 'dashmate.json.j2') }}"
 
-- name: Read existing config for comparison
+- name: Read existing config if it exists
   ansible.builtin.slurp:
     src: '{{ dashmate_config_dir }}/config.json'
-  register: existing_config_content
+  register: existing_config_slurp
   when: existing_dashmate_config_stat.stat.exists
+  failed_when: false
 
-- name: Compare configs manually
+- name: Check if config actually needs updating
   ansible.builtin.set_fact:
-    configs_actually_different: "{{ (existing_config_content.content | default('') | b64decode) != new_config_content }}"
+    config_needs_update: "{{ not existing_dashmate_config_stat.stat.exists or (existing_config_slurp.content | b64decode) != new_config_content }}"
 
-- name: Debug config comparison
-  ansible.builtin.debug:
-    msg: |
-      Configs actually different: {{ configs_actually_different }}
-      Existing config exists: {{ existing_dashmate_config_stat.stat.exists }}
-      Will write config: {{ configs_actually_different or not existing_dashmate_config_stat.stat.exists }}
-
-- name: Write dashmate config file only if actually different
+- name: Write dashmate config file only if changed
   ansible.builtin.copy:
     content: "{{ new_config_content }}"
     dest: '{{ dashmate_config_dir }}/config.json'
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     mode: "0644"
-    backup: true
-  register: template_result
+  register: template_result_copy
   when: 
     - dashmate_user_check.rc == 0
-    - configs_actually_different or not existing_dashmate_config_stat.stat.exists
+    - config_needs_update
+
+- name: Set template_result for compatibility
+  ansible.builtin.set_fact:
+    template_result:
+      changed: "{{ config_needs_update }}"
+      dest: "{{ dashmate_config_dir }}/config.json"
 
 - name: Debug config change details
   ansible.builtin.debug:
