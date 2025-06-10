@@ -298,6 +298,13 @@
   ansible.builtin.set_fact:
     new_config_content: "{{ new_config_slurp.content | b64decode }}"
 
+- name: Debug new config content issue
+  ansible.builtin.debug:
+    msg: |
+      New config content (first 100 chars): "{{ new_config_content[:100] }}"
+      New config content (full): "{{ new_config_content }}"
+      Template generation successful: {{ new_config_slurp.changed | default('undefined') }}
+
 - name: Clean up temp file
   ansible.builtin.file:
     path: /tmp/new_dashmate_config.json
