@@ -245,6 +245,55 @@
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
   when: dashmate_config_result.rc == 0 and dashmate_zerossl_id_result is defined and dashmate_zerossl_id_result.stdout != 'null'
 
+- name: Check if existing dashmate config exists
+  ansible.builtin.stat:
+    path: '{{ dashmate_config_dir }}/config.json'
+  register: existing_dashmate_config_stat
+
+- name: Read existing dashmate config
+  ansible.builtin.slurp:
+    src: '{{ dashmate_config_dir }}/config.json'
+  register: existing_dashmate_config
+  when: existing_dashmate_config_stat.stat.exists
+  failed_when: false
+
+- name: Generate new dashmate config content
+  vars:
+    template_bootstrap_peers: "{{ groups.seed_nodes }}"
+  ansible.builtin.set_fact:
+    new_dashmate_config_content: "{{ lookup('template', 'dashmate.json.j2') }}"
+
+- name: Parse existing and new configs for core comparison
+  ansible.builtin.set_fact:
+    existing_config_parsed: "{{ (existing_dashmate_config.content | default('{}') | b64decode | from_json).configs[dash_network_name].core | default({}) }}"
+    new_config_parsed: "{{ (new_dashmate_config_content | from_json).configs[dash_network_name].core }}"
+    existing_core_image: "{{ ((existing_dashmate_config.content | default('{}') | b64decode | from_json).configs[dash_network_name].core.docker.image | default('')) if existing_dashmate_config_stat.stat.exists else '' }}"
+    new_core_image: "{{ (new_dashmate_config_content | from_json).configs[dash_network_name].core.docker.image }}"
+  when: dashmate_user_check.rc == 0
+
+- name: Determine if core restart is needed
+  ansible.builtin.set_fact:
+    core_config_changed: "{{ existing_config_parsed != new_config_parsed }}"
+    core_image_changed: "{{ existing_core_image != new_core_image }}"
+    force_core_restart: "{{ core_config_changed or core_image_changed or not existing_dashmate_config_stat.stat.exists }}"
+  when: dashmate_user_check.rc == 0
+
+- name: Debug core restart decision
+  ansible.builtin.debug:
+    msg: |
+      Core config changed: {{ core_config_changed | default('undefined') }}
+      Core image changed: {{ core_image_changed | default('undefined') }}
+      Existing core image: {{ existing_core_image | default('none') }}
+      New core image: {{ new_core_image | default('undefined') }}
+      Force core restart needed: {{ force_core_restart | default('undefined') }}
+      User override core restart: {{ include_core_restart | default(false) }}
+      Final core restart decision: {{ force_core_restart | default(false) or include_core_restart | default(false) }}
+
+- name: Set final core restart flag
+  ansible.builtin.set_fact:
+    needs_core_restart: "{{ force_core_restart | default(false) or include_core_restart | default(false) }}"
+  when: dashmate_user_check.rc == 0
+
 - name: Write dashmate config file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes }}"
@@ -428,8 +477,8 @@
 # dashmate config is changed => restart all
 
 # Fast deployment: each node restarts itself independently
-- name: Restart all dashmate services (fast mode - individual restart)
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --safe --verbose"
+- name: Restart dashmate services (fast mode - individual restart)
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --safe --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}"
   become: true
   become_user: dashmate
   args:
@@ -492,7 +541,7 @@
 # Force start is equivalent to `docker compose up` and will replace services that have changed
 
 - name: Start not started services and replace updated services
-  ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose"
+  ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}"
   become: true
   become_user: dashmate
   args:
