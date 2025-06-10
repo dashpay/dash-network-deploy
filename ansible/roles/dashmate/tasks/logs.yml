@@ -73,6 +73,7 @@
     ansible_os_family: "Debian"
     ansible_distribution: "Ubuntu"
     ansible_distribution_major_version: "22"
+    ansible_distribution_release: "jammy"
     ansible_pkg_mgr: "apt"
 
 - name: Set up filebeat log monitoring
