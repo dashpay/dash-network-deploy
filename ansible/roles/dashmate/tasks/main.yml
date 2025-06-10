@@ -64,7 +64,7 @@
     name: '{{ dashmate_group }}'
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_group_check.rc != 0
+    - (dashmate_group_check.rc | default(0)) != 0
 
 - name: Create dashmate user
   ansible.builtin.user:
@@ -77,7 +77,7 @@
     umask: '0002'
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_user_check.rc != 0
+    - (dashmate_user_check.rc | default(0)) != 0
 
 - name: Add dashmate user to docker group
   ansible.builtin.user:
@@ -86,7 +86,7 @@
     append: true
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_user_check.rc != 0
+    - (dashmate_user_check.rc | default(0)) != 0
 
 # ============================================================================
 # PHASE 3: Dash configuration (skip in fast mode)
@@ -149,7 +149,7 @@
     - not skip_dashmate_image_update | default(false)
     - dash_conf_changed is defined
     - dash_conf_changed is changed
-    - dashmate_user_check.rc == 0
+    - (dashmate_user_check.rc | default(1)) == 0
 
 # ============================================================================
 # PHASE 4: Logging setup (skip in fast mode)
@@ -165,7 +165,7 @@
   when: 
     - not skip_dashmate_image_update | default(false)
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
-    - dashmate_user_check.rc == 0  # Only configure logs if user exists
+    - (dashmate_user_check.rc | default(1)) == 0  # Only configure logs if user exists
 
 # ============================================================================
 # PHASE 5: Dashmate installation and configuration (always run)
@@ -182,7 +182,7 @@
     - '{{ dashmate_config_dir }}'
   when: 
     - not (dashmate_config_dir_stat.stat.exists | default(false))
-    - dashmate_user_check.rc == 0  # Only create if user exists
+    - (dashmate_user_check.rc | default(1)) == 0  # Only create if user exists
 
 - name: Build dashmate
   ansible.builtin.import_tasks: ./build.yml
