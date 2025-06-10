@@ -16,6 +16,8 @@
     msg: "Restarted chunk {{ current_chunk_index + 1 }} of {{ host_chunks | length }}"
 
 - name: Wait for delay before restarting next chunk
-  ansible.builtin.pause:
-    minutes: "{{ restart_delay_minutes }}"
+  ansible.builtin.wait_for:
+    timeout: "{{ (restart_delay_minutes | default(1)) * 60 }}"
+  delegate_to: localhost
+  run_once: true
   when: current_chunk_index + 1 < host_chunks|length
