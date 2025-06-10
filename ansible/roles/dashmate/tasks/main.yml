@@ -282,11 +282,26 @@
   ansible.builtin.set_fact:
     needs_core_restart: "{{ include_core_restart | default(false) or core_image_changed or not existing_dashmate_config_stat.stat.exists }}"
 
-- name: Generate new config content
+- name: Generate new config content to temp file
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes }}"
+  ansible.builtin.template:
+    src: dashmate.json.j2
+    dest: /tmp/new_dashmate_config.json
+
+- name: Read generated config content
+  ansible.builtin.slurp:
+    src: /tmp/new_dashmate_config.json
+  register: new_config_slurp
+
+- name: Set new config content variable
   ansible.builtin.set_fact:
-    new_config_content: "{{ lookup('template', 'dashmate.json.j2') }}"
+    new_config_content: "{{ new_config_slurp.content | b64decode }}"
+
+- name: Clean up temp file
+  ansible.builtin.file:
+    path: /tmp/new_dashmate_config.json
+    state: absent
 
 - name: Read existing config if it exists
   ansible.builtin.slurp:
