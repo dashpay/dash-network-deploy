@@ -46,26 +46,24 @@
 # ============================================================================
 
 - name: Check if dashmate group exists
-  ansible.builtin.getent:
-    database: group
-    key: '{{ dashmate_group }}'
+  ansible.builtin.shell: "getent group {{ dashmate_group }}"
   register: dashmate_group_check
   failed_when: false
+  changed_when: false
 
 - name: Check if dashmate user exists
-  ansible.builtin.getent:
-    database: passwd
-    key: '{{ dashmate_user }}'
+  ansible.builtin.shell: "id {{ dashmate_user }}"
   register: dashmate_user_check
   failed_when: false
+  changed_when: false
 
 - name: Debug user/group check results
   ansible.builtin.debug:
     msg: |
-      Group check RC: {{ dashmate_group_check.rc | default('undefined') }}
-      User check RC: {{ dashmate_user_check.rc | default('undefined') }}
-      Group exists: {{ (dashmate_group_check.rc | default(0)) == 0 }}
-      User exists: {{ (dashmate_user_check.rc | default(0)) == 0 }}
+      Group check failed: {{ dashmate_group_check.failed | default('undefined') }}
+      User check failed: {{ dashmate_user_check.failed | default('undefined') }}
+      Group check msg: {{ dashmate_group_check.msg | default('no msg') }}
+      User check msg: {{ dashmate_user_check.msg | default('no msg') }}
       skip_dashmate_image_update: {{ skip_dashmate_image_update | default('undefined') }}
 
 - name: Create dashmate group
@@ -73,7 +71,7 @@
     name: '{{ dashmate_group }}'
   when: 
     - not skip_dashmate_image_update | default(false)
-    - (dashmate_group_check.rc | default(0)) != 0
+    - dashmate_group_check.rc != 0
 
 - name: Create dashmate user
   ansible.builtin.user:
@@ -86,7 +84,7 @@
     umask: '0002'
   when: 
     - not skip_dashmate_image_update | default(false)
-    - (dashmate_user_check.rc | default(0)) != 0
+    - dashmate_user_check.rc != 0
 
 - name: Add dashmate user to docker group
   ansible.builtin.user:
@@ -95,7 +93,7 @@
     append: true
   when: 
     - not skip_dashmate_image_update | default(false)
-    - (dashmate_user_check.rc | default(0)) != 0
+    - dashmate_user_check.rc != 0
 
 # ============================================================================
 # PHASE 3: Dash configuration (always run)
@@ -153,7 +151,7 @@
   when: 
     - dash_conf_changed is defined
     - dash_conf_changed is changed
-    - (dashmate_user_check.rc | default(1)) == 0
+    - dashmate_user_check.rc == 0
 
 # ============================================================================
 # PHASE 4: Logging setup (skip in fast mode)
@@ -168,7 +166,7 @@
   ansible.builtin.import_tasks: ./logs.yml
   when: 
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
-    - (dashmate_user_check.rc | default(1)) == 0  # Only configure logs if user exists
+    - dashmate_user_check.rc == 0  # Only configure logs if user exists
 
 # ============================================================================
 # PHASE 5: Dashmate installation and configuration (always run)
@@ -185,7 +183,7 @@
     - '{{ dashmate_config_dir }}'
   when: 
     - not (dashmate_config_dir_stat.stat.exists | default(false))
-    - (dashmate_user_check.rc | default(1)) == 0  # Only create if user exists
+    - dashmate_user_check.rc == 0  # Only create if user exists
 
 - name: Build dashmate
   ansible.builtin.import_tasks: ./build.yml
