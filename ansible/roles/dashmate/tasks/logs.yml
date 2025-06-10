@@ -75,6 +75,7 @@
     ansible_distribution_major_version: "22"
     ansible_distribution_release: "jammy"
     ansible_pkg_mgr: "apt"
+    ansible_architecture: "x86_64"
 
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:
