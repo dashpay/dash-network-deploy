@@ -68,6 +68,15 @@
   ansible.builtin.include_vars:
     file: filebeat_inputs.yml
 
+- name: Detect actual architecture
+  ansible.builtin.command: uname -m
+  register: detected_architecture
+  changed_when: false
+
+- name: Set architecture fact based on detection
+  ansible.builtin.set_fact:
+    detected_arch: "{{ 'x86_64' if detected_architecture.stdout in ['x86_64', 'amd64'] else 'aarch64' if detected_architecture.stdout in ['aarch64', 'arm64'] else detected_architecture.stdout }}"
+
 - name: Set facts for filebeat role (assume Ubuntu/Debian)
   ansible.builtin.set_fact:
     ansible_os_family: "Debian"
@@ -75,7 +84,7 @@
     ansible_distribution_major_version: "22"
     ansible_distribution_release: "jammy"
     ansible_pkg_mgr: "apt"
-    ansible_architecture: "x86_64"
+    ansible_architecture: "{{ detected_arch }}"
 
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:
