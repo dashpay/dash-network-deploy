@@ -21,6 +21,7 @@ Options:
             --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
             --fast                              - Fast deployment mode (skip non-critical operations)
             --skip-image-update                 - Skip Docker image updates
+            --core-restart                      - Include core services in restart (default: platform only)
   -h        --help                        - Show help"
 
 STAGE=1 # Default 
@@ -58,6 +59,10 @@ case ${i} in
     ;;
     --skip-image-update)
     EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true"
+    ;;
+    --core-restart)
+    EXTRA_VARS="$EXTRA_VARS -e include_core_restart=true"
+    echo "Core restart enabled - will restart both core and platform services"
     ;;
     -s=*|--stage=*)
     STAGE="${i#*=}"
