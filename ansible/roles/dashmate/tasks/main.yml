@@ -282,70 +282,71 @@
   ansible.builtin.set_fact:
     needs_core_restart: "{{ include_core_restart | default(false) or core_image_changed or not existing_dashmate_config_stat.stat.exists }}"
 
-- name: Generate new config content to temp file
+- name: Write dashmate config file (fast mode - always write)
+  vars:
+    template_bootstrap_peers: "{{ groups.seed_nodes }}"
+  ansible.builtin.template:
+    src: dashmate.json.j2
+    dest: '{{ dashmate_config_dir }}/config.json'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0644"
+  register: template_result_fast
+  when: 
+    - dashmate_user_check.rc == 0
+    - skip_dashmate_image_update | default(false)
+
+- name: Generate new config content for comparison (regular mode)
   vars:
     template_bootstrap_peers: "{{ groups.seed_nodes }}"
   ansible.builtin.template:
     src: dashmate.json.j2
     dest: /tmp/new_dashmate_config.json
+  when: not (skip_dashmate_image_update | default(false))
 
-- name: Read generated config content
+- name: Read generated config content (regular mode)
   ansible.builtin.slurp:
     src: /tmp/new_dashmate_config.json
   register: new_config_slurp
+  when: not (skip_dashmate_image_update | default(false))
 
-- name: Set new config content variable
-  ansible.builtin.set_fact:
-    new_config_content: "{{ new_config_slurp.content | b64decode }}"
-
-- name: Debug new config content issue
-  ansible.builtin.debug:
-    msg: |
-      New config content (first 100 chars): "{{ new_config_content[:100] }}"
-      New config content (full): "{{ new_config_content }}"
-      Template generation successful: {{ new_config_slurp.changed | default('undefined') }}
-
-- name: Clean up temp file
-  ansible.builtin.file:
-    path: /tmp/new_dashmate_config.json
-    state: absent
-
-- name: Read existing config if it exists
+- name: Read existing config if it exists (regular mode)
   ansible.builtin.slurp:
     src: '{{ dashmate_config_dir }}/config.json'
   register: existing_config_slurp
-  when: existing_dashmate_config_stat.stat.exists
+  when: 
+    - not (skip_dashmate_image_update | default(false))
+    - existing_dashmate_config_stat.stat.exists
   failed_when: false
 
-- name: Debug config comparison details
-  ansible.builtin.debug:
-    msg: |
-      Config file exists: {{ existing_dashmate_config_stat.stat.exists }}
-      Existing config defined: {{ existing_config_slurp is defined }}
-      Existing config length: {{ (existing_config_slurp.content | b64decode | length) if existing_config_slurp is defined else 'N/A' }}
-      New config length: {{ new_config_content | length }}
-      Contents equal: {{ (existing_config_slurp.content | b64decode) == new_config_content if existing_config_slurp is defined else 'N/A' }}
-
-- name: Check if config actually needs updating
+- name: Check if config actually needs updating (regular mode)
   ansible.builtin.set_fact:
-    config_needs_update: "{{ not existing_dashmate_config_stat.stat.exists or (existing_config_slurp.content | b64decode) != new_config_content }}"
+    config_needs_update: "{{ not existing_dashmate_config_stat.stat.exists or (existing_config_slurp.content | b64decode) != (new_config_slurp.content | b64decode) }}"
+  when: not (skip_dashmate_image_update | default(false))
 
-- name: Write dashmate config file only if changed
+- name: Write dashmate config file only if changed (regular mode)
   ansible.builtin.copy:
-    content: "{{ new_config_content }}"
+    content: "{{ new_config_slurp.content | b64decode }}"
     dest: '{{ dashmate_config_dir }}/config.json'
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     mode: "0644"
-  register: template_result_copy
+  register: template_result_regular
   when: 
+    - not (skip_dashmate_image_update | default(false))
     - dashmate_user_check.rc == 0
     - config_needs_update
+
+- name: Clean up temp file (regular mode)
+  ansible.builtin.file:
+    path: /tmp/new_dashmate_config.json
+    state: absent
+  when: not (skip_dashmate_image_update | default(false))
 
 - name: Set template_result for compatibility
   ansible.builtin.set_fact:
     template_result:
-      changed: "{{ config_needs_update }}"
+      changed: "{{ template_result_fast.changed if (skip_dashmate_image_update | default(false)) else (config_needs_update | default(false)) }}"
       dest: "{{ dashmate_config_dir }}/config.json"
 
 - name: Debug config change details
