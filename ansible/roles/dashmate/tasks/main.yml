@@ -59,6 +59,15 @@
   register: dashmate_user_check
   failed_when: false
 
+- name: Debug user/group check results
+  ansible.builtin.debug:
+    msg: |
+      Group check RC: {{ dashmate_group_check.rc | default('undefined') }}
+      User check RC: {{ dashmate_user_check.rc | default('undefined') }}
+      Group exists: {{ (dashmate_group_check.rc | default(0)) == 0 }}
+      User exists: {{ (dashmate_user_check.rc | default(0)) == 0 }}
+      skip_dashmate_image_update: {{ skip_dashmate_image_update | default('undefined') }}
+
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
