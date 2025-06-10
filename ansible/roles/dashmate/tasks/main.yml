@@ -29,10 +29,6 @@
   failed_when: false
   changed_when: false
 
-- name: Debug dashmate version output
-  ansible.builtin.debug:
-    msg: "Raw dashmate version output: '{{ current_dashmate_version.stdout | default('not defined') }}'"
-  when: current_dashmate_version is defined
 
 - name: Extract installed version number
   ansible.builtin.set_fact:
@@ -226,6 +222,7 @@
   register: dashmate_config_result
   ignore_errors: true
   changed_when: true
+  when: not (skip_dashmate_image_update | default(false))
 
 - name: Get ZeroSSL certificate ID from config
   ansible.builtin.command: "{{ dashmate_cmd }} config get platform.gateway.ssl.providerConfigs.zerossl.id"
@@ -235,12 +232,20 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id_result
   changed_when: dashmate_zerossl_id_result.rc == 0
-  when: dashmate_config_result.rc == 0
+  when: 
+    - not (skip_dashmate_image_update | default(false))
+    - dashmate_config_result is defined
+    - dashmate_config_result.rc == 0
 
 - name: Set ZeroSSL certificate ID from config
   ansible.builtin.set_fact:
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
-  when: dashmate_config_result.rc == 0 and dashmate_zerossl_id_result is defined and dashmate_zerossl_id_result.stdout != 'null'
+  when: 
+    - not (skip_dashmate_image_update | default(false))
+    - dashmate_config_result is defined
+    - dashmate_config_result.rc == 0 
+    - dashmate_zerossl_id_result is defined 
+    - dashmate_zerossl_id_result.stdout != 'null'
 
 - name: Check if existing dashmate config exists
   ansible.builtin.stat:
@@ -454,7 +459,7 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   changed_when: dashmate_update.rc == 0
-  when: not skip_image_update
+  when: not (skip_dashmate_image_update | default(false))
 
 # ============================================================================
 # PHASE 8: Service management
