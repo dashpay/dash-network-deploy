@@ -336,7 +336,9 @@
   hosts: hp_masternodes
   become: true
   gather_facts: false
-  strategy: free
+  # Using strategy: free for parallel execution to improve deployment speed
+  # This is intentional for performance optimization
+  strategy: free  # noqa: run-once[play]
   serial: 0
   pre_tasks:
     - name: Check inventory for HP masternodes

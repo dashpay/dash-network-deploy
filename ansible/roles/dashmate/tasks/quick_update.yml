@@ -23,7 +23,12 @@
 
 - name: Extract installed version number
   ansible.builtin.set_fact:
-    installed_dashmate_version: "{{ current_dashmate_version.stdout | regex_search('([0-9]+\\\\.[0-9]+\\\\.[0-9]+-[a-zA-Z]+\\\\.[0-9]+)') if current_dashmate_version.stdout is defined else 'none' }}"
+    installed_dashmate_version: >-
+      {{
+        current_dashmate_version.stdout |
+        regex_search('([0-9]+\\.[0-9]+\\.[0-9]+-[a-zA-Z]+\\.[0-9]+)')
+        if current_dashmate_version.stdout is defined else 'none'
+      }}
 
 - name: Show version info
   ansible.builtin.debug:
@@ -31,7 +36,7 @@
 
 - name: Install dashmate if version differs
   ansible.builtin.import_tasks: ./install.yml
-  when: 
+  when:
     - dashmate_version is defined
     - installed_dashmate_version != dashmate_version
 

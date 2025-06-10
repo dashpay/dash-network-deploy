@@ -1,0 +1,21 @@
+# Ansible-lint configuration file
+---
+# Optimization-related exceptions
+skip_list:
+  # External role variable naming - required for compatibility with existing roles
+  - var-naming[no-role-prefix]  # Variables passed to external roles (dash_cli, etc.) must use their expected names
+
+# Use basic profile for reasonable balance of strictness
+profile: basic
+
+# Exclude external dependencies from linting
+exclude_paths:
+  - .github/
+  - terraform/
+  - lib/
+  - test/
+  - bin/
+  - docker/
+  - karma.conf.js
+  - package.json
+  - package-lock.json
