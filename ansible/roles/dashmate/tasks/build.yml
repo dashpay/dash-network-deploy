@@ -99,7 +99,7 @@
   register: dashmate_source_exists
 
 - name: Check current git branch
-  ansible.builtin.command: git rev-parse --abbrev-ref HEAD
+  ansible.builtin.command: git rev-parse --abbrev-ref HEAD  # noqa: command-instead-of-module
   args:
     chdir: '{{ dashmate_source_dir }}'
   register: current_branch
