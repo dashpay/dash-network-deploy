@@ -298,6 +298,13 @@
   ansible.builtin.set_fact:
     configs_actually_different: "{{ (existing_config_content.content | default('') | b64decode) != new_config_content }}"
 
+- name: Debug config comparison
+  ansible.builtin.debug:
+    msg: |
+      Configs actually different: {{ configs_actually_different }}
+      Existing config exists: {{ existing_dashmate_config_stat.stat.exists }}
+      Will write config: {{ configs_actually_different or not existing_dashmate_config_stat.stat.exists }}
+
 - name: Write dashmate config file only if actually different
   ansible.builtin.copy:
     content: "{{ new_config_content }}"
