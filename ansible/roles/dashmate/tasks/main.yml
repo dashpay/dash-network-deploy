@@ -10,7 +10,6 @@
     key: '{{ dashmate_group }}'
   register: dashmate_group_check
   failed_when: false
-  when: not skip_dashmate_image_update | default(false)
 
 - name: Check if dashmate user exists
   ansible.builtin.getent:
@@ -18,13 +17,11 @@
     key: '{{ dashmate_user }}'
   register: dashmate_user_check
   failed_when: false
-  when: not skip_dashmate_image_update | default(false)
 
 - name: Check if dash.conf exists
   ansible.builtin.stat:
     path: /etc/dash.conf
   register: dash_conf_stat
-  when: not skip_dashmate_image_update | default(false)
 
 - name: Check if dashmate config directory exists
   ansible.builtin.stat:
@@ -65,7 +62,6 @@
     name: '{{ dashmate_group }}'
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_group_check is defined
     - dashmate_group_check.failed | default(false)
 
 - name: Create dashmate user
@@ -79,7 +75,6 @@
     umask: '0002'
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_user_check is defined
     - dashmate_user_check.failed | default(false)
 
 - name: Add dashmate user to docker group
@@ -89,7 +84,6 @@
     append: true
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dashmate_user_check is defined
     - dashmate_user_check.failed | default(false)
 
 - name: Generate dash.conf content
@@ -103,7 +97,6 @@
   register: existing_dash_conf
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dash_conf_stat is defined
     - (dash_conf_stat.stat.exists | default(false))
   failed_when: false
 
@@ -116,7 +109,6 @@
     mode: "0644"
   when: 
     - not skip_dashmate_image_update | default(false)
-    - dash_conf_stat is defined
     - not (dash_conf_stat.stat.exists | default(false)) or (existing_dash_conf.content | default('') | b64decode != dash_conf_content)
   register: dash_conf_changed
 
@@ -129,23 +121,38 @@
       user: '{{ dashmate_user }}'
       group: '{{ dashmate_group }}'
       dir: '{{ dashmate_home }}'
-    users: '{{ system_users + [dashmate_user_dict] }}'
+    users: '{{ system_users }}'
   when: 
     - not skip_dashmate_image_update | default(false)
     - dash_conf_changed is defined
     - dash_conf_changed is changed
 
+- name: Configure dashmate user for dash-cli
+  ansible.builtin.include_role:
+    name: dash_cli
+    tasks_from: configure_users
+  vars:
+    dashmate_user_dict:
+      user: '{{ dashmate_user }}'
+      group: '{{ dashmate_group }}'
+      dir: '{{ dashmate_home }}'
+    users: 
+      - "{{ dashmate_user_dict }}"
+  when: 
+    - not skip_dashmate_image_update | default(false)
+    - dash_conf_changed is defined
+    - dash_conf_changed is changed
+    - not (dashmate_user_check.failed | default(false))
+
 - name: Check if log configuration exists
   ansible.builtin.stat:
     path: /etc/logrotate.d/dashmate
   register: logrotate_config_stat
-  when: not skip_dashmate_image_update | default(false)
 
 - name: Configure logs
   ansible.builtin.import_tasks: ./logs.yml
   when: 
     - not skip_dashmate_image_update | default(false)
-    - logrotate_config_stat is defined
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
 
 - name: Create dashmate config dir
