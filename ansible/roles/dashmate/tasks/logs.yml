@@ -1,5 +1,14 @@
 ---
 
+- name: Detect actual architecture early
+  ansible.builtin.command: uname -m
+  register: detected_architecture_early
+  changed_when: false
+
+- name: Set architecture fact early for all roles
+  ansible.builtin.set_fact:
+    ansible_architecture: "{{ 'x86_64' if detected_architecture_early.stdout in ['x86_64', 'amd64'] else 'aarch64' if detected_architecture_early.stdout in ['aarch64', 'arm64'] else detected_architecture_early.stdout }}"
+
 - name: Check if logs directory exists
   ansible.builtin.stat:
     path: '{{ dashmate_logs_dir }}'
