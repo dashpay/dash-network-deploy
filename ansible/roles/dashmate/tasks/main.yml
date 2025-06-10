@@ -291,8 +291,19 @@
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
     mode: "0644"
+    backup: true
   register: template_result
   when: dashmate_user_check.rc == 0  # Only write if user exists
+
+- name: Debug config change details
+  ansible.builtin.debug:
+    msg: |
+      Config file changed: {{ template_result.changed | default('undefined') }}
+      Backup file: {{ template_result.backup_file | default('no backup') }}
+      Dest: {{ template_result.dest | default('undefined') }}
+  when: 
+    - template_result is defined
+    - template_result.changed
 
 - name: Check if service configs need rendering
   ansible.builtin.stat:
