@@ -33,11 +33,12 @@
 - name: Extract installed version number
   ansible.builtin.set_fact:
     installed_dashmate_version: >-
-      {{
-        current_dashmate_version.stdout |
-        regex_search('dashmate/([0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?)', '\\1') |
-        first if current_dashmate_version.stdout is defined else 'none'
-      }}
+      {%- if current_dashmate_version is defined and current_dashmate_version.stdout is defined -%}
+        {%- set version_match = current_dashmate_version.stdout | regex_search('dashmate/([0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?)', '\\1') -%}
+        {{ version_match | first if version_match else 'none' }}
+      {%- else -%}
+        none
+      {%- endif -%}
 
 - name: Compare versions
   ansible.builtin.set_fact:
@@ -67,8 +68,22 @@
 
 - name: Set user/group existence facts
   ansible.builtin.set_fact:
-    dashmate_group_exists: "{{ (dashmate_group_check is defined and dashmate_group_check.rc is defined and dashmate_group_check.rc == 0) | default(true if skip_dashmate_image_update | default(false) else false) }}"
-    dashmate_user_exists: "{{ (dashmate_user_check is defined and dashmate_user_check.rc is defined and dashmate_user_check.rc == 0) | default(true if skip_dashmate_image_update | default(false) else false) }}"
+    dashmate_group_exists: >-
+      {%- if skip_dashmate_image_update | default(false) -%}
+        true
+      {%- elif dashmate_group_check is defined and dashmate_group_check.rc is defined -%}
+        {{ dashmate_group_check.rc == 0 }}
+      {%- else -%}
+        false
+      {%- endif -%}
+    dashmate_user_exists: >-
+      {%- if skip_dashmate_image_update | default(false) -%}
+        true
+      {%- elif dashmate_user_check is defined and dashmate_user_check.rc is defined -%}
+        {{ dashmate_user_check.rc == 0 }}
+      {%- else -%}
+        false
+      {%- endif -%}
 
 - name: Debug user/group check results
   ansible.builtin.debug:
