@@ -19,12 +19,18 @@ Options:
   -a=<args> --ansible-args=<args>         - Pass extra arguments to ansible-playbook command
   --tags=<tags>                           - Specify tags for deployment (comma-separated). Default: full_deploy
             --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
+            --fast                              - Fast deployment mode (skip non-critical operations)
+            --skip-image-update                 - Skip Docker image updates
+            --core-restart                      - Include core services in restart (default: platform only)
   -h        --help                        - Show help"
 
 STAGE=1 # Default 
 
 # The network name is now assigned from the first unflagged argument, not from the last argument
 NETWORK_NAME=""
+
+# Initialize extra ansible vars
+EXTRA_VARS=""
 
 for i in "$@"
 do
@@ -46,6 +52,17 @@ case ${i} in
     ;;
     --ansible-playbook=*)
     ansible_playbook="${i#*=}.yml"
+    ;;
+    --fast)
+    EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true -e force_logs_config=false"
+    echo "Fast mode enabled - skipping Docker image updates and non-critical operations"
+    ;;
+    --skip-image-update)
+    EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true"
+    ;;
+    --core-restart)
+    EXTRA_VARS="$EXTRA_VARS -e include_core_restart=true"
+    echo "Core restart enabled - will restart both core and platform services"
     ;;
     -s=*|--stage=*)
     STAGE="${i#*=}"
@@ -113,12 +130,12 @@ case ${STAGE} in
 
         # Install software and configure dash network using Ansible
         if [ -z ${ONLY_INFRASTRUCTURE} ]; then
-            ansible_run_playbook "$ansible_playbook" --tags "$ANSIBLE_TAGS"
+            ansible_run_playbook "$ansible_playbook" --tags "$ANSIBLE_TAGS" $EXTRA_VARS
         else
             echo "Skipping Ansible provisioning"
         fi
     ;;
     2)
-        ansible_run_playbook "stage2.yml" --tags "$ANSIBLE_TAGS"
+        ansible_run_playbook "stage2.yml" --tags "$ANSIBLE_TAGS" $EXTRA_VARS
     ;;
 esac

@@ -303,12 +303,14 @@
     - name: Extract load tester addresses
       ansible.builtin.set_fact:
         load_tester_addresses: "{{ load_testers.values() | map(attribute='wallet.address') | list }}"
+      when: load_testers is defined and load_testers | length > 0
 
     - name: Include funding for load testers
       ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
       vars:
         payment_targets: "{{ load_tester_addresses }}"
         amount: "{{ load_tester_wallet_amount }}"
+      when: load_testers is defined and load_testers | length > 0
   tags:
     - full_deploy
 
@@ -333,6 +335,11 @@
 - name: Set up core and platform on HP masternodes
   hosts: hp_masternodes
   become: true
+  gather_facts: false
+  # Using strategy: free for parallel execution to improve deployment speed
+  # This is intentional for performance optimization
+  strategy: free  # noqa: run-once[play]
+  serial: 0
   pre_tasks:
     - name: Check inventory for HP masternodes
       ansible.builtin.set_fact:
@@ -341,11 +348,15 @@
       when: inventory_hostname in hp_masternodes
   roles:
     - role: dash_cli
+      when: not skip_dashmate_image_update | default(false)
     - role: dashmate
     - role: mn_status_report
+      when: not skip_dashmate_image_update | default(false)
     - role: metricbeat
+      when: not skip_dashmate_image_update | default(false)
   tags:
     - full_deploy
+    - dashmate_deploy
 
 
 - name: Set up protx diff script

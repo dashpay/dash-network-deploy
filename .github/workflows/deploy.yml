@@ -43,28 +43,28 @@ jobs:
       - name: Set up SSH Keys
         run: |
           mkdir -p ~/.ssh
-          
+
           # GitHub deploy key for cloning configs
           echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          
+
           # Server SSH key for connecting to nodes
           echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          
+
           # SSH config
           cat > ~/.ssh/config << 'EOL'
           Host github.com
             IdentityFile ~/.ssh/id_ed25519
             StrictHostKeyChecking no
-          
+
           Host *
             IdentityFile ~/.ssh/id_rsa
             User ubuntu
             StrictHostKeyChecking no
             UserKnownHostsFile=/dev/null
           EOL
-          
+
           chmod 600 ~/.ssh/config
 
       # Set up Node.js and clone configs

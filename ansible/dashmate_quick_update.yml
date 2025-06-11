@@ -1,0 +1,19 @@
+---
+# Quick dashmate update playbook - just update version and restart
+
+- name: Quick update dashmate on HP masternodes
+  hosts: hp_masternodes
+  become: true
+  pre_tasks:
+    - name: Check inventory for HP masternodes
+      ansible.builtin.set_fact:
+        node: "{{ hp_masternodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in hp_masternodes
+  tasks:
+    - name: Update dashmate
+      ansible.builtin.include_role:
+        name: dashmate
+        tasks_from: quick_update
+  tags:
+    - dashmate_quick_update

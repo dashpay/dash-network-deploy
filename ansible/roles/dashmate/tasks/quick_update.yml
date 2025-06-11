@@ -1,0 +1,51 @@
+---
+# Quick update task - just install new version and restart
+
+- name: Set vars
+  ansible.builtin.import_tasks: ./set_vars.yml
+
+- name: Check if dashmate is installed
+  ansible.builtin.command: which dashmate
+  register: dashmate_installed
+  failed_when: false
+  changed_when: false
+
+- name: Get current dashmate version
+  ansible.builtin.command: "{{ dashmate_cmd }} --version"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: current_dashmate_version
+  when: dashmate_installed.rc == 0
+  failed_when: false
+  changed_when: false
+
+- name: Extract installed version number
+  ansible.builtin.set_fact:
+    installed_dashmate_version: >-
+      {{
+        current_dashmate_version.stdout |
+        regex_search('([0-9]+\\.[0-9]+\\.[0-9]+-[a-zA-Z]+\\.[0-9]+)')
+        if current_dashmate_version.stdout is defined else 'none'
+      }}
+
+- name: Show version info
+  ansible.builtin.debug:
+    msg: "Installed: {{ installed_dashmate_version }}, Required: {{ dashmate_version }}"
+
+- name: Install dashmate if version differs
+  ansible.builtin.import_tasks: ./install.yml
+  when:
+    - dashmate_version is defined
+    - installed_dashmate_version != dashmate_version
+
+- name: Restart dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_restart
+  when: installed_dashmate_version != dashmate_version
+  changed_when: dashmate_restart.rc == 0
