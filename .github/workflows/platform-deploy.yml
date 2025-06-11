@@ -6,11 +6,7 @@ on:
       network:
         description: "Network to deploy (e.g., testnet, devnet-cobblet)"
         required: true
-        type: choice
-        options:
-          - testnet
-          - devnet-cobblet
-          - mainnet-support
+        type: string
         default: testnet
       platform_version:
         description: "Platform version to deploy (e.g., 2.0.0-rc.16)"
