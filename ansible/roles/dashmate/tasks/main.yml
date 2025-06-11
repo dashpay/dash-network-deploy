@@ -56,12 +56,19 @@
   register: dashmate_group_check
   failed_when: false
   changed_when: false
+  when: not (skip_dashmate_image_update | default(false))
 
 - name: Check if dashmate user exists
   ansible.builtin.command: "id {{ dashmate_user }}"
   register: dashmate_user_check
   failed_when: false
   changed_when: false
+  when: not (skip_dashmate_image_update | default(false))
+
+- name: Set user/group existence facts
+  ansible.builtin.set_fact:
+    dashmate_group_exists: "{{ (dashmate_group_check is defined and dashmate_group_check.rc is defined and dashmate_group_check.rc == 0) | default(true if skip_dashmate_image_update | default(false) else false) }}"
+    dashmate_user_exists: "{{ (dashmate_user_check is defined and dashmate_user_check.rc is defined and dashmate_user_check.rc == 0) | default(true if skip_dashmate_image_update | default(false) else false) }}"
 
 - name: Debug user/group check results
   ansible.builtin.debug:
@@ -71,13 +78,16 @@
       Group check msg: {{ dashmate_group_check.msg | default('no msg') }}
       User check msg: {{ dashmate_user_check.msg | default('no msg') }}
       skip_dashmate_image_update: {{ skip_dashmate_image_update | default('undefined') }}
+      dashmate_group_exists: {{ dashmate_group_exists }}
+      dashmate_user_exists: {{ dashmate_user_exists }}
+  when: not (skip_dashmate_image_update | default(false))
 
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
   when:
     - not (skip_dashmate_image_update | default(false))
-    - dashmate_group_check.rc != 0
+    - not dashmate_group_exists
 
 - name: Create dashmate user
   ansible.builtin.user:
@@ -90,7 +100,7 @@
     umask: '0002'
   when:
     - not (skip_dashmate_image_update | default(false))
-    - dashmate_user_check.rc != 0
+    - not dashmate_user_exists
 
 - name: Add dashmate user to docker group
   ansible.builtin.user:
@@ -99,7 +109,7 @@
     append: true
   when:
     - not (skip_dashmate_image_update | default(false))
-    - dashmate_user_check.rc != 0
+    - not dashmate_user_exists
 
 # ============================================================================
 # EARLY PERMISSION FIXES - Ensure all dashmate directories have correct ownership
@@ -120,13 +130,13 @@
     - '{{ dashmate_logs_dir }}'
   when:
     - not (skip_dashmate_image_update | default(false))
-    - dashmate_user_check.rc == 0
+    - dashmate_user_exists
 
 - name: Fix ownership of any existing files in dashmate directories
   ansible.builtin.command: chown -R {{ dashmate_user }}:{{ dashmate_group }} {{ dashmate_home }}
   when:
     - not (skip_dashmate_image_update | default(false))
-    - dashmate_user_check.rc == 0
+    - dashmate_user_exists
   changed_when: false
 
 # ============================================================================
@@ -185,7 +195,7 @@
   when:
     - dash_conf_changed is defined
     - dash_conf_changed is changed
-    - dashmate_user_check.rc == 0
+    - dashmate_user_exists
 
 # ============================================================================
 # PHASE 4: Logging setup (skip in fast mode)
@@ -201,7 +211,7 @@
   when:
     - not (skip_dashmate_image_update | default(false))
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
-    - dashmate_user_check.rc == 0  # Only configure logs if user exists
+    - dashmate_user_exists  # Only configure logs if user exists
 
 # ============================================================================
 # PHASE 5: Dashmate installation and configuration (always run)
@@ -302,7 +312,7 @@
     mode: "0644"
   register: template_result_fast
   when:
-    - dashmate_user_check.rc == 0
+    - dashmate_user_exists
     - skip_dashmate_image_update | default(false)
 
 - name: Generate new config content for comparison (regular mode)
@@ -348,7 +358,7 @@
   register: template_result_regular
   when:
     - not (skip_dashmate_image_update | default(false))
-    - dashmate_user_check.rc == 0
+    - dashmate_user_exists
     - config_needs_update
 
 - name: Clean up temp file (regular mode)
