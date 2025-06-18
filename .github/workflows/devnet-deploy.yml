@@ -1,0 +1,199 @@
+name: Deploy Devnet From Scratch
+
+on:
+  workflow_dispatch:
+    inputs:
+      devnet_name:
+        description: "Devnet name (e.g., devnet-latte, devnet-mocha)"
+        required: true
+        type: string
+        default: "devnet-latte"
+      masternode_amd_count:
+        description: "Number of AMD masternodes"
+        required: false
+        type: number
+        default: 1
+      masternode_arm_count:
+        description: "Number of ARM masternodes"
+        required: false
+        type: number
+        default: 1
+      hp_masternode_amd_count:
+        description: "Number of HP AMD masternodes"
+        required: false
+        type: number
+        default: 5
+      hp_masternode_arm_count:
+        description: "Number of HP ARM masternodes"
+        required: false
+        type: number
+        default: 5
+      platform_version:
+        description: "Platform version to deploy (e.g., 2.0.0-rc.16)"
+        required: true
+        type: string
+        default: "2.0.0-rc.16"
+      dashd_version:
+        description: "Dash Core version (e.g., 22.1.0)"
+        required: true
+        type: string
+        default: "22.1.0"
+      main_domain:
+        description: "Main domain for the network"
+        required: false
+        type: string
+        default: "networks.dash.org"
+      create_eip:
+        description: "Create Elastic IPs for nodes"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy:
+    name: Deploy Devnet
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout dash-network-deploy
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      - name: Install Ansible roles
+        run: |
+          ansible-galaxy install -r ansible/requirements.yml
+
+      - name: Set up SSH Keys
+        run: |
+          mkdir -p ~/.ssh
+          
+          # GitHub deploy key for cloning configs
+          echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Server SSH key for connecting to nodes
+          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # SSH config
+          cat > ~/.ssh/config << 'EOL'
+          Host github.com
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+
+          Host *
+            IdentityFile ~/.ssh/id_rsa
+            User ubuntu
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOL
+          
+          chmod 600 ~/.ssh/config
+
+      # Clone network configs
+      - name: Clone network configs
+        run: |
+          rm -rf networks
+          git clone git@github.com:dashpay/dash-network-configs.git networks
+
+      # Generate network configuration using bin/generate
+      - name: Generate network configuration
+        run: |
+          # Generate the configs using the official tool
+          ./bin/generate ${{ github.event.inputs.devnet_name }} \
+            ${{ github.event.inputs.masternode_amd_count }} \
+            ${{ github.event.inputs.masternode_arm_count }} \
+            ${{ github.event.inputs.hp_masternode_amd_count }} \
+            ${{ github.event.inputs.hp_masternode_arm_count }}
+          
+          # Update the generated config with the correct versions and domain
+          sed -i "s/dashmate_version: .*/dashmate_version: ${{ github.event.inputs.platform_version }}/" networks/${{ github.event.inputs.devnet_name }}.yml
+          sed -i "s/drive_image: dashpay\/drive:[^ ]*/drive_image: dashpay\/drive:${{ github.event.inputs.platform_version }}/" networks/${{ github.event.inputs.devnet_name }}.yml
+          sed -i "s/dapi_image: dashpay\/dapi:[^ ]*/dapi_image: dashpay\/dapi:${{ github.event.inputs.platform_version }}/" networks/${{ github.event.inputs.devnet_name }}.yml
+          sed -i "s/dashd_image: dashpay\/dashd:[^ ]*/dashd_image: dashpay\/dashd:${{ github.event.inputs.dashd_version }}/" networks/${{ github.event.inputs.devnet_name }}.yml
+          sed -i "s/main_domain: .*/main_domain: ${{ github.event.inputs.main_domain }}/" networks/${{ github.event.inputs.devnet_name }}.yml
+          
+          # Update tfvars with domain and EIP settings
+          sed -i "s/main_domain = .*/main_domain = \"${{ github.event.inputs.main_domain }}\"/" networks/${{ github.event.inputs.devnet_name }}.tfvars
+          sed -i "s/create_eip = .*/create_eip = ${{ github.event.inputs.create_eip }}/" networks/${{ github.event.inputs.devnet_name }}.tfvars
+          
+          echo "Generated network config:"
+          head -20 networks/${{ github.event.inputs.devnet_name }}.yml
+          echo ""
+          echo "Generated terraform config:"
+          cat networks/${{ github.event.inputs.devnet_name }}.tfvars
+
+      # Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      # Run Terraform deployment using bin/deploy
+      - name: Run Terraform deployment
+        run: |
+          ./bin/deploy -i --github ${{ github.event.inputs.devnet_name }}
+
+      # Wait for instances to be ready
+      - name: Wait for instances to be ready
+        run: |
+          echo "Waiting 60 seconds for instances to fully initialize..."
+          sleep 60
+
+      # Run initial Ansible deployment
+      - name: Run initial Ansible deployment
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "false"
+        run: |
+          ./bin/deploy -p ${{ github.event.inputs.devnet_name }}
+
+      # Commit and push network configuration
+      - name: Commit and push network configuration
+        run: |
+          cd networks
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          git add ${{ github.event.inputs.devnet_name }}.yml ${{ github.event.inputs.devnet_name }}.tfvars ${{ github.event.inputs.devnet_name }}.inventory
+          
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Deploy ${{ github.event.inputs.devnet_name }} with platform ${{ github.event.inputs.platform_version }}
+            
+            🤖 Generated with [GitHub Actions](https://github.com/dashpay/dash-network-deploy/actions)
+            
+            Co-Authored-By: GitHub Actions <actions@github.com>"
+            git push origin main
+          fi
+
+      # Output deployment information
+      - name: Output deployment information
+        run: |
+          echo "## Deployment Summary"
+          echo "Network: ${{ github.event.inputs.devnet_name }}"
+          echo "Platform Version: ${{ github.event.inputs.platform_version }}"
+          echo "Dash Core Version: ${{ github.event.inputs.dashd_version }}"
+          echo "Domain: ${{ github.event.inputs.main_domain }}"
+          echo ""
+          echo "## Node Counts"
+          echo "Masternodes (AMD): ${{ github.event.inputs.masternode_amd_count }}"
+          echo "Masternodes (ARM): ${{ github.event.inputs.masternode_arm_count }}"
+          echo "HP Masternodes (AMD): ${{ github.event.inputs.hp_masternode_amd_count }}"
+          echo "HP Masternodes (ARM): ${{ github.event.inputs.hp_masternode_arm_count }}"
+          echo ""
+          echo "## Services"
+          cd terraform/aws
+          terraform output -raw services_output || echo "Services output not available"
