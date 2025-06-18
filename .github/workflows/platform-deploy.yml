@@ -113,27 +113,6 @@ jobs:
           echo "Updated network config:"
           grep -E "(dashmate_version|drive_image|dapi_image)" networks/${{ github.event.inputs.network }}.yml
 
-      # Commit and push updated config back to repository
-      - name: Commit and push updated network config
-        run: |
-          cd networks
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          
-          # Check if there are changes to commit
-          if git diff --quiet; then
-            echo "No changes to commit"
-          else
-            git add ${{ github.event.inputs.network }}.yml
-            git commit -m "Update ${{ github.event.inputs.network }} platform version to ${{ github.event.inputs.platform_version }}
-
-            🤖 Generated with [GitHub Actions](https://github.com/dashpay/dash-network-deploy/actions)
-            
-            Co-Authored-By: GitHub Actions <actions@github.com>"Add commentMore actions
-            git push origin main
-            echo "Successfully pushed updated config to repository"
-          fi
-
       # Run platform deployment
       - name: Run Platform Deployment
         env:
