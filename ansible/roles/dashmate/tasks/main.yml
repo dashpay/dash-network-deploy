@@ -285,6 +285,32 @@
     - dashmate_zerossl_id_result is defined
     - dashmate_zerossl_id_result.stdout != 'null'
 
+# Fast mode: Get ZeroSSL certificate ID from existing config if available
+- name: Get ZeroSSL certificate ID from config (fast mode)
+  ansible.builtin.command: "{{ dashmate_cmd }} config get platform.gateway.ssl.providerConfigs.zerossl.id"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_zerossl_id_result_fast
+  changed_when: dashmate_zerossl_id_result_fast.rc == 0
+  failed_when: false
+  when:
+    - skip_dashmate_image_update | default(false)
+    - dashmate_platform_enable
+    - dashmate_platform_gateway_ssl_provider == 'zerossl'
+
+- name: Set ZeroSSL certificate ID from config (fast mode)
+  ansible.builtin.set_fact:
+    dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result_fast.stdout }}"
+  when:
+    - skip_dashmate_image_update | default(false)
+    - dashmate_platform_enable
+    - dashmate_platform_gateway_ssl_provider == 'zerossl'
+    - dashmate_zerossl_id_result_fast is defined
+    - dashmate_zerossl_id_result_fast.rc == 0
+    - dashmate_zerossl_id_result_fast.stdout != 'null'
+
 - name: Check if existing dashmate config exists
   ansible.builtin.stat:
     path: '{{ dashmate_config_dir }}/config.json'
