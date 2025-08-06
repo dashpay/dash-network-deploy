@@ -1,16 +1,18 @@
 ---
 # my global config
 global:
-  scrape_interval: 5s # Set the scrape interval to every 5 seconds. Default is every 1 minute.
-  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
-  # scrape_timeout is set to 3s; global default is 10s.
-  scrape_timeout: 3s
+  scrape_interval: {{ prometheus_scrape_interval | default('15s') }} # Set the scrape interval. Default is every 1 minute.
+  evaluation_interval: {{ prometheus_evaluation_interval | default('30s') }} # Evaluate rules. Default is every 1 minute.
+  scrape_timeout: {{ prometheus_scrape_timeout | default('10s') }} # Global scrape timeout
+  external_labels:
+    cluster: '{{ cluster_name | default("dash-network") }}'
+    environment: '{{ ansible_environment | default("testnet") }}'
 
 # Alertmanager configuration
 alerting:
   alertmanagers:
     - static_configs:
-        - targets:
+        - targets: {{ prometheus_alertmanager_targets | default('[]') | to_json }}
           # - alertmanager:9093
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
@@ -27,35 +29,78 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     metrics_path: /prometheus/metrics
+    scrape_interval: {{ prometheus_self_scrape_interval | default('30s') }}
     static_configs:
       - targets: ["localhost:9090"]
 
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+{% set hp_nodes = groups["hp_masternodes"] | default([]) %}
+{% if hp_nodes %}
+  # Tenderdash core metrics - high frequency for critical blockchain data
   - job_name: "tenderdash"
+    scrape_interval: {{ tenderdash_scrape_interval | default('15s') }}
+    scrape_timeout: {{ tenderdash_scrape_timeout | default('8s') }}
+    metrics_path: /metrics
     static_configs:
-{% for hp_name in groups["hp_masternodes"] %}
-      - targets: ["{{ hostvars[hp_name]['private_ip'] }}:{{ prometheus_port }}"]
-        labels:
-          node: "{{ hp_name }}"
+      - targets:
+{% for hp_name in hp_nodes %}
+        - "{{ hostvars[hp_name]['private_ip'] }}:{{ prometheus_port }}"
 {% endfor %}
+        labels:
+          cluster: "hp_masternodes"
+          service: "tenderdash"
+
+  # Gateway API metrics - medium frequency for API performance
   - job_name: "gateway"
+    scrape_interval: {{ gateway_scrape_interval | default('30s') }}
+    scrape_timeout: {{ gateway_scrape_timeout | default('8s') }}
+    metrics_path: /metrics
     static_configs:
-{% for hp_name in groups["hp_masternodes"] %}
-      - targets: ["{{ hostvars[hp_name]['private_ip'] }}:9090"]
-        labels:
-          node: "{{ hp_name }}"
+      - targets:
+{% for hp_name in hp_nodes %}
+        - "{{ hostvars[hp_name]['private_ip'] }}:9090"
 {% endfor %}
+        labels:
+          cluster: "hp_masternodes"
+          service: "gateway"
+
+  # Rate limiter metrics - lower frequency for resource usage tracking
   - job_name: "gateway_rate_limiter"
+    scrape_interval: {{ rate_limiter_scrape_interval | default('60s') }}
+    scrape_timeout: {{ rate_limiter_scrape_timeout | default('5s') }}
+    metrics_path: /metrics
     static_configs:
-{% for hp_name in groups["hp_masternodes"] %}
-      - targets: ["{{ hostvars[hp_name]['private_ip'] }}:9102"]
-        labels:
-          node: "{{ hp_name }}"
+      - targets:
+{% for hp_name in hp_nodes %}
+        - "{{ hostvars[hp_name]['private_ip'] }}:9102"
 {% endfor %}
+        labels:
+          cluster: "hp_masternodes"
+          service: "rate_limiter"
+
+  # Drive storage metrics - medium frequency for storage monitoring
   - job_name: "drive"
+    scrape_interval: {{ drive_scrape_interval | default('30s') }}
+    scrape_timeout: {{ drive_scrape_timeout | default('8s') }}
+    metrics_path: /metrics
     static_configs:
-{% for hp_name in groups["hp_masternodes"] %}
-      - targets: ["{{ hostvars[hp_name]['private_ip'] }}:29090"]
-        labels:
-          node: "{{ hp_name }}"
+      - targets:
+{% for hp_name in hp_nodes %}
+        - "{{ hostvars[hp_name]['private_ip'] }}:29090"
 {% endfor %}
+        labels:
+          cluster: "hp_masternodes"
+          service: "drive"
+{% endif %}
+
+{% if prometheus_additional_jobs is defined and prometheus_additional_jobs | length > 0 %}
+  # Additional custom jobs from configuration
+{% for job in prometheus_additional_jobs %}
+  - job_name: "{{ job.name }}"
+    scrape_interval: {{ job.scrape_interval | default('30s') }}
+    scrape_timeout: {{ job.scrape_timeout | default('10s') }}
+    metrics_path: {{ job.metrics_path | default('/metrics') }}
+    static_configs:
+      - targets: {{ job.targets | to_json }}
+        labels: {{ job.labels | default({}) | to_json }}
+{% endfor %}
+{% endif %}
