@@ -144,6 +144,10 @@
             "includeOnly": [],
             "exclude": []
           }
+        },
+        "zmq": {
+          "host": "0.0.0.0",
+          "port": {{ dashd_zmq_port }}
         }
       },
       "platform": {
@@ -228,6 +232,9 @@
           }
         },
         "dapi": {
+          "deprecated": {
+            "enabled": false
+          },
           "api": {
             "docker": {
               "image": "{{ dapi_image }}",
@@ -237,11 +244,35 @@
               "build": {
                 "enabled": false,
                 "context": "{{ dashmate_source_dir }}",
-                "dockerFile": "{{ dashmate_source_dir }}/packages/dapi/Dockerfile",
-                "target": ""
+                "dockerFile": "{{ dashmate_source_dir }}/Dockerfile",
+                "target": "dapi"
               }
             },
             "waitForStResultTimeout": {{ dashmate_platform_dapi_api_wait_for_st_result_timeout }}
+          },
+          "rsDapi": {
+            "docker": {
+              "image": "{% if rs_dapi_image is defined %}{{ rs_dapi_image }}{% else %}{{ dapi_image | regex_replace('^dashpay/dapi:', 'dashpay/rs-dapi:') }}{% endif %}",
+              "deploy": {
+                "replicas": {{ dashmate_platform_dapi_api_docker_deploy_replicas }}
+              },
+              "build": {
+                "enabled": false,
+                "context": "{{ dashmate_source_dir }}",
+                "dockerFile": "{{ dashmate_source_dir }}/Dockerfile",
+                "target": "rs-dapi"
+              }
+            },
+            "metrics": {
+              "host": "127.0.0.1",
+              "port": 9091
+            },
+            "logs": {
+              "level": "debug",
+              "jsonFormat": false,
+              "accessLogPath": null,
+              "accessLogFormat": "combined"
+            }
           }
         },
         "drive": {
