@@ -101,19 +101,25 @@
   community.aws.ssm_parameter:
     name: '{{ dashmate_zerossl_ssm_path }}-id'
     value: '{{ dashmate_zerossl_config_certificate_id }}'
-  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+  when:
+    - dashmate_zerossl_config_certificate_id is defined
+    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Read new generated ZeroSSL private key file to variable
   ansible.builtin.slurp:
     src: '{{ dashmate_zerossl_keys_path }}/{{ dashmate_zerossl_private_key_file_name }}'
   register: dashmate_zerossl_private_key_file
-  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+  when:
+    - dashmate_zerossl_config_certificate_id is defined
+    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Read new generated ZeroSSL CSR file to variable
   ansible.builtin.slurp:
     src: '{{ dashmate_zerossl_keys_path }}/{{ dashmate_zerossl_csr_file_name }}'
   register: dashmate_zerossl_csr_file
-  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+  when:
+    - dashmate_zerossl_config_certificate_id is defined
+    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Set new generated ZeroSSL CSR and private key files
   ansible.builtin.set_fact:
@@ -122,7 +128,9 @@
         content: '{{ dashmate_zerossl_private_key_file.content | b64decode }}'
       - name: "{{ dashmate_zerossl_csr_file_name }}"
         content: '{{ dashmate_zerossl_csr_file.content | b64decode }}'
-  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+  when:
+    - dashmate_zerossl_config_certificate_id is defined
+    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
 
 - name: Update ZeroSSL private key and CSR files in AWS SSM parameter store
   delegate_to: localhost
@@ -131,4 +139,6 @@
     name: '{{ dashmate_zerossl_ssm_path }}-{{ item.name }}'
     value: '{{ item.content }}'
   loop: '{{ dashmate_zerossl_files }}'
-  when: dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+  when:
+    - dashmate_zerossl_config_certificate_id is defined
+    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id

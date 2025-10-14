@@ -41,6 +41,7 @@ tenderdash_compose_path: '{{ dashd_home }}/{{ tenderdash_compose_project_name }}
 
 # DAPI
 dapi_image: dashpay/dapi
+rs_dapi_image: dashpay/rs-dapi
 
 # Gateway
 gateway_image: envoyproxy/envoy
