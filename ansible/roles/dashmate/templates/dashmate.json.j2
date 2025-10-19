@@ -136,7 +136,7 @@
         "log": {
           "filePath": "{{ dashmate_logs_dir }}/core.log",
           "debug": {
-            "enabled": {% if dashd_debug == 1 or node.get('dashd_debug', 0) == 1%}true{% else %}false{% endif %},
+            "enabled": {% if dashd_debug == 1 or (node is defined and node.get('dashd_debug', 0) == 1)%}true{% else %}false{% endif %},
             "ips": false,
             "sourceLocations": false,
             "threadNames": false,
@@ -278,7 +278,7 @@
         "drive": {
           "abci": {
             "docker": {
-              "image": "{% if node.get('drive_debug', 0) == 1 %}{{ drive_image }}-debug{% else %}{{ drive_image }}{% endif %}",
+              "image": "{% if node is defined and node.get('drive_debug', 0) == 1 %}{{ drive_image }}-debug{% else %}{{ drive_image }}{% endif %}",
               "build": {
                 "enabled": false,
                 "context": "{{ dashmate_source_dir }}",
@@ -313,8 +313,8 @@
               }{% endif %}
             },
             "grovedbVisualizer": {
-              "enabled": {% if node.get('drive_debug', 0) == 1 %}true{% else %}false{% endif %},
-              "host": "{% if node.get('drive_debug', 0) == 1 %}0.0.0.0{% else %}{{private_ip}}{% endif %}",
+              "enabled": {% if node is defined and node.get('drive_debug', 0) == 1 %}true{% else %}false{% endif %},
+              "host": "{% if node is defined and node.get('drive_debug', 0) == 1 %}0.0.0.0{% else %}{{private_ip}}{% endif %}",
               "port": {{ platform_drive_grovedb_visualizer_port }}
             },
             "tokioConsole": {
@@ -432,14 +432,14 @@
               }
             },
             "log": {
-              "level": "{{ node.get('tenderdash_debug', tenderdash_log_level) }}",
+              "level": "{{ node.get('tenderdash_debug', tenderdash_log_level) if node is defined else tenderdash_log_level }}",
               "format": "json",
               "path": "{{ dashmate_logs_dir }}/tenderdash.log"
             },
             "moniker": "{{ inventory_hostname }}",
             "node": {
-              "id": "{{ node.node_key.id }}",
-              "key": "{{ node.node_key.private_key }}"
+              "id": "{{ node.node_key.id if node is defined else '' }}",
+              "key": "{{ node.node_key.private_key if node is defined else '' }}"
             },
             "genesis": {
               "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
