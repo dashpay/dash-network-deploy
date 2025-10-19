@@ -1,7 +1,10 @@
 ---
 
 - name: Restart dashmate services for current chunk
-  ansible.builtin.command: "{{ dashmate_cmd }} restart {{ '--safe' if dashmate_safe_restart | default(false) else '' }} --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}"
+  ansible.builtin.command: >-
+    {{ dashmate_cmd }} restart
+    {{ '--safe' if dashmate_safe_restart | default(false) else '' }}
+    --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}
   become: true
   become_user: dashmate
   args:
