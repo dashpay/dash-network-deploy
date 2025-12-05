@@ -135,10 +135,10 @@ resource "aws_elb" "web" {
 
   health_check {
     healthy_threshold   = 2
-    interval            = 20
+    interval            = 60
     target              = "HTTP:${var.faucet_port}/"
-    timeout             = 3
-    unhealthy_threshold = 2
+    timeout             = 10
+    unhealthy_threshold = 5
   }
 
   tags = {
@@ -179,10 +179,10 @@ resource "aws_elb" "insight" {
 
   health_check {
     healthy_threshold   = 2
-    interval            = 20
+    interval            = 60
     target              = "HTTP:80/insight-api/status"
-    timeout             = 3
-    unhealthy_threshold = 2
+    timeout             = 10
+    unhealthy_threshold = 5
   }
 
   tags = {
