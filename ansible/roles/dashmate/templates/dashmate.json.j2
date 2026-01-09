@@ -59,6 +59,13 @@
               "whitelist": null,
               "lowPriority": false
             },
+            "quorum_list": {
+              "password": "{{ dashmate_core_rpc_quorum_list_password | default(dashmate_core_rpc_dashmate_password) }}",
+              "whitelist": [
+                "quorum", "masternode", "getblockcount"
+              ],
+              "lowPriority": true
+            },
             "dashmate": {
               "password": "{{ dashmate_core_rpc_dashmate_password }}",
               "whitelist": null,
@@ -152,6 +159,19 @@
       },
       "platform": {
         "enable": {% if dashmate_platform_enable %}true{% else %}false{% endif %},
+        "quorumList": {
+          "enabled": {% if dashmate_platform_quorum_list_enabled | default(false) %}true{% else %}false{% endif %},
+          "docker": {
+            "image": "{{ dashmate_platform_quorum_list_docker_image | default('dashpay/quorum-list-server:latest') }}"
+          },
+          "api": {
+            "host": "{{ dashmate_platform_quorum_list_api_host | default('127.0.0.1') }}",
+            "port": {{ dashmate_platform_quorum_list_api_port | default(2444) }}
+          },
+          "previousBlocksOffset": {{ dashmate_platform_quorum_list_previous_blocks_offset | default(8) }},
+          "versionCheckHost": "{{ dashmate_platform_quorum_list_version_check_host | default('') }}",
+          "addressHostOverride": "{{ dashmate_platform_quorum_list_address_host_override | default('') }}"
+        },
         "gateway": {
           "docker": {
             "image": "{{ gateway_image }}"
@@ -162,11 +182,8 @@
             "driveGrpc": {
               "maxRequests": {{ dashmate_platform_gateway_upstreams_drive_grpc_max_requests }}
             },
-            "dapiApi": {
-              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_api_max_requests }}
-            },
-            "dapiCoreStreams": {
-              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_core_streams_max_requests }}
+            "rsDapi": {
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_rs_dapi_max_requests }}
             },
             "dapiJsonRpc": {
               "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_json_rpc_max_requests }}
@@ -232,24 +249,6 @@
           }
         },
         "dapi": {
-          "deprecated": {
-            "enabled": false
-          },
-          "api": {
-            "docker": {
-              "image": "{{ dapi_image }}",
-              "deploy": {
-                "replicas": {{ dashmate_platform_dapi_api_docker_deploy_replicas }}
-              },
-              "build": {
-                "enabled": false,
-                "context": "{{ dashmate_source_dir }}",
-                "dockerFile": "{{ dashmate_source_dir }}/Dockerfile",
-                "target": "dapi"
-              }
-            },
-            "waitForStResultTimeout": {{ dashmate_platform_dapi_api_wait_for_st_result_timeout }}
-          },
           "rsDapi": {
             "docker": {
               "image": "{% if rs_dapi_image is defined %}{{ rs_dapi_image }}{% else %}{{ dapi_image | regex_replace('^dashpay/dapi:', 'dashpay/rs-dapi:') }}{% endif %}",
@@ -264,15 +263,17 @@
               }
             },
             "metrics": {
-              "host": "127.0.0.1",
-              "port": 9091
+              "enabled": {% if dashmate_platform_dapi_rs_dapi_metrics_enabled | default(false) %}true{% else %}false{% endif %},
+              "host": "{{ dashmate_platform_dapi_rs_dapi_metrics_host | default('127.0.0.1') }}",
+              "port": {{ dashmate_platform_dapi_rs_dapi_metrics_port | default(9091) }}
             },
             "logs": {
-              "level": "debug",
-              "jsonFormat": false,
-              "accessLogPath": null,
-              "accessLogFormat": "combined"
-            }
+              "level": "{{ dashmate_platform_dapi_rs_dapi_log_level | default('debug') }}",
+              "jsonFormat": {% if dashmate_platform_dapi_rs_dapi_log_json_format | default(false) %}true{% else %}false{% endif %},
+              "accessLogPath": {% if dashmate_platform_dapi_rs_dapi_access_log_path is defined and dashmate_platform_dapi_rs_dapi_access_log_path %}"{{ dashmate_platform_dapi_rs_dapi_access_log_path }}"{% else %}null{% endif %},
+              "accessLogFormat": "{{ dashmate_platform_dapi_rs_dapi_access_log_format | default('combined') }}"
+            },
+            "waitForStResultTimeout": {{ dashmate_platform_dapi_rs_dapi_wait_for_st_result_timeout | default(dashmate_platform_dapi_api_wait_for_st_result_timeout) }}
           }
         },
         "drive": {

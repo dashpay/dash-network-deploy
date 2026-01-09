@@ -19,10 +19,9 @@ dashmate_platform_gateway_max_connections: 5000
 dashmate_platform_gateway_listeners_dapi_and_drive_http2_max_concurrent_streams: 100
 dashmate_platform_gateway_listeners_dapi_and_drive_wait_for_st_result_timeout: "125s"
 dashmate_platform_gateway_max_heap_size_in_bytes: 125000000 # 1 Gb
-dashmate_platform_gateway_upstreams_drive_grpc_max_requests: 10000
-dashmate_platform_gateway_upstreams_dapi_api_max_requests: 10000
-dashmate_platform_gateway_upstreams_dapi_core_streams_max_requests: 100
 dashmate_platform_gateway_upstreams_dapi_json_rpc_max_requests: 10000
+dashmate_platform_gateway_upstreams_drive_grpc_max_requests: 10000
+dashmate_platform_gateway_upstreams_rs_dapi_max_requests: 10000
 dashmate_platform_gateway_metrics_enabled: false
 dashmate_platform_gateway_metrics_port: 9090
 dashmate_platform_gateway_rate_limiter_enabled: true
@@ -32,8 +31,21 @@ dashmate_platform_gateway_rate_limiter_metrics_docker_image: "prom/statsd-export
 dashmate_platform_gateway_rate_limiter_metrics_port: 9102
 dashmate_platform_gateway_rate_limiter_unit: "minute"
 dashmate_platform_gateway_rate_limiter_requests_per_unit: 150
+
+# DAPI rs-dapi configuration
 dashmate_platform_dapi_api_docker_deploy_replicas: 1
+dashmate_platform_dapi_rs_dapi_wait_for_st_result_timeout: 120000
+# Legacy - kept for backward compatibility
 dashmate_platform_dapi_api_wait_for_st_result_timeout: 120000
+# rs-dapi metrics
+dashmate_platform_dapi_rs_dapi_metrics_enabled: false
+dashmate_platform_dapi_rs_dapi_metrics_host: "127.0.0.1"
+dashmate_platform_dapi_rs_dapi_metrics_port: 9091
+# rs-dapi logging
+dashmate_platform_dapi_rs_dapi_log_level: "debug"
+dashmate_platform_dapi_rs_dapi_log_json_format: false
+dashmate_platform_dapi_rs_dapi_access_log_path:
+dashmate_platform_dapi_rs_dapi_access_log_format: "combined"
 dashmate_platform_drive_abci_metrics_enabled: false
 dashmate_platform_drive_abci_metrics_port: 29090
 dashmate_platform_drive_tenderdash_p2p_flush_throttle_timeout: "100ms"
@@ -68,6 +80,7 @@ platform_drive_instant_lock_quorum_dkg_interval:
 platform_drive_instant_lock_quorum_active_signers:
 platform_drive_instant_lock_quorum_rotation:
 dashmate_core_rpc_dashmate_password:
+dashmate_core_rpc_quorum_list_password:
 dashmate_core_rpc_dapi_password:
 dashmate_core_rpc_drive_consensus_password:
 dashmate_core_rpc_drive_check_tx_password:
@@ -75,6 +88,14 @@ dashmate_core_rpc_tenderdash_password:
 platform_drive_grovedb_visualizer_enabled: false
 platform_drive_grovedb_visualizer_port: 8083
 initial_platform_protocol_version:
+
+dashmate_platform_quorum_list_enabled: false
+dashmate_platform_quorum_list_docker_image: "dashpay/quorum-list-server:latest"
+dashmate_platform_quorum_list_api_host: "127.0.0.1"
+dashmate_platform_quorum_list_api_port: 2444
+dashmate_platform_quorum_list_previous_blocks_offset: 8
+dashmate_platform_quorum_list_version_check_host: ""
+dashmate_platform_quorum_list_address_host_override: ""
 
 # Unsafe params. Use only if you understand what you are doing.
 dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout:
