@@ -1,0 +1,198 @@
+name: Destroy Devnet
+
+on:
+  workflow_dispatch:
+    inputs:
+      devnet_name:
+        description: "Devnet name (without 'devnet-' prefix, e.g. 'mytest' destroys 'devnet-mytest')"
+        required: true
+        type: string
+      destroy_target:
+        description: "What to destroy"
+        required: true
+        type: choice
+        default: "all"
+        options:
+          - all
+          - platform
+          - network
+
+jobs:
+  destroy:
+    name: Destroy Devnet
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      NETWORK_NAME: "devnet-${{ github.event.inputs.devnet_name }}"
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ANSIBLE_HOST_KEY_CHECKING: "false"
+
+    steps:
+      - name: Validate devnet name
+        run: |
+          NAME="${{ github.event.inputs.devnet_name }}"
+          if [[ -z "$NAME" ]]; then
+            echo "Error: devnet_name is required"
+            exit 1
+          fi
+          if [[ "$NAME" =~ ^devnet- ]]; then
+            echo "Error: Do not include 'devnet-' prefix. Just provide the name (e.g. 'mytest')"
+            exit 1
+          fi
+          echo "Will destroy: devnet-$NAME (target: ${{ github.event.inputs.destroy_target }})"
+
+      - name: Checkout dash-network-deploy
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.12.1"
+          terraform_wrapper: false
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-netaddr sshpass jq
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+
+      - name: Install Ansible roles
+        run: |
+          ansible-galaxy install -r ansible/requirements.yml
+          mkdir -p ~/.ansible/roles
+          cp -r ansible/roles/* ~/.ansible/roles/
+
+      - name: Set up SSH keys
+        run: |
+          mkdir -p ~/.ssh
+
+          # Server SSH key for connecting to nodes
+          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Derive public key from private key
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+          chmod 644 ~/.ssh/id_rsa.pub
+
+          # GitHub deploy key for cloning configs repo
+          echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # SSH config
+          cat > ~/.ssh/config << 'EOL'
+          Host github.com
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+
+          Host *
+            IdentityFile ~/.ssh/id_rsa
+            User ubuntu
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOL
+
+          chmod 600 ~/.ssh/config
+
+      - name: Create networks/.env
+        run: |
+          mkdir -p networks
+          cat > networks/.env << EOF
+          PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
+          PUBLIC_KEY_PATH=$HOME/.ssh/id_rsa.pub
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          TERRAFORM_S3_BUCKET=${{ secrets.TERRAFORM_S3_BUCKET }}
+          TERRAFORM_S3_KEY=${{ secrets.TERRAFORM_S3_KEY }}
+          TERRAFORM_DYNAMODB_TABLE=${{ secrets.TERRAFORM_DYNAMODB_TABLE }}
+          EOF
+
+      - name: Clone network configs
+        run: |
+          rm -rf networks/.git
+          git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs
+
+          # Copy config files for this devnet
+          cp /tmp/dash-network-configs/$NETWORK_NAME.yml networks/ 2>/dev/null || true
+          cp /tmp/dash-network-configs/$NETWORK_NAME.tfvars networks/ 2>/dev/null || true
+          cp /tmp/dash-network-configs/$NETWORK_NAME.inventory networks/ 2>/dev/null || true
+
+      - name: Validate config files exist
+        run: |
+          if [[ ! -f "networks/$NETWORK_NAME.yml" ]]; then
+            echo "Error: Config file networks/$NETWORK_NAME.yml not found"
+            echo "Available configs in dash-network-configs:"
+            ls /tmp/dash-network-configs/*.yml 2>/dev/null || echo "  (none)"
+            exit 1
+          fi
+          echo "Found config files for $NETWORK_NAME"
+          ls -la networks/$NETWORK_NAME.*
+
+      - name: Print destruction plan
+        run: |
+          echo "============================================"
+          echo "WARNING: Destroying $NETWORK_NAME"
+          echo "Target: ${{ github.event.inputs.destroy_target }}"
+          echo "============================================"
+          echo ""
+          case "${{ github.event.inputs.destroy_target }}" in
+            all)
+              echo "This will DESTROY ALL INFRASTRUCTURE (EC2 instances, VPCs, etc.)"
+              echo "and remove configs from the dash-network-configs repo."
+              ;;
+            platform)
+              echo "This will destroy platform services on HP masternodes."
+              echo "Infrastructure will be kept."
+              ;;
+            network)
+              echo "This will destroy all services and configs on nodes."
+              echo "Infrastructure will be kept."
+              ;;
+          esac
+          echo ""
+
+      - name: Destroy devnet
+        run: |
+          chmod +x ./bin/destroy
+          ./bin/destroy "$NETWORK_NAME" -t="${{ github.event.inputs.destroy_target }}"
+
+      - name: Remove configs from dash-network-configs
+        if: github.event.inputs.destroy_target == 'all'
+        run: |
+          cd /tmp/dash-network-configs
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Remove config files for this devnet
+          git rm "$NETWORK_NAME.yml" 2>/dev/null || true
+          git rm "$NETWORK_NAME.tfvars" 2>/dev/null || true
+          git rm "$NETWORK_NAME.inventory" 2>/dev/null || true
+
+          git commit -m "Remove configs for $NETWORK_NAME (destroyed)" || echo "No changes to commit"
+          git push
+
+          echo "Configs removed from dash-network-configs repo"
+
+      - name: Print summary
+        if: always()
+        run: |
+          echo "============================================"
+          echo "Devnet: $NETWORK_NAME"
+          echo "Target: ${{ github.event.inputs.destroy_target }}"
+          echo "Status: Destruction complete"
+          echo "============================================"
