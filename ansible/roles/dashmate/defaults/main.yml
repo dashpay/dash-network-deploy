@@ -11,7 +11,8 @@ dashmate_user: "dashmate"
 dashmate_group: "dashmate"
 dashmate_api_port: 9000
 dashmate_platform_enable: true
-dashmate_platform_gateway_ssl_provider: self-signed
+dashmate_platform_gateway_ssl_provider: letsencrypt
+dashmate_platform_gateway_ssl_provider_config_letsencrypt_email: "infrastructure@dash.org"
 dashmate_platform_gateway_ssl_provider_config_zerossl_api_key:
 dashmate_platform_tenderdash_pprof_enable: false
 dashmate_platform_gateway_log_level: info
