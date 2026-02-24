@@ -54,18 +54,25 @@ jobs:
     name: Create Devnet
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    concurrency:
+      group: "devnet-${{ github.event.inputs.devnet_name }}"
+      cancel-in-progress: false
 
     env:
       NETWORK_NAME: "devnet-${{ github.event.inputs.devnet_name }}"
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      TERRAFORM_S3_BUCKET: ${{ secrets.TERRAFORM_S3_BUCKET }}
+      TERRAFORM_S3_KEY: ${{ secrets.TERRAFORM_S3_KEY }}
+      TERRAFORM_DYNAMODB_TABLE: ${{ secrets.TERRAFORM_DYNAMODB_TABLE }}
       ANSIBLE_HOST_KEY_CHECKING: "false"
 
     steps:
       - name: Validate devnet name
+        env:
+          NAME: ${{ github.event.inputs.devnet_name }}
         run: |
-          NAME="${{ github.event.inputs.devnet_name }}"
           if [[ -z "$NAME" ]]; then
             echo "Error: devnet_name is required"
             exit 1
@@ -104,8 +111,8 @@ jobs:
 
       - name: Install Ansible
         run: |
-          python -m pip install --upgrade pip
-          pip install ansible
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible
 
       - name: Install Ansible roles
         run: |
@@ -114,11 +121,14 @@ jobs:
           cp -r ansible/roles/* ~/.ansible/roles/
 
       - name: Set up SSH keys
+        env:
+          DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
+          EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
         run: |
           mkdir -p ~/.ssh
 
           # Server SSH key for connecting to nodes
-          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
+          printf '%s\n' "$DEPLOY_SERVER_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           # Derive public key from private key
@@ -126,7 +136,7 @@ jobs:
           chmod 644 ~/.ssh/id_rsa.pub
 
           # GitHub deploy key for cloning configs repo
-          echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
           # SSH config
@@ -150,68 +160,93 @@ jobs:
           cat > networks/.env << EOF
           PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
           PUBLIC_KEY_PATH=$HOME/.ssh/id_rsa.pub
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION=${{ secrets.AWS_REGION }}
-          TERRAFORM_S3_BUCKET=${{ secrets.TERRAFORM_S3_BUCKET }}
-          TERRAFORM_S3_KEY=${{ secrets.TERRAFORM_S3_KEY }}
-          TERRAFORM_DYNAMODB_TABLE=${{ secrets.TERRAFORM_DYNAMODB_TABLE }}
+          AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+          AWS_REGION=$AWS_REGION
+          TERRAFORM_S3_BUCKET=$TERRAFORM_S3_BUCKET
+          TERRAFORM_S3_KEY=$TERRAFORM_S3_KEY
+          TERRAFORM_DYNAMODB_TABLE=$TERRAFORM_DYNAMODB_TABLE
           EOF
 
       - name: Generate network configs
+        env:
+          MN_AMD: ${{ github.event.inputs.masternodes_amd_count }}
+          MN_ARM: ${{ github.event.inputs.masternodes_arm_count }}
+          HP_AMD: ${{ github.event.inputs.hp_masternodes_amd_count }}
+          HP_ARM: ${{ github.event.inputs.hp_masternodes_arm_count }}
+          SEED_COUNT: ${{ github.event.inputs.seed_count }}
         run: |
+          # Validate all counts are numeric
+          for var in MN_AMD MN_ARM HP_AMD HP_ARM SEED_COUNT; do
+            val="${!var}"
+            if [[ ! "$val" =~ ^[0-9]+$ ]]; then
+              echo "Error: $var must be a number, got '$val'"
+              exit 1
+            fi
+          done
+
           echo "Generating configs for $NETWORK_NAME..."
           chmod +x ./bin/generate
           ./bin/generate "$NETWORK_NAME" \
-            "${{ github.event.inputs.masternodes_amd_count }}" \
-            "${{ github.event.inputs.masternodes_arm_count }}" \
-            "${{ github.event.inputs.hp_masternodes_amd_count }}" \
-            "${{ github.event.inputs.hp_masternodes_arm_count }}" \
-            -s="${{ github.event.inputs.seed_count }}"
+            "$MN_AMD" "$MN_ARM" "$HP_AMD" "$HP_ARM" \
+            -s="$SEED_COUNT"
 
           echo "Generated config files:"
           ls -la networks/devnet-*
 
       - name: Update platform version in config
+        env:
+          VERSION: ${{ github.event.inputs.platform_version }}
+          CORE_VERSION: ${{ github.event.inputs.core_version }}
         run: |
           CONFIG_FILE="networks/$NETWORK_NAME.yml"
-          VERSION="${{ github.event.inputs.platform_version }}"
+
+          # Escape sed-special characters in version strings
+          SAFE_VERSION=$(printf '%s' "$VERSION" | sed 's/[&\\/]/\\&/g')
+          SAFE_CORE_VERSION=$(printf '%s' "$CORE_VERSION" | sed 's/[&\\/]/\\&/g')
 
           echo "Setting platform version to $VERSION..."
 
           # Update dashmate version
-          sed -i "s/dashmate_version: .*/dashmate_version: $VERSION/" "$CONFIG_FILE"
+          sed -i "s/dashmate_version: .*/dashmate_version: $SAFE_VERSION/" "$CONFIG_FILE"
 
           # Update platform service images
-          sed -i "s|drive_image: dashpay/drive:.*|drive_image: dashpay/drive:$VERSION|" "$CONFIG_FILE"
-          sed -i "s|dapi_image: dashpay/dapi:.*|dapi_image: dashpay/dapi:$VERSION|" "$CONFIG_FILE"
+          sed -i "s|drive_image: dashpay/drive:.*|drive_image: dashpay/drive:$SAFE_VERSION|" "$CONFIG_FILE"
+          sed -i "s|dapi_image: dashpay/dapi:.*|dapi_image: dashpay/dapi:$SAFE_VERSION|" "$CONFIG_FILE"
 
           # Add rs_dapi_image (not in generated config, but group_vars/all defines it
           # without a tag, so we must explicitly set it to get the right version)
           if ! grep -q "rs_dapi_image:" "$CONFIG_FILE"; then
             echo "rs_dapi_image: dashpay/rs-dapi:$VERSION" >> "$CONFIG_FILE"
           else
-            sed -i "s|rs_dapi_image: dashpay/rs-dapi:.*|rs_dapi_image: dashpay/rs-dapi:$VERSION|" "$CONFIG_FILE"
+            sed -i "s|rs_dapi_image: dashpay/rs-dapi:.*|rs_dapi_image: dashpay/rs-dapi:$SAFE_VERSION|" "$CONFIG_FILE"
           fi
 
           # Update core version if specified
-          CORE_VERSION="${{ github.event.inputs.core_version }}"
           if [[ -n "$CORE_VERSION" ]]; then
             echo "Setting core version to $CORE_VERSION..."
-            sed -i "s|dashd_image: dashpay/dashd:.*|dashd_image: dashpay/dashd:$CORE_VERSION|" "$CONFIG_FILE"
+            sed -i "s|dashd_image: dashpay/dashd:.*|dashd_image: dashpay/dashd:$SAFE_CORE_VERSION|" "$CONFIG_FILE"
           fi
 
           echo "Updated config:"
           grep -E "(dashmate_version|drive_image|dapi_image|rs_dapi_image|dashd_image)" "$CONFIG_FILE"
 
       - name: Update terraform config
+        env:
+          DISK_SIZE: ${{ github.event.inputs.hpmn_disk_size }}
         run: |
           TFVARS_FILE="networks/$NETWORK_NAME.tfvars"
-          DISK_SIZE="${{ github.event.inputs.hpmn_disk_size }}"
 
-          if [[ "$DISK_SIZE" != "30" ]]; then
+          # Read current value from file (empty if not set)
+          CURRENT_SIZE=$(grep -oP 'hpmn_node_disk_size\s*=\s*\K[0-9]+' "$TFVARS_FILE" 2>/dev/null || echo "")
+
+          if [[ -n "$DISK_SIZE" && "$DISK_SIZE" != "$CURRENT_SIZE" ]]; then
+            if [[ ! "$DISK_SIZE" =~ ^[0-9]+$ ]]; then
+              echo "Error: hpmn_disk_size must be a number, got '$DISK_SIZE'"
+              exit 1
+            fi
             echo "Setting HP masternode disk size to ${DISK_SIZE}GB..."
-            if grep -q "hpmn_node_disk_size" "$TFVARS_FILE"; then
+            if [[ -n "$CURRENT_SIZE" ]]; then
               sed -i "s/hpmn_node_disk_size = .*/hpmn_node_disk_size = $DISK_SIZE/" "$TFVARS_FILE"
             else
               echo "hpmn_node_disk_size = $DISK_SIZE" >> "$TFVARS_FILE"
@@ -232,8 +267,6 @@ jobs:
 
       - name: Push configs to dash-network-configs
         run: |
-          DEVNET_NAME="${{ github.event.inputs.devnet_name }}"
-
           # Clone the configs repo to a temp directory
           git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs
 
@@ -253,25 +286,20 @@ jobs:
           echo "Configs pushed to dash-network-configs repo"
 
       - name: Verify platform services
-        if: always()
+        if: success()
         run: |
           echo "Verifying platform services on HP masternodes..."
           ansible hp_masternodes \
             -i "networks/$NETWORK_NAME.inventory" \
             --private-key="$HOME/.ssh/id_rsa" \
             -b -m shell \
-            -a 'sudo -u dashmate dashmate status services --format=json | jq -r ".[] | select(.service != \"core\") | \"\(.service): \(.status)\""' \
-            || true
+            -a 'sudo -u dashmate dashmate status services --format=json | jq -r ".[] | select(.service != \"core\") | \"\(.service): \(.status)\""'
 
       - name: Print summary
         if: always()
         run: |
           echo "============================================"
           echo "Devnet: $NETWORK_NAME"
-          echo "Platform Version: ${{ github.event.inputs.platform_version }}"
-          echo "HP Masternodes: ${{ github.event.inputs.hp_masternodes_amd_count }} AMD + ${{ github.event.inputs.hp_masternodes_arm_count }} ARM"
-          echo "Regular Masternodes: ${{ github.event.inputs.masternodes_amd_count }} AMD + ${{ github.event.inputs.masternodes_arm_count }} ARM"
-          echo "Seed Nodes: ${{ github.event.inputs.seed_count }}"
           echo "============================================"
           echo ""
           echo "To update this devnet later, use the 'Platform Version Deployment' workflow"

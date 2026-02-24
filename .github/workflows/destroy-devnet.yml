@@ -22,18 +22,26 @@ jobs:
     name: Destroy Devnet
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    concurrency:
+      group: "devnet-${{ github.event.inputs.devnet_name }}"
+      cancel-in-progress: false
 
     env:
       NETWORK_NAME: "devnet-${{ github.event.inputs.devnet_name }}"
+      DESTROY_TARGET: ${{ github.event.inputs.destroy_target }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      TERRAFORM_S3_BUCKET: ${{ secrets.TERRAFORM_S3_BUCKET }}
+      TERRAFORM_S3_KEY: ${{ secrets.TERRAFORM_S3_KEY }}
+      TERRAFORM_DYNAMODB_TABLE: ${{ secrets.TERRAFORM_DYNAMODB_TABLE }}
       ANSIBLE_HOST_KEY_CHECKING: "false"
 
     steps:
       - name: Validate devnet name
+        env:
+          NAME: ${{ github.event.inputs.devnet_name }}
         run: |
-          NAME="${{ github.event.inputs.devnet_name }}"
           if [[ -z "$NAME" ]]; then
             echo "Error: devnet_name is required"
             exit 1
@@ -42,7 +50,7 @@ jobs:
             echo "Error: Do not include 'devnet-' prefix. Just provide the name (e.g. 'mytest')"
             exit 1
           fi
-          echo "Will destroy: devnet-$NAME (target: ${{ github.event.inputs.destroy_target }})"
+          echo "Will destroy: devnet-$NAME (target: $DESTROY_TARGET)"
 
       - name: Checkout dash-network-deploy
         uses: actions/checkout@v4
@@ -68,8 +76,8 @@ jobs:
 
       - name: Install Ansible
         run: |
-          python -m pip install --upgrade pip
-          pip install ansible
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible
 
       - name: Install Ansible roles
         run: |
@@ -78,11 +86,14 @@ jobs:
           cp -r ansible/roles/* ~/.ansible/roles/
 
       - name: Set up SSH keys
+        env:
+          DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
+          EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
         run: |
           mkdir -p ~/.ssh
 
           # Server SSH key for connecting to nodes
-          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
+          printf '%s\n' "$DEPLOY_SERVER_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           # Derive public key from private key
@@ -90,7 +101,7 @@ jobs:
           chmod 644 ~/.ssh/id_rsa.pub
 
           # GitHub deploy key for cloning configs repo
-          echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
           # SSH config
@@ -114,12 +125,12 @@ jobs:
           cat > networks/.env << EOF
           PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
           PUBLIC_KEY_PATH=$HOME/.ssh/id_rsa.pub
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION=${{ secrets.AWS_REGION }}
-          TERRAFORM_S3_BUCKET=${{ secrets.TERRAFORM_S3_BUCKET }}
-          TERRAFORM_S3_KEY=${{ secrets.TERRAFORM_S3_KEY }}
-          TERRAFORM_DYNAMODB_TABLE=${{ secrets.TERRAFORM_DYNAMODB_TABLE }}
+          AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+          AWS_REGION=$AWS_REGION
+          TERRAFORM_S3_BUCKET=$TERRAFORM_S3_BUCKET
+          TERRAFORM_S3_KEY=$TERRAFORM_S3_KEY
+          TERRAFORM_DYNAMODB_TABLE=$TERRAFORM_DYNAMODB_TABLE
           EOF
 
       - name: Clone network configs
@@ -134,23 +145,35 @@ jobs:
 
       - name: Validate config files exist
         run: |
-          if [[ ! -f "networks/$NETWORK_NAME.yml" ]]; then
-            echo "Error: Config file networks/$NETWORK_NAME.yml not found"
+          MISSING=()
+          for ext in yml tfvars inventory; do
+            if [[ ! -f "networks/$NETWORK_NAME.$ext" ]]; then
+              MISSING+=("networks/$NETWORK_NAME.$ext")
+            fi
+          done
+
+          if [[ ${#MISSING[@]} -gt 0 ]]; then
+            echo "Error: Missing config file(s):"
+            for f in "${MISSING[@]}"; do
+              echo "  - $f"
+            done
+            echo ""
             echo "Available configs in dash-network-configs:"
             ls /tmp/dash-network-configs/*.yml 2>/dev/null || echo "  (none)"
             exit 1
           fi
-          echo "Found config files for $NETWORK_NAME"
+
+          echo "Found all config files for $NETWORK_NAME"
           ls -la networks/$NETWORK_NAME.*
 
       - name: Print destruction plan
         run: |
           echo "============================================"
           echo "WARNING: Destroying $NETWORK_NAME"
-          echo "Target: ${{ github.event.inputs.destroy_target }}"
+          echo "Target: $DESTROY_TARGET"
           echo "============================================"
           echo ""
-          case "${{ github.event.inputs.destroy_target }}" in
+          case "$DESTROY_TARGET" in
             all)
               echo "This will DESTROY ALL INFRASTRUCTURE (EC2 instances, VPCs, etc.)"
               echo "and remove configs from the dash-network-configs repo."
@@ -169,7 +192,7 @@ jobs:
       - name: Destroy devnet
         run: |
           chmod +x ./bin/destroy
-          ./bin/destroy "$NETWORK_NAME" -t="${{ github.event.inputs.destroy_target }}"
+          ./bin/destroy "$NETWORK_NAME" -t="$DESTROY_TARGET"
 
       - name: Remove configs from dash-network-configs
         if: github.event.inputs.destroy_target == 'all'
@@ -193,6 +216,6 @@ jobs:
         run: |
           echo "============================================"
           echo "Devnet: $NETWORK_NAME"
-          echo "Target: ${{ github.event.inputs.destroy_target }}"
+          echo "Target: $DESTROY_TARGET"
           echo "Status: Destruction complete"
           echo "============================================"
