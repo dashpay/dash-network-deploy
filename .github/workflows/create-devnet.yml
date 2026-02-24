@@ -186,6 +186,14 @@ jobs:
           sed -i "s|drive_image: dashpay/drive:.*|drive_image: dashpay/drive:$VERSION|" "$CONFIG_FILE"
           sed -i "s|dapi_image: dashpay/dapi:.*|dapi_image: dashpay/dapi:$VERSION|" "$CONFIG_FILE"
 
+          # Add rs_dapi_image (not in generated config, but group_vars/all defines it
+          # without a tag, so we must explicitly set it to get the right version)
+          if ! grep -q "rs_dapi_image:" "$CONFIG_FILE"; then
+            echo "rs_dapi_image: dashpay/rs-dapi:$VERSION" >> "$CONFIG_FILE"
+          else
+            sed -i "s|rs_dapi_image: dashpay/rs-dapi:.*|rs_dapi_image: dashpay/rs-dapi:$VERSION|" "$CONFIG_FILE"
+          fi
+
           # Update core version if specified
           CORE_VERSION="${{ github.event.inputs.core_version }}"
           if [[ -n "$CORE_VERSION" ]]; then
@@ -194,7 +202,7 @@ jobs:
           fi
 
           echo "Updated config:"
-          grep -E "(dashmate_version|drive_image|dapi_image|dashd_image)" "$CONFIG_FILE"
+          grep -E "(dashmate_version|drive_image|dapi_image|rs_dapi_image|dashd_image)" "$CONFIG_FILE"
 
       - name: Update terraform config
         run: |

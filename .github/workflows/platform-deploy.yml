@@ -109,9 +109,18 @@ jobs:
           # Update platform service image versions
           sed -i "s/drive_image: dashpay\/drive:[^ ]*/drive_image: dashpay\/drive:${{ github.event.inputs.platform_version }}/" networks/${{ github.event.inputs.network }}.yml
           sed -i "s/dapi_image: dashpay\/dapi:[^ ]*/dapi_image: dashpay\/dapi:${{ github.event.inputs.platform_version }}/" networks/${{ github.event.inputs.network }}.yml
-          
+
+          # Update rs_dapi_image (group_vars/all defines it without a tag, so we must
+          # explicitly set it to get the right version instead of :latest)
+          CONFIG_FILE="networks/${{ github.event.inputs.network }}.yml"
+          if grep -q "rs_dapi_image:" "$CONFIG_FILE"; then
+            sed -i "s|rs_dapi_image: dashpay/rs-dapi:[^ ]*|rs_dapi_image: dashpay/rs-dapi:${{ github.event.inputs.platform_version }}|" "$CONFIG_FILE"
+          else
+            echo "rs_dapi_image: dashpay/rs-dapi:${{ github.event.inputs.platform_version }}" >> "$CONFIG_FILE"
+          fi
+
           echo "Updated network config:"
-          grep -E "(dashmate_version|drive_image|dapi_image)" networks/${{ github.event.inputs.network }}.yml
+          grep -E "(dashmate_version|drive_image|dapi_image|rs_dapi_image)" networks/${{ github.event.inputs.network }}.yml
 
       # Run platform deployment
       - name: Run Platform Deployment
