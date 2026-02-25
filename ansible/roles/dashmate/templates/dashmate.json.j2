@@ -244,6 +244,9 @@
               "zerossl": {
                 "apiKey": {% if dashmate_platform_gateway_ssl_provider_config_zerossl_api_key is not none and dashmate_platform_gateway_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_gateway_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
                 "id": {% if dashmate_zerossl_config_certificate_id is defined %}"{{ dashmate_zerossl_config_certificate_id }}"{% else %}null{% endif +%}
+              },
+              "letsencrypt": {
+                "email": "{{ dashmate_platform_gateway_ssl_provider_config_letsencrypt_email | default('infrastructure@dash.org') }}"
               }
             }
           }

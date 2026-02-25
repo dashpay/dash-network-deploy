@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+
+set -ea
+
+NETWORK=""
+EMAIL="infrastructure@dash.org"
+SSH_KEY="$HOME/.ssh/evo-app-deploy.rsa"
+DRY_RUN=false
+
+CMD_USAGE="Convert HP masternodes from ZeroSSL/self-signed to Let's Encrypt
+
+Usage: convert-to-letsencrypt [options]
+
+Options:
+  -n <network>   Network name (required, e.g. testnet)
+  -e <email>     Let's Encrypt email (default: infrastructure@dash.org)
+  -k <key>       SSH private key path (default: ~/.ssh/evo-app-deploy.rsa)
+  -s <server>    Only convert a single server (e.g. hp-masternode-1)
+  --dry-run      Show what would be done without executing
+  -h, --help     Show help"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -n) NETWORK="$2"; shift 2 ;;
+    -e) EMAIL="$2"; shift 2 ;;
+    -k) SSH_KEY="$2"; shift 2 ;;
+    -s) SINGLE_SERVER="$2"; shift 2 ;;
+    --dry-run) DRY_RUN=true; shift ;;
+    -h|--help) echo "$CMD_USAGE"; exit 0 ;;
+    *) echo "Error: Unknown option '$1'"; echo "$CMD_USAGE"; exit 1 ;;
+  esac
+done
+
+if [[ -z "$NETWORK" ]]; then
+  echo "Error: -n <network> is required."
+  echo "$CMD_USAGE"
+  exit 1
+fi
+
+INVENTORY_FILE="./networks/${NETWORK}.inventory"
+if [[ ! -f "$INVENTORY_FILE" ]]; then
+  echo "Error: Inventory file not found: $INVENTORY_FILE"
+  exit 1
+fi
+
+echo "============================================"
+echo "Convert to Let's Encrypt SSL"
+echo "============================================"
+echo "Network:    $NETWORK"
+echo "Email:      $EMAIL"
+echo "SSH Key:    $SSH_KEY"
+echo "Dry run:    $DRY_RUN"
+if [[ -n "$SINGLE_SERVER" ]]; then
+  echo "Server:     $SINGLE_SERVER"
+fi
+echo "============================================"
+echo
+
+# Find HP masternode entries from inventory
+if [[ -n "$SINGLE_SERVER" ]]; then
+  REGEX="^${SINGLE_SERVER}\s+ansible"
+else
+  REGEX="^hp-masternode-[0-9]{1,3}\s+ansible"
+fi
+
+readarray -t MATCHES < <(grep -E "$REGEX" "$INVENTORY_FILE" || true)
+
+if [[ ${#MATCHES[@]} -eq 0 ]]; then
+  echo "Error: No HP masternodes found in inventory."
+  exit 1
+fi
+
+echo "Found ${#MATCHES[@]} HP masternode(s) to convert."
+echo
+
+CONVERT_CMD=$(cat <<'REMOTE_EOF'
+set -e
+echo "[$(hostname)] Starting Let's Encrypt conversion..."
+
+# Set the SSL provider to letsencrypt
+sudo -u dashmate bash -c 'cd /home/dashmate && dashmate config set platform.gateway.ssl.provider letsencrypt'
+echo "[$(hostname)] Set SSL provider to letsencrypt"
+
+# Set the email
+sudo -u dashmate bash -c 'cd /home/dashmate && dashmate config set platform.gateway.ssl.providerConfigs.letsencrypt.email EMAIL_PLACEHOLDER'
+echo "[$(hostname)] Set letsencrypt email"
+
+# Render config to pick up changes
+sudo -u dashmate bash -c 'cd /home/dashmate && dashmate config render'
+echo "[$(hostname)] Rendered config"
+
+# Obtain the certificate
+sudo -u dashmate bash -c 'cd /home/dashmate && dashmate ssl obtain --provider letsencrypt --verbose --no-retry'
+echo "[$(hostname)] Obtained Let's Encrypt certificate"
+
+# Restart platform services to use new cert
+sudo -u dashmate bash -c 'cd /home/dashmate && dashmate restart --safe --platform --verbose'
+echo "[$(hostname)] Restarted platform services"
+
+echo "[$(hostname)] Conversion complete!"
+REMOTE_EOF
+)
+
+# Replace email placeholder
+CONVERT_CMD="${CONVERT_CMD//EMAIL_PLACEHOLDER/$EMAIL}"
+
+PIDS=()
+LOG_DIR=$(mktemp -d)
+
+for line in "${MATCHES[@]}"; do
+  # Parse ansible_host
+  ANSIBLE_HOST=$(echo "$line" | grep -o "ansible_host=[^[:space:]]*" | cut -d"=" -f2)
+
+  # Parse ansible_user
+  ANSIBLE_USER=$(echo "$line" | grep -o "ansible_user='[^']*" | cut -d"'" -f2)
+  [[ -z "$ANSIBLE_USER" ]] && ANSIBLE_USER="ubuntu"
+
+  # Parse hostname
+  NODE_NAME=$(echo "$line" | awk '{print $1}')
+
+  echo "[$NODE_NAME] -> $ANSIBLE_USER@$ANSIBLE_HOST"
+
+  if [[ "$DRY_RUN" == true ]]; then
+    echo "[$NODE_NAME] (dry run) Would run conversion commands"
+    continue
+  fi
+
+  LOG_FILE="${LOG_DIR}/${NODE_NAME}.log"
+
+  ssh -o StrictHostKeyChecking=no \
+      -o ConnectTimeout=10 \
+      -i "$SSH_KEY" \
+      "${ANSIBLE_USER}@${ANSIBLE_HOST}" \
+      "bash -c '${CONVERT_CMD}'" \
+      > "$LOG_FILE" 2>&1 &
+
+  PIDS+=("$!:$NODE_NAME:$LOG_FILE")
+done
+
+if [[ "$DRY_RUN" == true ]]; then
+  echo
+  echo "Dry run complete. No changes made."
+  exit 0
+fi
+
+echo
+echo "Waiting for all nodes to complete..."
+echo
+
+FAILED=0
+SUCCEEDED=0
+
+for entry in "${PIDS[@]}"; do
+  IFS=':' read -r PID NODE_NAME LOG_FILE <<< "$entry"
+
+  if wait "$PID"; then
+    echo "[${NODE_NAME}] SUCCESS"
+    SUCCEEDED=$((SUCCEEDED + 1))
+  else
+    echo "[${NODE_NAME}] FAILED - see log: ${LOG_FILE}"
+    echo "--- Last 10 lines ---"
+    tail -10 "$LOG_FILE"
+    echo "---"
+    FAILED=$((FAILED + 1))
+  fi
+done
+
+echo
+echo "============================================"
+echo "Results: ${SUCCEEDED} succeeded, ${FAILED} failed"
+echo "Logs: ${LOG_DIR}"
+echo "============================================"
+
+if [[ $FAILED -gt 0 ]]; then
+  exit 1
+fi

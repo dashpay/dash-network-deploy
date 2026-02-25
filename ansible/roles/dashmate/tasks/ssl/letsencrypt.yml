@@ -1,0 +1,22 @@
+---
+
+- name: Set vars
+  ansible.builtin.set_fact:
+    dashmate_letsencrypt_ssl_keys_path: "{{ dashmate_config_dir }}/{{ dash_network_name }}/platform/gateway/ssl"
+
+- name: Create dashmate ssl directory
+  ansible.builtin.file:
+    path: '{{ dashmate_letsencrypt_ssl_keys_path }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0750"
+
+- name: Obtain Let's Encrypt certificate for DAPI
+  ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --provider letsencrypt --verbose --no-retry"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_letsencrypt_obtain
+  changed_when: dashmate_letsencrypt_obtain.rc == 0

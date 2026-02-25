@@ -272,6 +272,7 @@
   changed_when: dashmate_zerossl_id_result.rc == 0
   when:
     - not (skip_dashmate_image_update | default(false))
+    - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - dashmate_config_result is defined
     - dashmate_config_result.rc == 0
 
@@ -280,6 +281,7 @@
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
   when:
     - not (skip_dashmate_image_update | default(false))
+    - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - dashmate_config_result is defined
     - dashmate_config_result.rc == 0
     - dashmate_zerossl_id_result is defined
@@ -475,6 +477,14 @@
   when:
     - dashmate_platform_enable
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
+    - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
+    - not (skip_dashmate_image_update | default(false))
+
+- name: Obtain Let's Encrypt certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl/letsencrypt.yml
+  when:
+    - dashmate_platform_enable
+    - dashmate_platform_gateway_ssl_provider == 'letsencrypt'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
     - not (skip_dashmate_image_update | default(false))
 
