@@ -1,0 +1,9 @@
+---
+
+- name: Copy dashmon-check monitoring script
+  ansible.builtin.copy:
+    src: dashmon-check.sh
+    dest: /usr/local/bin/dashmon-check
+    mode: "0755"
+    owner: root
+    group: root

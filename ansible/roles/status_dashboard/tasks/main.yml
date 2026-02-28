@@ -1,0 +1,32 @@
+---
+
+- name: Create status dashboard directory
+  ansible.builtin.file:
+    path: "{{ status_dashboard_path }}"
+    state: directory
+    recurse: true
+
+- name: Copy inventory file for status dashboard
+  ansible.builtin.copy:
+    src: "{{ inventory_file }}"
+    dest: "{{ status_dashboard_path }}/inventory"
+    mode: "0644"
+
+- name: Copy SSH deploy key for status dashboard
+  ansible.builtin.copy:
+    src: "{{ lookup('env', 'PRIVATE_KEY_PATH') | default('~/.ssh/evo-app-deploy.rsa', true) }}"
+    dest: "{{ status_dashboard_path }}/ssh_key"
+    mode: "0600"
+
+- name: Deploy status dashboard docker-compose
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ status_dashboard_path }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Start status dashboard
+  community.docker.docker_compose_v2:
+    project_src: "{{ status_dashboard_path }}"
+    state: present
+    pull: always
+    recreate: always

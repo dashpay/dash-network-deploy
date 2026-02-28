@@ -207,8 +207,21 @@ resource "aws_security_group" "http" {
     cidr_blocks = [
       "0.0.0.0/0",
     ]
-    
+
     ipv6_cidr_blocks = var.enable_ipv6 ? ["::/0"] : []
+  }
+
+  # Status Dashboard
+  ingress {
+    from_port   = var.status_port
+    to_port     = var.status_port
+    protocol    = "tcp"
+    description = "Status Dashboard"
+
+    cidr_blocks = flatten([
+      aws_subnet.public.*.cidr_block,
+      "${aws_eip.vpn[0].public_ip}/32",
+    ])
   }
 
   tags = {
