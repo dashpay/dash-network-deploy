@@ -79,8 +79,9 @@ echo "[$(hostname)] Starting Let's Encrypt conversion..."
 
 # Patch config.json to add letsencrypt providerConfig if missing and set provider
 CONFIG_FILE="/home/dashmate/.dashmate/config.json"
-sudo python3 -c "
-import json
+sudo LE_EMAIL="$LE_EMAIL" python3 -c "
+import json, os
+email = os.environ['LE_EMAIL']
 with open('$CONFIG_FILE') as f:
     c = json.load(f)
 for name, cfg in c.get('configs', {}).items():
@@ -89,9 +90,9 @@ for name, cfg in c.get('configs', {}).items():
         ssl['provider'] = 'letsencrypt'
         pc = ssl.setdefault('providerConfigs', {})
         if 'letsencrypt' not in pc:
-            pc['letsencrypt'] = {'email': 'EMAIL_PLACEHOLDER'}
+            pc['letsencrypt'] = {'email': email}
         else:
-            pc['letsencrypt'].setdefault('email', 'EMAIL_PLACEHOLDER')
+            pc['letsencrypt'].setdefault('email', email)
 with open('$CONFIG_FILE', 'w') as f:
     json.dump(c, f, indent=2)
 "
@@ -113,9 +114,6 @@ echo "[$(hostname)] Restarted platform services"
 echo "[$(hostname)] Conversion complete!"
 REMOTE_EOF
 )
-
-# Replace email placeholder
-CONVERT_CMD="${CONVERT_CMD//EMAIL_PLACEHOLDER/$EMAIL}"
 
 PIDS=()
 LOG_DIR=$(mktemp -d)
@@ -144,7 +142,7 @@ for line in "${MATCHES[@]}"; do
       -o ConnectTimeout=10 \
       -i "$SSH_KEY" \
       "${ANSIBLE_USER}@${ANSIBLE_HOST}" \
-      "${CONVERT_CMD}" \
+      "export LE_EMAIL=$(printf '%q' "$EMAIL"); ${CONVERT_CMD}" \
       > "$LOG_FILE" 2>&1 &
 
   PIDS+=("$!:$NODE_NAME:$LOG_FILE")
