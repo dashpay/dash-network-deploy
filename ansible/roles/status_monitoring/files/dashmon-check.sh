@@ -7,7 +7,7 @@ set -euo pipefail
 
 if [[ -f /home/dashmate/.dashmate/config.json ]]; then
     # HP masternode: dashmate status as the dashmate user
-    sudo -u dashmate dashmate status 2>&1
+    sudo -u dashmate dashmate status 2>&1 || true
     echo "===SYSMETRICS==="
 else
     # Regular masternode: dash-cli as the ubuntu user

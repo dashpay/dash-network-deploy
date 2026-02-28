@@ -17,6 +17,9 @@
     src: "{{ lookup('env', 'PRIVATE_KEY_PATH') | default('~/.ssh/evo-app-deploy.rsa', true) }}"
     dest: "{{ status_dashboard_path }}/ssh_key"
     mode: "0600"
+    owner: root
+    group: root
+  no_log: true
 
 - name: Deploy status dashboard docker-compose
   ansible.builtin.template:
@@ -28,5 +31,5 @@
   community.docker.docker_compose_v2:
     project_src: "{{ status_dashboard_path }}"
     state: present
-    pull: always
-    recreate: always
+    pull: "{{ 'always' if (force_dashmate_reinstall | default(false) or not (skip_dashmate_image_update | default(false))) else 'policy' }}"
+    recreate: "{{ 'always' if (force_dashmate_rebuild | default(false)) else 'auto' }}"

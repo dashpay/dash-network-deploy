@@ -241,10 +241,13 @@
 - name: Deploy status monitoring to masternodes
   hosts: masternodes,hp_masternodes
   become: true
+  gather_facts: false
+  strategy: free
   roles:
     - status_monitoring
   tags:
     - full_deploy
+    - dashmate_deploy
     - status_dashboard
 
 - name: Set up wallets
