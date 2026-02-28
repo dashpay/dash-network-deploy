@@ -77,13 +77,26 @@ CONVERT_CMD=$(cat <<'REMOTE_EOF'
 set -e
 echo "[$(hostname)] Starting Let's Encrypt conversion..."
 
-# Set the SSL provider to letsencrypt
-sudo -u dashmate bash -c 'cd /home/dashmate && dashmate config set platform.gateway.ssl.provider letsencrypt'
-echo "[$(hostname)] Set SSL provider to letsencrypt"
-
-# Set the email
-sudo -u dashmate bash -c 'cd /home/dashmate && dashmate config set platform.gateway.ssl.providerConfigs.letsencrypt.email EMAIL_PLACEHOLDER'
-echo "[$(hostname)] Set letsencrypt email"
+# Patch config.json to add letsencrypt providerConfig if missing and set provider
+CONFIG_FILE="/home/dashmate/.dashmate/config.json"
+sudo python3 -c "
+import json
+with open('$CONFIG_FILE') as f:
+    c = json.load(f)
+for name, cfg in c.get('configs', {}).items():
+    ssl = cfg.get('platform', {}).get('gateway', {}).get('ssl', {})
+    if ssl:
+        ssl['provider'] = 'letsencrypt'
+        pc = ssl.setdefault('providerConfigs', {})
+        if 'letsencrypt' not in pc:
+            pc['letsencrypt'] = {'email': 'EMAIL_PLACEHOLDER'}
+        else:
+            pc['letsencrypt'].setdefault('email', 'EMAIL_PLACEHOLDER')
+with open('$CONFIG_FILE', 'w') as f:
+    json.dump(c, f, indent=2)
+"
+sudo chown dashmate:dashmate "$CONFIG_FILE"
+echo "[$(hostname)] Patched config.json with letsencrypt provider and email"
 
 # Render config to pick up changes
 sudo -u dashmate bash -c 'cd /home/dashmate && dashmate config render'
@@ -131,7 +144,7 @@ for line in "${MATCHES[@]}"; do
       -o ConnectTimeout=10 \
       -i "$SSH_KEY" \
       "${ANSIBLE_USER}@${ANSIBLE_HOST}" \
-      "bash -c '${CONVERT_CMD}'" \
+      "${CONVERT_CMD}" \
       > "$LOG_FILE" 2>&1 &
 
   PIDS+=("$!:$NODE_NAME:$LOG_FILE")
