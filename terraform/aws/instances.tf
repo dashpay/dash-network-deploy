@@ -239,19 +239,21 @@ resource "aws_instance" "masternode_arm" {
 }
 
 resource "aws_eip" "hpmn_arm_eip" {
-  instance = null
-  count = var.create_eip ? var.hp_masternode_arm_count : 0
+  instance         = null
+  count            = (var.create_eip || var.byoip_pool_id != "") ? var.hp_masternode_arm_count : 0
+  public_ipv4_pool = var.byoip_pool_id != "" ? var.byoip_pool_id : null
   tags = {
-    Name        = "dn-${terraform.workspace}-hp-masternode-arm-${count.index+1}"
+    Name        = "dn-${terraform.workspace}-hp-masternode-arm-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
 }
 
 resource "aws_eip" "hpmn_amd_eip" {
-  instance = null
-  count = var.create_eip ? var.hp_masternode_amd_count : 0
+  instance         = null
+  count            = (var.create_eip || var.byoip_pool_id != "") ? var.hp_masternode_amd_count : 0
+  public_ipv4_pool = var.byoip_pool_id != "" ? var.byoip_pool_id : null
   tags = {
-    Name        = "dn-${terraform.workspace}-hp-masternode-amd-${count.index+1}"
+    Name        = "dn-${terraform.workspace}-hp-masternode-amd-${count.index + 1}"
     DashNetwork = terraform.workspace
   }
 }
@@ -340,17 +342,109 @@ resource "aws_instance" "hp_masternode_arm" {
 }
 
 resource "aws_eip_association" "arm_eip_assoc" {
-  count = var.create_eip ? var.hp_masternode_arm_count : 0
+  count = (var.create_eip || var.byoip_pool_id != "") ? var.hp_masternode_arm_count : 0
 
   instance_id   = aws_instance.hp_masternode_arm[count.index].id
   allocation_id = aws_eip.hpmn_arm_eip[count.index].id
 }
 
 resource "aws_eip_association" "amd_eip_assoc" {
-  count = var.create_eip ? var.hp_masternode_amd_count : 0
+  count = (var.create_eip || var.byoip_pool_id != "") ? var.hp_masternode_amd_count : 0
 
   instance_id   = aws_instance.hp_masternode_amd[count.index].id
   allocation_id = aws_eip.hpmn_amd_eip[count.index].id
+}
+
+# BYOIP EIPs for non-HPMN instance types
+
+resource "aws_eip" "mn_amd_eip" {
+  count            = var.byoip_pool_id != "" ? var.masternode_amd_count : 0
+  public_ipv4_pool = var.byoip_pool_id
+  tags = {
+    Name        = "dn-${terraform.workspace}-masternode-amd-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_eip_association" "mn_amd_eip_assoc" {
+  count         = var.byoip_pool_id != "" ? var.masternode_amd_count : 0
+  instance_id   = aws_instance.masternode_amd[count.index].id
+  allocation_id = aws_eip.mn_amd_eip[count.index].id
+}
+
+resource "aws_eip" "mn_arm_eip" {
+  count            = var.byoip_pool_id != "" ? var.masternode_arm_count : 0
+  public_ipv4_pool = var.byoip_pool_id
+  tags = {
+    Name        = "dn-${terraform.workspace}-masternode-arm-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_eip_association" "mn_arm_eip_assoc" {
+  count         = var.byoip_pool_id != "" ? var.masternode_arm_count : 0
+  instance_id   = aws_instance.masternode_arm[count.index].id
+  allocation_id = aws_eip.mn_arm_eip[count.index].id
+}
+
+resource "aws_eip" "web_eip" {
+  count            = var.byoip_pool_id != "" ? var.web_count : 0
+  public_ipv4_pool = var.byoip_pool_id
+  tags = {
+    Name        = "dn-${terraform.workspace}-web-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_eip_association" "web_eip_assoc" {
+  count         = var.byoip_pool_id != "" ? var.web_count : 0
+  instance_id   = aws_instance.web[count.index].id
+  allocation_id = aws_eip.web_eip[count.index].id
+}
+
+resource "aws_eip" "wallet_eip" {
+  count            = var.byoip_pool_id != "" ? var.wallet_count : 0
+  public_ipv4_pool = var.byoip_pool_id
+  tags = {
+    Name        = "dn-${terraform.workspace}-dashd-wallet-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_eip_association" "wallet_eip_assoc" {
+  count         = var.byoip_pool_id != "" ? var.wallet_count : 0
+  instance_id   = aws_instance.dashd_wallet[count.index].id
+  allocation_id = aws_eip.wallet_eip[count.index].id
+}
+
+resource "aws_eip" "seed_eip" {
+  count            = var.byoip_pool_id != "" ? var.seed_count : 0
+  public_ipv4_pool = var.byoip_pool_id
+  tags = {
+    Name        = "dn-${terraform.workspace}-seed-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_eip_association" "seed_eip_assoc" {
+  count         = var.byoip_pool_id != "" ? var.seed_count : 0
+  instance_id   = aws_instance.seed_node[count.index].id
+  allocation_id = aws_eip.seed_eip[count.index].id
+}
+
+resource "aws_eip" "miner_eip" {
+  count            = var.byoip_pool_id != "" ? var.miner_count : 0
+  public_ipv4_pool = var.byoip_pool_id
+  tags = {
+    Name        = "dn-${terraform.workspace}-miner-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_eip_association" "miner_eip_assoc" {
+  count         = var.byoip_pool_id != "" ? var.miner_count : 0
+  instance_id   = aws_instance.miner[count.index].id
+  allocation_id = aws_eip.miner_eip[count.index].id
 }
 
 
