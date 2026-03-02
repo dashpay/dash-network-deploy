@@ -5,7 +5,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.web.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.web.*.public_ip, n)
+        public_ip  = var.byoip_pool_id != "" ? element(aws_eip.web_eip.*.public_ip, n) : element(aws_instance.web.*.public_ip, n)
         private_ip = element(aws_instance.web.*.private_ip, n)
       }
     )
@@ -29,7 +29,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.dashd_wallet.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.dashd_wallet.*.public_ip, n)
+        public_ip  = var.byoip_pool_id != "" ? element(aws_eip.wallet_eip.*.public_ip, n) : element(aws_instance.dashd_wallet.*.public_ip, n)
         private_ip = element(aws_instance.dashd_wallet.*.private_ip, n)
       }
     )
@@ -53,7 +53,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.seed_node.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.seed_node.*.public_ip, n)
+        public_ip  = var.byoip_pool_id != "" ? element(aws_eip.seed_eip.*.public_ip, n) : element(aws_instance.seed_node.*.public_ip, n)
         private_ip = element(aws_instance.seed_node.*.private_ip, n)
       }
     )
@@ -89,7 +89,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.miner.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.miner.*.public_ip, n)
+        public_ip  = var.byoip_pool_id != "" ? element(aws_eip.miner_eip.*.public_ip, n) : element(aws_instance.miner.*.public_ip, n)
         private_ip = element(aws_instance.miner.*.private_ip, n)
       }
     )
@@ -101,7 +101,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.masternode_amd.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.masternode_amd.*.public_ip, n)
+        public_ip  = var.byoip_pool_id != "" ? element(aws_eip.mn_amd_eip.*.public_ip, n) : element(aws_instance.masternode_amd.*.public_ip, n)
         private_ip = element(aws_instance.masternode_amd.*.private_ip, n)
       }
     )
@@ -113,7 +113,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.masternode_arm.*.tags.Hostname, n)
-        public_ip  = element(aws_instance.masternode_arm.*.public_ip, n)
+        public_ip  = var.byoip_pool_id != "" ? element(aws_eip.mn_arm_eip.*.public_ip, n) : element(aws_instance.masternode_arm.*.public_ip, n)
         private_ip = element(aws_instance.masternode_arm.*.private_ip, n)
       }
     )
@@ -127,7 +127,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.hp_masternode_amd.*.tags.Hostname, n)
-        public_ip = var.create_eip ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n)
+        public_ip = (var.create_eip || var.byoip_pool_id != "") ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n)
         private_ip = element(aws_instance.hp_masternode_amd.*.private_ip, n)
       }
     )
@@ -139,7 +139,7 @@ locals {
       {
         index      = n + 1
         name       = element(aws_instance.hp_masternode_arm.*.tags.Hostname, n)
-        public_ip  = var.create_eip ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n)
+        public_ip  = (var.create_eip || var.byoip_pool_id != "") ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n)
         private_ip = element(aws_instance.hp_masternode_arm.*.private_ip, n)
       }
     )

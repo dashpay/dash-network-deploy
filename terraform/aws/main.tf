@@ -357,18 +357,18 @@ locals {
 # shuffle hpmn ips only
 resource "random_shuffle" "dns_ips" {
   input = concat(
-    var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
-    var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
+    (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
+    (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
   )
   result_count = length(
     concat(
-      var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
-      var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
+      (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
+      (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
     )
   ) > local.dns_record_length ? local.dns_record_length : length(
     concat(
-      var.create_eip ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
-      var.create_eip ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
+      (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
+      (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
     )
   )
 }
@@ -426,7 +426,8 @@ resource "aws_eip" "vpn" {
 
   count = var.vpn_enabled ? 1 : 0
 
-  instance = aws_instance.vpn[0].id
+  instance         = aws_instance.vpn[0].id
+  public_ipv4_pool = var.byoip_pool_id != "" ? var.byoip_pool_id : null
 
   tags = {
     Name        = "dn-${terraform.workspace}-vpn"

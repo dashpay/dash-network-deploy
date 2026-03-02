@@ -111,7 +111,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.masternode_amd.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.mn_amd_eip.*.public_ip, n) : element(aws_instance.masternode_amd.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
@@ -126,7 +126,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.masternode_amd.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.mn_amd_eip.*.public_ip, n) : element(aws_instance.masternode_amd.*.public_ip, n),
         )
         service_logs = chomp(
           join(
@@ -157,7 +157,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.masternode_arm.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.mn_arm_eip.*.public_ip, n) : element(aws_instance.masternode_arm.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
@@ -172,7 +172,7 @@ locals {
             ),
           ),
           "{{ip}}",
-          element(aws_instance.masternode_arm.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.mn_arm_eip.*.public_ip, n) : element(aws_instance.masternode_arm.*.public_ip, n),
         )
         service_logs = chomp(
           join(
@@ -207,7 +207,7 @@ hp_masternodes_amd = [
           ),
         ),
         "{{ip}}",
-        var.create_eip ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n),
+        (var.create_eip || var.byoip_pool_id != "") ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n),
       )
       internal_services = replace(
         chomp(
@@ -224,7 +224,7 @@ hp_masternodes_amd = [
           ),
         ),
         "{{ip}}",
-        var.create_eip ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n),
+        (var.create_eip || var.byoip_pool_id != "") ? element(aws_eip.hpmn_amd_eip.*.public_ip, n) : element(aws_instance.hp_masternode_amd.*.public_ip, n),
       )
       service_logs = chomp(
         join(
@@ -263,7 +263,7 @@ hp_masternodes_amd = [
           ),
         ),
         "{{ip}}",
-        var.create_eip ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n),
+        (var.create_eip || var.byoip_pool_id != "") ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n),
       )
       internal_services = replace(
         chomp(
@@ -280,7 +280,7 @@ hp_masternodes_amd = [
           ),
         ),
         "{{ip}}",
-        var.create_eip ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n),
+        (var.create_eip || var.byoip_pool_id != "") ? element(aws_eip.hpmn_arm_eip.*.public_ip, n) : element(aws_instance.hp_masternode_arm.*.public_ip, n),
       )
       service_logs = chomp(
         join(
@@ -311,7 +311,7 @@ hp_masternodes_amd = [
         external_services = replace(
           chomp(join("", [local.service_ssh])),
           "{{ip}}",
-          element(aws_instance.dashd_wallet.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.wallet_eip.*.public_ip, n) : element(aws_instance.dashd_wallet.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
@@ -326,7 +326,7 @@ hp_masternodes_amd = [
             ),
           ),
           "{{ip}}",
-          element(aws_instance.dashd_wallet.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.wallet_eip.*.public_ip, n) : element(aws_instance.dashd_wallet.*.public_ip, n),
         )
         service_logs = chomp(join("\n", ["   - dashd"]))
       }
@@ -381,7 +381,7 @@ hp_masternodes_amd = [
             ),
           ),
           "{{ip}}",
-          element(aws_instance.seed_node.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.seed_eip.*.public_ip, n) : element(aws_instance.seed_node.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
@@ -398,7 +398,7 @@ hp_masternodes_amd = [
             ),
           ),
           "{{ip}}",
-          element(aws_instance.seed_node.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.seed_eip.*.public_ip, n) : element(aws_instance.seed_node.*.public_ip, n),
         )
         service_logs = chomp(join("\n", [
           "   - dashd",
@@ -422,7 +422,7 @@ hp_masternodes_amd = [
         external_services = replace(
           chomp(join("", [local.service_ssh])),
           "{{ip}}",
-          element(aws_instance.miner.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.miner_eip.*.public_ip, n) : element(aws_instance.miner.*.public_ip, n),
         )
         internal_services = replace(
           chomp(
@@ -436,7 +436,7 @@ hp_masternodes_amd = [
             ),
           ),
           "{{ip}}",
-          element(aws_instance.miner.*.public_ip, n),
+          var.byoip_pool_id != "" ? element(aws_eip.miner_eip.*.public_ip, n) : element(aws_instance.miner.*.public_ip, n),
         )
         service_logs = chomp(join("\n", ["   - dashd"]))
       }
