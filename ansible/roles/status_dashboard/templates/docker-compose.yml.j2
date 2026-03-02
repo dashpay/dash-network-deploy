@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  status:
+    image: {{ status_dashboard_image }}
+    container_name: status_dashboard
+    restart: always
+    ports:
+      - {{ status_dashboard_port }}:3001
+    environment:
+      - INVENTORY_PATH=/app/data/inventory
+      - SSH_KEY_PATH=/app/data/ssh_key
+      - SSH_USER=ubuntu
+      - SSH_COMMAND=/usr/local/bin/dashmon-check
+      - SSH_PORT=22
+      - POLL_INTERVAL_MS={{ status_dashboard_poll_interval }}
+      - POLL_CONCURRENCY={{ status_dashboard_poll_concurrency }}
+      - PORT=3001
+      - NETWORK_NAME={{ dash_network_name }}
+    volumes:
+      - {{ status_dashboard_path }}/inventory:/app/data/inventory:ro
+      - {{ status_dashboard_path }}/ssh_key:/app/data/ssh_key:ro

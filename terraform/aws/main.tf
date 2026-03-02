@@ -331,6 +331,87 @@ resource "aws_route53_record" "insight" {
   count = length(var.main_domain) > 1 ? 1 : 0
 }
 
+resource "aws_elb" "status" {
+  name = "${var.public_network_name}-status"
+
+  subnets = aws_subnet.public.*.id
+
+  count = var.web_count >= 1 ? 1 : 0
+
+  security_groups = [
+    aws_security_group.elb.id,
+  ]
+
+  instances = [
+    aws_instance.web[0].id,
+  ]
+
+  listener {
+    instance_port     = var.status_port
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+
+  listener {
+    instance_port      = var.status_port
+    instance_protocol  = "http"
+    lb_port            = 443
+    lb_protocol        = "https"
+    ssl_certificate_id = aws_acm_certificate_validation.status.certificate_arn
+  }
+
+  health_check {
+    healthy_threshold   = 2
+    interval            = 60
+    target              = "HTTP:${var.status_port}/api/health"
+    timeout             = 10
+    unhealthy_threshold = 5
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-status"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_acm_certificate" "status" {
+  domain_name       = "status.${var.public_network_name}.${var.main_domain}"
+  validation_method = "DNS"
+}
+
+resource "aws_route53_record" "status_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.status.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  zone_id         = data.aws_route53_zone.main_domain[0].zone_id
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+}
+
+resource "aws_acm_certificate_validation" "status" {
+  certificate_arn         = aws_acm_certificate.status.arn
+  validation_record_fqdns = [for record in aws_route53_record.status_validation : record.fqdn]
+}
+
+resource "aws_route53_record" "status" {
+  zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
+  name    = "status.${var.public_network_name}.${var.main_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_elb.status[count.index].dns_name]
+
+  count = length(var.main_domain) > 1 ? 1 : 0
+}
+
 resource "aws_route53_record" "metrics" {
   zone_id = data.aws_route53_zone.main_domain[0].zone_id
   name    = "metrics.${var.public_network_name}.networks.${var.main_domain}"

@@ -16,3 +16,6 @@ node_modules
 # VS Code
 .vscode
 networks
+
+# Local docs
+INFRA.MD

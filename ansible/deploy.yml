@@ -230,11 +230,25 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
+    - role: status_dashboard
+      when: dash_network == "devnet"
     - core_filebeat
     - metricbeat
   tags:
     - full_deploy
     - web
+
+- name: Deploy status monitoring to masternodes
+  hosts: masternodes,hp_masternodes
+  become: true
+  gather_facts: false
+  strategy: free
+  roles:
+    - status_monitoring
+  tags:
+    - full_deploy
+    - dashmate_deploy
+    - status_dashboard
 
 - name: Set up wallets
   hosts: wallet_nodes

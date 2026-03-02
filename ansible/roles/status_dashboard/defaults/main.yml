@@ -1,0 +1,7 @@
+---
+
+status_dashboard_image: dashpay/status:latest
+status_dashboard_port: 3010
+status_dashboard_path: "{{ dashd_home }}/status_dashboard"
+status_dashboard_poll_interval: 10000
+status_dashboard_poll_concurrency: 20

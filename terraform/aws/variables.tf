@@ -36,6 +36,11 @@ variable "insight_https_port" {
   default     = 443
 }
 
+variable "status_port" {
+  description = "Status dashboard port"
+  default     = 3010
+}
+
 variable "ssh_port" {
   description = "SSH port"
   default     = 22
