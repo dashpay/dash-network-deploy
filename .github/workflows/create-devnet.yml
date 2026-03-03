@@ -257,6 +257,9 @@ jobs:
           cat "$TFVARS_FILE"
 
       - name: Deploy devnet (Terraform + Ansible)
+        env:
+          TF_IN_AUTOMATION: "true"
+          TF_CLI_ARGS_apply: "-auto-approve"
         run: |
           echo "============================================"
           echo "Deploying $NETWORK_NAME"
