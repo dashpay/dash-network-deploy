@@ -263,7 +263,8 @@ jobs:
           echo "============================================"
 
           chmod +x ./bin/deploy
-          ./bin/deploy "$NETWORK_NAME"
+          # GitHub Actions checks out a detached HEAD; bypass branch safety check.
+          ./bin/deploy -f "$NETWORK_NAME"
 
       - name: Push configs to dash-network-configs
         run: |
