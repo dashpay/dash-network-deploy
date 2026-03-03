@@ -236,9 +236,21 @@ jobs:
           DISK_SIZE: ${{ github.event.inputs.hpmn_disk_size }}
         run: |
           TFVARS_FILE="networks/$NETWORK_NAME.tfvars"
+          DEFAULT_MAIN_DOMAIN="networks.dash.org"
 
           # Read current value from file (empty if not set)
           CURRENT_SIZE=$(grep -oP 'hpmn_node_disk_size\s*=\s*\K[0-9]+' "$TFVARS_FILE" 2>/dev/null || echo "")
+          CURRENT_MAIN_DOMAIN=$(grep -oP 'main_domain\s*=\s*"\K[^"]*' "$TFVARS_FILE" 2>/dev/null || echo "")
+
+          # Generated tfvars leaves main_domain empty; ensure ACM DNS names are valid.
+          if [[ -z "$CURRENT_MAIN_DOMAIN" ]]; then
+            echo "Setting main_domain to $DEFAULT_MAIN_DOMAIN..."
+            if grep -q '^main_domain\s*=' "$TFVARS_FILE"; then
+              sed -i "s|^main_domain\\s*=.*|main_domain = \"$DEFAULT_MAIN_DOMAIN\"|" "$TFVARS_FILE"
+            else
+              echo "main_domain = \"$DEFAULT_MAIN_DOMAIN\"" >> "$TFVARS_FILE"
+            fi
+          fi
 
           if [[ -n "$DISK_SIZE" && "$DISK_SIZE" != "$CURRENT_SIZE" ]]; then
             if [[ ! "$DISK_SIZE" =~ ^[0-9]+$ ]]; then
