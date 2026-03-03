@@ -190,6 +190,9 @@ jobs:
           echo ""
 
       - name: Destroy devnet
+        env:
+          TF_IN_AUTOMATION: "true"
+          TF_CLI_ARGS_destroy: "-auto-approve"
         run: |
           chmod +x ./bin/destroy
           ./bin/destroy "$NETWORK_NAME" -t="$DESTROY_TARGET"
