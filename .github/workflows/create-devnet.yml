@@ -282,14 +282,27 @@ jobs:
           ./bin/deploy -f "$NETWORK_NAME"
 
       - name: Push configs to dash-network-configs
+        if: always()
         run: |
           # Clone the configs repo to a temp directory
           git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs
 
-          # Copy generated config files
-          cp "networks/$NETWORK_NAME.yml" /tmp/dash-network-configs/
-          cp "networks/$NETWORK_NAME.tfvars" /tmp/dash-network-configs/
-          cp "networks/$NETWORK_NAME.inventory" /tmp/dash-network-configs/
+          # Copy generated config files if present
+          COPIED=0
+          for ext in yml tfvars inventory; do
+            SRC="networks/$NETWORK_NAME.$ext"
+            if [[ -f "$SRC" ]]; then
+              cp "$SRC" /tmp/dash-network-configs/
+              COPIED=$((COPIED + 1))
+            else
+              echo "Skipping missing file: $SRC"
+            fi
+          done
+
+          if [[ $COPIED -eq 0 ]]; then
+            echo "No config files found to push"
+            exit 0
+          fi
 
           # Commit and push
           cd /tmp/dash-network-configs
