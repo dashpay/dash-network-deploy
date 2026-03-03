@@ -124,6 +124,7 @@ jobs:
         env:
           DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
           EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
+          EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
           mkdir -p ~/.ssh
 
@@ -138,6 +139,12 @@ jobs:
           # GitHub deploy key for cloning configs repo
           printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+
+          # Optional write key for pushing to configs repo
+          if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" ]]; then
+            printf '%s\n' "$EVO_APP_DEPLOY_WRITE_KEY" > ~/.ssh/id_ed25519_write
+            chmod 600 ~/.ssh/id_ed25519_write
+          fi
 
           # SSH config
           cat > ~/.ssh/config << 'EOL'
@@ -283,6 +290,8 @@ jobs:
 
       - name: Push configs to dash-network-configs
         if: always()
+        env:
+          EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
           # Clone the configs repo to a temp directory
           git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs
@@ -310,7 +319,19 @@ jobs:
           git config user.email "actions@github.com"
           git add .
           git commit -m "Add configs for $NETWORK_NAME" || echo "No changes to commit"
-          git push
+
+          # Use optional write key if configured; otherwise try default key.
+          if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" && -f "$HOME/.ssh/id_ed25519_write" ]]; then
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_write -o StrictHostKeyChecking=no' git push || {
+              echo "::warning::Failed to push configs with EVO_APP_DEPLOY_WRITE_KEY"
+              exit 0
+            }
+          else
+            git push || {
+              echo "::warning::Failed to push configs (likely read-only EVO_APP_DEPLOY_KEY). Configure secret EVO_APP_DEPLOY_WRITE_KEY with write access."
+              exit 0
+            }
+          fi
 
           echo "Configs pushed to dash-network-configs repo"
 
