@@ -41,7 +41,7 @@
   register: response
   failed_when: false
   changed_when: false
-  until: response.rc == 0 and ('mysqld is alive' in (response.stdout | default('')))
+  until: "'mysqld is alive' in (response | to_json)"
   retries: 10
   delay: 10
 
