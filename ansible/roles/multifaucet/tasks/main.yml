@@ -39,7 +39,9 @@
     container: multifaucet-db-1
     command: mysqladmin ping -u multifaucet --password="multifaucet"
   register: response
-  until: response.stdout == "mysqld is alive"
+  failed_when: false
+  changed_when: false
+  until: response.rc == 0 and ('mysqld is alive' in (response.stdout | default('')))
   retries: 10
   delay: 10
 
