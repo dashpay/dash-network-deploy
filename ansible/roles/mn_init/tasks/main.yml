@@ -41,7 +41,12 @@
 
 - name: Build masternode names list from mnlist
   ansible.builtin.set_fact:
-    mn_names: "{{ mnlist | default({}) | dict2items | map(attribute='key') | list }}"
+    mn_names: >-
+      {{
+        (mnlist | dict2items | map(attribute='key') | list)
+        if (mnlist is mapping)
+        else []
+      }}
 
 - name: Get list of info on owner addresses to be imported
   ansible.builtin.command:
