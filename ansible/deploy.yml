@@ -2,25 +2,8 @@
 
 # TEMPORARY DEBUG MODE
 # Early plays already passed in CI and are skipped to speed up iteration.
-# Current resume point: Activate sporks. Restore the full playbook after debugging.
-
-- name: Activate sporks
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: activate_dashd_sporks
-      when: dash_network != "mainnet" and dash_network != "testnet"
-      delegate_to: '{{ play_hosts | first }}'
-  tags:
-    - full_deploy
-
-# todo: partially working code causes errors in deploy, comment out for now and fix later
-# - name: Create governance proposals
-#   hosts: wallet_nodes
-#   become: true
-#   roles:
-#     - role: generate_proposals
-#       when: governance_proposal_count > 0
+# Current resume point: Set up core and platform on HP masternodes.
+# Restore the full playbook after debugging.
 
 - name: Set up core and platform on HP masternodes
   hosts: hp_masternodes

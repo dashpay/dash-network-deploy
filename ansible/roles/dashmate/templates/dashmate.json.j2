@@ -60,7 +60,7 @@
               "lowPriority": false
             },
             "quorum_list": {
-              "password": "{{ dashmate_core_rpc_quorum_list_password | default(dashmate_core_rpc_dashmate_password) }}",
+              "password": "{{ dashmate_core_rpc_quorum_list_password | default(dashmate_core_rpc_dashmate_password, true) }}",
               "whitelist": [
                 "quorum", "masternode", "getblockcount"
               ],
