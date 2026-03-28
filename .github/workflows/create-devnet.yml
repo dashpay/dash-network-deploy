@@ -12,6 +12,11 @@ on:
         required: true
         type: string
         default: "2.0.0-rc.16"
+      deploy_tags:
+        description: "Ansible tags to run. Use full_deploy for full flow, or a narrower tag such as unban_hp_masternodes to resume faster."
+        required: true
+        type: string
+        default: "full_deploy"
       # Advanced options - sane defaults, only change if you know what you're doing
       hp_masternodes_arm_count:
         description: "Advanced: Number of ARM HP masternodes"
@@ -311,18 +316,20 @@ jobs:
         env:
           TF_IN_AUTOMATION: "true"
           TF_CLI_ARGS_apply: "-auto-approve"
+          DEPLOY_TAGS: ${{ github.event.inputs.deploy_tags }}
         run: |
           echo "============================================"
           echo "Deploying $NETWORK_NAME"
+          echo "Ansible tags: $DEPLOY_TAGS"
           echo "============================================"
 
           chmod +x ./bin/deploy
           # GitHub Actions checks out a detached HEAD; bypass branch safety check.
           if [[ "${{ steps.existing_configs.outputs.resume_mode }}" == "true" ]]; then
             echo "Resume mode enabled. Skipping Terraform and re-running provisioning only."
-            ./bin/deploy -p -f "$NETWORK_NAME"
+            ./bin/deploy -p -f --tags="$DEPLOY_TAGS" "$NETWORK_NAME"
           else
-            ./bin/deploy -f "$NETWORK_NAME"
+            ./bin/deploy -f --tags="$DEPLOY_TAGS" "$NETWORK_NAME"
           fi
 
       - name: Push configs to dash-network-configs
