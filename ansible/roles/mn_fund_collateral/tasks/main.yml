@@ -49,7 +49,7 @@
   ansible.builtin.set_fact:
     uncollateralized_addresses: "{{ uncollateralized_addresses + [mnlist[item].collateral.address] }}"
   with_items: '{{ masternode_names }}'
-  when: not vars["collateral_ok_" + item|replace("-","_")]
+  when: not (lookup('vars', 'collateral_ok_' + (item | replace('-', '_'))) | default(false) | bool)
 
 - name: Fund masternode collaterals
   ansible.builtin.include_tasks:

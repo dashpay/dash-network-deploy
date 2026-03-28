@@ -16,15 +16,32 @@
   ansible.builtin.debug:
     var: payments
 
-- name: Fund listed masternodes with {{ amount ~ ' Dash'}}
-  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendmany '' '{{ payments | to_json }}'"
+- name: Initialize list of collateral funding txids
+  ansible.builtin.set_fact:
+    fund_txids: []
+
+- name: Fund listed masternodes with {{ amount ~ ' Dash' }}
+  ansible.builtin.command:
+    argv:
+      - dash-cli
+      - "-rpcwallet={{ wallet_rpc_wallet_faucet }}"
+      - sendtoaddress
+      - "{{ item.key }}"
+      - "{{ item.value | string }}"
   register: fund_result
-  changed_when: fund_result.stdout | length == 64
+  changed_when: (fund_result.stdout | default('') | length) == 64
+  with_dict: "{{ payments }}"
+
+- name: Collect collateral funding txids
+  ansible.builtin.set_fact:
+    fund_txids: "{{ fund_txids + [item.stdout] }}"
+  with_items: "{{ fund_result.results }}"
+  when: (item.stdout | default('') | length) == 64
 
 - name: Produce blocks until funding transaction is confirmed
   ansible.builtin.include_role:
     name: generate_blocks
   vars:
     generate: confirmations
-    txid_list: "{{ [fund_result.stdout] }}"
+    txid_list: "{{ fund_txids }}"
     tx_source: "{{ wallet_rpc_wallet_faucet }}"
