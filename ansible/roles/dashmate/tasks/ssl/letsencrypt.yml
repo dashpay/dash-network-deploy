@@ -21,3 +21,6 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_letsencrypt_obtain
   changed_when: dashmate_letsencrypt_obtain.rc == 0
+  retries: 3
+  delay: 20
+  until: dashmate_letsencrypt_obtain.rc == 0
