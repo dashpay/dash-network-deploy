@@ -18,5 +18,3 @@ filebeat_output_elasticsearch_auth:
   password: "{{ elastic_password }}"
 filebeat_enable_logging: true
 filebeat_log_level: info
-# Keep SSL key var boolean to satisfy strict conditionals in newer ansible-core.
-filebeat_ssl_key_file: false

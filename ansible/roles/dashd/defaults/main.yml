@@ -16,6 +16,3 @@ dashd_allowprivatenet: '{% if dashd_externalip | ansible.utils.ipaddr("private")
 
 dashd_compose_project_name: dashcore
 dashd_compose_path: '{{ dashd_home }}/{{ dashd_compose_project_name }}'
-
-# Wallet operations are only enabled on dedicated wallet nodes.
-enable_wallet: false

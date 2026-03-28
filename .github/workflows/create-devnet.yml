@@ -57,7 +57,7 @@ on:
 jobs:
   create:
     name: Create Devnet
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
     concurrency:
       group: "devnet-${{ github.event.inputs.devnet_name }}"
@@ -117,7 +117,7 @@ jobs:
       - name: Install Ansible
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install ansible
+          python3 -m pip install ansible-core==2.16.3
 
       - name: Install Ansible roles
         run: |
