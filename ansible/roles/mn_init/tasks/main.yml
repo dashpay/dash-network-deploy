@@ -39,10 +39,19 @@
   ansible.builtin.set_fact:
     unimported_owner_addresses: []
 
+- name: Build masternode names list from mnlist
+  ansible.builtin.set_fact:
+    mn_names: >-
+      {{
+        (mnlist | dict2items | map(attribute='key') | list)
+        if (mnlist is mapping)
+        else []
+      }}
+
 - name: Get list of info on owner addresses to be imported
   ansible.builtin.command:
     cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} getaddressinfo {{ mnlist[item].owner.address }}'
-  with_items: '{{ mnlist }}'
+  with_items: '{{ mn_names }}'
   register: owner_address_info
   changed_when: owner_address_info.rc == 0
 
@@ -63,7 +72,7 @@
 - name: Get list of info on collateral addresses to be imported
   ansible.builtin.command:
     cmd: 'dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} getaddressinfo {{ mnlist[item].collateral.address }}'
-  with_items: '{{ mnlist }}'
+  with_items: '{{ mn_names }}'
   register: collateral_address_info
   changed_when: collateral_address_info.rc == 0
 
@@ -113,7 +122,7 @@
   ansible.builtin.set_fact:
     registered_masternode_names: '{{ registered_masternode_names + [item] }}'
   when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
-  with_items: '{{ mnlist }}'
+  with_items: '{{ mn_names }}'
 
 - name: Registered masternodes list
   ansible.builtin.debug:
@@ -123,7 +132,7 @@
 
 - name: Determine new masternodes
   ansible.builtin.set_fact:
-    new_masternode_names: "{{ mnlist | difference(registered_masternode_names) }}"
+    new_masternode_names: "{{ mn_names | difference(registered_masternode_names) }}"
 
 - name: New masternodes list
   ansible.builtin.debug:
@@ -179,7 +188,7 @@
 - name: Populate fee payment targets
   ansible.builtin.set_fact:
     fee_target_addresses: "{{ fee_target_addresses + [mnlist[item].collateral.address] }}"
-  with_items: '{{ mnlist }}'
+  with_items: '{{ mn_names }}'
 
 - name: Check if address contains a suitable fee utxo
   ansible.builtin.command: >
