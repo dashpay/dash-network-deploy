@@ -175,7 +175,39 @@ jobs:
           TERRAFORM_DYNAMODB_TABLE=$TERRAFORM_DYNAMODB_TABLE
           EOF
 
+      - name: Check for existing devnet configs
+        id: existing_configs
+        run: |
+          git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs-source
+
+          FOUND=0
+          MISSING=0
+          for ext in yml tfvars inventory; do
+            SRC="/tmp/dash-network-configs-source/$NETWORK_NAME.$ext"
+            if [[ -f "$SRC" ]]; then
+              FOUND=$((FOUND + 1))
+            else
+              MISSING=$((MISSING + 1))
+            fi
+          done
+
+          if [[ $FOUND -eq 3 ]]; then
+            echo "resume_mode=true" >> "$GITHUB_OUTPUT"
+            echo "Found existing config set for $NETWORK_NAME. Reusing config repo files and skipping Terraform."
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.yml" networks/
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.tfvars" networks/
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.inventory" networks/
+          elif [[ $FOUND -eq 0 ]]; then
+            echo "resume_mode=false" >> "$GITHUB_OUTPUT"
+            echo "No existing config set found for $NETWORK_NAME. Running full create flow."
+          else
+            echo "Error: Partial config set found for $NETWORK_NAME in dash-network-configs."
+            ls -la /tmp/dash-network-configs-source/$NETWORK_NAME.* 2>/dev/null || true
+            exit 1
+          fi
+
       - name: Generate network configs
+        if: steps.existing_configs.outputs.resume_mode != 'true'
         env:
           MN_AMD: ${{ github.event.inputs.masternodes_amd_count }}
           MN_ARM: ${{ github.event.inputs.masternodes_arm_count }}
@@ -286,7 +318,12 @@ jobs:
 
           chmod +x ./bin/deploy
           # GitHub Actions checks out a detached HEAD; bypass branch safety check.
-          ./bin/deploy -f "$NETWORK_NAME"
+          if [[ "${{ steps.existing_configs.outputs.resume_mode }}" == "true" ]]; then
+            echo "Resume mode enabled. Skipping Terraform and re-running provisioning only."
+            ./bin/deploy -p -f "$NETWORK_NAME"
+          else
+            ./bin/deploy -f "$NETWORK_NAME"
+          fi
 
       - name: Push configs to dash-network-configs
         if: always()
