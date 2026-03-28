@@ -29,6 +29,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config set {{ dashmate_zerossl_config_path }}.id {{ dashmate_zerossl_ssm_certificate_id }}"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id
@@ -70,6 +71,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --verbose --no-retry"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_obtain
@@ -84,6 +86,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config get {{ dashmate_zerossl_config_path }}.id"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id

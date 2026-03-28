@@ -6,6 +6,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} reindex -d --force"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_reindex

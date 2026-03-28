@@ -16,6 +16,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --provider letsencrypt --verbose --no-retry"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_letsencrypt_obtain

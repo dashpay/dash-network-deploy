@@ -52,6 +52,7 @@
   ansible.builtin.command: '{{ dashmate_home }}/rustup.sh -y'
   become: true
   become_user: dashmate
+  become_flags: '-H'
   when:
     - rustup.changed
     - dashmate_platform_enable
@@ -73,6 +74,7 @@
     cargo install wasm-bindgen-cli@0.2.86
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     executable: /bin/bash
   changed_when: true
@@ -110,6 +112,7 @@
 - name: Clone dashmate source
   become: true
   become_user: dashmate
+  become_flags: '-H'
   ansible.builtin.git:
     repo: 'https://github.com/dashpay/platform'
     dest: '{{ dashmate_source_dir }}'
@@ -132,6 +135,7 @@
   ansible.builtin.command: yarn install
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_source_dir }}'
     creates: '{{ dashmate_source_dir }}/.yarn/unplugged'
@@ -148,6 +152,7 @@
     yarn workspace dash build
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_source_dir }}'
     executable: /bin/bash
@@ -158,6 +163,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_config_result
@@ -168,6 +174,7 @@
   ansible.builtin.command: yarn dashmate config set dashmate.helper.docker.build.enabled true
   become: true
   become_user: dashmate
+  become_flags: '-H'
   register: build_dashmate_helper
   args:
     chdir: '{{ dashmate_source_dir }}'
