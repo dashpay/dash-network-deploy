@@ -17,7 +17,7 @@
     var: payments
 
 - name: Fund listed masternodes with {{ amount ~ ' Dash'}}
-  ansible.builtin.include_tasks: "{{ playbook_dir }}/roles/mn_fund_collateral/tasks/fund_one_collateral.yml"
+  ansible.builtin.include_tasks: fund_one_collateral.yml
   with_items:
     - '{{ payment_targets }}'
   loop_control:

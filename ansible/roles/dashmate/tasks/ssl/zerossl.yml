@@ -26,7 +26,9 @@
     dashmate_zerossl_ssm_certificate_id: "{{ lookup('aws_ssm', '{{ dashmate_zerossl_ssm_path }}-id', on_missing='skip') }}"
 
 - name: Set ZeroSSL certificate ID to dashmate config from SSM if not set
-  ansible.builtin.command: "{{ dashmate_cmd }} config set {{ dashmate_zerossl_config_path }}.id {{ dashmate_zerossl_ssm_certificate_id }} {{ dashmate_config_arg }}"
+  ansible.builtin.command: >-
+    {{ dashmate_cmd }} config set {{ dashmate_zerossl_config_path }}.id
+    {{ dashmate_zerossl_ssm_certificate_id }} {{ dashmate_config_arg }}
   become: true
   become_user: dashmate
   become_flags: '-H'
