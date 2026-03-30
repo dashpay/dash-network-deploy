@@ -1,0 +1,16 @@
+---
+
+- name: Fund collateral address {{ payment_target }} with {{ amount }} Dash
+  ansible.builtin.command: >
+    dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendtoaddress {{ payment_target }} {{ amount }}
+  register: fund_result
+  changed_when: fund_result.stdout | length == 64
+
+- name: Produce blocks until funding transaction for {{ payment_target }} is confirmed
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    generate: confirmations
+    txid_list: "{{ [fund_result.stdout] }}"
+    tx_source: "{{ wallet_rpc_wallet_faucet }}"
+  when: fund_result.stdout is defined and fund_result.stdout | length > 0
