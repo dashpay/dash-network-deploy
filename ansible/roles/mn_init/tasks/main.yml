@@ -203,30 +203,11 @@
   ansible.builtin.set_fact:
     fee_missing_addresses: "{{ fee_target_addresses | difference(funded_addresses.stdout) }}"
 
-- name: Initialize fee payments
-  ansible.builtin.set_fact:
-    fee_payments: {}
-  when: fee_missing_addresses | length > 0
-
-- name: Populate fee payments
-  ansible.builtin.set_fact:
-    fee_payments: "{{ fee_payments | combine({item: 1}) }}"
-  with_items: '{{ fee_missing_addresses }}'
-  when: fee_missing_addresses | length > 0
-
 - name: Fund 1 coin for ProTx fee
-  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendmany '' '{{ fee_payments | to_json }}'"
-  register: fee_fund_result
-  changed_when: fee_fund_result.stdout | length == 64
-  when: fee_missing_addresses | length > 0
-
-- name: Produce blocks until fee funding transaction is confirmed
-  ansible.builtin.include_role:
-    name: generate_blocks
+  ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
   vars:
-    generate: confirmations
-    txid_list: "{{ [fee_fund_result.stdout] }}"
-    tx_source: "{{ wallet_rpc_wallet_faucet }}"
+    amount: 1
+    payment_targets: '{{ fee_missing_addresses }}'
   when: fee_missing_addresses | length > 0
 
 # Take action
