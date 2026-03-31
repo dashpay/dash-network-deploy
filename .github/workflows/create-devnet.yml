@@ -65,6 +65,7 @@ jobs:
 
     env:
       NETWORK_NAME: "devnet-${{ github.event.inputs.devnet_name }}"
+      DEVNET_ONLY_GUARD: "true"
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -88,6 +89,14 @@ jobs:
           fi
           if [[ ! "$NAME" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
             echo "Error: devnet_name must be lowercase alphanumeric with optional hyphens"
+            exit 1
+          fi
+          if [[ "$NAME" == "testnet" || "$NAME" == "mainnet" || "$NAME" == mainnet-* ]]; then
+            echo "Error: reserved network names are not allowed in this workflow"
+            exit 1
+          fi
+          if [[ ! "devnet-$NAME" =~ ^devnet-[a-z0-9][a-z0-9-]*$ ]]; then
+            echo "Error: resulting network name is not a valid devnet name"
             exit 1
           fi
           echo "Will create: devnet-$NAME"
