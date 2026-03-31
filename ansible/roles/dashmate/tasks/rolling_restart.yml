@@ -4,6 +4,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} restart --safe --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart_all

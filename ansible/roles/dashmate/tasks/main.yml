@@ -22,6 +22,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} --version"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: current_dashmate_version
@@ -113,6 +114,14 @@
     create_home: true
     shell: /bin/bash
     umask: '0002'
+  when:
+    - not (skip_dashmate_image_update | default(false))
+    - not dashmate_user_exists
+
+- name: Update dashmate existence facts after user creation
+  ansible.builtin.set_fact:
+    dashmate_group_exists: true
+    dashmate_user_exists: true
   when:
     - not (skip_dashmate_image_update | default(false))
     - not dashmate_user_exists
@@ -255,6 +264,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_config_result
@@ -266,6 +276,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config get platform.gateway.ssl.providerConfigs.zerossl.id"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id_result
@@ -292,6 +303,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config get platform.gateway.ssl.providerConfigs.zerossl.id"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id_result_fast
@@ -437,6 +449,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config render"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_render_configs_result
@@ -501,6 +514,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config envs"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_envs_output
@@ -527,6 +541,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} update --format=json"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   register: dashmate_update
   args:
     chdir: '{{ dashmate_cwd }}'
@@ -541,6 +556,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} status services --format=json"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   changed_when: dashmate_services_status.rc == 0
   args:
     chdir: '{{ dashmate_cwd }}'
@@ -597,6 +613,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_start_all
@@ -611,9 +628,11 @@
 
 # Fast deployment: each node restarts itself independently
 - name: Restart dashmate services (fast mode - individual restart)
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --safe --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}"
+  ansible.builtin.command: >-
+    {{ dashmate_cmd }} restart --safe --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart_all
@@ -674,9 +693,11 @@
 # Force start is equivalent to `docker compose up` and will replace services that have changed
 
 - name: Start not started services and replace updated services
-  ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}"
+  ansible.builtin.command: >-
+    {{ dashmate_cmd }} start --force --verbose{{ '' if needs_core_restart | default(false) else ' --platform' }}
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_force_start
@@ -690,6 +711,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   register: build_dashmate_helper
   args:
     chdir: '{{ dashmate_cwd }}'

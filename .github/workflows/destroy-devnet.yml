@@ -20,7 +20,7 @@ on:
 jobs:
   destroy:
     name: Destroy Devnet
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 60
     concurrency:
       group: "devnet-${{ github.event.inputs.devnet_name }}"
@@ -28,6 +28,7 @@ jobs:
 
     env:
       NETWORK_NAME: "devnet-${{ github.event.inputs.devnet_name }}"
+      DEVNET_ONLY_GUARD: "true"
       DESTROY_TARGET: ${{ github.event.inputs.destroy_target }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -48,6 +49,18 @@ jobs:
           fi
           if [[ "$NAME" =~ ^devnet- ]]; then
             echo "Error: Do not include 'devnet-' prefix. Just provide the name (e.g. 'mytest')"
+            exit 1
+          fi
+          if [[ ! "$NAME" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+            echo "Error: devnet_name must be lowercase alphanumeric with optional hyphens"
+            exit 1
+          fi
+          if [[ "$NAME" == "testnet" || "$NAME" == "mainnet" || "$NAME" == mainnet-* ]]; then
+            echo "Error: reserved network names are not allowed in this workflow"
+            exit 1
+          fi
+          if [[ ! "devnet-$NAME" =~ ^devnet-[a-z0-9][a-z0-9-]*$ ]]; then
+            echo "Error: resulting network name is not a valid devnet name"
             exit 1
           fi
           echo "Will destroy: devnet-$NAME (target: $DESTROY_TARGET)"
@@ -77,7 +90,7 @@ jobs:
       - name: Install Ansible
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install ansible
+          python3 -m pip install ansible-core==2.16.3 jmespath
 
       - name: Install Ansible roles
         run: |
@@ -89,6 +102,7 @@ jobs:
         env:
           DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
           EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
+          EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
           mkdir -p ~/.ssh
 
@@ -103,6 +117,12 @@ jobs:
           # GitHub deploy key for cloning configs repo
           printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+
+          # Optional write key for pushing to configs repo
+          if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" ]]; then
+            printf '%s\n' "$EVO_APP_DEPLOY_WRITE_KEY" > ~/.ssh/id_ed25519_write
+            chmod 600 ~/.ssh/id_ed25519_write
+          fi
 
           # SSH config
           cat > ~/.ssh/config << 'EOL'
@@ -190,12 +210,17 @@ jobs:
           echo ""
 
       - name: Destroy devnet
+        env:
+          TF_IN_AUTOMATION: "true"
+          TF_CLI_ARGS_destroy: "-auto-approve"
         run: |
           chmod +x ./bin/destroy
           ./bin/destroy "$NETWORK_NAME" -t="$DESTROY_TARGET"
 
       - name: Remove configs from dash-network-configs
         if: github.event.inputs.destroy_target == 'all'
+        env:
+          EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
           cd /tmp/dash-network-configs
           git config user.name "GitHub Actions"
@@ -207,7 +232,19 @@ jobs:
           git rm "$NETWORK_NAME.inventory" 2>/dev/null || true
 
           git commit -m "Remove configs for $NETWORK_NAME (destroyed)" || echo "No changes to commit"
-          git push
+
+          # Use optional write key if configured; otherwise try default key.
+          if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" && -f "$HOME/.ssh/id_ed25519_write" ]]; then
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_write -o StrictHostKeyChecking=no' git push || {
+              echo "::warning::Failed to push config removal with EVO_APP_DEPLOY_WRITE_KEY"
+              exit 0
+            }
+          else
+            git push || {
+              echo "::warning::Failed to push config removal (likely read-only EVO_APP_DEPLOY_KEY). Configure secret EVO_APP_DEPLOY_WRITE_KEY with write access."
+              exit 0
+            }
+          fi
 
           echo "Configs removed from dash-network-configs repo"
 

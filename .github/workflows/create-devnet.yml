@@ -12,6 +12,11 @@ on:
         required: true
         type: string
         default: "2.0.0-rc.16"
+      deploy_tags:
+        description: "Ansible tags to run. Use full_deploy for full flow, or a narrower tag such as unban_hp_masternodes to resume faster."
+        required: true
+        type: string
+        default: "full_deploy"
       # Advanced options - sane defaults, only change if you know what you're doing
       hp_masternodes_arm_count:
         description: "Advanced: Number of ARM HP masternodes"
@@ -52,7 +57,7 @@ on:
 jobs:
   create:
     name: Create Devnet
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
     concurrency:
       group: "devnet-${{ github.event.inputs.devnet_name }}"
@@ -60,6 +65,7 @@ jobs:
 
     env:
       NETWORK_NAME: "devnet-${{ github.event.inputs.devnet_name }}"
+      DEVNET_ONLY_GUARD: "true"
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -83,6 +89,14 @@ jobs:
           fi
           if [[ ! "$NAME" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
             echo "Error: devnet_name must be lowercase alphanumeric with optional hyphens"
+            exit 1
+          fi
+          if [[ "$NAME" == "testnet" || "$NAME" == "mainnet" || "$NAME" == mainnet-* ]]; then
+            echo "Error: reserved network names are not allowed in this workflow"
+            exit 1
+          fi
+          if [[ ! "devnet-$NAME" =~ ^devnet-[a-z0-9][a-z0-9-]*$ ]]; then
+            echo "Error: resulting network name is not a valid devnet name"
             exit 1
           fi
           echo "Will create: devnet-$NAME"
@@ -112,7 +126,7 @@ jobs:
       - name: Install Ansible
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install ansible
+          python3 -m pip install ansible-core==2.16.3 jmespath
 
       - name: Install Ansible roles
         run: |
@@ -124,6 +138,7 @@ jobs:
         env:
           DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
           EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
+          EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
           mkdir -p ~/.ssh
 
@@ -138,6 +153,12 @@ jobs:
           # GitHub deploy key for cloning configs repo
           printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+
+          # Optional write key for pushing to configs repo
+          if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" ]]; then
+            printf '%s\n' "$EVO_APP_DEPLOY_WRITE_KEY" > ~/.ssh/id_ed25519_write
+            chmod 600 ~/.ssh/id_ed25519_write
+          fi
 
           # SSH config
           cat > ~/.ssh/config << 'EOL'
@@ -168,7 +189,39 @@ jobs:
           TERRAFORM_DYNAMODB_TABLE=$TERRAFORM_DYNAMODB_TABLE
           EOF
 
+      - name: Check for existing devnet configs
+        id: existing_configs
+        run: |
+          git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs-source
+
+          FOUND=0
+          MISSING=0
+          for ext in yml tfvars inventory; do
+            SRC="/tmp/dash-network-configs-source/$NETWORK_NAME.$ext"
+            if [[ -f "$SRC" ]]; then
+              FOUND=$((FOUND + 1))
+            else
+              MISSING=$((MISSING + 1))
+            fi
+          done
+
+          if [[ $FOUND -eq 3 ]]; then
+            echo "resume_mode=true" >> "$GITHUB_OUTPUT"
+            echo "Found existing config set for $NETWORK_NAME. Reusing config repo files and skipping Terraform."
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.yml" networks/
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.tfvars" networks/
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.inventory" networks/
+          elif [[ $FOUND -eq 0 ]]; then
+            echo "resume_mode=false" >> "$GITHUB_OUTPUT"
+            echo "No existing config set found for $NETWORK_NAME. Running full create flow."
+          else
+            echo "Error: Partial config set found for $NETWORK_NAME in dash-network-configs."
+            ls -la /tmp/dash-network-configs-source/$NETWORK_NAME.* 2>/dev/null || true
+            exit 1
+          fi
+
       - name: Generate network configs
+        if: steps.existing_configs.outputs.resume_mode != 'true'
         env:
           MN_AMD: ${{ github.event.inputs.masternodes_amd_count }}
           MN_ARM: ${{ github.event.inputs.masternodes_arm_count }}
@@ -236,9 +289,21 @@ jobs:
           DISK_SIZE: ${{ github.event.inputs.hpmn_disk_size }}
         run: |
           TFVARS_FILE="networks/$NETWORK_NAME.tfvars"
+          DEFAULT_MAIN_DOMAIN="networks.dash.org"
 
           # Read current value from file (empty if not set)
           CURRENT_SIZE=$(grep -oP 'hpmn_node_disk_size\s*=\s*\K[0-9]+' "$TFVARS_FILE" 2>/dev/null || echo "")
+          CURRENT_MAIN_DOMAIN=$(grep -oP 'main_domain\s*=\s*"\K[^"]*' "$TFVARS_FILE" 2>/dev/null || echo "")
+
+          # Generated tfvars leaves main_domain empty; ensure ACM DNS names are valid.
+          if [[ -z "$CURRENT_MAIN_DOMAIN" ]]; then
+            echo "Setting main_domain to $DEFAULT_MAIN_DOMAIN..."
+            if grep -q '^main_domain\s*=' "$TFVARS_FILE"; then
+              sed -i "s|^main_domain\\s*=.*|main_domain = \"$DEFAULT_MAIN_DOMAIN\"|" "$TFVARS_FILE"
+            else
+              echo "main_domain = \"$DEFAULT_MAIN_DOMAIN\"" >> "$TFVARS_FILE"
+            fi
+          fi
 
           if [[ -n "$DISK_SIZE" && "$DISK_SIZE" != "$CURRENT_SIZE" ]]; then
             if [[ ! "$DISK_SIZE" =~ ^[0-9]+$ ]]; then
@@ -257,24 +322,49 @@ jobs:
           cat "$TFVARS_FILE"
 
       - name: Deploy devnet (Terraform + Ansible)
+        env:
+          TF_IN_AUTOMATION: "true"
+          TF_CLI_ARGS_apply: "-auto-approve"
+          DEPLOY_TAGS: ${{ github.event.inputs.deploy_tags }}
         run: |
           echo "============================================"
           echo "Deploying $NETWORK_NAME"
+          echo "Ansible tags: $DEPLOY_TAGS"
           echo "============================================"
 
           chmod +x ./bin/deploy
           # GitHub Actions checks out a detached HEAD; bypass branch safety check.
-          ./bin/deploy -f "$NETWORK_NAME"
+          if [[ "${{ steps.existing_configs.outputs.resume_mode }}" == "true" ]]; then
+            echo "Resume mode enabled. Skipping Terraform and re-running provisioning only."
+            ./bin/deploy -p -f --tags="$DEPLOY_TAGS" "$NETWORK_NAME"
+          else
+            ./bin/deploy -f --tags="$DEPLOY_TAGS" "$NETWORK_NAME"
+          fi
 
       - name: Push configs to dash-network-configs
+        if: always()
+        env:
+          EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
           # Clone the configs repo to a temp directory
           git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs
 
-          # Copy generated config files
-          cp "networks/$NETWORK_NAME.yml" /tmp/dash-network-configs/
-          cp "networks/$NETWORK_NAME.tfvars" /tmp/dash-network-configs/
-          cp "networks/$NETWORK_NAME.inventory" /tmp/dash-network-configs/
+          # Copy generated config files if present
+          COPIED=0
+          for ext in yml tfvars inventory; do
+            SRC="networks/$NETWORK_NAME.$ext"
+            if [[ -f "$SRC" ]]; then
+              cp "$SRC" /tmp/dash-network-configs/
+              COPIED=$((COPIED + 1))
+            else
+              echo "Skipping missing file: $SRC"
+            fi
+          done
+
+          if [[ $COPIED -eq 0 ]]; then
+            echo "No config files found to push"
+            exit 0
+          fi
 
           # Commit and push
           cd /tmp/dash-network-configs
@@ -282,7 +372,19 @@ jobs:
           git config user.email "actions@github.com"
           git add .
           git commit -m "Add configs for $NETWORK_NAME" || echo "No changes to commit"
-          git push
+
+          # Use optional write key if configured; otherwise try default key.
+          if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" && -f "$HOME/.ssh/id_ed25519_write" ]]; then
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_write -o StrictHostKeyChecking=no' git push || {
+              echo "::warning::Failed to push configs with EVO_APP_DEPLOY_WRITE_KEY"
+              exit 0
+            }
+          else
+            git push || {
+              echo "::warning::Failed to push configs (likely read-only EVO_APP_DEPLOY_KEY). Configure secret EVO_APP_DEPLOY_WRITE_KEY with write access."
+              exit 0
+            }
+          fi
 
           echo "Configs pushed to dash-network-configs repo"
 

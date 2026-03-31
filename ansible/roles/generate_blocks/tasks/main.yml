@@ -70,7 +70,7 @@
   ansible.builtin.command: dash-cli spork active
   when: generate == 'spork_activation'
   register: active_sporks
-  until: (active_sporks.stdout | from_json)[spork_name]
+  until: (active_sporks.stdout | from_json).get(spork_name, false)
   retries: 200
   delay: 10
   changed_when: active_sporks.rc == 0

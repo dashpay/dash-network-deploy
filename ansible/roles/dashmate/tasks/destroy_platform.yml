@@ -7,6 +7,7 @@
   ansible.builtin.command: "{{ dashmate_cmd }} reset --platform --force --hard"
   become: true
   become_user: dashmate
+  become_flags: '-H'
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_reset
