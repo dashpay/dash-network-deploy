@@ -28,7 +28,7 @@
 - name: Set ZeroSSL certificate ID to dashmate config from SSM if not set
   ansible.builtin.command: >-
     {{ dashmate_cmd }} config set {{ dashmate_zerossl_config_path }}.id
-    {{ dashmate_zerossl_ssm_certificate_id }} {{ dashmate_config_arg }}
+    {{ dashmate_zerossl_ssm_certificate_id }}
   become: true
   become_user: dashmate
   become_flags: '-H'
@@ -70,7 +70,7 @@
   register: zero_ssl_bundle_file
 
 - name: Obtain ZeroSSL certificate for DAPI
-  ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --verbose --no-retry {{ dashmate_config_arg }}"
+  ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --verbose --no-retry"
   become: true
   become_user: dashmate
   become_flags: '-H'
@@ -85,7 +85,7 @@
 # Save new ZeroSSL information to SSM
 
 - name: Get new ZeroSSL certificate ID from dashmate config
-  ansible.builtin.command: "{{ dashmate_cmd }} config get {{ dashmate_zerossl_config_path }}.id {{ dashmate_config_arg }}"
+  ansible.builtin.command: "{{ dashmate_cmd }} config get {{ dashmate_zerossl_config_path }}.id"
   become: true
   become_user: dashmate
   become_flags: '-H'

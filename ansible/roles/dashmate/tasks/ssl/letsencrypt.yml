@@ -13,7 +13,7 @@
     mode: "0750"
 
 - name: Obtain Let's Encrypt certificate for DAPI
-  ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --provider letsencrypt --verbose --no-retry {{ dashmate_config_arg }}"
+  ansible.builtin.command: "{{ dashmate_cmd }} ssl obtain --provider letsencrypt --verbose --no-retry"
   become: true
   become_user: dashmate
   become_flags: '-H'

@@ -9,4 +9,3 @@
   ansible.builtin.set_fact:
     dashmate_cmd: "{{ 'yarn dashmate' if dashmate_branch is defined else 'dashmate' }}"
     dashmate_cwd: "{{ dashmate_source_dir if dashmate_branch is defined else dashmate_home }}"
-    dashmate_config_arg: "--config={{ dash_network_name }}"
