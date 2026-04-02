@@ -133,7 +133,6 @@
     append: true
   when:
     - not (skip_dashmate_image_update | default(false))
-    - not dashmate_user_exists
 
 # ============================================================================
 # EARLY PERMISSION FIXES - Ensure all dashmate directories have correct ownership
