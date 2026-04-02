@@ -19,7 +19,10 @@ on:
 jobs:
   deploy:
     name: Deploy Dash Network
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
+    env:
+      ANSIBLE_HOST_KEY_CHECKING: "false"
 
     steps:
       - name: Checkout dash-network-deploy
@@ -30,29 +33,87 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-netaddr sshpass jq gnupg
+
       - name: Install Ansible
         run: |
-          python -m pip install --upgrade pip
-          pip install ansible
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible-core==2.16.3 jmespath
 
-      # Setup SSH keys
       - name: Install Ansible roles
         run: |
           ansible-galaxy install -r ansible/requirements.yml
+          mkdir -p ~/.ansible/roles
+          cp -r ansible/roles/* ~/.ansible/roles/
 
-      - name: Set up SSH Keys
+      - name: Set up GitHub SSH key
+        env:
+          EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
         run: |
           mkdir -p ~/.ssh
-
-          # GitHub deploy key for cloning configs
-          echo "${{ secrets.EVO_APP_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          # Server SSH key for connecting to nodes
-          echo "${{ secrets.DEPLOY_SERVER_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          cat > ~/.ssh/config << 'EOL'
+          Host github.com
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+          EOL
 
-          # SSH config
+          chmod 600 ~/.ssh/config
+
+      - name: Clone network configs
+        run: |
+          rm -rf networks
+          git clone git@github.com:dashpay/dash-network-configs.git networks
+
+      - name: Check network config
+        env:
+          NETWORK: ${{ github.event.inputs.network_name }}
+        run: |
+          if [[ ! -f "networks/$NETWORK.yml" ]]; then
+            echo "Error: Network config networks/$NETWORK.yml not found"
+            exit 1
+          fi
+
+          if [[ "$NETWORK" == devnet-* && ! -f "networks/$NETWORK.ssh.asc" ]]; then
+            echo "Error: Encrypted devnet SSH key networks/$NETWORK.ssh.asc not found"
+            exit 1
+          fi
+
+      - name: Prepare server SSH key
+        env:
+          NETWORK: ${{ github.event.inputs.network_name }}
+          DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
+          DEVNET_CI_GPG_PRIVATE_KEY: ${{ secrets.DEVNET_CI_GPG_PRIVATE_KEY }}
+          DEVNET_CI_GPG_PASSPHRASE: ${{ secrets.DEVNET_CI_GPG_PASSPHRASE }}
+        run: |
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          mkdir -p "$GNUPGHOME" ~/.ssh
+          chmod 700 "$GNUPGHOME" ~/.ssh
+
+          if [[ "$NETWORK" == devnet-* ]]; then
+            printf '%s' "$DEVNET_CI_GPG_PRIVATE_KEY" > "$RUNNER_TEMP/devnet-ci-private.asc"
+            gpg --batch --yes --pinentry-mode loopback \
+              --passphrase "$DEVNET_CI_GPG_PASSPHRASE" \
+              --import "$RUNNER_TEMP/devnet-ci-private.asc"
+            gpg --batch --yes --pinentry-mode loopback \
+              --passphrase "$DEVNET_CI_GPG_PASSPHRASE" \
+              --decrypt --output "$HOME/.ssh/id_rsa" "networks/$NETWORK.ssh.asc"
+          else
+            printf '%s\n' "$DEPLOY_SERVER_KEY" > "$HOME/.ssh/id_rsa"
+          fi
+
+          chmod 600 "$HOME/.ssh/id_rsa"
+          ssh-keygen -y -f "$HOME/.ssh/id_rsa" > "$HOME/.ssh/id_rsa.pub"
+          chmod 644 "$HOME/.ssh/id_rsa.pub"
+
           cat > ~/.ssh/config << 'EOL'
           Host github.com
             IdentityFile ~/.ssh/id_ed25519
@@ -67,51 +128,17 @@ jobs:
 
           chmod 600 ~/.ssh/config
 
-      # Set up Node.js and clone configs
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install dependencies
-        run: npm ci
-
-      # Clone network configs
-      - name: Clone network configs
+      - name: Create networks/.env
         run: |
-          rm -rf networks
-          git clone git@github.com:dashpay/dash-network-configs.git networks
+          cat > networks/.env << EOF2
+          PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
+          PUBLIC_KEY_PATH=$HOME/.ssh/id_rsa.pub
+          EOF2
 
-      # Verify network config exists
-      - name: Check network config
-        run: |
-          if [ ! -f "networks/${{ github.event.inputs.network_name }}.yml" ]; then
-            echo "Error: Network config networks/${{ github.event.inputs.network_name }}.yml not found"
-            exit 1
-          fi
-
-      # Install Ansible and Python dependencies
-      - name: Install Ansible and Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip python3-netaddr sshpass
-          pip3 install ansible
-
-      # Install required Ansible roles from Galaxy and local roles
-      - name: Install Ansible Roles
-        run: |
-          mkdir -p ~/.ansible/roles
-          cp -r ansible/roles/* ~/.ansible/roles/
-
-      # Run deploy
       - name: Run Deploy Script
         env:
-          ANSIBLE_CONFIG: ansible.cfg
           NETWORK: ${{ github.event.inputs.network_name }}
           NETWORK_PATH: networks/${{ github.event.inputs.network_name }}.yml
-          ANSIBLE_HOST_KEY_CHECKING: "false"
         run: |
-          pwd
-          ls -la
-          ls -la networks/
           chmod +x ./bin/github-deploy
-          ./bin/github-deploy -p ${{ github.event.inputs.network_name }} --tags ${{ github.event.inputs.deploy_tag }}
+          ./bin/github-deploy -p "$NETWORK" --tags "${{ github.event.inputs.deploy_tag }}"

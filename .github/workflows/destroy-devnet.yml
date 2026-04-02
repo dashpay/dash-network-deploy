@@ -85,7 +85,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip python3-netaddr sshpass jq
+          sudo apt-get install -y python3-pip python3-netaddr sshpass jq gnupg
 
       - name: Install Ansible
         run: |
@@ -98,33 +98,21 @@ jobs:
           mkdir -p ~/.ansible/roles
           cp -r ansible/roles/* ~/.ansible/roles/
 
-      - name: Set up SSH keys
+      - name: Set up GitHub SSH keys
         env:
-          DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
           EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
           EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
           mkdir -p ~/.ssh
 
-          # Server SSH key for connecting to nodes
-          printf '%s\n' "$DEPLOY_SERVER_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-          # Derive public key from private key
-          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
-          chmod 644 ~/.ssh/id_rsa.pub
-
-          # GitHub deploy key for cloning configs repo
           printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          # Optional write key for pushing to configs repo
           if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" ]]; then
             printf '%s\n' "$EVO_APP_DEPLOY_WRITE_KEY" > ~/.ssh/id_ed25519_write
             chmod 600 ~/.ssh/id_ed25519_write
           fi
 
-          # SSH config
           cat > ~/.ssh/config << 'EOL'
           Host github.com
             IdentityFile ~/.ssh/id_ed25519
@@ -139,34 +127,21 @@ jobs:
 
           chmod 600 ~/.ssh/config
 
-      - name: Create networks/.env
-        run: |
-          mkdir -p networks
-          cat > networks/.env << EOF
-          PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
-          PUBLIC_KEY_PATH=$HOME/.ssh/id_rsa.pub
-          AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-          AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-          AWS_REGION=$AWS_REGION
-          TERRAFORM_S3_BUCKET=$TERRAFORM_S3_BUCKET
-          TERRAFORM_S3_KEY=$TERRAFORM_S3_KEY
-          TERRAFORM_DYNAMODB_TABLE=$TERRAFORM_DYNAMODB_TABLE
-          EOF
-
       - name: Clone network configs
         run: |
+          mkdir -p networks
           rm -rf networks/.git
           git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs
 
-          # Copy config files for this devnet
           cp /tmp/dash-network-configs/$NETWORK_NAME.yml networks/ 2>/dev/null || true
           cp /tmp/dash-network-configs/$NETWORK_NAME.tfvars networks/ 2>/dev/null || true
           cp /tmp/dash-network-configs/$NETWORK_NAME.inventory networks/ 2>/dev/null || true
+          cp /tmp/dash-network-configs/$NETWORK_NAME.ssh.asc networks/ 2>/dev/null || true
 
       - name: Validate config files exist
         run: |
           MISSING=()
-          for ext in yml tfvars inventory; do
+          for ext in yml tfvars inventory ssh.asc; do
             if [[ ! -f "networks/$NETWORK_NAME.$ext" ]]; then
               MISSING+=("networks/$NETWORK_NAME.$ext")
             fi
@@ -185,6 +160,42 @@ jobs:
 
           echo "Found all config files for $NETWORK_NAME"
           ls -la networks/$NETWORK_NAME.*
+
+      - name: Prepare devnet SSH key
+        env:
+          DEVNET_CI_GPG_PRIVATE_KEY: ${{ secrets.DEVNET_CI_GPG_PRIVATE_KEY }}
+          DEVNET_CI_GPG_PASSPHRASE: ${{ secrets.DEVNET_CI_GPG_PASSPHRASE }}
+        run: |
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          mkdir -p "$GNUPGHOME" ~/.ssh
+          chmod 700 "$GNUPGHOME" ~/.ssh
+
+          printf '%s' "$DEVNET_CI_GPG_PRIVATE_KEY" > "$RUNNER_TEMP/devnet-ci-private.asc"
+          gpg --batch --yes --pinentry-mode loopback \
+            --passphrase "$DEVNET_CI_GPG_PASSPHRASE" \
+            --import "$RUNNER_TEMP/devnet-ci-private.asc"
+
+          gpg --batch --yes --pinentry-mode loopback \
+            --passphrase "$DEVNET_CI_GPG_PASSPHRASE" \
+            --decrypt --output "$HOME/.ssh/id_rsa" "networks/$NETWORK_NAME.ssh.asc"
+
+          chmod 600 "$HOME/.ssh/id_rsa"
+          ssh-keygen -y -f "$HOME/.ssh/id_rsa" > "$HOME/.ssh/id_rsa.pub"
+          chmod 644 "$HOME/.ssh/id_rsa.pub"
+
+      - name: Create networks/.env
+        run: |
+          mkdir -p networks
+          cat > networks/.env << EOF2
+          PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
+          PUBLIC_KEY_PATH=$HOME/.ssh/id_rsa.pub
+          AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+          AWS_REGION=$AWS_REGION
+          TERRAFORM_S3_BUCKET=$TERRAFORM_S3_BUCKET
+          TERRAFORM_S3_KEY=$TERRAFORM_S3_KEY
+          TERRAFORM_DYNAMODB_TABLE=$TERRAFORM_DYNAMODB_TABLE
+          EOF2
 
       - name: Print destruction plan
         run: |
@@ -226,14 +237,13 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          # Remove config files for this devnet
           git rm "$NETWORK_NAME.yml" 2>/dev/null || true
           git rm "$NETWORK_NAME.tfvars" 2>/dev/null || true
           git rm "$NETWORK_NAME.inventory" 2>/dev/null || true
+          git rm "$NETWORK_NAME.ssh.asc" 2>/dev/null || true
 
           git commit -m "Remove configs for $NETWORK_NAME (destroyed)" || echo "No changes to commit"
 
-          # Use optional write key if configured; otherwise try default key.
           if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" && -f "$HOME/.ssh/id_ed25519_write" ]]; then
             GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_write -o StrictHostKeyChecking=no' git push || {
               echo "::warning::Failed to push config removal with EVO_APP_DEPLOY_WRITE_KEY"
@@ -241,7 +251,8 @@ jobs:
             }
           else
             git push || {
-              echo "::warning::Failed to push config removal (likely read-only EVO_APP_DEPLOY_KEY). Configure secret EVO_APP_DEPLOY_WRITE_KEY with write access."
+              echo "::warning::Failed to push config removal."
+              echo "::warning::Configure EVO_APP_DEPLOY_WRITE_KEY with write access."
               exit 0
             }
           fi
