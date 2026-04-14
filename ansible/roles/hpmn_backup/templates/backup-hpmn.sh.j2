@@ -31,6 +31,8 @@ timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
 hostname_short="$(hostname -s)"
 network_name="${HPMN_BACKUP_NETWORK:-{{ hpmn_backup_network_name }}}"
 backup_prefix="${HPMN_BACKUP_PREFIX:-{{ hpmn_backup_s3_prefix }}}"
+sse_mode="${HPMN_BACKUP_S3_SSE_MODE:-{{ hpmn_backup_s3_sse_mode }}}"
+kms_key_id="${HPMN_BACKUP_S3_KMS_KEY_ID:-}"
 backup_label="$(sanitize_label "${HPMN_BACKUP_LABEL:-manual}")"
 backup_id="${timestamp}_${backup_label}"
 archive_path="{{ hpmn_backup_staging_dir }}/${hostname_short}_${network_name}_${backup_id}.tar.gz"
@@ -120,13 +122,29 @@ s3_uri="s3://${HPMN_BACKUP_BUCKET}/${s3_object_key}"
 
 aws_args=(s3 cp "$archive_path" "$s3_uri" --no-progress)
 
-if [[ -n "${HPMN_BACKUP_S3_SSE_MODE:-}" ]]; then
-  aws_args+=(--sse "${HPMN_BACKUP_S3_SSE_MODE}")
-fi
-
-if [[ -n "${HPMN_BACKUP_S3_KMS_KEY_ID:-}" ]]; then
-  aws_args+=(--sse-kms-key-id "${HPMN_BACKUP_S3_KMS_KEY_ID}")
-fi
+case "$sse_mode" in
+  "")
+    ;;
+  AES256)
+    aws_args+=(--sse AES256)
+    if [[ -n "$kms_key_id" ]]; then
+      echo "HPMN_BACKUP_S3_KMS_KEY_ID must be empty when SSE mode is AES256" >&2
+      exit 1
+    fi
+    ;;
+  aws:kms)
+    aws_args+=(--sse aws:kms)
+    if [[ -z "$kms_key_id" ]]; then
+      echo "HPMN_BACKUP_S3_KMS_KEY_ID is required when SSE mode is aws:kms" >&2
+      exit 1
+    fi
+    aws_args+=(--sse-kms-key-id "$kms_key_id")
+    ;;
+  *)
+    echo "Unsupported HPMN_BACKUP_S3_SSE_MODE: $sse_mode" >&2
+    exit 1
+    ;;
+esac
 
 aws "${aws_args[@]}"
 

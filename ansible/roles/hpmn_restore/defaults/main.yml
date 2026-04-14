@@ -1,0 +1,7 @@
+---
+hpmn_restore_script_path: /usr/local/bin/hpmn-restore
+hpmn_restore_staging_dir: /var/tmp/hpmn-restore
+hpmn_restore_network_name: "{{ dash_network_name | default('testnet') }}"
+hpmn_restore_dashmate_home: /home/dashmate
+hpmn_restore_start_services: false
+hpmn_restore_aws_region: ""

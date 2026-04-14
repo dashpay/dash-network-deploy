@@ -1,6 +1,7 @@
 ---
 - name: Install HP masternode backup tooling
   hosts: hp_masternodes
+  serial: "{{ hpmn_backup_install_serial | default(5) }}"
   become: true
   gather_facts: true
   roles:

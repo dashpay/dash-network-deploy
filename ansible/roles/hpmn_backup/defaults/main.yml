@@ -5,6 +5,7 @@ hpmn_backup_network_name: "{{ dash_network_name | default('testnet') }}"
 hpmn_backup_s3_prefix: hpmn-backups
 hpmn_backup_s3_sse_mode: AES256
 hpmn_backup_s3_kms_key_id: ""
+hpmn_backup_aws_region: ""
 hpmn_backup_static_paths:
   - /home/dashmate/.dashmate/config.json
   - "/home/dashmate/.dashmate/{{ hpmn_backup_network_name }}/platform/drive/tenderdash"

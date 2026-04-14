@@ -1,45 +1,47 @@
-name: Manual HP Masternode Backup
+name: HP Masternode Restore
 
 on:
   workflow_dispatch:
     inputs:
       network:
-        description: "Network to back up"
+        description: "Network to restore"
         required: true
         type: string
         default: testnet
-      backup_label:
-        description: "Short label stamped into the S3 object path"
-        required: true
-        type: string
-      host_limit:
-        description: "Ansible limit expression (start with a single hp-masternode-N for validation)"
+      target_host:
+        description: "Single HP masternode host to restore"
         required: true
         type: string
         default: hp-masternode-1
-      batch_size:
-        description: "How many HPMNs may run backup concurrently"
+      restore_s3_uri:
+        description: "Full S3 URI of the backup archive to restore"
         required: true
         type: string
-        default: "5"
-      install_backup_tooling:
-        description: "Install/update backup script prerequisites before running the backup"
+      install_restore_tooling:
+        description: "Install/update restore prerequisites before running restore"
         required: true
         type: boolean
         default: false
+      start_services:
+        description: "Start dashmate services directly from the restore script"
+        required: true
+        type: boolean
+        default: false
+      finalize_restore:
+        description: "Run the finalize playbook after restore to regenerate host-specific config and start services"
+        required: true
+        type: boolean
+        default: true
 
 jobs:
-  backup:
-    name: Run HP masternode backup
+  restore:
+    name: Restore HP masternode
     runs-on: ubuntu-22.04
-    timeout-minutes: 90
+    timeout-minutes: 120
     env:
       NETWORK_NAME: ${{ inputs.network }}
-      HOST_LIMIT: ${{ inputs.host_limit }}
-      HPMN_BACKUP_TRIGGER_LABEL: ${{ inputs.backup_label }}
-      HPMN_BACKUP_S3_BUCKET: ${{ vars.HPMN_BACKUP_S3_BUCKET }}
-      HPMN_BACKUP_S3_PREFIX: ${{ vars.HPMN_BACKUP_S3_PREFIX }}
-      HPMN_BACKUP_S3_SSE_MODE: ${{ vars.HPMN_BACKUP_S3_SSE_MODE }}
+      TARGET_HOST: ${{ inputs.target_host }}
+      HPMN_RESTORE_S3_URI: ${{ inputs.restore_s3_uri }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
@@ -98,48 +100,41 @@ jobs:
           rm -rf networks
           git clone git@github.com:dashpay/dash-network-configs.git networks
 
-      - name: Validate network files and backup config
+      - name: Validate restore config
         run: |
           test -f "networks/${NETWORK_NAME}.inventory"
           test -f "networks/${NETWORK_NAME}.yml"
-          test -n "$HPMN_BACKUP_S3_BUCKET"
-          test -n "$AWS_ACCESS_KEY_ID"
-          test -n "$AWS_SECRET_ACCESS_KEY"
+          test -n "$HPMN_RESTORE_S3_URI"
           test -n "$AWS_REGION"
-          case "${HPMN_BACKUP_S3_SSE_MODE:-AES256}" in
-            AES256)
-              ;;
-            aws:kms)
-              test -n "${{ secrets.HPMN_BACKUP_S3_KMS_KEY_ID }}"
-              ;;
-            *)
-              echo "Unsupported HPMN_BACKUP_S3_SSE_MODE: ${HPMN_BACKUP_S3_SSE_MODE}" >&2
-              exit 1
-              ;;
-          esac
 
-      - name: Install backup tooling on target HP masternodes
-        if: ${{ inputs.install_backup_tooling }}
+      - name: Install restore tooling on target host
+        if: ${{ inputs.install_restore_tooling }}
         run: |
           ansible-playbook \
             -i "networks/${NETWORK_NAME}.inventory" \
-            ansible/hpmn_backup_install.yml \
+            ansible/hpmn_restore_install.yml \
             -e "@networks/${NETWORK_NAME}.yml" \
             -e "dash_network_name=${NETWORK_NAME}" \
-            -e "hpmn_backup_install_serial=${{ inputs.batch_size }}" \
-            --limit "${HOST_LIMIT}"
+            --limit "${TARGET_HOST}"
 
-      - name: Trigger HP masternode backup
+      - name: Restore target host from S3 backup
         run: |
-          if [[ "${HPMN_BACKUP_S3_SSE_MODE:-AES256}" == "aws:kms" ]]; then
-            export HPMN_BACKUP_S3_KMS_KEY_ID="${{ secrets.HPMN_BACKUP_S3_KMS_KEY_ID }}"
-          fi
-
           ansible-playbook \
             -i "networks/${NETWORK_NAME}.inventory" \
-            ansible/hpmn_backup_run.yml \
+            ansible/hpmn_restore_run.yml \
             -e "@networks/${NETWORK_NAME}.yml" \
             -e "dash_network_name=${NETWORK_NAME}" \
-            -e "hpmn_backup_serial=${{ inputs.batch_size }}" \
-            -e "hpmn_backup_trigger_label=${HPMN_BACKUP_TRIGGER_LABEL}" \
-            --limit "${HOST_LIMIT}"
+            -e "hpmn_restore_s3_uri=${HPMN_RESTORE_S3_URI}" \
+            -e "hpmn_restore_start_services=${{ inputs.start_services }}" \
+            --limit "${TARGET_HOST}"
+
+      - name: Finalize restored target host
+        if: ${{ inputs.finalize_restore }}
+        run: |
+          ansible-playbook \
+            -i "networks/${NETWORK_NAME}.inventory" \
+            ansible/hpmn_restore_finalize.yml \
+            -e "@networks/${NETWORK_NAME}.yml" \
+            -e "dash_network_name=${NETWORK_NAME}" \
+            -e "dash_network=${NETWORK_NAME}" \
+            --limit "${TARGET_HOST}"

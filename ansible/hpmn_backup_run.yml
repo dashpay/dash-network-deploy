@@ -1,6 +1,7 @@
 ---
 - name: Run HP masternode backup on demand
   hosts: hp_masternodes
+  serial: "{{ hpmn_backup_serial | default(5) }}"
   become: true
   gather_facts: false
   tasks:
