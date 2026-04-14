@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+require_env() {
+  local var_name="$1"
+  if [[ -z "${!var_name:-}" ]]; then
+    echo "Missing required environment variable: ${var_name}" >&2
+    exit 1
+  fi
+}
+
+sanitize_label() {
+  local raw_label="$1"
+  local sanitized
+
+  sanitized="$(printf '%s' "$raw_label" | tr -cs 'A-Za-z0-9._-' '-')"
+  sanitized="${sanitized#-}"
+  sanitized="${sanitized%-}"
+
+  if [[ -z "$sanitized" ]]; then
+    sanitized="manual"
+  fi
+
+  printf '%s' "$sanitized"
+}
+
+require_env "HPMN_BACKUP_BUCKET"
+
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+hostname_short="$(hostname -s)"
+network_name="${HPMN_BACKUP_NETWORK:-{{ hpmn_backup_network_name }}}"
+backup_prefix="${HPMN_BACKUP_PREFIX:-{{ hpmn_backup_s3_prefix }}}"
+backup_label="$(sanitize_label "${HPMN_BACKUP_LABEL:-manual}")"
+backup_id="${timestamp}_${backup_label}"
+archive_path="{{ hpmn_backup_staging_dir }}/${hostname_short}_${network_name}_${backup_id}.tar.gz"
+stage_dir="$(mktemp -d "{{ hpmn_backup_staging_dir }}/stage.${hostname_short}.${timestamp}.XXXXXX")"
+payload_dir="${stage_dir}/payload"
+manifest_path="${stage_dir}/manifest.txt"
+
+cleanup() {
+  rm -rf "$stage_dir"
+  rm -f "$archive_path"
+}
+
+trap cleanup EXIT
+
+mkdir -p "$payload_dir"
+
+declare -A seen_paths=()
+
+record_path() {
+  local status="$1"
+  local category="$2"
+  local path="$3"
+
+  printf '%s|%s|%s\n' "$status" "$category" "$path" >> "$manifest_path"
+}
+
+copy_path() {
+  local category="$1"
+  local path="$2"
+
+  if [[ -n "${seen_paths["$path"]:-}" ]]; then
+    return 0
+  fi
+
+  seen_paths["$path"]=1
+
+  if [[ -e "$path" ]]; then
+    cp -a --parents "$path" "$payload_dir"
+    record_path "included" "$category" "$path"
+  else
+    record_path "missing" "$category" "$path"
+  fi
+}
+
+record_path "metadata" "hostname" "$hostname_short"
+record_path "metadata" "network" "$network_name"
+record_path "metadata" "backup_id" "$backup_id"
+record_path "metadata" "generated_at_utc" "$timestamp"
+
+{% for path in hpmn_backup_static_paths %}
+copy_path "static" "{{ path }}"
+{% endfor %}
+
+{% for path in hpmn_backup_tenderdash_volume_candidates %}
+copy_path "tenderdash_volume_candidate" "{{ path }}"
+{% endfor %}
+
+{% for path in hpmn_backup_llmq_candidates %}
+copy_path "llmq_candidate" "{{ path }}"
+{% endfor %}
+
+while IFS= read -r -d '' discovered_path; do
+  copy_path "dynamic_discovery" "$discovered_path"
+done < <(
+  find \
+{% for root in hpmn_backup_search_roots %}
+    "{{ root }}" \
+{% endfor %}
+    -type f \
+    \( -name 'priv_validator_key.json' -o -name 'priv_validator_state.json' -o -name 'node_key.json' \) \
+    -print0 2>/dev/null
+)
+
+while IFS= read -r -d '' discovered_llmq; do
+  copy_path "dynamic_llmq" "$discovered_llmq"
+done < <(
+  find /var/lib/docker/volumes \
+    -type d \
+    \( -path '*/.dashcore/testnet3/llmq' -o -path "*/.dashcore/${network_name}/llmq" \) \
+    -print0 2>/dev/null
+)
+
+tar -C "$stage_dir" -czf "$archive_path" manifest.txt payload
+
+s3_object_key="${backup_prefix%/}/${network_name}/${hostname_short}/${backup_id}.tar.gz"
+s3_uri="s3://${HPMN_BACKUP_BUCKET}/${s3_object_key}"
+
+aws_args=(s3 cp "$archive_path" "$s3_uri" --no-progress)
+
+if [[ -n "${HPMN_BACKUP_S3_SSE_MODE:-}" ]]; then
+  aws_args+=(--sse "${HPMN_BACKUP_S3_SSE_MODE}")
+fi
+
+if [[ -n "${HPMN_BACKUP_S3_KMS_KEY_ID:-}" ]]; then
+  aws_args+=(--sse-kms-key-id "${HPMN_BACKUP_S3_KMS_KEY_ID}")
+fi
+
+aws "${aws_args[@]}"
+
+echo "BACKUP_HOST=${hostname_short}"
+echo "BACKUP_ID=${backup_id}"
+echo "BACKUP_S3_URI=${s3_uri}"

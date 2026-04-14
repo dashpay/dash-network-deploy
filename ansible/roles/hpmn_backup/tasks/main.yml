@@ -1,0 +1,23 @@
+---
+- name: Install backup prerequisites
+  ansible.builtin.apt:
+    pkg:
+      - awscli
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure backup staging dir exists
+  ansible.builtin.file:
+    path: "{{ hpmn_backup_staging_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Install HP masternode backup script
+  ansible.builtin.template:
+    src: backup-hpmn.sh.j2
+    dest: "{{ hpmn_backup_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"

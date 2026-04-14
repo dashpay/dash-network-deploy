@@ -1,0 +1,9 @@
+---
+- name: Install HP masternode backup tooling
+  hosts: hp_masternodes
+  become: true
+  gather_facts: true
+  roles:
+    - role: hpmn_backup
+  tags:
+    - hpmn_backup_install
