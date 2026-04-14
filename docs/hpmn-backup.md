@@ -146,6 +146,8 @@ If it is `aws:kms`, set `HPMN_BACKUP_S3_KMS_KEY_ID`.
 
 Restore is intentionally single-host only. Use a replacement or disposable HP masternode, not the whole group.
 
+For the full tested step-by-step recovery procedure, including public IP cutover, replacement host provisioning, restore, finalize, verification, and troubleshooting, use [`docs/hpmn-recovery.md`](/home/vivek/code/dash-network-deploy/docs/hpmn-recovery.md).
+
 One-time restore tooling install:
 
 ```bash
