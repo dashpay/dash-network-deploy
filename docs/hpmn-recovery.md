@@ -37,6 +37,7 @@ The current HPMN backup captures:
 - `/home/dashmate/.dashmate/<network>/platform/drive/tenderdash`
 - `/home/dashmate/.dashmate/<network>/platform/gateway/ssl`
 - `/var/lib/docker/volumes/dashmate_<network>_drive_tenderdash/_data`
+- `/var/lib/docker/volumes/dashmate_<network>_drive_abci_data/_data`
 - `/var/lib/docker/volumes/dashmate_<network>_core_data/_data/.dashcore/testnet3/llmq`
 - runtime discovery hits for:
   - `priv_validator_key.json`
@@ -47,17 +48,21 @@ Each archive also contains `manifest.txt`.
 
 ## Recovery Outcome From Rehearsal
 
-The recovery rehearsal on `hp-masternode-1` proved:
+The first recovery rehearsal on `hp-masternode-1` proved:
 
 - the archive can be restored onto a replacement host
 - the old public IP can be moved to the replacement host
 - all dashmate services can be brought up on the replacement host
 - recovery requires a finalize step after restore so host-specific config is rerendered with the replacement node's real private IP
 
-The rehearsal also showed:
+The first rehearsal also exposed an incomplete backup scope:
 
-- the node may still need time to complete core sync before the network fully accepts it
-- `WAITING_FOR_PROTX` during sync does not immediately mean restore failed
+- the restored node eventually hit `votes extensions mismatch`
+- the node became `POSE_BANNED`
+- the missing runtime state was the Drive ABCI Docker volume at `/var/lib/docker/volumes/dashmate_<network>_drive_abci_data/_data`
+
+The backup role has since been updated to include that Drive ABCI volume.
+The next restore rehearsal must use a fresh archive created after that fix.
 
 ## Inputs You Need
 
@@ -105,7 +110,7 @@ The rehearsal also showed:
 Example:
 
 ```text
-s3://dash-testnet-hpmns-backups/hpmn-backups/testnet/hp-masternode-1/20260414T121720Z_second-test.tar.gz
+s3://dash-testnet-hpmns-backups/hpmn-backups/testnet/hp-masternode-1/20260414T154955Z_abci-fix-test.tar.gz
 ```
 
 Optional verification:
@@ -113,7 +118,7 @@ Optional verification:
 ```bash
 aws s3api head-object \
   --bucket dash-testnet-hpmns-backups \
-  --key hpmn-backups/testnet/hp-masternode-1/20260414T121720Z_second-test.tar.gz \
+  --key hpmn-backups/testnet/hp-masternode-1/20260414T154955Z_abci-fix-test.tar.gz \
   --region us-west-2
 ```
 
@@ -251,7 +256,7 @@ ansible-playbook \
   ansible/hpmn_restore_run.yml \
   -e @networks/testnet.yml \
   -e dash_network_name=testnet \
-  -e hpmn_restore_s3_uri=s3://dash-testnet-hpmns-backups/hpmn-backups/testnet/hp-masternode-1/20260414T121720Z_second-test.tar.gz \
+  -e hpmn_restore_s3_uri=s3://dash-testnet-hpmns-backups/hpmn-backups/testnet/hp-masternode-1/20260414T154955Z_abci-fix-test.tar.gz \
   -e hpmn_restore_start_services=false \
   --limit hp-masternode-1 \
   --private-key /home/vivek/.ssh/evo-app-deploy.rsa

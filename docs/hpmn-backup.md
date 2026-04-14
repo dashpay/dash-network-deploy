@@ -20,6 +20,8 @@ The current backup script captures the highest-value runtime state it can find w
 - `/home/dashmate/.dashmate/<network>/platform/gateway/ssl`
 - Tenderdash named volume data under:
   - `/var/lib/docker/volumes/dashmate_<network>_drive_tenderdash/_data`
+- Drive ABCI named volume data under:
+  - `/var/lib/docker/volumes/dashmate_<network>_drive_abci_data/_data`
 - likely Dash Core quorum state under Docker volume paths such as:
   - `/var/lib/docker/volumes/dashmate_<network>_core_data/_data/.dashcore/testnet3/llmq`
 

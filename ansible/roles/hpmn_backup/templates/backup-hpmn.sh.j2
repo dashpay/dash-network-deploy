@@ -62,6 +62,7 @@ record_path() {
 copy_path() {
   local category="$1"
   local path="$2"
+  local rsync_rc
 
   if [[ -n "${seen_paths["$path"]:-}" ]]; then
     return 0
@@ -70,7 +71,14 @@ copy_path() {
   seen_paths["$path"]=1
 
   if [[ -e "$path" ]]; then
-    cp -a --parents "$path" "$payload_dir"
+    set +e
+    rsync -aR "$path" "$payload_dir"
+    rsync_rc=$?
+    set -e
+    if [[ $rsync_rc -ne 0 && $rsync_rc -ne 24 ]]; then
+      echo "Failed to capture path with rsync: $path" >&2
+      return "$rsync_rc"
+    fi
     record_path "included" "$category" "$path"
   else
     record_path "missing" "$category" "$path"
@@ -88,6 +96,10 @@ copy_path "static" "{{ path }}"
 
 {% for path in hpmn_backup_tenderdash_volume_candidates %}
 copy_path "tenderdash_volume_candidate" "{{ path }}"
+{% endfor %}
+
+{% for path in hpmn_backup_drive_abci_volume_candidates %}
+copy_path "drive_abci_volume_candidate" "{{ path }}"
 {% endfor %}
 
 {% for path in hpmn_backup_llmq_candidates %}
