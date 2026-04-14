@@ -25,6 +25,9 @@ The current backup script captures the highest-value runtime state it can find w
 - likely Dash Core quorum state under Docker volume paths such as:
   - `/var/lib/docker/volumes/dashmate_<network>_core_data/_data/.dashcore/testnet3/llmq`
 
+It does not back up the full Dash Core chainstate.
+On restore, the node may need to resync Core from the network while preserving quorum and Platform runtime state.
+
 The script also performs runtime discovery for:
 
 - `priv_validator_key.json`
@@ -199,3 +202,7 @@ There is also a dedicated `workflow_dispatch` GitHub Actions workflow at `.githu
 - Do not bring up a second live validator with the same identity while the original HP masternode is still active.
 - The archive manifest should be reviewed before restore so we know exactly which runtime files were captured from that host.
 - On a replacement host, run the finalize step after restore so `config.json` and rendered dashmate files use the replacement node's actual inventory IPs.
+- The restore script now reapplies expected ownership to the restored Docker volumes before startup:
+  - Core: `1000:1000`
+  - Drive ABCI: `1000:1000`
+  - Tenderdash: `100:1000`

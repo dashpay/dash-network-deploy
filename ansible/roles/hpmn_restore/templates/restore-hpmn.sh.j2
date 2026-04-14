@@ -57,6 +57,12 @@ while IFS='|' read -r status category path; do
   fi
 done < "$manifest_path"
 
+{% for volume in hpmn_restore_volume_ownerships %}
+if [[ -e "{{ volume.path }}" ]]; then
+  chown -R {{ volume.owner }}:{{ volume.group }} "{{ volume.path }}"
+fi
+{% endfor %}
+
 if [[ "$start_services" == "true" ]] && command -v runuser >/dev/null 2>&1 && command -v dashmate >/dev/null 2>&1; then
   runuser -u dashmate -- sh -lc "cd '$dashmate_home' && dashmate start --force --verbose"
 fi

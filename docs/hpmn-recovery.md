@@ -44,6 +44,9 @@ The current HPMN backup captures:
   - `priv_validator_state.json`
   - `node_key.json`
 
+It does not capture the full Dash Core chainstate.
+Expect Core to resync from the network during recovery.
+
 Each archive also contains `manifest.txt`.
 
 ## Recovery Outcome From Rehearsal
@@ -63,6 +66,7 @@ The first rehearsal also exposed an incomplete backup scope:
 
 The backup role has since been updated to include that Drive ABCI volume.
 The next restore rehearsal must use a fresh archive created after that fix.
+The restore role also reapplies expected ownership to restored Docker volumes before startup so Core, Drive ABCI, and Tenderdash can write to their data paths.
 
 ## Inputs You Need
 

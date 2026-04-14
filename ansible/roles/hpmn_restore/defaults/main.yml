@@ -5,3 +5,13 @@ hpmn_restore_network_name: "{{ dash_network_name | default('testnet') }}"
 hpmn_restore_dashmate_home: /home/dashmate
 hpmn_restore_start_services: false
 hpmn_restore_aws_region: ""
+hpmn_restore_volume_ownerships:
+  - path: "/var/lib/docker/volumes/dashmate_{{ hpmn_restore_network_name }}_core_data/_data"
+    owner: "1000"
+    group: "1000"
+  - path: "/var/lib/docker/volumes/dashmate_{{ hpmn_restore_network_name }}_drive_abci_data/_data"
+    owner: "1000"
+    group: "1000"
+  - path: "/var/lib/docker/volumes/dashmate_{{ hpmn_restore_network_name }}_drive_tenderdash/_data"
+    owner: "100"
+    group: "1000"
