@@ -1,0 +1,10 @@
+# /etc/sudoers.d/dashmon
+# Allow dashmon user to run read-only monitoring commands only.
+# Both rule sets present on all nodes; unused rules are harmless.
+
+# HP masternodes: dashmate status as dashmate user
+dashmon ALL=(dashmate) NOPASSWD: /usr/bin/dashmate status
+
+# Regular masternodes: dash-cli commands as ubuntu user
+dashmon ALL=(ubuntu) NOPASSWD: /usr/local/bin/dash-cli getblockchaininfo
+dashmon ALL=(ubuntu) NOPASSWD: /usr/local/bin/dash-cli masternode status
