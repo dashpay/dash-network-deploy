@@ -12,9 +12,9 @@
     dest: "{{ status_dashboard_path }}/inventory"
     mode: "0644"
 
-- name: Copy SSH deploy key for status dashboard
+- name: Copy SSH monitoring key for status dashboard
   ansible.builtin.copy:
-    src: "{{ lookup('env', 'PRIVATE_KEY_PATH') | default('~/.ssh/evo-app-deploy.rsa', true) }}"
+    src: "{{ status_dashboard_ssh_private_key_path }}"
     dest: "{{ status_dashboard_path }}/ssh_key"
     mode: "0600"
     owner: root

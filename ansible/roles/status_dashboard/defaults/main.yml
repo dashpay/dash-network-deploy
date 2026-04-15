@@ -3,5 +3,7 @@
 status_dashboard_image: dashpay/status:latest
 status_dashboard_port: 3010
 status_dashboard_path: "{{ dashd_home }}/status_dashboard"
+status_dashboard_ssh_private_key_path: "{{ lookup('env', 'STATUS_DASHBOARD_SSH_KEY_PATH') | default('~/.ssh/dashmon-testnet', true) }}"
+status_dashboard_ssh_user: dashmon
 status_dashboard_poll_interval: 10000
 status_dashboard_poll_concurrency: 20
