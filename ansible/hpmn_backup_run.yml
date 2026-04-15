@@ -1,0 +1,13 @@
+---
+- name: Run HP masternode backup on demand
+  hosts: hp_masternodes
+  serial: "{{ hpmn_backup_serial | default(5) }}"
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Execute HP masternode backup role
+      ansible.builtin.include_role:
+        name: hpmn_backup
+        tasks_from: run
+  tags:
+    - hpmn_backup_run

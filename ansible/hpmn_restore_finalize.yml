@@ -1,0 +1,25 @@
+---
+- name: Finalize restored HP masternode
+  hosts: hp_masternodes
+  serial: 1
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Enforce single-host finalize
+      ansible.builtin.assert:
+        that:
+          - ansible_play_hosts_all | length == 1
+        fail_msg: Finalize must target exactly one HP masternode host.
+      run_once: true
+
+    - name: Load HP masternode config for finalize
+      ansible.builtin.set_fact:
+        node: "{{ hp_masternodes[inventory_hostname] }}"
+      when: inventory_hostname in hp_masternodes
+
+  roles:
+    - role: dash_cli
+    - role: dashmate
+
+  tags:
+    - hpmn_restore_finalize

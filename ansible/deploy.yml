@@ -51,6 +51,7 @@
     - name: Update apt cache and install jq
       ansible.builtin.apt:
         pkg:
+          - acl
           - jq
           - unzip
         update_cache: true

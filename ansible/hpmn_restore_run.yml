@@ -1,0 +1,20 @@
+---
+- name: Restore HP masternode from backup
+  hosts: hp_masternodes
+  serial: 1
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Enforce single-host restore
+      ansible.builtin.assert:
+        that:
+          - ansible_play_hosts_all | length == 1
+        fail_msg: Restore must target exactly one HP masternode host.
+      run_once: true
+  tasks:
+    - name: Execute HP masternode restore role
+      ansible.builtin.include_role:
+        name: hpmn_restore
+        tasks_from: run
+  tags:
+    - hpmn_restore_run
