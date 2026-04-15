@@ -18,10 +18,19 @@
 - name: Install dashmon authorized key with forced command
   ansible.builtin.copy:
     dest: "{{ status_monitoring_home }}/.ssh/authorized_keys"
-    content: "command=\"{{ status_monitoring_forced_command }}\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty {{ lookup('file', role_path + '/files/dashmon-testnet.pub') | trim }}\n"
+    content: >-
+      {{ status_monitoring_authorized_key_options | join(',') }}
+      {{ lookup('file', role_path + '/files/dashmon-testnet.pub') | trim }}
     owner: "{{ status_monitoring_user }}"
     group: "{{ status_monitoring_user }}"
     mode: "0600"
+  vars:
+    status_monitoring_authorized_key_options:
+      - 'command="{{ status_monitoring_forced_command }}"'
+      - no-port-forwarding
+      - no-X11-forwarding
+      - no-agent-forwarding
+      - no-pty
 
 - name: Copy dashmon-check monitoring script
   ansible.builtin.copy:
