@@ -6,7 +6,12 @@
     hpmn_backup_trigger_label_resolved: "{{ hpmn_backup_trigger_label | default(lookup('env', 'HPMN_BACKUP_TRIGGER_LABEL'), true) | default('manual', true) }}"
     hpmn_backup_sse_mode_resolved: "{{ hpmn_backup_s3_sse_mode | default(lookup('env', 'HPMN_BACKUP_S3_SSE_MODE'), true) }}"
     hpmn_backup_kms_key_id_resolved: "{{ hpmn_backup_s3_kms_key_id | default(lookup('env', 'HPMN_BACKUP_S3_KMS_KEY_ID'), true) }}"
-    hpmn_backup_aws_region_resolved: "{{ hpmn_backup_aws_region | default(lookup('env', 'AWS_REGION'), true) | default(lookup('env', 'AWS_DEFAULT_REGION'), true) }}"
+    hpmn_backup_aws_region_resolved: >-
+      {{
+        hpmn_backup_aws_region
+        | default(lookup('env', 'AWS_REGION'), true)
+        | default(lookup('env', 'AWS_DEFAULT_REGION'), true)
+      }}
 
 - name: Validate controller environment for manual backup run
   ansible.builtin.assert:

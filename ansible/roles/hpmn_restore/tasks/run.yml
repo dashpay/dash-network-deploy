@@ -3,7 +3,12 @@
   ansible.builtin.set_fact:
     hpmn_restore_s3_uri_resolved: "{{ hpmn_restore_s3_uri | default(lookup('env', 'HPMN_RESTORE_S3_URI'), true) }}"
     hpmn_restore_start_services_resolved: "{{ hpmn_restore_start_services | bool }}"
-    hpmn_restore_aws_region_resolved: "{{ hpmn_restore_aws_region | default(lookup('env', 'AWS_REGION'), true) | default(lookup('env', 'AWS_DEFAULT_REGION'), true) }}"
+    hpmn_restore_aws_region_resolved: >-
+      {{
+        hpmn_restore_aws_region
+        | default(lookup('env', 'AWS_REGION'), true)
+        | default(lookup('env', 'AWS_DEFAULT_REGION'), true)
+      }}
 
 - name: Validate restore inputs
   ansible.builtin.assert:
