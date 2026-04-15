@@ -10,7 +10,7 @@ services:
     environment:
       - INVENTORY_PATH=/app/data/inventory
       - SSH_KEY_PATH=/app/data/ssh_key
-      - SSH_USER=ubuntu
+      - SSH_USER={{ status_dashboard_ssh_user }}
       - SSH_COMMAND=/usr/local/bin/dashmon-check
       - SSH_PORT=22
       - POLL_INTERVAL_MS={{ status_dashboard_poll_interval }}

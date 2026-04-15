@@ -1,0 +1,5 @@
+---
+
+status_monitoring_user: dashmon
+status_monitoring_home: "/home/{{ status_monitoring_user }}"
+status_monitoring_forced_command: /usr/local/bin/dashmon-check
