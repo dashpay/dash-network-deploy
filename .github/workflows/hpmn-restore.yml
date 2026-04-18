@@ -1,0 +1,140 @@
+name: HP Masternode Restore
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: "Network to restore"
+        required: true
+        type: string
+        default: testnet
+      target_host:
+        description: "Single HP masternode host to restore"
+        required: true
+        type: string
+        default: hp-masternode-1
+      restore_s3_uri:
+        description: "Full S3 URI of the backup archive to restore"
+        required: true
+        type: string
+      install_restore_tooling:
+        description: "Install/update restore prerequisites before running restore"
+        required: true
+        type: boolean
+        default: false
+      start_services:
+        description: "Start dashmate services directly from the restore script"
+        required: true
+        type: boolean
+        default: false
+      finalize_restore:
+        description: "Run the finalize playbook after restore to regenerate host-specific config and start services"
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  restore:
+    name: Restore HP masternode
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      NETWORK_NAME: ${{ inputs.network }}
+      TARGET_HOST: ${{ inputs.target_host }}
+      HPMN_RESTORE_S3_URI: ${{ inputs.restore_s3_uri }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ANSIBLE_HOST_KEY_CHECKING: "false"
+      ANSIBLE_CONFIG: ansible/ansible.cfg
+
+    steps:
+      - name: Checkout dash-network-deploy
+        uses: actions/checkout@v4
+
+      - name: Install controller dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-netaddr
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible-core==2.16.3 jmespath
+
+      - name: Install Ansible roles and collections
+        run: |
+          ansible-galaxy install -r ansible/requirements.yml
+          mkdir -p ~/.ansible/roles
+          cp -r ansible/roles/* ~/.ansible/roles/
+
+      - name: Set up SSH keys
+        env:
+          DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
+          EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+
+          printf '%s\n' "$DEPLOY_SERVER_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+          chmod 644 ~/.ssh/id_rsa.pub
+
+          printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          cat > ~/.ssh/config << 'EOL'
+          Host github.com
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+
+          Host *
+            IdentityFile ~/.ssh/id_rsa
+            User ubuntu
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOL
+
+          chmod 600 ~/.ssh/config
+
+      - name: Clone network configs
+        run: |
+          rm -rf networks
+          git clone git@github.com:dashpay/dash-network-configs.git networks
+
+      - name: Validate restore config
+        run: |
+          test -f "networks/${NETWORK_NAME}.inventory"
+          test -f "networks/${NETWORK_NAME}.yml"
+          test -n "$HPMN_RESTORE_S3_URI"
+          test -n "$AWS_REGION"
+
+      - name: Install restore tooling on target host
+        if: ${{ inputs.install_restore_tooling }}
+        run: |
+          ansible-playbook \
+            -i "networks/${NETWORK_NAME}.inventory" \
+            ansible/hpmn_restore_install.yml \
+            -e "@networks/${NETWORK_NAME}.yml" \
+            -e "dash_network_name=${NETWORK_NAME}" \
+            --limit "${TARGET_HOST}"
+
+      - name: Restore target host from S3 backup
+        run: |
+          ansible-playbook \
+            -i "networks/${NETWORK_NAME}.inventory" \
+            ansible/hpmn_restore_run.yml \
+            -e "@networks/${NETWORK_NAME}.yml" \
+            -e "dash_network_name=${NETWORK_NAME}" \
+            -e "hpmn_restore_s3_uri=${HPMN_RESTORE_S3_URI}" \
+            -e "hpmn_restore_start_services=${{ inputs.start_services }}" \
+            --limit "${TARGET_HOST}"
+
+      - name: Finalize restored target host
+        if: ${{ inputs.finalize_restore }}
+        run: |
+          ansible-playbook \
+            -i "networks/${NETWORK_NAME}.inventory" \
+            ansible/hpmn_restore_finalize.yml \
+            -e "@networks/${NETWORK_NAME}.yml" \
+            -e "dash_network_name=${NETWORK_NAME}" \
+            -e "dash_network=${NETWORK_NAME}" \
+            --limit "${TARGET_HOST}"

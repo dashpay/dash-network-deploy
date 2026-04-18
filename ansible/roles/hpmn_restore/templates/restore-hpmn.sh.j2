@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+require_env() {
+  local var_name="$1"
+  if [[ -z "${!var_name:-}" ]]; then
+    echo "Missing required environment variable: ${var_name}" >&2
+    exit 1
+  fi
+}
+
+require_env "HPMN_RESTORE_S3_URI"
+
+restore_root="{{ hpmn_restore_staging_dir }}"
+network_name="${HPMN_RESTORE_NETWORK:-{{ hpmn_restore_network_name }}}"
+dashmate_home="${HPMN_RESTORE_DASHMATE_HOME:-{{ hpmn_restore_dashmate_home }}}"
+restore_archive="${restore_root}/restore.tar.gz"
+restore_dir="$(mktemp -d "${restore_root}/restore.XXXXXX")"
+payload_dir="${restore_dir}/payload"
+manifest_path="${restore_dir}/manifest.txt"
+start_services="${HPMN_RESTORE_START_SERVICES:-true}"
+
+cleanup() {
+  rm -rf "$restore_dir"
+  rm -f "$restore_archive"
+}
+
+trap cleanup EXIT
+
+mkdir -p "$restore_root"
+
+if command -v runuser >/dev/null 2>&1 && command -v dashmate >/dev/null 2>&1; then
+  runuser -u dashmate -- sh -lc "cd '$dashmate_home' && dashmate stop --verbose" || true
+fi
+
+docker ps --format '{% raw %}{{.Names}}{% endraw %}' | grep "^dashmate_${network_name}[-_]" | xargs -r docker stop >/dev/null 2>&1 || true
+
+aws s3 cp "$HPMN_RESTORE_S3_URI" "$restore_archive" --no-progress
+tar -xzf "$restore_archive" -C "$restore_dir"
+
+if [[ ! -f "$manifest_path" ]]; then
+  echo "Restore manifest missing from archive" >&2
+  exit 1
+fi
+
+while IFS='|' read -r status category path; do
+  [[ "$status" == "included" ]] || continue
+  source_path="${payload_dir}${path}"
+
+  if [[ -d "$source_path" ]]; then
+    mkdir -p "$path"
+    rsync -a --delete "${source_path}/" "${path}/"
+  elif [[ -f "$source_path" ]]; then
+    mkdir -p "$(dirname "$path")"
+    rsync -a "$source_path" "$path"
+  fi
+done < "$manifest_path"
+
+{% for volume in hpmn_restore_volume_ownerships %}
+if [[ -e "{{ volume.path }}" ]]; then
+  chown -R {{ volume.owner }}:{{ volume.group }} "{{ volume.path }}"
+fi
+{% endfor %}
+
+if [[ "$start_services" == "true" ]] && command -v runuser >/dev/null 2>&1 && command -v dashmate >/dev/null 2>&1; then
+  runuser -u dashmate -- sh -lc "cd '$dashmate_home' && dashmate start --force --verbose"
+fi
+
+echo "RESTORE_S3_URI=${HPMN_RESTORE_S3_URI}"
+echo "RESTORE_HOST=$(hostname -s)"
+echo "RESTORE_START_SERVICES=${start_services}"

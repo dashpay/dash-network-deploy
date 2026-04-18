@@ -1,0 +1,145 @@
+name: Manual HP Masternode Backup
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: "Network to back up"
+        required: true
+        type: string
+        default: testnet
+      backup_label:
+        description: "Short label stamped into the S3 object path"
+        required: true
+        type: string
+      host_limit:
+        description: "Ansible limit expression (start with a single hp-masternode-N for validation)"
+        required: true
+        type: string
+        default: hp-masternode-1
+      batch_size:
+        description: "How many HPMNs may run backup concurrently"
+        required: true
+        type: string
+        default: "5"
+      install_backup_tooling:
+        description: "Install/update backup script prerequisites before running the backup"
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  backup:
+    name: Run HP masternode backup
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      NETWORK_NAME: ${{ inputs.network }}
+      HOST_LIMIT: ${{ inputs.host_limit }}
+      HPMN_BACKUP_TRIGGER_LABEL: ${{ inputs.backup_label }}
+      HPMN_BACKUP_S3_BUCKET: ${{ vars.HPMN_BACKUP_S3_BUCKET }}
+      HPMN_BACKUP_S3_PREFIX: ${{ vars.HPMN_BACKUP_S3_PREFIX }}
+      HPMN_BACKUP_S3_SSE_MODE: ${{ vars.HPMN_BACKUP_S3_SSE_MODE }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ANSIBLE_HOST_KEY_CHECKING: "false"
+      ANSIBLE_CONFIG: ansible/ansible.cfg
+
+    steps:
+      - name: Checkout dash-network-deploy
+        uses: actions/checkout@v4
+
+      - name: Install controller dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-netaddr
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible-core==2.16.3 jmespath
+
+      - name: Install Ansible roles and collections
+        run: |
+          ansible-galaxy install -r ansible/requirements.yml
+          mkdir -p ~/.ansible/roles
+          cp -r ansible/roles/* ~/.ansible/roles/
+
+      - name: Set up SSH keys
+        env:
+          DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
+          EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+
+          printf '%s\n' "$DEPLOY_SERVER_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+          chmod 644 ~/.ssh/id_rsa.pub
+
+          printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          cat > ~/.ssh/config << 'EOL'
+          Host github.com
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+
+          Host *
+            IdentityFile ~/.ssh/id_rsa
+            User ubuntu
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOL
+
+          chmod 600 ~/.ssh/config
+
+      - name: Clone network configs
+        run: |
+          rm -rf networks
+          git clone git@github.com:dashpay/dash-network-configs.git networks
+
+      - name: Validate network files and backup config
+        run: |
+          test -f "networks/${NETWORK_NAME}.inventory"
+          test -f "networks/${NETWORK_NAME}.yml"
+          test -n "$HPMN_BACKUP_S3_BUCKET"
+          test -n "$AWS_ACCESS_KEY_ID"
+          test -n "$AWS_SECRET_ACCESS_KEY"
+          test -n "$AWS_REGION"
+          case "${HPMN_BACKUP_S3_SSE_MODE:-AES256}" in
+            AES256)
+              ;;
+            aws:kms)
+              test -n "${{ secrets.HPMN_BACKUP_S3_KMS_KEY_ID }}"
+              ;;
+            *)
+              echo "Unsupported HPMN_BACKUP_S3_SSE_MODE: ${HPMN_BACKUP_S3_SSE_MODE}" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Install backup tooling on target HP masternodes
+        if: ${{ inputs.install_backup_tooling }}
+        run: |
+          ansible-playbook \
+            -i "networks/${NETWORK_NAME}.inventory" \
+            ansible/hpmn_backup_install.yml \
+            -e "@networks/${NETWORK_NAME}.yml" \
+            -e "dash_network_name=${NETWORK_NAME}" \
+            -e "hpmn_backup_install_serial=${{ inputs.batch_size }}" \
+            --limit "${HOST_LIMIT}"
+
+      - name: Trigger HP masternode backup
+        run: |
+          if [[ "${HPMN_BACKUP_S3_SSE_MODE:-AES256}" == "aws:kms" ]]; then
+            export HPMN_BACKUP_S3_KMS_KEY_ID="${{ secrets.HPMN_BACKUP_S3_KMS_KEY_ID }}"
+          fi
+
+          ansible-playbook \
+            -i "networks/${NETWORK_NAME}.inventory" \
+            ansible/hpmn_backup_run.yml \
+            -e "@networks/${NETWORK_NAME}.yml" \
+            -e "dash_network_name=${NETWORK_NAME}" \
+            -e "hpmn_backup_serial=${{ inputs.batch_size }}" \
+            -e "hpmn_backup_trigger_label=${HPMN_BACKUP_TRIGGER_LABEL}" \
+            --limit "${HOST_LIMIT}"

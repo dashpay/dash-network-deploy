@@ -145,7 +145,6 @@ seed-1
       await fs.rm(tempDir, { recursive: true, force: true });
     });
   });
-
   describe('issue helpers', () => {
     it('should use a deterministic issue title and public body', () => {
       expect(buildIssueTitle('hp-masternode-7')).to.equal('[Testnet Recovery] hp-masternode-7');

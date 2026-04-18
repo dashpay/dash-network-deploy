@@ -133,7 +133,7 @@
     append: true
   when:
     - not (skip_dashmate_image_update | default(false))
-    - not dashmate_user_exists
+    - dashmate_user_exists
 
 # ============================================================================
 # EARLY PERMISSION FIXES - Ensure all dashmate directories have correct ownership
@@ -285,6 +285,7 @@
     - not (skip_dashmate_image_update | default(false))
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - dashmate_config_result is defined
+    - dashmate_config_result.rc is defined
     - dashmate_config_result.rc == 0
 
 - name: Set ZeroSSL certificate ID from config
@@ -294,6 +295,7 @@
     - not (skip_dashmate_image_update | default(false))
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - dashmate_config_result is defined
+    - dashmate_config_result.rc is defined
     - dashmate_config_result.rc == 0
     - dashmate_zerossl_id_result is defined
     - dashmate_zerossl_id_result.stdout != 'null'

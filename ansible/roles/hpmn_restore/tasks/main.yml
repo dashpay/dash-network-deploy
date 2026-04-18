@@ -1,0 +1,24 @@
+---
+- name: Install restore prerequisites
+  ansible.builtin.apt:
+    pkg:
+      - awscli
+      - rsync
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure restore staging dir exists
+  ansible.builtin.file:
+    path: "{{ hpmn_restore_staging_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Install HP masternode restore script
+  ansible.builtin.template:
+    src: restore-hpmn.sh.j2
+    dest: "{{ hpmn_restore_script_path }}"
+    owner: root
+    group: root
+    mode: "0750"
