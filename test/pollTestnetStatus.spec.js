@@ -1,3 +1,6 @@
+const fs = require('fs').promises;
+const os = require('os');
+const path = require('path');
 const { expect } = require('chai');
 
 const {
@@ -7,6 +10,7 @@ const {
   filterIncidentsWithoutOpenIssues,
   findRecoveryIncidents,
   parseExpectedNodeNames,
+  readExpectedNodeNames,
 } = require('../lib/testnetStatus/pollTestnetStatus');
 
 describe('pollTestnetStatus', () => {
@@ -121,6 +125,26 @@ seed-1
     });
   });
 
+  describe('readExpectedNodeNames', () => {
+    it('should fall back to the tracked expected-node list when inventory is missing', async () => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'poll-testnet-status-'));
+      const fallbackPath = path.join(tempDir, 'expectedTestnetNodes.json');
+
+      await fs.writeFile(
+        fallbackPath,
+        JSON.stringify(['masternode-1', 'hp-masternode-1']),
+      );
+
+      const expectedNodeNames = await readExpectedNodeNames(
+        path.join(tempDir, 'missing.inventory'),
+        fallbackPath,
+      );
+
+      expect(expectedNodeNames).to.deep.equal(['masternode-1', 'hp-masternode-1']);
+
+      await fs.rm(tempDir, { recursive: true, force: true });
+    });
+  });
   describe('issue helpers', () => {
     it('should use a deterministic issue title and public body', () => {
       expect(buildIssueTitle('hp-masternode-7')).to.equal('[Testnet Recovery] hp-masternode-7');
