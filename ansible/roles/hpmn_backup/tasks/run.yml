@@ -1,0 +1,49 @@
+---
+- name: Resolve backup upload configuration
+  ansible.builtin.set_fact:
+    hpmn_backup_bucket_resolved: "{{ hpmn_backup_s3_bucket | default(lookup('env', 'HPMN_BACKUP_S3_BUCKET'), true) }}"
+    hpmn_backup_prefix_resolved: "{{ lookup('env', 'HPMN_BACKUP_S3_PREFIX') | default(hpmn_backup_s3_prefix, true) }}"
+    hpmn_backup_trigger_label_resolved: "{{ hpmn_backup_trigger_label | default(lookup('env', 'HPMN_BACKUP_TRIGGER_LABEL'), true) | default('manual', true) }}"
+    hpmn_backup_sse_mode_resolved: "{{ hpmn_backup_s3_sse_mode | default(lookup('env', 'HPMN_BACKUP_S3_SSE_MODE'), true) }}"
+    hpmn_backup_kms_key_id_resolved: "{{ hpmn_backup_s3_kms_key_id | default(lookup('env', 'HPMN_BACKUP_S3_KMS_KEY_ID'), true) }}"
+    hpmn_backup_aws_region_resolved: >-
+      {{
+        hpmn_backup_aws_region
+        | default(lookup('env', 'AWS_REGION'), true)
+        | default(lookup('env', 'AWS_DEFAULT_REGION'), true)
+      }}
+
+- name: Validate controller environment for manual backup run
+  ansible.builtin.assert:
+    that:
+      - hpmn_backup_bucket_resolved | length > 0
+      - hpmn_backup_aws_region_resolved | length > 0
+      - hpmn_backup_sse_mode_resolved in ['AES256', 'aws:kms']
+      - hpmn_backup_sse_mode_resolved == 'aws:kms' or hpmn_backup_kms_key_id_resolved | length == 0
+      - hpmn_backup_sse_mode_resolved != 'aws:kms' or hpmn_backup_kms_key_id_resolved | length > 0
+    fail_msg: >-
+      Manual HPMN backup requires HPMN_BACKUP_S3_BUCKET, AWS_REGION, and a valid SSE configuration.
+      Use AES256 with no KMS key, or aws:kms with HPMN_BACKUP_S3_KMS_KEY_ID.
+
+- name: Run HP masternode backup script
+  ansible.builtin.command:
+    argv:
+      - "{{ hpmn_backup_script_path }}"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+    AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+    AWS_SESSION_TOKEN: "{{ lookup('env', 'AWS_SESSION_TOKEN') }}"
+    AWS_REGION: "{{ hpmn_backup_aws_region_resolved }}"
+    AWS_DEFAULT_REGION: "{{ hpmn_backup_aws_region_resolved }}"
+    HPMN_BACKUP_BUCKET: "{{ hpmn_backup_bucket_resolved }}"
+    HPMN_BACKUP_PREFIX: "{{ hpmn_backup_prefix_resolved }}"
+    HPMN_BACKUP_LABEL: "{{ hpmn_backup_trigger_label_resolved }}"
+    HPMN_BACKUP_NETWORK: "{{ hpmn_backup_network_name }}"
+    HPMN_BACKUP_S3_SSE_MODE: "{{ hpmn_backup_sse_mode_resolved }}"
+    HPMN_BACKUP_S3_KMS_KEY_ID: "{{ hpmn_backup_kms_key_id_resolved }}"
+  register: hpmn_backup_run_result
+  changed_when: true
+
+- name: Show backup upload result
+  ansible.builtin.debug:
+    msg: "{{ hpmn_backup_run_result.stdout_lines | default([hpmn_backup_run_result.stdout]) }}"

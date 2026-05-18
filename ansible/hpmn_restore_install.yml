@@ -1,0 +1,10 @@
+---
+- name: Install HP masternode restore tooling
+  hosts: hp_masternodes
+  serial: 1
+  become: true
+  gather_facts: true
+  roles:
+    - role: hpmn_restore
+  tags:
+    - hpmn_restore_install

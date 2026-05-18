@@ -1,0 +1,46 @@
+name: Poll Testnet Status
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */2 * * *'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  poll-testnet-status:
+    name: Poll testnet status and open recovery issues
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    concurrency:
+      group: poll-testnet-status
+      cancel-in-progress: false
+
+    env:
+      GH_TOKEN: ${{ secrets.INFRA_ISSUES_TOKEN }}
+      TESTNET_RECOVERY_ASSIGNEE: dashinfraclaw
+      TESTNET_RECOVERY_ISSUE_REPOSITORY: dashpay/infra
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate cross-repo issue token
+        run: |
+          if [[ -z "${GH_TOKEN}" ]]; then
+            echo "INFRA_ISSUES_TOKEN secret is required to create issues in dashpay/infra"
+            exit 1
+          fi
+
+      - name: Poll status API and open recovery issues
+        run: node bin/poll-testnet-status.js

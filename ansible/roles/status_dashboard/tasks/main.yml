@@ -1,31 +1,50 @@
 ---
 
+- name: Check status dashboard SSH key on controller
+  ansible.builtin.stat:
+    path: "{{ status_dashboard_ssh_private_key_path }}"
+  register: status_dashboard_ssh_key_stat
+  delegate_to: localhost
+  become: false
+
+- name: Skip status dashboard when controller SSH key is missing
+  ansible.builtin.debug:
+    msg: >-
+      Skipping status dashboard because SSH monitoring key was not found at
+      {{ status_dashboard_ssh_private_key_path }}.
+      Set STATUS_DASHBOARD_SSH_KEY_PATH on the controller to enable it.
+  when: not status_dashboard_ssh_key_stat.stat.exists
+
 - name: Create status dashboard directory
   ansible.builtin.file:
     path: "{{ status_dashboard_path }}"
     state: directory
     recurse: true
+  when: status_dashboard_ssh_key_stat.stat.exists
 
 - name: Copy inventory file for status dashboard
   ansible.builtin.copy:
     src: "{{ inventory_file }}"
     dest: "{{ status_dashboard_path }}/inventory"
     mode: "0644"
+  when: status_dashboard_ssh_key_stat.stat.exists
 
-- name: Copy SSH deploy key for status dashboard
+- name: Copy SSH monitoring key for status dashboard
   ansible.builtin.copy:
-    src: "{{ lookup('env', 'PRIVATE_KEY_PATH') | default('~/.ssh/evo-app-deploy.rsa', true) }}"
+    src: "{{ status_dashboard_ssh_private_key_path }}"
     dest: "{{ status_dashboard_path }}/ssh_key"
     mode: "0600"
     owner: root
     group: root
   no_log: true
+  when: status_dashboard_ssh_key_stat.stat.exists
 
 - name: Deploy status dashboard docker-compose
   ansible.builtin.template:
     src: docker-compose.yml.j2
     dest: "{{ status_dashboard_path }}/docker-compose.yml"
     mode: "0644"
+  when: status_dashboard_ssh_key_stat.stat.exists
 
 - name: Start status dashboard
   community.docker.docker_compose_v2:
@@ -33,3 +52,4 @@
     state: present
     pull: "{{ 'always' if (force_dashmate_reinstall | default(false) or not (skip_dashmate_image_update | default(false))) else 'policy' }}"
     recreate: "{{ 'always' if (force_dashmate_rebuild | default(false)) else 'auto' }}"
+  when: status_dashboard_ssh_key_stat.stat.exists
