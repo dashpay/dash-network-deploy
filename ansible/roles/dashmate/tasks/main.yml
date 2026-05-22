@@ -255,10 +255,14 @@
     - dashmate_version is defined
     - (dashmate_needs_update | default(true)) or force_dashmate_reinstall | default(false)
 
-- name: Set dashmate config version from already extracted version
+- name: Set dashmate config version
   ansible.builtin.set_fact:
     dashmate_config_version: >-
-      {{ dashmate_version if installed_dashmate_version == 'none' else installed_dashmate_version }}
+      {{
+        dashmate_version
+        if dashmate_version is defined
+        else installed_dashmate_version
+      }}
 
 # This check will return an error code if config is missing, config schema is invalid or default config is not yet set
 - name: Check state of dashmate config

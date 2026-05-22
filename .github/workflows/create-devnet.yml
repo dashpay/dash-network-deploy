@@ -17,7 +17,6 @@ on:
         required: true
         type: string
         default: "full_deploy"
-      # Advanced options - sane defaults, only change if you know what you're doing
       hp_masternodes_arm_count:
         description: "Advanced: Number of ARM HP masternodes"
         required: false
@@ -121,7 +120,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip python3-netaddr sshpass jq
+          sudo apt-get install -y python3-pip python3-netaddr sshpass jq gnupg
 
       - name: Install Ansible
         run: |
@@ -134,33 +133,21 @@ jobs:
           mkdir -p ~/.ansible/roles
           cp -r ansible/roles/* ~/.ansible/roles/
 
-      - name: Set up SSH keys
+      - name: Set up GitHub SSH keys
         env:
-          DEPLOY_SERVER_KEY: ${{ secrets.DEPLOY_SERVER_KEY }}
           EVO_APP_DEPLOY_KEY: ${{ secrets.EVO_APP_DEPLOY_KEY }}
           EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
           mkdir -p ~/.ssh
 
-          # Server SSH key for connecting to nodes
-          printf '%s\n' "$DEPLOY_SERVER_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-          # Derive public key from private key
-          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
-          chmod 644 ~/.ssh/id_rsa.pub
-
-          # GitHub deploy key for cloning configs repo
           printf '%s\n' "$EVO_APP_DEPLOY_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          # Optional write key for pushing to configs repo
           if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" ]]; then
             printf '%s\n' "$EVO_APP_DEPLOY_WRITE_KEY" > ~/.ssh/id_ed25519_write
             chmod 600 ~/.ssh/id_ed25519_write
           fi
 
-          # SSH config
           cat > ~/.ssh/config << 'EOL'
           Host github.com
             IdentityFile ~/.ssh/id_ed25519
@@ -175,10 +162,96 @@ jobs:
 
           chmod 600 ~/.ssh/config
 
+      - name: Check for existing devnet configs
+        id: existing_configs
+        run: |
+          mkdir -p networks
+          git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs-source
+
+          FOUND=0
+          for ext in yml tfvars inventory ssh.asc; do
+            SRC="/tmp/dash-network-configs-source/$NETWORK_NAME.$ext"
+            if [[ -f "$SRC" ]]; then
+              FOUND=$((FOUND + 1))
+            fi
+          done
+
+          if [[ $FOUND -eq 4 ]]; then
+            echo "resume_mode=true" >> "$GITHUB_OUTPUT"
+            echo "Found existing config set for $NETWORK_NAME. Reusing config repo files and skipping Terraform."
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.yml" networks/
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.tfvars" networks/
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.inventory" networks/
+            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.ssh.asc" networks/
+          elif [[ $FOUND -eq 0 ]]; then
+            echo "resume_mode=false" >> "$GITHUB_OUTPUT"
+            echo "No existing config set found for $NETWORK_NAME. Running full create flow."
+          else
+            echo "Error: Partial config set found for $NETWORK_NAME in dash-network-configs."
+            ls -la "/tmp/dash-network-configs-source/$NETWORK_NAME"* 2>/dev/null || true
+            exit 1
+          fi
+
+      - name: Prepare devnet SSH key
+        env:
+          DEVNET_CI_GPG_PRIVATE_KEY: ${{ secrets.DEVNET_CI_GPG_PRIVATE_KEY }}
+          DEVNET_CI_GPG_PASSPHRASE: ${{ secrets.DEVNET_CI_GPG_PASSPHRASE }}
+          VIVEK_GPG_PUBLIC_KEY: ${{ secrets.VIVEK_GPG_PUBLIC_KEY }}
+          LATTE_GPG_PUBLIC_KEY: ${{ secrets.LATTE_GPG_PUBLIC_KEY }}
+        run: |
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          mkdir -p "$GNUPGHOME" ~/.ssh
+          chmod 700 "$GNUPGHOME" ~/.ssh
+
+          printf '%s' "$DEVNET_CI_GPG_PRIVATE_KEY" > "$RUNNER_TEMP/devnet-ci-private.asc"
+          gpg --batch --yes --pinentry-mode loopback \
+            --passphrase "$DEVNET_CI_GPG_PASSPHRASE" \
+            --import "$RUNNER_TEMP/devnet-ci-private.asc"
+
+          if [[ "${{ steps.existing_configs.outputs.resume_mode }}" == "true" ]]; then
+            gpg --batch --yes --pinentry-mode loopback \
+              --passphrase "$DEVNET_CI_GPG_PASSPHRASE" \
+              --decrypt --output "$HOME/.ssh/id_rsa" "networks/$NETWORK_NAME.ssh.asc"
+            chmod 600 "$HOME/.ssh/id_rsa"
+            ssh-keygen -y -f "$HOME/.ssh/id_rsa" > "$HOME/.ssh/id_rsa.pub"
+            chmod 644 "$HOME/.ssh/id_rsa.pub"
+            exit 0
+          fi
+
+          ssh-keygen -t rsa -b 4096 -N '' -C "$NETWORK_NAME" -f "$HOME/.ssh/id_rsa"
+          chmod 600 "$HOME/.ssh/id_rsa"
+          chmod 644 "$HOME/.ssh/id_rsa.pub"
+
+          printf '%s' "$VIVEK_GPG_PUBLIC_KEY" > "$RUNNER_TEMP/vivek-public.asc"
+          printf '%s' "$LATTE_GPG_PUBLIC_KEY" > "$RUNNER_TEMP/latte-public.asc"
+          gpg --batch --yes --import "$RUNNER_TEMP/vivek-public.asc"
+          gpg --batch --yes --import "$RUNNER_TEMP/latte-public.asc"
+
+          mapfile -t recipients < <(
+            gpg --batch --with-colons --list-keys |
+              awk -F: '$1 == "pub" {want=1; next} want && $1 == "fpr" {print $10; want=0}'
+          )
+
+          if [[ ${#recipients[@]} -lt 3 ]]; then
+            echo "Error: expected at least 3 GPG recipients, found ${#recipients[@]}"
+            gpg --batch --list-keys
+            exit 1
+          fi
+
+          recipient_args=()
+          for recipient in "${recipients[@]}"; do
+            recipient_args+=(--recipient "$recipient")
+          done
+
+          gpg --batch --yes --trust-model always --armor --encrypt \
+            "${recipient_args[@]}" \
+            --output "networks/$NETWORK_NAME.ssh.asc" \
+            "$HOME/.ssh/id_rsa"
+
       - name: Create networks/.env
         run: |
           mkdir -p networks
-          cat > networks/.env << EOF
+          cat > networks/.env << EOF2
           PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
           PUBLIC_KEY_PATH=$HOME/.ssh/id_rsa.pub
           AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
@@ -187,38 +260,7 @@ jobs:
           TERRAFORM_S3_BUCKET=$TERRAFORM_S3_BUCKET
           TERRAFORM_S3_KEY=$TERRAFORM_S3_KEY
           TERRAFORM_DYNAMODB_TABLE=$TERRAFORM_DYNAMODB_TABLE
-          EOF
-
-      - name: Check for existing devnet configs
-        id: existing_configs
-        run: |
-          git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs-source
-
-          FOUND=0
-          MISSING=0
-          for ext in yml tfvars inventory; do
-            SRC="/tmp/dash-network-configs-source/$NETWORK_NAME.$ext"
-            if [[ -f "$SRC" ]]; then
-              FOUND=$((FOUND + 1))
-            else
-              MISSING=$((MISSING + 1))
-            fi
-          done
-
-          if [[ $FOUND -eq 3 ]]; then
-            echo "resume_mode=true" >> "$GITHUB_OUTPUT"
-            echo "Found existing config set for $NETWORK_NAME. Reusing config repo files and skipping Terraform."
-            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.yml" networks/
-            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.tfvars" networks/
-            cp "/tmp/dash-network-configs-source/$NETWORK_NAME.inventory" networks/
-          elif [[ $FOUND -eq 0 ]]; then
-            echo "resume_mode=false" >> "$GITHUB_OUTPUT"
-            echo "No existing config set found for $NETWORK_NAME. Running full create flow."
-          else
-            echo "Error: Partial config set found for $NETWORK_NAME in dash-network-configs."
-            ls -la /tmp/dash-network-configs-source/$NETWORK_NAME.* 2>/dev/null || true
-            exit 1
-          fi
+          EOF2
 
       - name: Generate network configs
         if: steps.existing_configs.outputs.resume_mode != 'true'
@@ -229,7 +271,6 @@ jobs:
           HP_ARM: ${{ github.event.inputs.hp_masternodes_arm_count }}
           SEED_COUNT: ${{ github.event.inputs.seed_count }}
         run: |
-          # Validate all counts are numeric
           for var in MN_AMD MN_ARM HP_AMD HP_ARM SEED_COUNT; do
             val="${!var}"
             if [[ ! "$val" =~ ^[0-9]+$ ]]; then
@@ -253,29 +294,20 @@ jobs:
           CORE_VERSION: ${{ github.event.inputs.core_version }}
         run: |
           CONFIG_FILE="networks/$NETWORK_NAME.yml"
-
-          # Escape sed-special characters in version strings
           SAFE_VERSION=$(printf '%s' "$VERSION" | sed 's/[&\\/]/\\&/g')
           SAFE_CORE_VERSION=$(printf '%s' "$CORE_VERSION" | sed 's/[&\\/]/\\&/g')
 
           echo "Setting platform version to $VERSION..."
-
-          # Update dashmate version
           sed -i "s/dashmate_version: .*/dashmate_version: $SAFE_VERSION/" "$CONFIG_FILE"
-
-          # Update platform service images
           sed -i "s|drive_image: dashpay/drive:.*|drive_image: dashpay/drive:$SAFE_VERSION|" "$CONFIG_FILE"
           sed -i "s|dapi_image: dashpay/dapi:.*|dapi_image: dashpay/dapi:$SAFE_VERSION|" "$CONFIG_FILE"
 
-          # Add rs_dapi_image (not in generated config, but group_vars/all defines it
-          # without a tag, so we must explicitly set it to get the right version)
           if ! grep -q "rs_dapi_image:" "$CONFIG_FILE"; then
             echo "rs_dapi_image: dashpay/rs-dapi:$VERSION" >> "$CONFIG_FILE"
           else
             sed -i "s|rs_dapi_image: dashpay/rs-dapi:.*|rs_dapi_image: dashpay/rs-dapi:$SAFE_VERSION|" "$CONFIG_FILE"
           fi
 
-          # Update core version if specified
           if [[ -n "$CORE_VERSION" ]]; then
             echo "Setting core version to $CORE_VERSION..."
             sed -i "s|dashd_image: dashpay/dashd:.*|dashd_image: dashpay/dashd:$SAFE_CORE_VERSION|" "$CONFIG_FILE"
@@ -290,16 +322,13 @@ jobs:
         run: |
           TFVARS_FILE="networks/$NETWORK_NAME.tfvars"
           DEFAULT_MAIN_DOMAIN="networks.dash.org"
-
-          # Read current value from file (empty if not set)
           CURRENT_SIZE=$(grep -oP 'hpmn_node_disk_size\s*=\s*\K[0-9]+' "$TFVARS_FILE" 2>/dev/null || echo "")
           CURRENT_MAIN_DOMAIN=$(grep -oP 'main_domain\s*=\s*"\K[^"]*' "$TFVARS_FILE" 2>/dev/null || echo "")
 
-          # Generated tfvars leaves main_domain empty; ensure ACM DNS names are valid.
           if [[ -z "$CURRENT_MAIN_DOMAIN" ]]; then
             echo "Setting main_domain to $DEFAULT_MAIN_DOMAIN..."
             if grep -q '^main_domain\s*=' "$TFVARS_FILE"; then
-              sed -i "s|^main_domain\\s*=.*|main_domain = \"$DEFAULT_MAIN_DOMAIN\"|" "$TFVARS_FILE"
+              sed -i "s|^main_domain\s*=.*|main_domain = \"$DEFAULT_MAIN_DOMAIN\"|" "$TFVARS_FILE"
             else
               echo "main_domain = \"$DEFAULT_MAIN_DOMAIN\"" >> "$TFVARS_FILE"
             fi
@@ -333,7 +362,6 @@ jobs:
           echo "============================================"
 
           chmod +x ./bin/deploy
-          # GitHub Actions checks out a detached HEAD; bypass branch safety check.
           if [[ "${{ steps.existing_configs.outputs.resume_mode }}" == "true" ]]; then
             echo "Resume mode enabled. Skipping Terraform and re-running provisioning only."
             ./bin/deploy -p -f --tags="$DEPLOY_TAGS" "$NETWORK_NAME"
@@ -346,12 +374,10 @@ jobs:
         env:
           EVO_APP_DEPLOY_WRITE_KEY: ${{ secrets.EVO_APP_DEPLOY_WRITE_KEY }}
         run: |
-          # Clone the configs repo to a temp directory
           git clone git@github.com:dashpay/dash-network-configs.git /tmp/dash-network-configs
 
-          # Copy generated config files if present
           COPIED=0
-          for ext in yml tfvars inventory; do
+          for ext in yml tfvars inventory ssh.asc; do
             SRC="networks/$NETWORK_NAME.$ext"
             if [[ -f "$SRC" ]]; then
               cp "$SRC" /tmp/dash-network-configs/
@@ -366,14 +392,17 @@ jobs:
             exit 0
           fi
 
-          # Commit and push
+          if [[ $COPIED -ne 4 ]]; then
+            echo "::warning::Not pushing partial devnet config set for $NETWORK_NAME"
+            exit 0
+          fi
+
           cd /tmp/dash-network-configs
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
           git commit -m "Add configs for $NETWORK_NAME" || echo "No changes to commit"
 
-          # Use optional write key if configured; otherwise try default key.
           if [[ -n "$EVO_APP_DEPLOY_WRITE_KEY" && -f "$HOME/.ssh/id_ed25519_write" ]]; then
             GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_write -o StrictHostKeyChecking=no' git push || {
               echo "::warning::Failed to push configs with EVO_APP_DEPLOY_WRITE_KEY"
@@ -405,5 +434,6 @@ jobs:
           echo "Devnet: $NETWORK_NAME"
           echo "============================================"
           echo ""
+          echo "Encrypted SSH key stored as: $NETWORK_NAME.ssh.asc in dash-network-configs"
           echo "To update this devnet later, use the 'Platform Version Deployment' workflow"
           echo "To destroy this devnet, use the 'Destroy Devnet' workflow"
