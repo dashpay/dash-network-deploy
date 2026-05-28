@@ -20,12 +20,13 @@
   when:
     - inventory_hostname not in groups["hp_masternodes"]
 
-- name: Remove any remaining docker data
+- name: Prune only safe dangling Docker data
   community.docker.docker_prune:
-    containers: true
+    # Keep stopped Core containers and core_data volumes intact on platform-only destroy.
+    containers: false
     images: true
     images_filters:
-      dangling: false
+      dangling: true
     networks: true
-    volumes: true
+    volumes: false
     builder_cache: true
