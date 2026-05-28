@@ -22,7 +22,8 @@ Dash Core developers to assist in Dash Platform development.
 ## Installation
 
 1. [Install Docker](https://docs.docker.com/install/)
-2. Download tool:
+2. [Install Packer](https://developer.hashicorp.com/packer/install) if you plan to build pre-baked base AMIs.
+3. Download tool:
 
     Using `wget`:
 
@@ -208,3 +209,30 @@ aws route53 create-hosted-zone --name networks.domain.tld --caller-reference 123
 ```
 
 Please note the values of these, as they will be needed in the network config files.
+
+## Pre-baked base AMIs
+
+Deployments can use architecture-specific base AMIs with common host setup already installed. This avoids repeating the slow, identical bootstrap work on every deploy.
+
+Build both AMIs with Packer:
+
+```bash
+bin/build-base-image --profile=<aws-profile> --region=us-west-2
+```
+
+Then set the generated AMI IDs in the network tfvars:
+
+```hcl
+base_ami_amd64_id = "ami-..."
+base_ami_arm64_id = "ami-..."
+```
+
+When provisioning instances launched from those AMIs, skip the baked common setup:
+
+```bash
+./bin/deploy -p --prebaked-common-setup <network_name>
+```
+
+The baked image includes swap, common packages, Python/pip Docker dependencies, Docker, Docker daemon options, and Eternal Terminal. Per-host runtime configuration still runs during deploy, including hostnames, `/etc/hosts`, CloudWatch Agent configuration, VPN, logs, metrics, and node-specific Dash services.
+
+Changing AMI IDs does not replace existing instances automatically because Terraform ignores AMI drift for instance resources. Recreate or taint instances to adopt a new base image.

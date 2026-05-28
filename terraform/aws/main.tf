@@ -43,6 +43,12 @@ data "aws_ami" "ubuntu_arm" {
   # Canonical
 }
 
+locals {
+  ubuntu_amd_ami_id = var.base_ami_amd64_id != "" ? var.base_ami_amd64_id : data.aws_ami.ubuntu_amd.id
+  ubuntu_arm_ami_id = var.base_ami_arm64_id != "" ? var.base_ami_arm64_id : data.aws_ami.ubuntu_arm.id
+  main_host_ami_id  = var.main_host_arch == "arm64" ? local.ubuntu_arm_ami_id : local.ubuntu_amd_ami_id
+}
+
 # Create a VPC to launch our instances into
 resource "aws_vpc" "default" {
   cidr_block                       = var.vpc_cidr

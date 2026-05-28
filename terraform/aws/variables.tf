@@ -1,6 +1,18 @@
 variable "public_key_path" {
 }
 
+variable "base_ami_amd64_id" {
+  description = "Optional pre-baked amd64 AMI ID. Defaults to latest Canonical Ubuntu Jammy amd64 when empty."
+  type        = string
+  default     = ""
+}
+
+variable "base_ami_arm64_id" {
+  description = "Optional pre-baked arm64 AMI ID. Defaults to latest Canonical Ubuntu Jammy arm64 when empty."
+  type        = string
+  default     = ""
+}
+
 variable "dashd_port" {
   description = "Port for Dash Core nodes"
   default     = 20001

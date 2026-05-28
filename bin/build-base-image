@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CMD_USAGE="Build pre-baked Dash Network Deploy base AMIs
+
+Usage: build-base-image [options]
+
+Options:
+  --region=<region>         AWS region. Default: AWS_REGION/AWS_DEFAULT_REGION/us-west-2
+  --profile=<profile>       AWS profile to pass to Packer
+  --ami-prefix=<prefix>     AMI name prefix. Default: dash-network-base
+  --only=<arch>             Build only amd64 or arm64. Default: both
+  -h, --help                Show help"
+
+REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-us-west-2}}"
+PROFILE="${AWS_PROFILE:-}"
+AMI_PREFIX="dash-network-base"
+ONLY=""
+
+for arg in "$@"; do
+  case "$arg" in
+    --region=*) REGION="${arg#*=}" ;;
+    --profile=*) PROFILE="${arg#*=}" ;;
+    --ami-prefix=*) AMI_PREFIX="${arg#*=}" ;;
+    --only=*) ONLY="${arg#*=}" ;;
+    -h|--help)
+      echo "$CMD_USAGE"
+      exit 0
+      ;;
+    *)
+      echo "Error: invalid argument '$arg'" >&2
+      echo "$CMD_USAGE" >&2
+      exit 1
+      ;;
+  esac
+done
+
+case "$ONLY" in
+  "") PACKER_TARGETS=(amd64 arm64) ;;
+  amd64|arm64) PACKER_TARGETS=("$ONLY") ;;
+  *)
+    echo "Error: --only must be amd64 or arm64" >&2
+    exit 1
+    ;;
+esac
+
+if ! command -v packer >/dev/null 2>&1; then
+  echo "Error: packer is required to build base AMIs" >&2
+  exit 1
+fi
+
+if [[ -n "$PROFILE" ]]; then
+  export AWS_PROFILE="$PROFILE"
+fi
+
+packer init packer/dash-network-base.pkr.hcl
+
+for target in "${PACKER_TARGETS[@]}"; do
+  case "$target" in
+    amd64) packer_only=(-only=dash-network-base.amazon-ebs.ubuntu_jammy_amd64) ;;
+    arm64) packer_only=(-only=dash-network-base.amazon-ebs.ubuntu_jammy_arm64) ;;
+  esac
+
+  packer build \
+    "${packer_only[@]}" \
+    -var "region=${REGION}" \
+    -var "ami_prefix=${AMI_PREFIX}" \
+    packer/dash-network-base.pkr.hcl
+done

@@ -4,6 +4,10 @@ evo_services: false
 
 node_environment: "production"
 
+# Set to true when instances are launched from an AMI built by ansible/prebake-common.yml.
+# This skips slow common package/Docker/swap setup while keeping per-host configuration.
+prebaked_common_setup: false
+
 platform_initial_core_chain_locked_height: ""
 
 # Install OpenVPN

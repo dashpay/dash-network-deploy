@@ -1,5 +1,6 @@
 # Ansible
 /ansible/*.retry
+/ansible/deploy.yml.pre-*
 
 # Node.JS
 node_modules
@@ -9,6 +10,9 @@ node_modules
 
 # Terraform
 /terraform/aws/.terraform
+
+# Local run logs
+/logs/
 
 # Jet Brains
 .idea
