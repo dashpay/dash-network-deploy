@@ -121,7 +121,7 @@
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
     registered_masternode_names: '{{ registered_masternode_names + [item] }}'
-  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
+  when: (get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']") | length) > 0
   with_items: '{{ mn_names }}'
 
 - name: Registered masternodes list
@@ -151,7 +151,7 @@
 - name: Get names of banned masternodes
   ansible.builtin.set_fact:
     banned_masternode_names: '{{ banned_masternode_names + [item] }}'
-  when: banned_masternodes_list | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
+  when: (banned_masternodes_list | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']") | length) > 0
   with_items: '{{ registered_masternode_names }}'
 
 - name: Banned masternodes list
@@ -168,9 +168,9 @@
   ansible.builtin.set_fact:
     misconfigured_masternode_names: '{{ misconfigured_masternode_names + [item] }}'
   when: >
-    get_protx_list_result.stdout | from_json |
+    ((get_protx_list_result.stdout | from_json |
     json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']") |
-    json_query("[?state.service!='" + hostvars[item].public_ip + ":" + dashd_port | string  + "']")
+    json_query("[?state.service!='" + hostvars[item].public_ip + ":" + dashd_port | string  + "']")) | length) > 0
   with_items: '{{ registered_masternode_names }}'
 
 # We should probably subtract the banned masternodes from this list so we don't unban twice

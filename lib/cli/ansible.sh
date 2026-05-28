@@ -24,6 +24,7 @@ function ansible_run_playbook() {
                      -e "dash_network_name=$NETWORK_NAME" \
                      -e "dash_network=$NETWORK" \
                      -e "dash_devnet_name=$NETWORK_DEVNET_NAME" \
+                     ${ANSIBLE_START_AT_TASK:+--start-at-task "$ANSIBLE_START_AT_TASK"} \
                      ${ANSIBLE_ARGS} \
                      $@
 

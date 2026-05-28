@@ -4,16 +4,28 @@
   ansible.builtin.set_fact:
     registered_masternode_names: []
 
+- name: Build masternode names list from mnlist
+  ansible.builtin.set_fact:
+    mn_names: >-
+      {{
+        (mnlist | dict2items | map(attribute='key') | list)
+        if (mnlist is mapping)
+        else []
+      }}
+
 - name: Get list of ProTx transactions from the wallet
   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_mno }} protx list wallet true
   register: get_protx_list_result
   changed_when: get_protx_list_result.stdout | from_json | length > 0
+  when: mn_names | length > 0
 
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
     registered_masternode_names: "{{ registered_masternode_names + [item] }}"
-  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
-  with_items: '{{ mnlist }}'
+  when:
+    - mn_names | length > 0
+    - (get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']") | length) > 0
+  with_items: '{{ mn_names }}'
 
 - name: Set empty outer scope variable for protx list
   ansible.builtin.set_fact:

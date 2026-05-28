@@ -239,9 +239,9 @@ resource "aws_instance" "masternode_arm" {
 }
 
 resource "aws_eip" "hpmn_arm_eip" {
-  instance         = null
-  count            = (var.create_eip || var.byoip_pool_id != "") ? var.hp_masternode_arm_count : 0
-  public_ipv4_pool = var.byoip_pool_id != "" ? var.byoip_pool_id : null
+  instance     = null
+  count        = (var.create_eip || var.byoip_pool_id != "") ? var.hp_masternode_arm_count : 0
+  ipam_pool_id = var.byoip_pool_id != "" ? var.byoip_pool_id : null
   tags = {
     Name        = "dn-${terraform.workspace}-hp-masternode-arm-${count.index + 1}"
     DashNetwork = terraform.workspace
@@ -249,9 +249,9 @@ resource "aws_eip" "hpmn_arm_eip" {
 }
 
 resource "aws_eip" "hpmn_amd_eip" {
-  instance         = null
-  count            = (var.create_eip || var.byoip_pool_id != "") ? var.hp_masternode_amd_count : 0
-  public_ipv4_pool = var.byoip_pool_id != "" ? var.byoip_pool_id : null
+  instance     = null
+  count        = (var.create_eip || var.byoip_pool_id != "") ? var.hp_masternode_amd_count : 0
+  ipam_pool_id = var.byoip_pool_id != "" ? var.byoip_pool_id : null
   tags = {
     Name        = "dn-${terraform.workspace}-hp-masternode-amd-${count.index + 1}"
     DashNetwork = terraform.workspace
@@ -261,10 +261,10 @@ resource "aws_eip" "hpmn_amd_eip" {
 resource "aws_instance" "hp_masternode_amd" {
   count = var.hp_masternode_amd_count
 
-  ami                  = data.aws_ami.ubuntu_amd.id
-  instance_type        = "t3.medium"
-  key_name             = aws_key_pair.auth.id
-  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+  ami                         = data.aws_ami.ubuntu_amd.id
+  instance_type               = "t3.medium"
+  key_name                    = aws_key_pair.auth.id
+  iam_instance_profile        = aws_iam_instance_profile.monitoring.name
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
@@ -302,10 +302,10 @@ resource "aws_instance" "hp_masternode_amd" {
 resource "aws_instance" "hp_masternode_arm" {
   count = var.hp_masternode_arm_count
 
-  ami                  = data.aws_ami.ubuntu_arm.id
-  instance_type        = "t4g.medium"
-  key_name             = aws_key_pair.auth.id
-  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+  ami                         = data.aws_ami.ubuntu_arm.id
+  instance_type               = "t4g.medium"
+  key_name                    = aws_key_pair.auth.id
+  iam_instance_profile        = aws_iam_instance_profile.monitoring.name
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
@@ -316,7 +316,7 @@ resource "aws_instance" "hp_masternode_arm" {
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
-  
+
   root_block_device {
     volume_size = var.hpmn_node_disk_size
     volume_type = var.volume_type
@@ -336,7 +336,7 @@ resource "aws_instance" "hp_masternode_arm" {
 
   lifecycle {
     ignore_changes = [ami, root_block_device[0].volume_size]
-    
+
   }
 
 }
@@ -358,8 +358,8 @@ resource "aws_eip_association" "amd_eip_assoc" {
 # BYOIP EIPs for non-HPMN instance types
 
 resource "aws_eip" "mn_amd_eip" {
-  count            = var.byoip_pool_id != "" ? var.masternode_amd_count : 0
-  public_ipv4_pool = var.byoip_pool_id
+  count        = var.byoip_pool_id != "" ? var.masternode_amd_count : 0
+  ipam_pool_id = var.byoip_pool_id
   tags = {
     Name        = "dn-${terraform.workspace}-masternode-amd-${count.index + 1}"
     DashNetwork = terraform.workspace
@@ -373,8 +373,8 @@ resource "aws_eip_association" "mn_amd_eip_assoc" {
 }
 
 resource "aws_eip" "mn_arm_eip" {
-  count            = var.byoip_pool_id != "" ? var.masternode_arm_count : 0
-  public_ipv4_pool = var.byoip_pool_id
+  count        = var.byoip_pool_id != "" ? var.masternode_arm_count : 0
+  ipam_pool_id = var.byoip_pool_id
   tags = {
     Name        = "dn-${terraform.workspace}-masternode-arm-${count.index + 1}"
     DashNetwork = terraform.workspace
@@ -388,8 +388,8 @@ resource "aws_eip_association" "mn_arm_eip_assoc" {
 }
 
 resource "aws_eip" "web_eip" {
-  count            = var.byoip_pool_id != "" ? var.web_count : 0
-  public_ipv4_pool = var.byoip_pool_id
+  count        = var.byoip_pool_id != "" ? var.web_count : 0
+  ipam_pool_id = var.byoip_pool_id
   tags = {
     Name        = "dn-${terraform.workspace}-web-${count.index + 1}"
     DashNetwork = terraform.workspace
@@ -403,8 +403,8 @@ resource "aws_eip_association" "web_eip_assoc" {
 }
 
 resource "aws_eip" "wallet_eip" {
-  count            = var.byoip_pool_id != "" ? var.wallet_count : 0
-  public_ipv4_pool = var.byoip_pool_id
+  count        = var.byoip_pool_id != "" ? var.wallet_count : 0
+  ipam_pool_id = var.byoip_pool_id
   tags = {
     Name        = "dn-${terraform.workspace}-dashd-wallet-${count.index + 1}"
     DashNetwork = terraform.workspace
@@ -418,8 +418,8 @@ resource "aws_eip_association" "wallet_eip_assoc" {
 }
 
 resource "aws_eip" "seed_eip" {
-  count            = var.byoip_pool_id != "" ? var.seed_count : 0
-  public_ipv4_pool = var.byoip_pool_id
+  count        = var.byoip_pool_id != "" ? var.seed_count : 0
+  ipam_pool_id = var.byoip_pool_id
   tags = {
     Name        = "dn-${terraform.workspace}-seed-${count.index + 1}"
     DashNetwork = terraform.workspace
@@ -433,8 +433,8 @@ resource "aws_eip_association" "seed_eip_assoc" {
 }
 
 resource "aws_eip" "miner_eip" {
-  count            = var.byoip_pool_id != "" ? var.miner_count : 0
-  public_ipv4_pool = var.byoip_pool_id
+  count        = var.byoip_pool_id != "" ? var.miner_count : 0
+  ipam_pool_id = var.byoip_pool_id
   tags = {
     Name        = "dn-${terraform.workspace}-miner-${count.index + 1}"
     DashNetwork = terraform.workspace

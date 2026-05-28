@@ -35,7 +35,7 @@
 - name: Get names of registered masternodes
   ansible.builtin.set_fact:
     registered_masternode_names: "{{ registered_masternode_names + [item] }}"
-  when: get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']")
+  when: (get_protx_list_result.stdout | from_json | json_query("[?state.ownerAddress=='" + mnlist[item].owner.address + "']") | length) > 0
   with_items: '{{ masternode_names }}'
 
 - name: List of registered masternodes
@@ -45,4 +45,4 @@
 - name: Fail if masternodes were not registered
   ansible.builtin.fail:
     msg: ProTX transactions were not created
-  when: masternode_names | difference(registered_masternode_names)
+  when: (masternode_names | difference(registered_masternode_names) | length) > 0

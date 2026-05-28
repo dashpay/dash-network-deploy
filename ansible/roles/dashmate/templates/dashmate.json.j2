@@ -384,7 +384,8 @@
               "sendRate": {{dashmate_platform_drive_tenderdash_p2p_send_rate}},
               "recvRate": {{dashmate_platform_drive_tenderdash_p2p_recv_rate}},
               "maxConnections": {{dashmate_platform_drive_tenderdash_p2p_max_connections}},
-              "maxOutgoingConnections": {{dashmate_platform_drive_tenderdash_p2p_max_outgoing_connections}}
+              "maxOutgoingConnections": {{dashmate_platform_drive_tenderdash_p2p_max_outgoing_connections}},
+              "allowlistOnly": {{ dashmate_platform_drive_tenderdash_p2p_allowlist_only | default(false) | to_json }}
             },
             "mempool": {
               "cacheSize": {{dashmate_platform_drive_tenderdash_mempool_cache_size}},

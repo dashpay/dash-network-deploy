@@ -1,294 +1,302 @@
 ---
 
-# Bootstrap
+# RESUME MODE: earlier completed plays commented out for devnet-rescue resume.
+# Restore from ansible/deploy.yml.pre-resume-* after this run.
 
-- name: Remove latency on masternodes before deployment starts
-  hosts: masternodes,hp_masternodes
-  become: true
-  roles:
-    - remove_fake_latency
-  tags:
-    - full_deploy
-    - maintenance
+# ---
+#
+# # Bootstrap
+#
+# - name: Remove latency on masternodes before deployment starts
+#   hosts: masternodes,hp_masternodes
+#   become: true
+#   roles:
+#     - remove_fake_latency
+#   tags:
+#     - full_deploy
+#     - maintenance
+#
+# - name: Set up swap and aws environment vars
+#   hosts: all
+#   gather_facts: true
+#   become: true
+#   pre_tasks:
+#     - name: Check if inside AWS
+#       ansible.builtin.uri:
+#         url: http://169.254.169.254/latest/meta-data
+#         timeout: 2
+#       register: aws_uri_check
+#       failed_when: false
+#     - name: Set AWS environment variable
+#       ansible.builtin.set_fact:
+#         is_aws_environment: '{{ aws_uri_check.status == 200 }}'
+#   roles:
+#     - role: aws
+#       when: is_aws_environment
+#     - swap
+#   tags:
+#     - full_deploy
+#     - infra_setup
+#
+# - name: Setup VPN
+#   hosts: vpn
+#   become: true
+#   roles:
+#     - role: openvpn
+#       when: openvpn_enabled
+#   tags:
+#     - full_deploy
+#     - infra_setup
+#     - vpn
+#
+# - name: Setup jq, Python, CWAgent and Docker
+#   hosts: all
+#   become: true
+#   pre_tasks:
+#     - name: Update apt cache and install jq
+#       ansible.builtin.apt:
+#         pkg:
+#           - acl
+#           - jq
+#           - unzip
+#         update_cache: true
+#   vars:
+#     pip_package: python3-pip
+#     pip_install_packages:
+#       - name: docker
+#         version: "6.0.1"
+#       - name: docker-compose
+#         version: "1.29.2"
+#       - name: requests
+#         version: "2.31.0"
+#   roles:
+#     - geerlingguy.pip
+#     - role: geerlingguy.docker
+#       vars:
+#         docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+#         docker_install_compose: false
+#         docker_users:
+#           - ubuntu
+#     - docker_options
+#     - eternal_terminal
+#     - cwagent
+#   tags:
+#     - full_deploy
+#     - infra_setup
+#
+# - name: Configure tcpdump
+#   hosts: all
+#   become: true
+#   roles:
+#     - role: tcpdumpd
+#       when: dashd_network_logging != 0
+#   tags:
+#     - full_deploy
+#     - infra_setup
+#
+# - name: Setup logs
+#   hosts: logs_nodes
+#   become: true
+#   roles:
+#     - elastic_stack
+#     - metricbeat
+#   tags:
+#     - full_deploy
+#     - infra_setup
+#
+# - name: Setup load tester
+#   hosts: load_test
+#   become: true
+#   roles:
+#     - role: protobuf_compiler
+#     - role: load_tool
+#   tags:
+#     - full_deploy
+#     - infra_setup
+#
+# - name: Setup metrics
+#   hosts: metrics
+#   become: true
+#   roles:
+#     - metrics
+#     - metricbeat
+#   tags:
+#     - full_deploy
+#     - infra_setup
 
-- name: Set up swap and aws environment vars
-  hosts: all
-  gather_facts: true
-  become: true
-  pre_tasks:
-    - name: Check if inside AWS
-      ansible.builtin.uri:
-        url: http://169.254.169.254/latest/meta-data
-        timeout: 2
-      register: aws_uri_check
-      failed_when: false
-    - name: Set AWS environment variable
-      ansible.builtin.set_fact:
-        is_aws_environment: '{{ aws_uri_check.status == 200 }}'
-  roles:
-    - role: aws
-      when: is_aws_environment
-    - swap
-  tags:
-    - full_deploy
-    - infra_setup
+# RESUME MODE: completed miner/seed/start-network plays commented out after successful run.
+# - name: Set up miners
+#   hosts: miners
+#   become: true
+#   roles:
+#     - role: dash_cli
+#     - role: dashd
+#       enable_wallet: true
+#       tags:
+#         - dashd
+#     - core_filebeat
+#     - metricbeat
+#   tags:
+#     - full_deploy
+#
+# - name: Set up mixers
+#   hosts: mixer_nodes
+#   become: true
+#   roles:
+#     - role: dash_cli
+#     - role: dashd
+#       tags:
+#         - dashd
+#     - core_filebeat
+#     - metricbeat
+#   tags:
+#     - full_deploy
+#
+# - name: Set up core and tenderdash on seed nodes
+#   hosts: seed_nodes
+#   become: true
+#   pre_tasks:
+#     - name: Set node variables for seed nodes
+#       ansible.builtin.set_fact:
+#         node: "{{ seed_nodes[inventory_hostname] }}"
+#         mode: "seed"
+#       tags: always
+#       when: inventory_hostname in seed_nodes
+#   roles:
+#     - role: dash_cli
+#     - role: dashd
+#       dashd_listen: true
+#       dashd_zmq: true
+#       dashd_indexes: true
+#       tags:
+#         - dashd
+#     - role: tenderdash
+#     - core_filebeat
+#     - metricbeat
+#   tags:
+#     - full_deploy
+#     - update_seed_nodes
+#
+# - name: Set up core on masternodes
+#   hosts: masternodes
+#   become: true
+#   pre_tasks:
+#     - name: Check inventory for masternodes
+#       ansible.builtin.set_fact:
+#         masternode: "{{ masternodes[inventory_hostname] }}"
+#       tags: always
+#       when: inventory_hostname in masternodes
+#     - name: Fail if no masternodes present
+#       ansible.builtin.fail:
+#         msg: Masternode not defined in network config
+#       when: masternode is not defined
+#   roles:
+#     - role: dash_cli
+#     - role: dashd
+#       dashd_listen: true
+#       dashd_zmq: true
+#       dashd_indexes: true
+#       tags:
+#         - dashd
+#     - mn_status_report
+#     - core_filebeat
+#     - metricbeat
+#   tags:
+#     - full_deploy
+#     - core_update
+#     - update_masternodes
+#
+#
+# # Start network
+#
+# - name: Generate first block to leave IBD mode
+#   hosts: seed-1
+#   become: true
+#   roles:
+#     - role: generate_firstblock
+#       when: dash_network == "devnet" or dash_network == "regtest"
+#   tags:
+#     - full_deploy
+#
+# - name: Start miner
+#   hosts: miners
+#   become: true
+#   roles:
+#     - role: dashd_generate_miner
+#       when: dash_network != "mainnet"
+#   tags:
+#     - full_deploy
 
-- name: Setup VPN
-  hosts: vpn
-  become: true
-  roles:
-    - role: openvpn
-      when: openvpn_enabled
-  tags:
-    - full_deploy
-    - infra_setup
-    - vpn
+# - name: Setup faucet and insight
+#   hosts: web
+#   become: true
+#   roles:
+    # multifaucet skipped for devnet-rescue resume; not needed and DB wait failed.
+    # - multifaucet
+#     - role: dash_cli
+#     - role: dashd
+#       dashd_indexes: true
+#       dashd_zmq: true
+#       dashd_listen: true
+#     - insight
+#     - role: status_dashboard
+#       when: dash_network == "devnet"
+#     - core_filebeat
+#     - metricbeat
+#   tags:
+#     - full_deploy
+#     - web
 
-- name: Setup jq, Python, CWAgent and Docker
-  hosts: all
-  become: true
-  pre_tasks:
-    - name: Update apt cache and install jq
-      ansible.builtin.apt:
-        pkg:
-          - acl
-          - jq
-          - unzip
-        update_cache: true
-  vars:
-    pip_package: python3-pip
-    pip_install_packages:
-      - name: docker
-        version: "6.0.1"
-      - name: docker-compose
-        version: "1.29.2"
-      - name: requests
-        version: "2.31.0"
-  roles:
-    - geerlingguy.pip
-    - role: geerlingguy.docker
-      vars:
-        docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
-        docker_install_compose: false
-        docker_users:
-          - ubuntu
-    - docker_options
-    - eternal_terminal
-    - cwagent
-  tags:
-    - full_deploy
-    - infra_setup
+# - name: Deploy status monitoring to masternodes
+#   hosts: masternodes,hp_masternodes
+#   become: true
+#   gather_facts: false
+#   strategy: free
+#   roles:
+#     - status_monitoring
+#   tags:
+#     - full_deploy
+#     - dashmate_deploy
+#     - status_dashboard
 
-- name: Configure tcpdump
-  hosts: all
-  become: true
-  roles:
-    - role: tcpdumpd
-      when: dashd_network_logging != 0
-  tags:
-    - full_deploy
-    - infra_setup
-
-- name: Setup logs
-  hosts: logs_nodes
-  become: true
-  roles:
-    - elastic_stack
-    - metricbeat
-  tags:
-    - full_deploy
-    - infra_setup
-
-- name: Setup load tester
-  hosts: load_test
-  become: true
-  roles:
-    - role: protobuf_compiler
-    - role: load_tool
-  tags:
-    - full_deploy
-    - infra_setup
-
-- name: Setup metrics
-  hosts: metrics
-  become: true
-  roles:
-    - metrics
-    - metricbeat
-  tags:
-    - full_deploy
-    - infra_setup
-
-- name: Set up miners
-  hosts: miners
-  become: true
-  roles:
-    - role: dash_cli
-    - role: dashd
-      tags:
-        - dashd
-    - core_filebeat
-    - metricbeat
-  tags:
-    - full_deploy
-
-- name: Set up mixers
-  hosts: mixer_nodes
-  become: true
-  roles:
-    - role: dash_cli
-    - role: dashd
-      tags:
-        - dashd
-    - core_filebeat
-    - metricbeat
-  tags:
-    - full_deploy
-
-- name: Set up core and tenderdash on seed nodes
-  hosts: seed_nodes
-  become: true
-  pre_tasks:
-    - name: Set node variables for seed nodes
-      ansible.builtin.set_fact:
-        node: "{{ seed_nodes[inventory_hostname] }}"
-        mode: "seed"
-      tags: always
-      when: inventory_hostname in seed_nodes
-  roles:
-    - role: dash_cli
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - role: tenderdash
-    - core_filebeat
-    - metricbeat
-  tags:
-    - full_deploy
-    - update_seed_nodes
-
-- name: Set up core on masternodes
-  hosts: masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for masternodes
-      ansible.builtin.set_fact:
-        masternode: "{{ masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in masternodes
-    - name: Fail if no masternodes present
-      ansible.builtin.fail:
-        msg: Masternode not defined in network config
-      when: masternode is not defined
-  roles:
-    - role: dash_cli
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - mn_status_report
-    - core_filebeat
-    - metricbeat
-  tags:
-    - full_deploy
-    - core_update
-    - update_masternodes
-
-
-# Start network
-
-- name: Generate first block to leave IBD mode
-  hosts: seed-1
-  become: true
-  roles:
-    - role: generate_firstblock
-      when: dash_network == "devnet" or dash_network == "regtest"
-  tags:
-    - full_deploy
-
-- name: Start miner
-  hosts: miners
-  become: true
-  roles:
-    - role: dashd_generate_miner
-      when: dash_network != "mainnet"
-  tags:
-    - full_deploy
-
-- name: Setup faucet and insight
-  hosts: web
-  become: true
-  roles:
-    - multifaucet
-    - role: dash_cli
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      dashd_listen: true
-    - insight
-    - role: status_dashboard
-      when: dash_network == "devnet"
-    - core_filebeat
-    - metricbeat
-  tags:
-    - full_deploy
-    - web
-
-- name: Deploy status monitoring to masternodes
-  hosts: masternodes,hp_masternodes
-  become: true
-  gather_facts: false
-  strategy: free
-  roles:
-    - status_monitoring
-  tags:
-    - full_deploy
-    - dashmate_deploy
-    - status_dashboard
-
-- name: Set up wallets
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: dash_cli
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      enable_wallet: true
-      tags:
-        - dashd
-    - core_filebeat
-    - metricbeat
-  tags:
-    - full_deploy
-    - core_update
+# - name: Set up wallets
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: dash_cli
+#     - role: dashd
+#       dashd_indexes: true
+#       dashd_zmq: true
+#       enable_wallet: true
+#       tags:
+#         - dashd
+#     - core_filebeat
+#     - metricbeat
+#   tags:
+#     - full_deploy
+#     - core_update
 
 # Register masternodes and set sporks
 
-- name: Register masternodes
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: mn_init
-      mnlist: "{{ masternodes }}"
-      funding_amount: "{{ masternode_collaterals.mn | int }}"
-  tags:
-    - full_deploy
-    - unban_masternodes
+# - name: Register masternodes
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: mn_init
+#       mnlist: "{{ masternodes }}"
+#       funding_amount: "{{ masternode_collaterals.mn | int }}"
+#   tags:
+#     - full_deploy
+#     - unban_masternodes
 
-- name: Update inventory with protx values
-  hosts: wallet_nodes
-  roles:
-    - role: mn_protx_config
-      mnlist: "{{ masternodes }}"
-  tags:
-    - full_deploy
-    - unban_masternodes
+# - name: Update inventory with protx values
+#   hosts: wallet_nodes
+#   roles:
+#     - role: mn_protx_config
+#       mnlist: "{{ masternodes }}"
+#   tags:
+#     - full_deploy
+#     - unban_masternodes
 
 - name: Register HP masternodes
   hosts: wallet_nodes
