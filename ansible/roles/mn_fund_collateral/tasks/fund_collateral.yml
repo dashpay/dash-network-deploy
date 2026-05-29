@@ -4,21 +4,30 @@
 
 - name: Initialize array for payments
   ansible.builtin.set_fact:
-    payments: []
+    payments: {}
 
 - name: Populate payment addresses and values
   ansible.builtin.set_fact:
-    payments: "{{ payments | default({}) | combine({item: amount}) }}"
-  with_items:
-    - '{{ payment_targets }}'
+    payments: "{{ payments | combine({item: amount | float}) }}"
+  loop: "{{ payment_targets }}"
 
 - name: Show list of payments to be made
   ansible.builtin.debug:
     var: payments
 
 - name: Fund listed masternodes with {{ amount ~ ' Dash'}}
-  ansible.builtin.include_tasks: fund_one_collateral.yml
-  with_items:
-    - '{{ payment_targets }}'
-  loop_control:
-    loop_var: payment_target
+  ansible.builtin.command: "dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} sendmany '' '{{ payments | to_json }}'"
+  register: fund_result
+  changed_when: fund_result.stdout | length == 64
+  when: payment_targets | length > 0
+
+- name: Confirm collateral funding transactions
+  ansible.builtin.include_role:
+    name: generate_blocks
+  vars:
+    generate: confirmations
+    txid_list: "{{ [fund_result.stdout] }}"
+    tx_source: "{{ wallet_rpc_wallet_faucet }}"
+  when:
+    - fund_result.stdout is defined
+    - fund_result.stdout | length > 0

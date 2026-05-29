@@ -443,6 +443,7 @@
         networks: true
         volumes: false
         builder_cache: true
+      when: not (skip_deploy_cleanup | default(false) | bool)
   tags:
     - full_deploy
     - cleanup

@@ -79,7 +79,11 @@ dash-network deploy <network_name>
 
 You may pass the `--only-infrastructure` or `--only-provisioning` option to target either infrastructure or software provisioning workflows.
 
-For faster updates to an existing deployment, pass `--fast`. Fast mode skips Docker image updates plus slow observability/logging setup such as CloudWatch Agent, Elastic/logs, filebeat, metricbeat, metrics, and status dashboards.
+For faster updates to an existing deployment, pass `--fast`. Fast mode skips Docker
+image updates, final Docker cleanup, and slow observability/logging setup such as
+CloudWatch Agent, Elastic/logs, filebeat, metricbeat, metrics, and status
+dashboards. It also polls masternode sync more frequently while preserving the
+same maximum wait time.
 
 To destroy an available Dash Network, use the `destroy` command:
 

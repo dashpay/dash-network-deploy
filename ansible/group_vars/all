@@ -11,7 +11,11 @@ prebaked_common_setup: false
 # Fast deploys are intended for existing hosts and skip slow/non-critical setup.
 # These are set by `bin/deploy --fast` and can also be passed manually.
 fast_mode: false
+skip_dashd_image_update: false
+skip_deploy_cleanup: false
 skip_observability_setup: false
+mn_sync_poll_delay: 60
+mn_sync_retries: 100
 
 platform_initial_core_chain_locked_height: ""
 

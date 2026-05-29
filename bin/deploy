@@ -55,11 +55,15 @@ case ${i} in
     ansible_playbook="${i#*=}.yml"
     ;;
     --fast)
-    EXTRA_VARS="$EXTRA_VARS -e fast_mode=true -e skip_dashmate_image_update=true -e skip_observability_setup=true -e metricbeat_enabled=false -e force_logs_config=false -e force_filebeat_restart=false"
-    echo "Fast mode enabled - skipping Docker image updates and observability/logging setup"
+    EXTRA_VARS="$EXTRA_VARS -e fast_mode=true -e skip_dashmate_image_update=true"
+    EXTRA_VARS="$EXTRA_VARS -e skip_dashd_image_update=true -e skip_deploy_cleanup=true"
+    EXTRA_VARS="$EXTRA_VARS -e skip_observability_setup=true -e metricbeat_enabled=false"
+    EXTRA_VARS="$EXTRA_VARS -e force_logs_config=false -e force_filebeat_restart=false"
+    EXTRA_VARS="$EXTRA_VARS -e mn_sync_poll_delay=10 -e mn_sync_retries=600"
+    echo "Fast mode enabled - skipping image updates, cleanup, and observability/logging setup"
     ;;
     --skip-image-update)
-    EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true"
+    EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true -e skip_dashd_image_update=true"
     ;;
     --prebaked-common-setup)
     EXTRA_VARS="$EXTRA_VARS -e prebaked_common_setup=true"

@@ -89,6 +89,11 @@
     path: /etc/cron.daily/logrotate
     mode: "+x"
 
+- name: Set dash core compose update policy
+  ansible.builtin.set_fact:
+    dashd_compose_pull_policy: "{{ 'missing' if (skip_dashd_image_update | default(false) | bool) else 'always' }}"
+    dashd_compose_recreate_policy: "{{ 'auto' if (skip_dashd_image_update | default(false) | bool) else 'always' }}"
+
 - name: Check if wallet exists
   ansible.builtin.stat:
     path: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_faucet }}/wallet.dat"
@@ -108,8 +113,8 @@
   community.docker.docker_compose_v2:
     project_src: '{{ dashd_compose_path }}'
     state: present
-    pull: always
-    recreate: always
+    pull: "{{ dashd_compose_pull_policy }}"
+    recreate: "{{ dashd_compose_recreate_policy }}"
     timeout: 30
 
 - name: Wait for rpc to be available
