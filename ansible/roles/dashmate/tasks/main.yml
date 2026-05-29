@@ -223,6 +223,7 @@
 - name: Configure logs
   ansible.builtin.import_tasks: ./logs.yml
   when:
+    - not (fast_mode | default(false) | bool)
     - not (skip_observability_setup | default(false) | bool)
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false) | bool
     - dashmate_user_exists | bool  # Only configure logs if user exists

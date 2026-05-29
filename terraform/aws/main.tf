@@ -10,6 +10,7 @@ data "aws_availability_zones" "available" {
 }
 
 data "aws_ami" "ubuntu_amd" {
+  count       = var.base_ami_amd64_id == "" ? 1 : 0
   most_recent = true
 
   filter {
@@ -27,6 +28,7 @@ data "aws_ami" "ubuntu_amd" {
 }
 
 data "aws_ami" "ubuntu_arm" {
+  count       = var.base_ami_arm64_id == "" ? 1 : 0
   most_recent = true
 
   filter {
@@ -44,8 +46,8 @@ data "aws_ami" "ubuntu_arm" {
 }
 
 locals {
-  ubuntu_amd_ami_id = var.base_ami_amd64_id != "" ? var.base_ami_amd64_id : data.aws_ami.ubuntu_amd.id
-  ubuntu_arm_ami_id = var.base_ami_arm64_id != "" ? var.base_ami_arm64_id : data.aws_ami.ubuntu_arm.id
+  ubuntu_amd_ami_id = var.base_ami_amd64_id != "" ? var.base_ami_amd64_id : one(data.aws_ami.ubuntu_amd[*].id)
+  ubuntu_arm_ami_id = var.base_ami_arm64_id != "" ? var.base_ami_arm64_id : one(data.aws_ami.ubuntu_arm[*].id)
   main_host_ami_id  = var.main_host_arch == "arm64" ? local.ubuntu_arm_ami_id : local.ubuntu_amd_ami_id
 }
 
@@ -521,4 +523,3 @@ resource "aws_eip" "vpn" {
     DashNetwork = terraform.workspace
   }
 }
-

@@ -54,7 +54,7 @@
     content: "{{ lookup('aws_ssm', dashmate_zerossl_ssm_path ~ '-' ~ item, on_missing='skip') | default('', true) }}"
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
-    mode: "0644"
+    mode: "{{ '0600' if item == dashmate_zerossl_private_key_file_name else '0644' }}"
   loop:
     - '{{ dashmate_zerossl_private_key_file_name }}'
     - '{{ dashmate_zerossl_csr_file_name }}'

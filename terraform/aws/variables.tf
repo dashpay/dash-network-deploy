@@ -5,12 +5,22 @@ variable "base_ami_amd64_id" {
   description = "Optional pre-baked amd64 AMI ID. Defaults to latest Canonical Ubuntu Jammy amd64 when empty."
   type        = string
   default     = ""
+
+  validation {
+    condition     = var.base_ami_amd64_id == "" || can(regex("^ami-[0-9a-fA-F]+$", var.base_ami_amd64_id))
+    error_message = "base_ami_amd64_id must be empty or a valid AMI ID such as ami-0123456789abcdef0."
+  }
 }
 
 variable "base_ami_arm64_id" {
   description = "Optional pre-baked arm64 AMI ID. Defaults to latest Canonical Ubuntu Jammy arm64 when empty."
   type        = string
   default     = ""
+
+  validation {
+    condition     = var.base_ami_arm64_id == "" || can(regex("^ami-[0-9a-fA-F]+$", var.base_ami_arm64_id))
+    error_message = "base_ami_arm64_id must be empty or a valid AMI ID such as ami-0123456789abcdef0."
+  }
 }
 
 variable "dashd_port" {
@@ -309,4 +319,3 @@ variable "byoip_pool_id" {
   description = "IPAM pool ID for BYOIP address allocation. When set, all instances get EIPs from this pool."
   default     = ""
 }
-

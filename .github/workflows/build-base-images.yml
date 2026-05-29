@@ -50,10 +50,12 @@ jobs:
 
     steps:
       - name: Checkout dash-network-deploy
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
 
       - name: Set up Packer
-        uses: hashicorp/setup-packer@v3
+        uses: hashicorp/setup-packer@1aa358be5cf73883762b302a3a03abd66e75b232
 
       - name: Install controller dependencies
         run: |

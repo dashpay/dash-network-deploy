@@ -50,6 +50,11 @@ if ! command -v packer >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v ansible-playbook >/dev/null 2>&1; then
+  echo "Error: ansible-playbook is required to build base AMIs" >&2
+  exit 1
+fi
+
 if [[ -n "$PROFILE" ]]; then
   export AWS_PROFILE="$PROFILE"
 fi
