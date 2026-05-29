@@ -9,6 +9,12 @@ ${logs_hosts}
 [wallet_nodes]
 ${wallet_node_hosts}
 
+[quorum_list_servers]
+${quorum_list_servers}
+
+[quorum_list_servers:vars]
+quorum_list_server_port=${quorum_list_server_port}
+
 [mixer_nodes]
 ${mixer_hosts}
 

@@ -57,6 +57,9 @@ Ansible configuration is stored in the `*.yml` file. The
 file contains the majority of playbook options.
 The rest are defined in [ansible roles](https://github.com/dashpay/dash-network-deploy/tree/master/ansible/roles).
 
+Standalone quorum API hosts can be enabled with `quorum_list_server_count`.
+See [Standalone Quorum List Server](docs/quorum-list-server.md) for details.
+
 Configure your credentials in the `.env` file.
 
 ### Using git

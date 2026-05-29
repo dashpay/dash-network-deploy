@@ -41,6 +41,16 @@ variable "status_port" {
   default     = 3010
 }
 
+variable "quorum_list_server_count" {
+  description = "Number of standalone quorum-list-server instances to create"
+  default     = 0
+}
+
+variable "quorum_list_server_port" {
+  description = "HTTP port for the standalone quorum-list-server API"
+  default     = 8080
+}
+
 variable "ssh_port" {
   description = "SSH port"
   default     = 22
@@ -264,6 +274,16 @@ variable "metrics_instance_size" {
 variable "wallet_node_instance_size" {
   description = "Instance type of wallet nodes"
   default     = "micro"
+}
+
+variable "quorum_list_server_instance_size" {
+  description = "Instance size of quorum-list-server nodes"
+  default     = "micro"
+}
+
+variable "quorum_list_server_root_disk_size" {
+  description = "Root disk size of quorum-list-server nodes"
+  default     = 20
 }
 
 variable "volume_type" {

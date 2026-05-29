@@ -226,6 +226,25 @@ resource "aws_security_group" "http" {
   }
 }
 
+resource "aws_security_group" "quorum_list_server" {
+  name        = "${terraform.workspace}-quorum-list-server"
+  description = "standalone quorum list server"
+  vpc_id      = aws_vpc.default.id
+
+  ingress {
+    from_port       = var.quorum_list_server_port
+    to_port         = var.quorum_list_server_port
+    protocol        = "tcp"
+    description     = "Quorum list server API"
+    security_groups = [aws_security_group.elb.id]
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-quorum-list-server"
+    DashNetwork = terraform.workspace
+  }
+}
+
 resource "aws_security_group" "logs" {
   name        = "${terraform.workspace}-logs"
   description = "logs node"

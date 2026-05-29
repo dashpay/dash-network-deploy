@@ -331,6 +331,80 @@ resource "aws_route53_record" "insight" {
   count = length(var.main_domain) > 1 ? 1 : 0
 }
 
+resource "aws_elb" "quorum_list_server" {
+  name = "${var.public_network_name}-quorums"
+
+  subnets = aws_subnet.public.*.id
+
+  count = var.quorum_list_server_count > 0 && length(var.main_domain) > 1 ? 1 : 0
+
+  security_groups = [
+    aws_security_group.elb.id,
+  ]
+
+  instances = aws_instance.quorum_list_server.*.id
+
+  listener {
+    instance_port      = var.quorum_list_server_port
+    instance_protocol  = "http"
+    lb_port            = 443
+    lb_protocol        = "https"
+    ssl_certificate_id = aws_acm_certificate_validation.quorum_list_server[0].certificate_arn
+  }
+
+  health_check {
+    healthy_threshold   = 2
+    interval            = 30
+    target              = "HTTP:${var.quorum_list_server_port}/health"
+    timeout             = 10
+    unhealthy_threshold = 5
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-quorum-list-server"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_acm_certificate" "quorum_list_server" {
+  count             = var.quorum_list_server_count > 0 && length(var.main_domain) > 1 ? 1 : 0
+  domain_name       = "quorums.${var.public_network_name}.${var.main_domain}"
+  validation_method = "DNS"
+}
+
+resource "aws_route53_record" "quorum_list_server_validation" {
+  for_each = var.quorum_list_server_count > 0 && length(var.main_domain) > 1 ? {
+    for dvo in aws_acm_certificate.quorum_list_server[0].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  } : {}
+
+  zone_id         = data.aws_route53_zone.main_domain[0].zone_id
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+}
+
+resource "aws_acm_certificate_validation" "quorum_list_server" {
+  count                   = var.quorum_list_server_count > 0 && length(var.main_domain) > 1 ? 1 : 0
+  certificate_arn         = aws_acm_certificate.quorum_list_server[0].arn
+  validation_record_fqdns = [for record in aws_route53_record.quorum_list_server_validation : record.fqdn]
+}
+
+resource "aws_route53_record" "quorum_list_server" {
+  zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
+  name    = "quorums.${var.public_network_name}.${var.main_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_elb.quorum_list_server[count.index].dns_name]
+
+  count = var.quorum_list_server_count > 0 && length(var.main_domain) > 1 ? 1 : 0
+}
+
 resource "aws_elb" "status" {
   name = "${var.public_network_name}-status"
 
