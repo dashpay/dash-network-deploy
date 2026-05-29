@@ -50,7 +50,7 @@
     msg: "Installed: {{ installed_dashmate_version }}, Required: {{ dashmate_version }}, Needs update: {{ dashmate_needs_update }}"
 
 # ============================================================================
-# PHASE 2: User and system setup (skip in fast mode)
+# PHASE 2: User and system setup
 # ============================================================================
 
 - name: Check if dashmate group exists
@@ -58,29 +58,23 @@
   register: dashmate_group_check
   failed_when: false
   changed_when: false
-  when: not (fast_mode | default(false) | bool)
 
 - name: Check if dashmate user exists
   ansible.builtin.command: "id {{ dashmate_user }}"
   register: dashmate_user_check
   failed_when: false
   changed_when: false
-  when: not (fast_mode | default(false) | bool)
 
 - name: Set user/group existence facts
   ansible.builtin.set_fact:
     dashmate_group_exists: >-
-      {%- if fast_mode | default(false) | bool -%}
-        true
-      {%- elif dashmate_group_check is defined and dashmate_group_check.rc is defined -%}
+      {%- if dashmate_group_check is defined and dashmate_group_check.rc is defined -%}
         {{ dashmate_group_check.rc == 0 }}
       {%- else -%}
         false
       {%- endif -%}
     dashmate_user_exists: >-
-      {%- if fast_mode | default(false) | bool -%}
-        true
-      {%- elif dashmate_user_check is defined and dashmate_user_check.rc is defined -%}
+      {%- if dashmate_user_check is defined and dashmate_user_check.rc is defined -%}
         {{ dashmate_user_check.rc == 0 }}
       {%- else -%}
         false
@@ -97,14 +91,13 @@
       skip_dashmate_image_update: {{ skip_dashmate_image_update | default('undefined') }}
       dashmate_group_exists: {{ dashmate_group_exists }}
       dashmate_user_exists: {{ dashmate_user_exists }}
-  when: not (fast_mode | default(false) | bool)
+  when: not (fast_mode | default(false) | bool) or not (dashmate_group_exists | bool) or not (dashmate_user_exists | bool)
 
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
-  when:
-    - not (fast_mode | default(false) | bool)
-    - not (dashmate_group_exists | bool)
+  register: dashmate_group_create
+  when: not (dashmate_group_exists | bool)
 
 - name: Create dashmate user
   ansible.builtin.user:
@@ -115,26 +108,22 @@
     create_home: true
     shell: /bin/bash
     umask: '0002'
-  when:
-    - not (fast_mode | default(false) | bool)
-    - not (dashmate_user_exists | bool)
+  register: dashmate_user_create
+  when: not (dashmate_user_exists | bool)
 
 - name: Update dashmate existence facts after user creation
   ansible.builtin.set_fact:
     dashmate_group_exists: true
     dashmate_user_exists: true
-  when:
-    - not (fast_mode | default(false) | bool)
-    - not (dashmate_user_exists | bool)
+  when: (dashmate_group_create.changed | default(false) | bool) or (dashmate_user_create.changed | default(false) | bool)
 
 - name: Add dashmate user to docker group
   ansible.builtin.user:
     name: 'dashmate'
     groups: docker
     append: true
-  when:
-    - not (fast_mode | default(false) | bool)
-    - dashmate_user_exists | bool
+  register: dashmate_docker_group_update
+  when: dashmate_user_exists | bool
 
 # ============================================================================
 # EARLY PERMISSION FIXES - Ensure all dashmate directories have correct ownership
@@ -154,13 +143,13 @@
     - '{{ dashmate_config_dir }}'
     - '{{ dashmate_logs_dir }}'
   when:
-    - not (fast_mode | default(false) | bool)
+    - not (fast_mode | default(false) | bool) or (dashmate_user_create.changed | default(false) | bool)
     - dashmate_user_exists | bool
 
 - name: Fix ownership of any existing files in dashmate directories
   ansible.builtin.command: chown -R {{ dashmate_user }}:{{ dashmate_group }} {{ dashmate_home }}
   when:
-    - not (fast_mode | default(false) | bool)
+    - not (fast_mode | default(false) | bool) or (dashmate_user_create.changed | default(false) | bool)
     - dashmate_user_exists | bool
   changed_when: false
 

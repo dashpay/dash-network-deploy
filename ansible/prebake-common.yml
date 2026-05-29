@@ -14,6 +14,9 @@
         version: "1.29.2"
       - name: requests
         version: "2.31.0"
+    dashmate_group: dashmate
+    dashmate_user: dashmate
+    dashmate_home: /home/dashmate
   pre_tasks:
     - name: Update apt cache and install common packages
       ansible.builtin.apt:
@@ -22,6 +25,20 @@
           - jq
           - unzip
         update_cache: true
+
+    - name: Create dashmate group
+      ansible.builtin.group:
+        name: "{{ dashmate_group }}"
+
+    - name: Create dashmate user
+      ansible.builtin.user:
+        name: "{{ dashmate_user }}"
+        comment: Dashmate user
+        group: "{{ dashmate_group }}"
+        home: "{{ dashmate_home }}"
+        create_home: true
+        shell: /bin/bash
+        umask: "0002"
   roles:
     - swap
     - geerlingguy.pip
@@ -31,5 +48,6 @@
         docker_install_compose: false
         docker_users:
           - ubuntu
+          - "{{ dashmate_user }}"
     - docker_options
     - eternal_terminal
