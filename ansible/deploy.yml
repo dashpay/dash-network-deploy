@@ -80,7 +80,8 @@
       when: not (prebaked_common_setup | default(false) | bool)
     - role: eternal_terminal
       when: not (prebaked_common_setup | default(false) | bool)
-    - cwagent
+    - role: cwagent
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - infra_setup
@@ -99,8 +100,10 @@
   hosts: logs_nodes
   become: true
   roles:
-    - elastic_stack
-    - metricbeat
+    - role: elastic_stack
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - infra_setup
@@ -119,8 +122,10 @@
   hosts: metrics
   become: true
   roles:
-    - metrics
-    - metricbeat
+    - role: metrics
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - infra_setup
@@ -134,8 +139,10 @@
       enable_wallet: true
       tags:
         - dashd
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
 
@@ -147,8 +154,10 @@
     - role: dashd
       tags:
         - dashd
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
 
@@ -171,8 +180,10 @@
       tags:
         - dashd
     - role: tenderdash
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - update_seed_nodes
@@ -199,8 +210,10 @@
       tags:
         - dashd
     - mn_status_report
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - core_update
@@ -240,9 +253,13 @@
       dashd_listen: true
     - insight
     - role: status_dashboard
-      when: dash_network == "devnet"
-    - core_filebeat
-    - metricbeat
+      when:
+        - dash_network == "devnet"
+        - not (skip_observability_setup | default(false) | bool)
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - web
@@ -253,7 +270,8 @@
   gather_facts: false
   strategy: free
   roles:
-    - status_monitoring
+    - role: status_monitoring
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - dashmate_deploy
@@ -270,8 +288,10 @@
       enable_wallet: true
       tags:
         - dashd
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - core_update
@@ -371,12 +391,12 @@
       when: inventory_hostname in hp_masternodes
   roles:
     - role: dash_cli
-      when: not skip_dashmate_image_update | default(false)
+      when: not (fast_mode | default(false) | bool)
     - role: dashmate
     - role: mn_status_report
-      when: not skip_dashmate_image_update | default(false)
+      when: not (fast_mode | default(false) | bool)
     - role: metricbeat
-      when: not skip_dashmate_image_update | default(false)
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - dashmate_deploy

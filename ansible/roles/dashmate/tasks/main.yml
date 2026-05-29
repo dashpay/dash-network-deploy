@@ -58,19 +58,19 @@
   register: dashmate_group_check
   failed_when: false
   changed_when: false
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (fast_mode | default(false) | bool)
 
 - name: Check if dashmate user exists
   ansible.builtin.command: "id {{ dashmate_user }}"
   register: dashmate_user_check
   failed_when: false
   changed_when: false
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (fast_mode | default(false) | bool)
 
 - name: Set user/group existence facts
   ansible.builtin.set_fact:
     dashmate_group_exists: >-
-      {%- if skip_dashmate_image_update | default(false) -%}
+      {%- if fast_mode | default(false) | bool -%}
         true
       {%- elif dashmate_group_check is defined and dashmate_group_check.rc is defined -%}
         {{ dashmate_group_check.rc == 0 }}
@@ -78,7 +78,7 @@
         false
       {%- endif -%}
     dashmate_user_exists: >-
-      {%- if skip_dashmate_image_update | default(false) -%}
+      {%- if fast_mode | default(false) | bool -%}
         true
       {%- elif dashmate_user_check is defined and dashmate_user_check.rc is defined -%}
         {{ dashmate_user_check.rc == 0 }}
@@ -93,16 +93,17 @@
       User check failed: {{ dashmate_user_check.failed | default('undefined') }}
       Group check msg: {{ dashmate_group_check.msg | default('no msg') }}
       User check msg: {{ dashmate_user_check.msg | default('no msg') }}
+      fast_mode: {{ fast_mode | default('undefined') }}
       skip_dashmate_image_update: {{ skip_dashmate_image_update | default('undefined') }}
       dashmate_group_exists: {{ dashmate_group_exists }}
       dashmate_user_exists: {{ dashmate_user_exists }}
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (fast_mode | default(false) | bool)
 
 - name: Create dashmate group
   ansible.builtin.group:
     name: '{{ dashmate_group }}'
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - not dashmate_group_exists
 
 - name: Create dashmate user
@@ -115,7 +116,7 @@
     shell: /bin/bash
     umask: '0002'
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - not dashmate_user_exists
 
 - name: Update dashmate existence facts after user creation
@@ -123,7 +124,7 @@
     dashmate_group_exists: true
     dashmate_user_exists: true
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - not dashmate_user_exists
 
 - name: Add dashmate user to docker group
@@ -132,7 +133,7 @@
     groups: docker
     append: true
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - dashmate_user_exists
 
 # ============================================================================
@@ -153,13 +154,13 @@
     - '{{ dashmate_config_dir }}'
     - '{{ dashmate_logs_dir }}'
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - dashmate_user_exists
 
 - name: Fix ownership of any existing files in dashmate directories
   ansible.builtin.command: chown -R {{ dashmate_user }}:{{ dashmate_group }} {{ dashmate_home }}
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - dashmate_user_exists
   changed_when: false
 
@@ -233,7 +234,7 @@
 - name: Configure logs
   ansible.builtin.import_tasks: ./logs.yml
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (skip_observability_setup | default(false) | bool)
     - not (logrotate_config_stat.stat.exists | default(false)) or force_logs_config | default(false)
     - dashmate_user_exists  # Only configure logs if user exists
 
@@ -275,7 +276,7 @@
   register: dashmate_config_result
   ignore_errors: true
   changed_when: true
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (fast_mode | default(false) | bool)
 
 - name: Get ZeroSSL certificate ID from config
   ansible.builtin.command: "{{ dashmate_cmd }} config get platform.gateway.ssl.providerConfigs.zerossl.id"
@@ -287,7 +288,7 @@
   register: dashmate_zerossl_id_result
   changed_when: dashmate_zerossl_id_result.rc == 0
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - dashmate_config_result is defined
     - dashmate_config_result.rc is defined
@@ -297,7 +298,7 @@
   ansible.builtin.set_fact:
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - dashmate_config_result is defined
     - dashmate_config_result.rc is defined
@@ -317,7 +318,7 @@
   changed_when: dashmate_zerossl_id_result_fast.rc == 0
   failed_when: false
   when:
-    - skip_dashmate_image_update | default(false)
+    - fast_mode | default(false) | bool
     - dashmate_platform_enable
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
 
@@ -325,7 +326,7 @@
   ansible.builtin.set_fact:
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result_fast.stdout }}"
   when:
-    - skip_dashmate_image_update | default(false)
+    - fast_mode | default(false) | bool
     - dashmate_platform_enable
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - dashmate_zerossl_id_result_fast is defined
@@ -375,7 +376,7 @@
   register: template_result_fast
   when:
     - dashmate_user_exists
-    - skip_dashmate_image_update | default(false)
+    - fast_mode | default(false) | bool
 
 - name: Generate new config content for comparison (regular mode)
   vars:
@@ -384,20 +385,20 @@
     src: dashmate.json.j2
     dest: /tmp/new_dashmate_config.json
     mode: '0644'
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (fast_mode | default(false) | bool)
 
 - name: Read generated config content (regular mode)
   ansible.builtin.slurp:
     src: /tmp/new_dashmate_config.json
   register: new_config_slurp
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (fast_mode | default(false) | bool)
 
 - name: Read existing config if it exists (regular mode)
   ansible.builtin.slurp:
     src: '{{ dashmate_config_dir }}/config.json'
   register: existing_config_slurp
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - existing_dashmate_config_stat.stat.exists
   failed_when: false
 
@@ -408,7 +409,7 @@
         not existing_dashmate_config_stat.stat.exists or
         (existing_config_slurp.content | b64decode) != (new_config_slurp.content | b64decode)
       }}
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (fast_mode | default(false) | bool)
 
 - name: Write dashmate config file only if changed (regular mode)
   ansible.builtin.copy:
@@ -419,7 +420,7 @@
     mode: "0644"
   register: template_result_regular
   when:
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - dashmate_user_exists
     - config_needs_update
 
@@ -427,12 +428,12 @@
   ansible.builtin.file:
     path: /tmp/new_dashmate_config.json
     state: absent
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (fast_mode | default(false) | bool)
 
 - name: Set template_result for compatibility
   ansible.builtin.set_fact:
     template_result:
-      changed: "{{ template_result_fast.changed if (skip_dashmate_image_update | default(false)) else (config_needs_update | default(false)) }}"
+      changed: "{{ template_result_fast.changed if (fast_mode | default(false) | bool) else (config_needs_update | default(false)) }}"
       dest: "{{ dashmate_config_dir }}/config.json"
 
 - name: Debug config change details
@@ -480,9 +481,10 @@
       dashmate_platform_gateway_ssl_provider: {{ dashmate_platform_gateway_ssl_provider | default('undefined') }}
       ssl_cert_stat.stat.exists: {{ ssl_cert_stat.stat.exists | default('undefined') }}
       force_ssl_regenerate: {{ force_ssl_regenerate | default('undefined') }}
+      fast_mode: {{ fast_mode | default('undefined') }}
       skip_dashmate_image_update: {{ skip_dashmate_image_update | default('undefined') }}
       SSL cert condition: {{ not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false) }}
-      Skip condition: {{ not (skip_dashmate_image_update | default(false)) }}
+      Fast mode skip condition: {{ not (fast_mode | default(false) | bool) }}
 
 - name: Generate self-signed SSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/self_signed.yml
@@ -490,7 +492,7 @@
     - dashmate_platform_enable
     - dashmate_platform_gateway_ssl_provider == 'self-signed'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
 
 - name: Obtain ZeroSSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/zerossl.yml
@@ -498,7 +500,7 @@
     - dashmate_platform_enable
     - dashmate_platform_gateway_ssl_provider == 'zerossl'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
 
 - name: Obtain Let's Encrypt certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/letsencrypt.yml
@@ -506,7 +508,7 @@
     - dashmate_platform_enable
     - dashmate_platform_gateway_ssl_provider == 'letsencrypt'
     - not (ssl_cert_stat.stat.exists | default(false)) or force_ssl_regenerate | default(false)
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
 
 # ============================================================================
 # PHASE 7: Environment and Docker images
@@ -542,7 +544,7 @@
 
 - name: Check if images need update
   ansible.builtin.set_fact:
-    skip_image_update: "{{ skip_dashmate_image_update | default(false) }}"
+    skip_image_update: "{{ skip_dashmate_image_update | default(false) | bool }}"
 
 - name: Update dashmate images
   ansible.builtin.command: "{{ dashmate_cmd }} update --format=json"
@@ -553,7 +555,7 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   changed_when: dashmate_update.rc == 0
-  when: not (skip_dashmate_image_update | default(false))
+  when: not (skip_dashmate_image_update | default(false) | bool)
 
 # ============================================================================
 # PHASE 8: Service management
@@ -587,14 +589,14 @@
       }}
     is_core_images_updated: >-
       {{
-        false if skip_dashmate_image_update | default(false) else
+        false if skip_dashmate_image_update | default(false) | bool else
         ((dashmate_update.stdout | default('[]') | from_json |
         json_query('[?name==`core`]') | sort(attribute='updated', reverse=true) |
         first | default({})).updated | default(false))
       }}
     is_platform_images_updated: >-
       {{
-        false if skip_dashmate_image_update | default(false) else
+        false if skip_dashmate_image_update | default(false) | bool else
         ((dashmate_update.stdout | default('[]') | from_json |
         json_query('[?name!=`core`]') | sort(attribute='updated', reverse=true) |
         first | default({})).updated | default(false))
@@ -646,7 +648,7 @@
   when:
     - not (dashmate_start_all.changed | default(false))
     - is_dashmate_package_changed or is_dashmate_config_changed
-    - skip_dashmate_image_update | default(false)
+    - fast_mode | default(false) | bool
   changed_when: dashmate_restart_all.rc == 0
 
 # Regular deployment: coordinated chunked restarts
@@ -655,7 +657,7 @@
   when:
     - not (dashmate_start_all.changed | default(false))
     - is_dashmate_package_changed or is_dashmate_config_changed
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
 
 - name: Force synchronization before coordinated restart
   ansible.builtin.debug:
@@ -663,7 +665,7 @@
   when:
     - not (dashmate_start_all.changed | default(false))
     - is_dashmate_package_changed or is_dashmate_config_changed
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
 
 - name: Create host chunks to restart
   ansible.builtin.set_fact:
@@ -671,7 +673,7 @@
   when:
     - not (dashmate_start_all.changed | default(false))
     - is_dashmate_package_changed or is_dashmate_config_changed
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - inventory_hostname == play_hosts[0]
 
 - name: Print chunks info
@@ -680,7 +682,7 @@
   when:
     - not (dashmate_start_all.changed | default(false))
     - is_dashmate_package_changed or is_dashmate_config_changed
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - inventory_hostname == play_hosts[0]
 
 - name: Restart all dashmate services by chunks (regular mode)
@@ -693,7 +695,7 @@
   when:
     - not (dashmate_start_all.changed | default(false))
     - is_dashmate_package_changed or is_dashmate_config_changed
-    - not (skip_dashmate_image_update | default(false))
+    - not (fast_mode | default(false) | bool)
     - inventory_hostname == play_hosts[0]
 
 # Force start logic

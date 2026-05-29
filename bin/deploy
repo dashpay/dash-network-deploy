@@ -55,8 +55,8 @@ case ${i} in
     ansible_playbook="${i#*=}.yml"
     ;;
     --fast)
-    EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true -e force_logs_config=false"
-    echo "Fast mode enabled - skipping Docker image updates and non-critical operations"
+    EXTRA_VARS="$EXTRA_VARS -e fast_mode=true -e skip_dashmate_image_update=true -e skip_observability_setup=true -e metricbeat_enabled=false -e force_logs_config=false -e force_filebeat_restart=false"
+    echo "Fast mode enabled - skipping Docker image updates and observability/logging setup"
     ;;
     --skip-image-update)
     EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true"

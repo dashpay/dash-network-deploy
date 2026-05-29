@@ -110,6 +110,7 @@ restart_chunk_size: 10
 restart_delay_minutes: 10
 
 # Optimization flags - set these to skip certain operations
+fast_mode: false                        # Skip slow existing-host setup and use direct platform restarts
 force_dashmate_rebuild: false           # Force rebuild dashmate from source
 force_dashmate_reinstall: false         # Force reinstall dashmate package
 force_ssl_regenerate: false             # Force regenerate SSL certificates
@@ -121,4 +122,5 @@ force_filebeat_restart: false           # Force restart filebeat
 force_rust_deps: false                  # Force reinstall Rust dependencies
 force_git_clone: false                  # Force re-clone git repository
 force_build: false                      # Force rebuild from source
-skip_dashmate_image_update: false       # Skip Docker image updates (use with caution)
+skip_dashmate_image_update: false       # Skip Docker image updates
+skip_observability_setup: false         # Skip logs/filebeat/metricbeat/monitoring setup

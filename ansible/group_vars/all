@@ -8,6 +8,11 @@ node_environment: "production"
 # This skips slow common package/Docker/swap setup while keeping per-host configuration.
 prebaked_common_setup: false
 
+# Fast deploys are intended for existing hosts and skip slow/non-critical setup.
+# These are set by `bin/deploy --fast` and can also be passed manually.
+fast_mode: false
+skip_observability_setup: false
+
 platform_initial_core_chain_locked_height: ""
 
 # Install OpenVPN
