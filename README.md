@@ -220,6 +220,8 @@ Build both AMIs with Packer:
 bin/build-base-image --profile=<aws-profile> --region=us-west-2
 ```
 
+The `Build Base AMIs` GitHub Actions workflow also refreshes these AMIs weekly and can be run manually for a specific region, prefix, or architecture. It uses the same AWS repository secrets as the deploy workflows: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN`, and `AWS_REGION`.
+
 Then set the generated AMI IDs in the network tfvars:
 
 ```hcl

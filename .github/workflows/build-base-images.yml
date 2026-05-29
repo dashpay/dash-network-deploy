@@ -1,0 +1,130 @@
+name: Build Base AMIs
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: "AWS region for AMI builds. Defaults to AWS_REGION secret."
+        required: false
+        type: string
+        default: ""
+      ami_prefix:
+        description: "AMI name prefix"
+        required: true
+        type: string
+        default: dash-network-base
+      arch:
+        description: "Architecture(s) to build"
+        required: true
+        type: choice
+        options:
+          - both
+          - amd64
+          - arm64
+        default: both
+  schedule:
+    # Refresh base AMIs weekly so new deploys can use recent Ubuntu/package updates.
+    - cron: '20 4 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Dash Network base AMIs
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    concurrency:
+      group: build-base-amis-${{ inputs.region || 'scheduled' }}
+      cancel-in-progress: false
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: ${{ inputs.region || secrets.AWS_REGION }}
+      AWS_DEFAULT_REGION: ${{ inputs.region || secrets.AWS_REGION }}
+      AMI_PREFIX: ${{ inputs.ami_prefix || 'dash-network-base' }}
+      AMI_ARCH: ${{ inputs.arch || 'both' }}
+      ANSIBLE_HOST_KEY_CHECKING: "false"
+
+    steps:
+      - name: Checkout dash-network-deploy
+        uses: actions/checkout@v4
+
+      - name: Set up Packer
+        uses: hashicorp/setup-packer@v3
+
+      - name: Install controller dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-netaddr jq
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible-core==2.16.3 jmespath
+
+      - name: Validate AWS configuration
+        run: |
+          test -n "$AWS_ACCESS_KEY_ID"
+          test -n "$AWS_SECRET_ACCESS_KEY"
+          test -n "$AWS_REGION"
+          aws sts get-caller-identity --output json >/dev/null
+
+      - name: Initialize and validate Packer template
+        run: |
+          packer init packer/dash-network-base.pkr.hcl
+          packer fmt -check packer/dash-network-base.pkr.hcl
+          packer validate \
+            -var "region=${AWS_REGION}" \
+            -var "ami_prefix=${AMI_PREFIX}" \
+            packer/dash-network-base.pkr.hcl
+
+      - name: Build base AMIs
+        run: |
+          args=(--region="${AWS_REGION}" --ami-prefix="${AMI_PREFIX}")
+          case "$AMI_ARCH" in
+            both) ;;
+            amd64|arm64) args+=(--only="$AMI_ARCH") ;;
+            *)
+              echo "Unsupported arch: $AMI_ARCH" >&2
+              exit 1
+              ;;
+          esac
+
+          ./bin/build-base-image "${args[@]}"
+
+      - name: Summarize latest base AMIs
+        run: |
+          {
+            echo "## Latest base AMIs"
+            echo
+            echo "Region: \`${AWS_REGION}\`"
+            echo
+            echo "| Architecture | AMI ID | Name | Created |"
+            echo "| --- | --- | --- | --- |"
+            for arch in amd64 arm64; do
+              if [[ "$AMI_ARCH" != "both" && "$AMI_ARCH" != "$arch" ]]; then
+                continue
+              fi
+
+              image_json=$(aws ec2 describe-images \
+                --owners self \
+                --filters \
+                  "Name=tag:Project,Values=dash-network-deploy" \
+                  "Name=tag:Architecture,Values=${arch}" \
+                  "Name=name,Values=${AMI_PREFIX}-${arch}-*" \
+                --query 'sort_by(Images, &CreationDate)[-1]' \
+                --output json)
+
+              image_id=$(jq -r '.ImageId // ""' <<< "$image_json")
+              name=$(jq -r '.Name // ""' <<< "$image_json")
+              created=$(jq -r '.CreationDate // ""' <<< "$image_json")
+
+              if [[ -z "$image_id" ]]; then
+                echo "| ${arch} | not found |  |  |"
+              else
+                echo "| ${arch} | \`${image_id}\` | \`${name}\` | ${created} |"
+              fi
+            done
+            echo
+            echo "Set these in a network tfvars file as \`base_ami_amd64_id\` and \`base_ami_arm64_id\` when you want a deploy to adopt them."
+          } >> "$GITHUB_STEP_SUMMARY"
