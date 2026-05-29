@@ -50,6 +50,6 @@
   community.docker.docker_compose_v2:
     project_src: "{{ status_dashboard_path }}"
     state: present
-    pull: "{{ 'always' if (force_dashmate_reinstall | default(false) or not (skip_dashmate_image_update | default(false))) else 'policy' }}"
-    recreate: "{{ 'always' if (force_dashmate_rebuild | default(false)) else 'auto' }}"
+    pull: "{{ 'always' if (force_dashmate_reinstall | default(false) | bool or not (skip_dashmate_image_update | default(false) | bool)) else 'policy' }}"
+    recreate: "{{ 'always' if (force_dashmate_rebuild | default(false) | bool) else 'auto' }}"
   when: status_dashboard_ssh_key_stat.stat.exists

@@ -27,7 +27,7 @@
         is_aws_environment: '{{ aws_uri_check.status == 200 }}'
   roles:
     - role: aws
-      when: is_aws_environment
+      when: is_aws_environment | bool
     - role: swap
       when: not (prebaked_common_setup | default(false) | bool)
   tags:
@@ -39,7 +39,7 @@
   become: true
   roles:
     - role: openvpn
-      when: openvpn_enabled
+      when: openvpn_enabled | bool
   tags:
     - full_deploy
     - infra_setup
@@ -416,9 +416,9 @@
   become: true
   roles:
     - role: add_fake_latency
-      when: masternode_network_latency
+      when: masternode_network_latency | bool
     - role: remove_fake_latency
-      when: not masternode_network_latency
+      when: not (masternode_network_latency | bool)
   tags:
     - full_deploy
     - maintenance

@@ -87,4 +87,4 @@
           }}
         username: "{{ elastic_username }}"
         password: "{{ elastic_password }}"
-  when: metricbeat_enabled
+  when: metricbeat_enabled | bool

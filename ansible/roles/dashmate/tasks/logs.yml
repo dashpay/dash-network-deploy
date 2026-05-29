@@ -44,7 +44,7 @@
     owner: root
     group: root
     mode: '0644'
-  when: not logrotate_stat.stat.exists or force_logrotate_config | default(false)
+  when: not (logrotate_stat.stat.exists | default(false) | bool) or (force_logrotate_config | default(false) | bool)
 
 - name: Check if logrotate timer is already hourly
   ansible.builtin.command: grep -q '^OnCalendar=hourly' /lib/systemd/system/logrotate.timer
@@ -104,4 +104,4 @@
     name: filebeat
     state: restarted
     enabled: true
-  when: filebeat_config_changed | default(false) or force_filebeat_restart | default(false)
+  when: (filebeat_config_changed | default(false) | bool) or (force_filebeat_restart | default(false) | bool)
