@@ -14,6 +14,7 @@ fast_mode: false
 skip_dashd_image_update: false
 skip_deploy_cleanup: false
 skip_observability_setup: false
+generate_blocks_keep_miner_running: false
 mn_sync_poll_delay: 60
 mn_sync_retries: 100
 

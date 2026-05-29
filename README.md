@@ -83,7 +83,8 @@ For faster updates to an existing deployment, pass `--fast`. Fast mode skips Doc
 image updates, final Docker cleanup, and slow observability/logging setup such as
 CloudWatch Agent, Elastic/logs, filebeat, metricbeat, metrics, and status
 dashboards. It also polls masternode sync more frequently while preserving the
-same maximum wait time.
+same maximum wait time, and keeps the registration block generator running
+through collateral/protx/spork waits instead of restarting it for each wait.
 
 To destroy an available Dash Network, use the `destroy` command:
 

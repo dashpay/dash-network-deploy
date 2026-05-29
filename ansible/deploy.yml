@@ -305,6 +305,7 @@
     - role: mn_init
       mnlist: "{{ masternodes }}"
       funding_amount: "{{ masternode_collaterals.mn | int }}"
+      when: masternodes is defined and masternodes | length > 0
   tags:
     - full_deploy
     - unban_masternodes
@@ -314,6 +315,7 @@
   roles:
     - role: mn_protx_config
       mnlist: "{{ masternodes }}"
+      when: masternodes is defined and masternodes | length > 0
   tags:
     - full_deploy
     - unban_masternodes
@@ -364,6 +366,22 @@
     - role: activate_dashd_sporks
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
+  tags:
+    - full_deploy
+
+- name: Stop fast-mode registration miner
+  hosts: wallet_nodes
+  become: true
+  tasks:
+    - name: Stop persistent registration block generator
+      ansible.builtin.systemd:
+        name: 'dashd-generate-miner'
+        state: stopped
+        enabled: false
+        masked: false
+      when:
+        - generate_blocks_keep_miner_running | default(false) | bool
+        - dash_network == "devnet" or dash_network == "regtest"
   tags:
     - full_deploy
 
