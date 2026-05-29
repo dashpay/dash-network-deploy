@@ -352,7 +352,12 @@
 
 - name: Set core restart flag
   ansible.builtin.set_fact:
-    needs_core_restart: "{{ (include_core_restart | default(false) | bool) or (core_image_changed | default(false) | bool) or not (existing_dashmate_config_stat.stat.exists | default(false) | bool) }}"
+    needs_core_restart: >-
+      {{
+        (include_core_restart | default(false) | bool)
+        or (core_image_changed | default(false) | bool)
+        or not (existing_dashmate_config_stat.stat.exists | default(false) | bool)
+      }}
 
 - name: Write dashmate config file (fast mode - always write)
   vars:
@@ -452,7 +457,10 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_render_configs_result
   changed_when: dashmate_render_configs_result.rc == 0
-  when: not (docker_compose_stat.stat.exists | default(false)) or (template_result.changed | default(false) | bool) or (force_config_render | default(false) | bool)
+  when: >
+    not (docker_compose_stat.stat.exists | default(false)) or
+    (template_result.changed | default(false) | bool) or
+    (force_config_render | default(false) | bool)
 
 # ============================================================================
 # PHASE 6: SSL certificates (only skip in fast mode)
