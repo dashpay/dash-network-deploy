@@ -20,45 +20,50 @@
   when:
     - inventory_hostname not in groups["hp_masternodes"]
 
-- name: Prune only safe dangling Docker data
+- name: Prune only dangling Docker images
   community.docker.docker_prune:
     # Keep stopped Core containers and core_data volumes intact on platform-only destroy.
     containers: false
     images: true
     images_filters:
       dangling: true
-    networks: true
+    networks: false
     volumes: false
-    builder_cache: true
+    builder_cache: false
 
 - name: Check for remaining platform Docker resources
   ansible.builtin.shell: |
-    set -o pipefail
+    set -euo pipefail
 
-    if [ "{{ inventory_hostname in groups['hp_masternodes'] }}" = "True" ]; then
+    print_matching() {
+      local label="$1"
+      local pattern="$2"
+      local exclude="${3:-}"
+
+      awk -v label="$label" -v pattern="$pattern" -v exclude="$exclude" '
+        $0 ~ pattern && (exclude == "" || $0 !~ exclude) {
+          print label ": " $0
+        }
+      '
+    }
+
+    if [ "{{ inventory_hostname in groups.get('hp_masternodes', []) }}" = "True" ]; then
       project="dashmate_{{ dash_network_name }}"
 
       docker ps -a --format '{{ "{{" }}.Names{{ "}}" }}' |
-        grep -E "^${project}-" |
-        grep -Ev "^${project}-core-1$" |
-        sed 's/^/container: /' || true
+        print_matching "container" "^${project}-" "^${project}-core-1$"
 
       docker volume ls --format '{{ "{{" }}.Name{{ "}}" }}' |
-        grep -E "^${project}_" |
-        grep -Ev "^${project}_core_data$" |
-        sed 's/^/volume: /' || true
+        print_matching "volume" "^${project}_" "^${project}_core_data$"
 
       docker network ls --format '{{ "{{" }}.Name{{ "}}" }}' |
-        grep -E "^${project}_" |
-        sed 's/^/network: /' || true
+        print_matching "network" "^${project}_" "^${project}_default$"
     else
       docker ps -a --format '{{ "{{" }}.Names{{ "}}" }}' |
-        grep -E '^tenderdash$' |
-        sed 's/^/container: /' || true
+        print_matching "container" '^tenderdash$'
 
       docker network ls --format '{{ "{{" }}.Name{{ "}}" }}' |
-        grep -E '^tenderdash_' |
-        sed 's/^/network: /' || true
+        print_matching "network" '^tenderdash_'
     fi
   args:
     executable: /bin/bash
