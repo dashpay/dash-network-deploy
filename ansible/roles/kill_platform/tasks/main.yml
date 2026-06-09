@@ -20,9 +20,36 @@
   when:
     - inventory_hostname not in groups["hp_masternodes"]
 
+- name: Prune stopped platform containers (dashmate)
+  community.docker.docker_prune:
+    containers: true
+    containers_filters:
+      label:
+        - "com.docker.compose.project=dashmate_{{ dash_network_name }}"
+      "label!":
+        - "com.docker.compose.service=core"
+    images: false
+    networks: false
+    volumes: false
+    builder_cache: false
+  when:
+    - inventory_hostname in groups["hp_masternodes"]
+
+- name: Prune stopped platform containers (seeds)
+  community.docker.docker_prune:
+    containers: true
+    containers_filters:
+      label:
+        - "com.docker.compose.project={{ tenderdash_compose_project_name }}"
+    images: false
+    networks: false
+    volumes: false
+    builder_cache: false
+  when:
+    - inventory_hostname not in groups["hp_masternodes"]
+
 - name: Prune only dangling Docker images
   community.docker.docker_prune:
-    # Keep stopped Core containers and core_data volumes intact on platform-only destroy.
     containers: false
     images: true
     images_filters:
