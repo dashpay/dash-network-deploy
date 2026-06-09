@@ -30,3 +30,47 @@
     networks: true
     volumes: false
     builder_cache: true
+
+- name: Check for remaining platform Docker resources
+  ansible.builtin.shell: |
+    set -o pipefail
+
+    if [ "{{ inventory_hostname in groups['hp_masternodes'] }}" = "True" ]; then
+      project="dashmate_{{ dash_network_name }}"
+
+      docker ps -a --format '{{ "{{" }}.Names{{ "}}" }}' |
+        grep -E "^${project}-" |
+        grep -Ev "^${project}-core-1$" |
+        sed 's/^/container: /' || true
+
+      docker volume ls --format '{{ "{{" }}.Name{{ "}}" }}' |
+        grep -E "^${project}_" |
+        grep -Ev "^${project}_core_data$" |
+        sed 's/^/volume: /' || true
+
+      docker network ls --format '{{ "{{" }}.Name{{ "}}" }}' |
+        grep -E "^${project}_" |
+        sed 's/^/network: /' || true
+    else
+      docker ps -a --format '{{ "{{" }}.Names{{ "}}" }}' |
+        grep -E '^tenderdash$' |
+        sed 's/^/container: /' || true
+
+      docker network ls --format '{{ "{{" }}.Name{{ "}}" }}' |
+        grep -E '^tenderdash_' |
+        sed 's/^/network: /' || true
+    fi
+  args:
+    executable: /bin/bash
+  register: platform_docker_leftovers
+  changed_when: false
+
+- name: Report platform Docker cleanup status
+  ansible.builtin.debug:
+    msg: |
+      {% if platform_docker_leftovers.stdout_lines | length > 0 %}
+      Remaining platform Docker resources after platform destroy on {{ inventory_hostname }}:
+      {{ platform_docker_leftovers.stdout }}
+      {% else %}
+      No remaining platform Docker containers, volumes, or networks after platform destroy on {{ inventory_hostname }}.
+      {% endif %}
