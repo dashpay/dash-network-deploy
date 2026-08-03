@@ -420,6 +420,9 @@
                 "gossipSleepDuration": "{{dashmate_platform_drive_tenderdash_consensus_peer_gossip_sleep_duration}}",
                 "queryMaj23SleepDuration": "{{dashmate_platform_drive_tenderdash_consensus_peer_query_maj23_sleep_duration}}"
               },
+              "verificationRateLimit": {{dashmate_platform_drive_tenderdash_consensus_verification_rate_limit}},
+              "peerVoteRateLimit": {{dashmate_platform_drive_tenderdash_consensus_peer_vote_rate_limit}},
+              "peerDataRateLimit": {{dashmate_platform_drive_tenderdash_consensus_peer_data_rate_limit}},
               "unsafeOverride": {
                 "propose": {
                   "timeout": {% if dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout is not none %}"{{dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout}}"{% else %}null{% endif %},
