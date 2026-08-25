@@ -295,6 +295,6 @@ variable "enable_ipv6" {
 
 variable "byoip_pool_id" {
   description = "IPAM pool ID for BYOIP address allocation. When set, all instances get EIPs from this pool."
-  default     = ""
+  default     = "ipam-pool-0de83ed8bba5f9b48"
 }
 
