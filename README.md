@@ -22,7 +22,8 @@ Dash Core developers to assist in Dash Platform development.
 ## Installation
 
 1. [Install Docker](https://docs.docker.com/install/)
-2. Download tool:
+2. [Install Packer](https://developer.hashicorp.com/packer/install) if you plan to build pre-baked base AMIs.
+3. Download tool:
 
     Using `wget`:
 
@@ -77,6 +78,13 @@ dash-network deploy <network_name>
 ```
 
 You may pass the `--only-infrastructure` or `--only-provisioning` option to target either infrastructure or software provisioning workflows.
+
+For faster updates to an existing deployment, pass `--fast`. Fast mode skips Docker
+image updates, final Docker cleanup, and slow observability/logging setup such as
+CloudWatch Agent, Elastic/logs, filebeat, metricbeat, metrics, and status
+dashboards. It also polls masternode sync more frequently while preserving the
+same maximum wait time, and keeps the registration block generator running
+through collateral/protx/spork waits instead of restarting it for each wait.
 
 To destroy an available Dash Network, use the `destroy` command:
 
@@ -208,3 +216,32 @@ aws route53 create-hosted-zone --name networks.domain.tld --caller-reference 123
 ```
 
 Please note the values of these, as they will be needed in the network config files.
+
+## Pre-baked base AMIs
+
+Deployments can use architecture-specific base AMIs with common host setup already installed. This avoids repeating the slow, identical bootstrap work on every deploy.
+
+Build both AMIs with Packer:
+
+```bash
+bin/build-base-image --profile=<aws-profile> --region=us-west-2
+```
+
+The `Build Base AMIs` GitHub Actions workflow also refreshes these AMIs weekly and can be run manually for a specific region, prefix, or architecture. It uses the same AWS repository secrets as the deploy workflows: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN`, and `AWS_REGION`.
+
+Then set the generated AMI IDs in the network tfvars:
+
+```hcl
+base_ami_amd64_id = "ami-..."
+base_ami_arm64_id = "ami-..."
+```
+
+When provisioning instances launched from those AMIs, skip the baked common setup:
+
+```bash
+./bin/deploy -p --prebaked-common-setup <network_name>
+```
+
+The baked image includes swap, common packages, Python/pip Docker dependencies, Docker, Docker daemon options, and Eternal Terminal. Per-host runtime configuration still runs during deploy, including hostnames, `/etc/hosts`, CloudWatch Agent configuration, VPN, logs, metrics, and node-specific Dash services.
+
+Changing AMI IDs does not replace existing instances automatically because Terraform ignores AMI drift for instance resources. Recreate or taint instances to adopt a new base image.

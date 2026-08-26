@@ -21,6 +21,7 @@ Options:
             --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
             --fast                              - Fast deployment mode (skip non-critical operations)
             --skip-image-update                 - Skip Docker image updates
+            --prebaked-common-setup             - Skip common setup provided by a pre-baked base AMI
             --core-restart                      - Include core services in restart (default: platform only)
   -h        --help                        - Show help"
 
@@ -54,11 +55,20 @@ case ${i} in
     ansible_playbook="${i#*=}.yml"
     ;;
     --fast)
-    EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true -e force_logs_config=false"
-    echo "Fast mode enabled - skipping Docker image updates and non-critical operations"
+    EXTRA_VARS="$EXTRA_VARS -e fast_mode=true -e skip_dashmate_image_update=true"
+    EXTRA_VARS="$EXTRA_VARS -e skip_dashd_image_update=true -e skip_deploy_cleanup=true"
+    EXTRA_VARS="$EXTRA_VARS -e skip_observability_setup=true -e metricbeat_enabled=false"
+    EXTRA_VARS="$EXTRA_VARS -e force_logs_config=false -e force_filebeat_restart=false"
+    EXTRA_VARS="$EXTRA_VARS -e generate_blocks_keep_miner_running=true"
+    EXTRA_VARS="$EXTRA_VARS -e mn_sync_poll_delay=10 -e mn_sync_retries=600"
+    echo "Fast mode enabled - skipping image updates, cleanup, and observability/logging setup"
     ;;
     --skip-image-update)
-    EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true"
+    EXTRA_VARS="$EXTRA_VARS -e skip_dashmate_image_update=true -e skip_dashd_image_update=true"
+    ;;
+    --prebaked-common-setup)
+    EXTRA_VARS="$EXTRA_VARS -e prebaked_common_setup=true"
+    echo "Pre-baked common setup enabled - skipping common package/Docker/swap setup"
     ;;
     --core-restart)
     EXTRA_VARS="$EXTRA_VARS -e include_core_restart=true"

@@ -19,6 +19,7 @@
 
           # Infrastructure
           terraform
+          packer
           ansible
           docker-client
 

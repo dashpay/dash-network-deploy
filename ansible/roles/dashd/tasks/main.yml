@@ -89,6 +89,11 @@
     path: /etc/cron.daily/logrotate
     mode: "+x"
 
+- name: Set dash core compose update policy
+  ansible.builtin.set_fact:
+    dashd_compose_pull_policy: "{{ 'missing' if (skip_dashd_image_update | default(false) | bool) else 'always' }}"
+    dashd_compose_recreate_policy: "{{ 'auto' if (skip_dashd_image_update | default(false) | bool) else 'always' }}"
+
 - name: Check if wallet exists
   ansible.builtin.stat:
     path: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_faucet }}/wallet.dat"
@@ -101,15 +106,15 @@
     block: |
       wallet={{ wallet_rpc_wallet_faucet }}
       wallet={{ wallet_rpc_wallet_mno }}
-  when: enable_wallet is true and wallet_exists.stat.exists is true
+  when: (enable_wallet | default(false) | bool) and wallet_exists.stat.exists is true
 
 # TODO: why does this always take exactly 30 seconds on first deploy?
 - name: Start dash core
   community.docker.docker_compose_v2:
     project_src: '{{ dashd_compose_path }}'
     state: present
-    pull: always
-    recreate: always
+    pull: "{{ dashd_compose_pull_policy }}"
+    recreate: "{{ dashd_compose_recreate_policy }}"
     timeout: 30
 
 - name: Wait for rpc to be available
@@ -126,14 +131,14 @@
     cmd: dash-cli createwallet {{ wallet_rpc_wallet_faucet }}
     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_faucet }}/wallet.dat"
   register: create_faucet_wallet_result
-  when: enable_wallet is true
+  when: enable_wallet | default(false) | bool
 
 - name: Create mno wallet
   ansible.builtin.command:
     cmd: dash-cli createwallet {{ wallet_rpc_wallet_mno }}
     creates: "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/wallets/{{ wallet_rpc_wallet_mno }}/wallet.dat"
   register: create_mno_wallet_result
-  when: enable_wallet is true
+  when: enable_wallet | default(false) | bool
 
 - name: Load wallets on startup
   ansible.builtin.blockinfile:
@@ -147,5 +152,5 @@
 - name: Import faucet privkey
   ansible.builtin.command: dash-cli -rpcwallet={{ wallet_rpc_wallet_faucet }} importprivkey {{ faucet_privkey }}
   register: result
-  when: enable_wallet is true
+  when: enable_wallet | default(false) | bool
   changed_when: result.rc == 0

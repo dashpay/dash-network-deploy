@@ -21,7 +21,7 @@
 - name: Enable dashd-generate-miner
   ansible.builtin.systemd:
     name: 'dashd-generate-miner'
-    state: restarted
+    state: "{{ (dashd_generate_miner_restart | default(true) | bool) | ternary('restarted', 'started') }}"
     enabled: true
     masked: false
     daemon_reload: '{{ service_result.changed }}'

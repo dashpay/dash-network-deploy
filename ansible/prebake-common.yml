@@ -1,0 +1,53 @@
+---
+
+- name: Build Dash Network common base image
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    swap_space: 2G
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+        version: "6.0.1"
+      - name: docker-compose
+        version: "1.29.2"
+      - name: requests
+        version: "2.31.0"
+    dashmate_group: dashmate
+    dashmate_user: dashmate
+    dashmate_home: /home/dashmate
+  pre_tasks:
+    - name: Update apt cache and install common packages
+      ansible.builtin.apt:
+        pkg:
+          - acl
+          - jq
+          - unzip
+        update_cache: true
+
+    - name: Create dashmate group
+      ansible.builtin.group:
+        name: "{{ dashmate_group }}"
+
+    - name: Create dashmate user
+      ansible.builtin.user:
+        name: "{{ dashmate_user }}"
+        comment: Dashmate user
+        group: "{{ dashmate_group }}"
+        home: "{{ dashmate_home }}"
+        create_home: true
+        shell: /bin/bash
+        umask: "0002"
+  roles:
+    - swap
+    - geerlingguy.pip
+    - role: geerlingguy.docker
+      vars:
+        docker_apt_arch: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
+        docker_install_compose: false
+        docker_users:
+          - ubuntu
+          - "{{ dashmate_user }}"
+    - docker_options
+    - eternal_terminal

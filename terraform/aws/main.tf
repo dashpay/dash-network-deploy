@@ -10,6 +10,7 @@ data "aws_availability_zones" "available" {
 }
 
 data "aws_ami" "ubuntu_amd" {
+  count       = var.base_ami_amd64_id == "" ? 1 : 0
   most_recent = true
 
   filter {
@@ -27,6 +28,7 @@ data "aws_ami" "ubuntu_amd" {
 }
 
 data "aws_ami" "ubuntu_arm" {
+  count       = var.base_ami_arm64_id == "" ? 1 : 0
   most_recent = true
 
   filter {
@@ -41,6 +43,12 @@ data "aws_ami" "ubuntu_arm" {
     "099720109477",
   ]
   # Canonical
+}
+
+locals {
+  ubuntu_amd_ami_id = var.base_ami_amd64_id != "" ? var.base_ami_amd64_id : one(data.aws_ami.ubuntu_amd[*].id)
+  ubuntu_arm_ami_id = var.base_ami_arm64_id != "" ? var.base_ami_arm64_id : one(data.aws_ami.ubuntu_arm[*].id)
+  main_host_ami_id  = var.main_host_arch == "arm64" ? local.ubuntu_arm_ami_id : local.ubuntu_amd_ami_id
 }
 
 # Create a VPC to launch our instances into
@@ -86,11 +94,11 @@ resource "aws_subnet" "public" {
   cidr_block              = var.subnet_public_cidr[count.index]
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[count.index]
-  
+
   # IPv6 support
   ipv6_cidr_block                 = var.enable_ipv6 ? cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, count.index) : null
   assign_ipv6_address_on_creation = var.enable_ipv6
-  
+
   tags = {
     Name        = "${terraform.workspace}-public${count.index}"
     DashNetwork = terraform.workspace
@@ -249,8 +257,8 @@ resource "aws_route53_record" "seeds" {
   type    = "A"
 
   alias {
-    name                   = aws_lb.seed.dns_name
-    zone_id                = aws_lb.seed.zone_id
+    name    = aws_lb.seed.dns_name
+    zone_id = aws_lb.seed.zone_id
     # TODO: enable health checks
     # https://www.envoyproxy.io/docs/envoy/latest/operations/admin#get--ready
     evaluate_target_health = false
@@ -446,7 +454,7 @@ resource "random_shuffle" "dns_ips" {
       (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
       (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
     )
-  ) > local.dns_record_length ? local.dns_record_length : length(
+    ) > local.dns_record_length ? local.dns_record_length : length(
     concat(
       (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_arm_eip.*.public_ip : aws_instance.hp_masternode_arm.*.public_ip,
       (var.create_eip || var.byoip_pool_id != "") ? aws_eip.hpmn_amd_eip.*.public_ip : aws_instance.hp_masternode_amd.*.public_ip
@@ -507,12 +515,11 @@ resource "aws_eip" "vpn" {
 
   count = var.vpn_enabled ? 1 : 0
 
-  instance         = aws_instance.vpn[0].id
-  public_ipv4_pool = var.byoip_pool_id != "" ? var.byoip_pool_id : null
+  instance     = aws_instance.vpn[0].id
+  ipam_pool_id = var.byoip_pool_id != "" ? var.byoip_pool_id : null
 
   tags = {
     Name        = "dn-${terraform.workspace}-vpn"
     DashNetwork = terraform.workspace
   }
 }
-

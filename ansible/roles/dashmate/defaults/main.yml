@@ -55,6 +55,7 @@ dashmate_platform_drive_tenderdash_p2p_send_rate: 5120000
 dashmate_platform_drive_tenderdash_p2p_recv_rate: 5120000
 dashmate_platform_drive_tenderdash_p2p_max_connections: 64
 dashmate_platform_drive_tenderdash_p2p_max_outgoing_connections: 30
+dashmate_platform_drive_tenderdash_p2p_allowlist_only: false
 dashmate_platform_drive_tenderdash_mempool_size: 5000
 dashmate_platform_drive_tenderdash_mempool_cache_size: 10000
 dashmate_platform_drive_tenderdash_mempool_max_txs_bytes: 536870912 # 500Mb, default: 1073741824
@@ -109,6 +110,7 @@ restart_chunk_size: 10
 restart_delay_minutes: 10
 
 # Optimization flags - set these to skip certain operations
+fast_mode: false                        # Skip slow existing-host setup and use direct platform restarts
 force_dashmate_rebuild: false           # Force rebuild dashmate from source
 force_dashmate_reinstall: false         # Force reinstall dashmate package
 force_ssl_regenerate: false             # Force regenerate SSL certificates
@@ -120,4 +122,5 @@ force_filebeat_restart: false           # Force restart filebeat
 force_rust_deps: false                  # Force reinstall Rust dependencies
 force_git_clone: false                  # Force re-clone git repository
 force_build: false                      # Force rebuild from source
-skip_dashmate_image_update: false       # Skip Docker image updates (use with caution)
+skip_dashmate_image_update: false       # Skip Docker image updates
+skip_observability_setup: false         # Skip logs/filebeat/metricbeat/monitoring setup

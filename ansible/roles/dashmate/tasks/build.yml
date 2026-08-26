@@ -15,26 +15,26 @@
     - docker-compose-plugin
   failed_when: false
   changed_when: false
-  when: dashmate_platform_enable
+  when: dashmate_platform_enable | bool
 
 - name: Get list of missing packages
   ansible.builtin.set_fact:
     missing_packages: "{{ package_check.results | selectattr('rc', 'ne', 0) | map(attribute='item') | list }}"
-  when: dashmate_platform_enable
+  when: dashmate_platform_enable | bool
 
 - name: Install system dependencies
   ansible.builtin.package:
     name: "{{ missing_packages }}"
     state: present
   when:
-    - dashmate_platform_enable
+    - dashmate_platform_enable | bool
     - missing_packages | length > 0
 
 - name: Check if Rust is installed
   ansible.builtin.stat:
     path: '{{ dashmate_home }}/.cargo/bin/rustc'
   register: rust_installed
-  when: dashmate_platform_enable
+  when: dashmate_platform_enable | bool
 
 - name: Download Rustup
   ansible.builtin.get_url:
@@ -45,7 +45,7 @@
     mode: '0755'
   register: rustup
   when:
-    - dashmate_platform_enable
+    - dashmate_platform_enable | bool
     - not rust_installed.stat.exists
 
 - name: Install Rust
@@ -55,7 +55,7 @@
   become_flags: '-H'
   when:
     - rustup.changed
-    - dashmate_platform_enable
+    - dashmate_platform_enable | bool
     - not rust_installed.stat.exists
   changed_when: true
 
@@ -63,7 +63,7 @@
   ansible.builtin.stat:
     path: '{{ dashmate_home }}/.cargo/bin/wasm-bindgen'
   register: wasm_bindgen_installed
-  when: dashmate_platform_enable
+  when: dashmate_platform_enable | bool
 
 # TODO: it should work without sourcing cargo env
 - name: Install Rust dependencies
@@ -79,8 +79,8 @@
     executable: /bin/bash
   changed_when: true
   when:
-    - dashmate_platform_enable
-    - not wasm_bindgen_installed.stat.exists or force_rust_deps | default(false)
+    - dashmate_platform_enable | bool
+    - not wasm_bindgen_installed.stat.exists or force_rust_deps | default(false) | bool
 
 - name: Check if Node.js is installed with correct version
   ansible.builtin.command: node --version
@@ -120,7 +120,7 @@
     single_branch: true
     depth: 1
   register: git
-  when: not dashmate_source_exists.stat.exists or current_branch.stdout != dashmate_branch or force_git_clone | default(false)
+  when: not dashmate_source_exists.stat.exists or current_branch.stdout != dashmate_branch or force_git_clone | default(false) | bool
 
 - name: Enable corepack
   ansible.builtin.shell: |
@@ -156,7 +156,7 @@
   args:
     chdir: '{{ dashmate_source_dir }}'
     executable: /bin/bash
-  when: (git is defined and git.changed) or not dashmate_build_exists.stat.exists or force_build | default(false)
+  when: (git is defined and git.changed) or not dashmate_build_exists.stat.exists or force_build | default(false) | bool
   changed_when: true
 
 - name: Check if default config is set

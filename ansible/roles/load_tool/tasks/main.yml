@@ -17,7 +17,7 @@
       - libssl-dev
       - pkg-config
     state: present
-  when: dashmate_platform_enable
+  when: dashmate_platform_enable | bool
 
 - name: Download Rustup
   ansible.builtin.get_url:

@@ -27,8 +27,9 @@
         is_aws_environment: '{{ aws_uri_check.status == 200 }}'
   roles:
     - role: aws
-      when: is_aws_environment
-    - swap
+      when: is_aws_environment | bool
+    - role: swap
+      when: not (prebaked_common_setup | default(false) | bool)
   tags:
     - full_deploy
     - infra_setup
@@ -38,7 +39,7 @@
   become: true
   roles:
     - role: openvpn
-      when: openvpn_enabled
+      when: openvpn_enabled | bool
   tags:
     - full_deploy
     - infra_setup
@@ -48,13 +49,14 @@
   hosts: all
   become: true
   pre_tasks:
-    - name: Update apt cache and install jq
+    - name: Update apt cache and install common packages
       ansible.builtin.apt:
         pkg:
           - acl
           - jq
           - unzip
         update_cache: true
+      when: not (prebaked_common_setup | default(false) | bool)
   vars:
     pip_package: python3-pip
     pip_install_packages:
@@ -65,16 +67,21 @@
       - name: requests
         version: "2.31.0"
   roles:
-    - geerlingguy.pip
+    - role: geerlingguy.pip
+      when: not (prebaked_common_setup | default(false) | bool)
     - role: geerlingguy.docker
+      when: not (prebaked_common_setup | default(false) | bool)
       vars:
-        docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+        docker_apt_arch: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
         docker_install_compose: false
         docker_users:
           - ubuntu
-    - docker_options
-    - eternal_terminal
-    - cwagent
+    - role: docker_options
+      when: not (prebaked_common_setup | default(false) | bool)
+    - role: eternal_terminal
+      when: not (prebaked_common_setup | default(false) | bool)
+    - role: cwagent
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - infra_setup
@@ -93,8 +100,10 @@
   hosts: logs_nodes
   become: true
   roles:
-    - elastic_stack
-    - metricbeat
+    - role: elastic_stack
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - infra_setup
@@ -113,8 +122,10 @@
   hosts: metrics
   become: true
   roles:
-    - metrics
-    - metricbeat
+    - role: metrics
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - infra_setup
@@ -125,10 +136,13 @@
   roles:
     - role: dash_cli
     - role: dashd
+      enable_wallet: true
       tags:
         - dashd
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
 
@@ -140,8 +154,10 @@
     - role: dashd
       tags:
         - dashd
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
 
@@ -164,8 +180,10 @@
       tags:
         - dashd
     - role: tenderdash
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - update_seed_nodes
@@ -192,8 +210,10 @@
       tags:
         - dashd
     - mn_status_report
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - core_update
@@ -224,7 +244,8 @@
   hosts: web
   become: true
   roles:
-    - multifaucet
+    # Multifaucet is intentionally skipped; current devnets do not need it.
+    # - multifaucet
     - role: dash_cli
     - role: dashd
       dashd_indexes: true
@@ -232,9 +253,13 @@
       dashd_listen: true
     - insight
     - role: status_dashboard
-      when: dash_network == "devnet"
-    - core_filebeat
-    - metricbeat
+      when:
+        - dash_network == "devnet"
+        - not (skip_observability_setup | default(false) | bool)
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - web
@@ -245,7 +270,8 @@
   gather_facts: false
   strategy: free
   roles:
-    - status_monitoring
+    - role: status_monitoring
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - dashmate_deploy
@@ -262,8 +288,10 @@
       enable_wallet: true
       tags:
         - dashd
-    - core_filebeat
-    - metricbeat
+    - role: core_filebeat
+      when: not (skip_observability_setup | default(false) | bool)
+    - role: metricbeat
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - core_update
@@ -277,6 +305,7 @@
     - role: mn_init
       mnlist: "{{ masternodes }}"
       funding_amount: "{{ masternode_collaterals.mn | int }}"
+      when: masternodes is defined and masternodes | length > 0
   tags:
     - full_deploy
     - unban_masternodes
@@ -286,6 +315,7 @@
   roles:
     - role: mn_protx_config
       mnlist: "{{ masternodes }}"
+      when: masternodes is defined and masternodes | length > 0
   tags:
     - full_deploy
     - unban_masternodes
@@ -339,6 +369,22 @@
   tags:
     - full_deploy
 
+- name: Stop fast-mode registration miner
+  hosts: wallet_nodes
+  become: true
+  tasks:
+    - name: Stop persistent registration block generator
+      ansible.builtin.systemd:
+        name: 'dashd-generate-miner'
+        state: stopped
+        enabled: false
+        masked: false
+      when:
+        - generate_blocks_keep_miner_running | default(false) | bool
+        - dash_network == "devnet" or dash_network == "regtest"
+  tags:
+    - full_deploy
+
 # todo: partially working code causes errors in deploy, comment out for now and fix later
 # - name: Create governance proposals
 #   hosts: wallet_nodes
@@ -363,12 +409,12 @@
       when: inventory_hostname in hp_masternodes
   roles:
     - role: dash_cli
-      when: not skip_dashmate_image_update | default(false)
+      when: not (fast_mode | default(false) | bool)
     - role: dashmate
     - role: mn_status_report
-      when: not skip_dashmate_image_update | default(false)
+      when: not (fast_mode | default(false) | bool)
     - role: metricbeat
-      when: not skip_dashmate_image_update | default(false)
+      when: not (skip_observability_setup | default(false) | bool)
   tags:
     - full_deploy
     - dashmate_deploy
@@ -388,9 +434,9 @@
   become: true
   roles:
     - role: add_fake_latency
-      when: masternode_network_latency
+      when: masternode_network_latency | bool
     - role: remove_fake_latency
-      when: not masternode_network_latency
+      when: not (masternode_network_latency | bool)
   tags:
     - full_deploy
     - maintenance
@@ -415,6 +461,7 @@
         networks: true
         volumes: false
         builder_cache: true
+      when: not (skip_deploy_cleanup | default(false) | bool)
   tags:
     - full_deploy
     - cleanup

@@ -23,7 +23,7 @@
   delegate_to: localhost
   become: false
   ansible.builtin.set_fact:
-    dashmate_zerossl_ssm_certificate_id: "{{ lookup('aws_ssm', '{{ dashmate_zerossl_ssm_path }}-id', on_missing='skip') }}"
+    dashmate_zerossl_ssm_certificate_id: "{{ lookup('aws_ssm', dashmate_zerossl_ssm_path ~ '-id', on_missing='skip') | default('', true) }}"
 
 - name: Set ZeroSSL certificate ID to dashmate config from SSM if not set
   ansible.builtin.command: >-
@@ -37,7 +37,7 @@
   register: dashmate_zerossl_id
   changed_when: dashmate_zerossl_id.rc == 0
   when:
-    - dashmate_zerossl_ssm_certificate_id != ''
+    - (dashmate_zerossl_ssm_certificate_id | default('', true) | length) > 0
     - dashmate_zerossl_config_certificate_id is not defined
 
 # Copy ZeroSSL files if they are not present
@@ -48,18 +48,19 @@
   register: zero_ssl_files
 
 - name: Get ZeroSSL CSR and private key from SSM
+  no_log: true
   ansible.builtin.copy:
     dest: '{{ dashmate_zerossl_keys_path }}/{{ item }}'
-    content: "{{ lookup('aws_ssm', '{{ dashmate_zerossl_ssm_path }}-{{ item }}', on_missing='skip') }}"
+    content: "{{ lookup('aws_ssm', dashmate_zerossl_ssm_path ~ '-' ~ item, on_missing='skip') | default('', true) }}"
     owner: '{{ dashmate_user }}'
     group: '{{ dashmate_group }}'
-    mode: "0644"
+    mode: "{{ '0600' if item == dashmate_zerossl_private_key_file_name else '0644' }}"
   loop:
     - '{{ dashmate_zerossl_private_key_file_name }}'
     - '{{ dashmate_zerossl_csr_file_name }}'
   when: >
     not zero_ssl_files.stat.exists and
-    dashmate_zerossl_ssm_certificate_id != ''
+    (dashmate_zerossl_ssm_certificate_id | default('', true) | length) > 0
 
 # Create a new ZeroSSL certificate if it is not present
 # or download bundle if it's not exist
@@ -79,7 +80,7 @@
   register: dashmate_obtain
   changed_when: dashmate_obtain.rc == 0
   when: >
-    dashmate_zerossl_ssm_certificate_id == '' or
+    (dashmate_zerossl_ssm_certificate_id | default('', true) | length) == 0 or
     not zero_ssl_bundle_file.stat.exists
 
 # Save new ZeroSSL information to SSM
@@ -108,25 +109,28 @@
     value: '{{ dashmate_zerossl_config_certificate_id }}'
   when:
     - dashmate_zerossl_config_certificate_id is defined
-    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+    - (dashmate_zerossl_ssm_certificate_id | default('', true)) != dashmate_zerossl_config_certificate_id
 
 - name: Read new generated ZeroSSL private key file to variable
+  no_log: true
   ansible.builtin.slurp:
     src: '{{ dashmate_zerossl_keys_path }}/{{ dashmate_zerossl_private_key_file_name }}'
   register: dashmate_zerossl_private_key_file
   when:
     - dashmate_zerossl_config_certificate_id is defined
-    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+    - (dashmate_zerossl_ssm_certificate_id | default('', true)) != dashmate_zerossl_config_certificate_id
 
 - name: Read new generated ZeroSSL CSR file to variable
+  no_log: true
   ansible.builtin.slurp:
     src: '{{ dashmate_zerossl_keys_path }}/{{ dashmate_zerossl_csr_file_name }}'
   register: dashmate_zerossl_csr_file
   when:
     - dashmate_zerossl_config_certificate_id is defined
-    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+    - (dashmate_zerossl_ssm_certificate_id | default('', true)) != dashmate_zerossl_config_certificate_id
 
 - name: Set new generated ZeroSSL CSR and private key files
+  no_log: true
   ansible.builtin.set_fact:
     dashmate_zerossl_files:
       - name: "{{ dashmate_zerossl_private_key_file_name }}"
@@ -135,9 +139,10 @@
         content: '{{ dashmate_zerossl_csr_file.content | b64decode }}'
   when:
     - dashmate_zerossl_config_certificate_id is defined
-    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+    - (dashmate_zerossl_ssm_certificate_id | default('', true)) != dashmate_zerossl_config_certificate_id
 
 - name: Update ZeroSSL private key and CSR files in AWS SSM parameter store
+  no_log: true
   delegate_to: localhost
   become: false
   community.aws.ssm_parameter:
@@ -146,4 +151,4 @@
   loop: '{{ dashmate_zerossl_files }}'
   when:
     - dashmate_zerossl_config_certificate_id is defined
-    - dashmate_zerossl_ssm_certificate_id != dashmate_zerossl_config_certificate_id
+    - (dashmate_zerossl_ssm_certificate_id | default('', true)) != dashmate_zerossl_config_certificate_id

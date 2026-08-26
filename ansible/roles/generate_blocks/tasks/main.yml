@@ -28,6 +28,8 @@
 - name: Start generating blocks
   ansible.builtin.include_role:
     name: dashd_generate_miner
+  vars:
+    dashd_generate_miner_restart: "{{ not (generate_blocks_keep_miner_running | default(false) | bool) }}"
   when: dash_network in generate_networks
 
 # Option: blocks
@@ -83,4 +85,6 @@
     state: stopped
     enabled: false
     masked: false
-  when: dash_network in generate_networks
+  when:
+    - dash_network in generate_networks
+    - not (generate_blocks_keep_miner_running | default(false) | bool)
