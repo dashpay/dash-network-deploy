@@ -159,6 +159,43 @@ resource "aws_instance" "miner" {
 
 }
 
+resource "aws_instance" "quorum_list_server" {
+  count = var.quorum_list_server_count
+
+  ami                  = var.main_host_arch == "arm64" ? data.aws_ami.ubuntu_arm.id : data.aws_ami.ubuntu_amd.id
+  instance_type        = join(".", [var.main_host_arch == "arm64" ? "t4g" : "t3", var.quorum_list_server_instance_size])
+  key_name             = aws_key_pair.auth.id
+  iam_instance_profile = aws_iam_instance_profile.monitoring.name
+
+  root_block_device {
+    volume_size = var.quorum_list_server_root_disk_size
+    volume_type = var.volume_type
+  }
+
+  vpc_security_group_ids = [
+    aws_security_group.default.id,
+    aws_security_group.quorum_list_server.id,
+  ]
+
+  subnet_id = element(aws_subnet.public.*.id, count.index)
+
+  volume_tags = {
+    Name        = "dn-${terraform.workspace}-quorum-list-server-${count.index + 1}"
+    Hostname    = "quorum-list-server-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-quorum-list-server-${count.index + 1}"
+    Hostname    = "quorum-list-server-${count.index + 1}"
+    DashNetwork = terraform.workspace
+  }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
+}
+
 # masternodes (amd)
 resource "aws_instance" "masternode_amd" {
   count = var.masternode_amd_count

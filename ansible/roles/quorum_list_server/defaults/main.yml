@@ -1,0 +1,21 @@
+---
+
+quorum_list_server_enabled: true
+quorum_list_server_image: dashpay/quorum-list-server:latest
+quorum_list_server_pull: true
+quorum_list_server_container_name: quorum-list-server
+quorum_list_server_config_dir: /etc/quorum-list-server
+quorum_list_server_config_path: "{{ quorum_list_server_config_dir }}/config.toml"
+quorum_list_server_host: "0.0.0.0"
+quorum_list_server_port: 8080
+quorum_list_server_previous_blocks_offset: 8
+
+quorum_list_server_rpc_host: "{{ (groups['seed_nodes'] | default([]) | first) | default('') }}"
+quorum_list_server_rpc_url: "http://{{ hostvars[quorum_list_server_rpc_host].private_ip }}:{{ dashd_rpc_port }}"
+quorum_list_server_rpc_user: "{{ dashd_rpc_user }}"
+quorum_list_server_rpc_password: "{{ dashd_rpc_password }}"
+quorum_list_server_network: "{{ dash_network }}"
+quorum_list_server_health_host: "{{ '127.0.0.1' if quorum_list_server_host in ['0.0.0.0', '::'] else quorum_list_server_host }}"
+
+quorum_list_server_version_check_host: ""
+quorum_list_server_address_host_override: ""

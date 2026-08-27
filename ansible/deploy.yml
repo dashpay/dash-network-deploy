@@ -374,6 +374,19 @@
     - dashmate_deploy
 
 
+- name: Set up quorum list servers
+  hosts: quorum_list_servers
+  become: true
+  gather_facts: false
+  strategy: free
+  roles:
+    - role: quorum_list_server
+      when: quorum_list_server_enabled | bool
+  tags:
+    - full_deploy
+    - dashmate_deploy
+    - quorum_list_server
+
 - name: Set up protx diff script
   hosts: masternodes
   become: true

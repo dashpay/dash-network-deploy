@@ -1,0 +1,23 @@
+network = {{ quorum_list_server_network | to_json }}
+
+[server]
+port = {{ quorum_list_server_port | int }}
+host = {{ quorum_list_server_host | to_json }}
+
+[rpc]
+url = {{ quorum_list_server_rpc_url | to_json }}
+username = {{ quorum_list_server_rpc_user | to_json }}
+password = {{ quorum_list_server_rpc_password | to_json }}
+
+[quorum]
+previous_blocks_offset = {{ quorum_list_server_previous_blocks_offset | int }}
+
+{% if quorum_list_server_version_check_host | length > 0 or quorum_list_server_address_host_override | length > 0 %}
+[docker]
+{% if quorum_list_server_version_check_host | length > 0 %}
+version_check_host = {{ quorum_list_server_version_check_host | to_json }}
+{% endif %}
+{% if quorum_list_server_address_host_override | length > 0 %}
+address_host_override = {{ quorum_list_server_address_host_override | to_json }}
+{% endif %}
+{% endif %}

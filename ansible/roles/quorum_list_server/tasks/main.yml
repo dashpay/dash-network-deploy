@@ -1,0 +1,52 @@
+---
+
+- name: Check quorum-list-server RPC target
+  ansible.builtin.assert:
+    that:
+      - groups['seed_nodes'] | default([]) | length > 0
+      - quorum_list_server_rpc_host is defined
+      - quorum_list_server_rpc_host | length > 0
+      - quorum_list_server_rpc_host in hostvars
+      - hostvars[quorum_list_server_rpc_host].private_ip is defined
+    fail_msg: "quorum_list_server_rpc_host must point at an inventory host with a private_ip"
+
+- name: Create quorum-list-server config dir
+  ansible.builtin.file:
+    path: "{{ quorum_list_server_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Write quorum-list-server config
+  ansible.builtin.template:
+    src: config.toml.j2
+    dest: "{{ quorum_list_server_config_path }}"
+    owner: root
+    group: root
+    mode: "0640"
+  no_log: true
+  register: quorum_list_server_config
+
+- name: Start quorum-list-server
+  community.docker.docker_container:
+    name: "{{ quorum_list_server_container_name }}"
+    image: "{{ quorum_list_server_image }}"
+    state: started
+    restart_policy: always
+    pull: "{{ quorum_list_server_pull | bool }}"
+    recreate: "{{ quorum_list_server_config.changed }}"
+    user: "appuser:root"
+    network_mode: host
+    volumes:
+      - "{{ quorum_list_server_config_path }}:/app/config.toml:ro"
+
+- name: Wait for quorum-list-server health endpoint
+  ansible.builtin.uri:
+    url: "http://{{ quorum_list_server_health_host }}:{{ quorum_list_server_port }}/health"
+    status_code: 200
+    timeout: 3
+  register: quorum_list_server_health
+  until: quorum_list_server_health.status == 200
+  retries: 30
+  delay: 2

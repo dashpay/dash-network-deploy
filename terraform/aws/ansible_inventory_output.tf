@@ -35,7 +35,19 @@ locals {
     )
   ]
 
-    mixer_hosts = [
+  quorum_list_server_hosts = [
+    for n in range(length(aws_instance.quorum_list_server)) : templatefile(
+      "${path.module}/templates/inventory/hostname.tpl",
+      {
+        index      = n + 1
+        name       = element(aws_instance.quorum_list_server.*.tags.Hostname, n)
+        public_ip  = element(aws_instance.quorum_list_server.*.public_ip, n)
+        private_ip = element(aws_instance.quorum_list_server.*.private_ip, n)
+      }
+    )
+  ]
+
+  mixer_hosts = [
     for n in range(length(aws_instance.mixer)) : templatefile(
       "${path.module}/templates/inventory/hostname.tpl",
       {
@@ -168,6 +180,7 @@ locals {
           local.web_hosts.*,
           local.logs_hosts.*,
           local.wallet_node_hosts.*,
+          local.quorum_list_server_hosts.*,
           local.mixer_hosts.*,
           local.seed_node_hosts.*,
           local.miner_hosts.*,
@@ -178,16 +191,18 @@ locals {
           local.metrics_hosts.*,
         ),
       )
-      web_hosts           = join("\n", concat(aws_instance.web.*.tags.Hostname))
-      logs_hosts          = join("\n", concat(aws_instance.logs.*.tags.Hostname))
-      wallet_node_hosts   = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
-      mixer_hosts         = join("\n", concat(aws_instance.mixer.*.tags.Hostname))
-      miner_hosts         = join("\n", concat(aws_instance.miner.*.tags.Hostname))
-      masternode_hosts    = join("\n", concat(aws_instance.masternode_amd.*.tags.Hostname), concat(aws_instance.masternode_arm.*.tags.Hostname))
-      hp_masternode_hosts = join("\n", concat(aws_instance.hp_masternode_amd.*.tags.Hostname), concat(aws_instance.hp_masternode_arm.*.tags.Hostname))
-      seed_hosts          = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
-      load_test_hosts     = join("\n", concat(aws_instance.load_test.*.tags.Hostname))
-      metrics_hosts     = join("\n", concat(aws_instance.metrics.*.tags.Hostname))
+      web_hosts                  = join("\n", concat(aws_instance.web.*.tags.Hostname))
+      logs_hosts                 = join("\n", concat(aws_instance.logs.*.tags.Hostname))
+      wallet_node_hosts          = join("\n", concat(aws_instance.dashd_wallet.*.tags.Hostname))
+      quorum_list_servers        = join("\n", concat(aws_instance.quorum_list_server.*.tags.Hostname))
+      quorum_list_server_port    = var.quorum_list_server_port
+      mixer_hosts                = join("\n", concat(aws_instance.mixer.*.tags.Hostname))
+      miner_hosts                = join("\n", concat(aws_instance.miner.*.tags.Hostname))
+      masternode_hosts           = join("\n", concat(aws_instance.masternode_amd.*.tags.Hostname), concat(aws_instance.masternode_arm.*.tags.Hostname))
+      hp_masternode_hosts        = join("\n", concat(aws_instance.hp_masternode_amd.*.tags.Hostname), concat(aws_instance.hp_masternode_arm.*.tags.Hostname))
+      seed_hosts                 = join("\n", concat(aws_instance.seed_node.*.tags.Hostname))
+      load_test_hosts            = join("\n", concat(aws_instance.load_test.*.tags.Hostname))
+      metrics_hosts              = join("\n", concat(aws_instance.metrics.*.tags.Hostname))
     }
   )
 }
