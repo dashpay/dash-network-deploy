@@ -24,12 +24,13 @@ dashmate_platform_gateway_upstreams_dapi_json_rpc_max_requests: 10000
 dashmate_platform_gateway_upstreams_drive_grpc_max_requests: 10000
 dashmate_platform_gateway_upstreams_rs_dapi_max_requests: 10000
 dashmate_platform_gateway_metrics_enabled: false
-dashmate_platform_gateway_metrics_port: 9090
+dashmate_platform_gateway_metrics_port: "{{ 19090 if (dash_network | default('')) == 'testnet' else 9090 }}"
+dashmate_platform_gateway_admin_port: "{{ 19901 if (dash_network | default('')) == 'testnet' else 9901 }}"
 dashmate_platform_gateway_rate_limiter_enabled: true
 dashmate_platform_gateway_rate_limiter_docker_image: "envoyproxy/ratelimit:3fcc3609"
 dashmate_platform_gateway_rate_limiter_metrics_enabled: false
 dashmate_platform_gateway_rate_limiter_metrics_docker_image: "prom/statsd-exporter:v0.26.1"
-dashmate_platform_gateway_rate_limiter_metrics_port: 9102
+dashmate_platform_gateway_rate_limiter_metrics_port: "{{ 19102 if (dash_network | default('')) == 'testnet' else 9102 }}"
 dashmate_platform_gateway_rate_limiter_unit: "minute"
 dashmate_platform_gateway_rate_limiter_requests_per_unit: 150
 
@@ -48,7 +49,8 @@ dashmate_platform_dapi_rs_dapi_log_json_format: false
 dashmate_platform_dapi_rs_dapi_access_log_path:
 dashmate_platform_dapi_rs_dapi_access_log_format: "combined"
 dashmate_platform_drive_abci_metrics_enabled: false
-dashmate_platform_drive_abci_metrics_port: 29090
+dashmate_platform_drive_abci_metrics_port: "{{ 39090 if (dash_network | default('')) == 'testnet' else 29090 }}"
+dashmate_platform_drive_abci_tokio_console_port: "{{ 16669 if (dash_network | default('')) == 'testnet' else 6669 }}"
 dashmate_platform_drive_tenderdash_p2p_flush_throttle_timeout: "100ms"
 dashmate_platform_drive_tenderdash_p2p_max_packet_msg_payload_size: 10240
 dashmate_platform_drive_tenderdash_p2p_send_rate: 5120000
@@ -87,7 +89,7 @@ dashmate_core_rpc_drive_consensus_password:
 dashmate_core_rpc_drive_check_tx_password:
 dashmate_core_rpc_tenderdash_password:
 platform_drive_grovedb_visualizer_enabled: false
-platform_drive_grovedb_visualizer_port: 8083
+platform_drive_grovedb_visualizer_port: "{{ 18083 if (dash_network | default('')) == 'testnet' else 8083 }}"
 initial_platform_protocol_version:
 
 dashmate_platform_quorum_list_enabled: false

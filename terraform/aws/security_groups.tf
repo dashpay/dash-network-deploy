@@ -388,35 +388,56 @@ resource "aws_security_group" "hp_masternode" {
     ])
   }
 
-  # Add ingress rule for port 9090
+  # Gateway metrics
   ingress {
     from_port   = 9090
     to_port     = 9090
     protocol    = "tcp"
-    description = "Internal service on port 9090"
+    description = "Gateway metrics"
     cidr_blocks = ["10.0.0.0/16"]
- }
+  }
 
-# Add ingress rule for port 9102
+  ingress {
+    from_port   = 19090
+    to_port     = 19090
+    protocol    = "tcp"
+    description = "Gateway metrics testnet"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  # Gateway rate limiter metrics
   ingress {
     from_port   = 9102
     to_port     = 9102
     protocol    = "tcp"
-    description = "Internal service on port 9102"
+    description = "Gateway rate limiter metrics"
     cidr_blocks = ["10.0.0.0/16"]
   }
 
- # Add ingress rule for port 29090
+  ingress {
+    from_port   = 19102
+    to_port     = 19102
+    protocol    = "tcp"
+    description = "Gateway rate limiter metrics testnet"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  # Drive ABCI metrics
   ingress {
     from_port   = 29090
     to_port     = 29090
     protocol    = "tcp"
-    description = "Internal service on port 9102"
+    description = "Drive ABCI metrics"
     cidr_blocks = ["10.0.0.0/16"]
   }
 
-
-
+  ingress {
+    from_port   = 39090
+    to_port     = 39090
+    protocol    = "tcp"
+    description = "Drive ABCI metrics testnet"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
 
   # Tendermint RPC
   ingress {

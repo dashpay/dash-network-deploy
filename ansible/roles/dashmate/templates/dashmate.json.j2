@@ -197,7 +197,7 @@
           "admin": {
             "enabled": {% if dashmate_platform_gateway_metrics_enabled %}true{% else %}false{% endif %},
             "host": "127.0.0.1",
-            "port": 9901
+            "port": {{ dashmate_platform_gateway_admin_port }}
           },
           "listeners": {
             "dapiAndDrive": {
@@ -324,7 +324,7 @@
             "tokioConsole": {
               "enabled": false,
               "host": "127.0.0.1",
-              "port": 6669,
+              "port": {{ dashmate_platform_drive_abci_tokio_console_port }},
               "retention": 180
             },
             "validatorSet": {

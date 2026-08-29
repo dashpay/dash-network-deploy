@@ -57,7 +57,7 @@ scrape_configs:
     static_configs:
       - targets:
 {% for hp_name in hp_nodes %}
-        - "{{ hostvars[hp_name]['private_ip'] }}:9090"
+        - "{{ hostvars[hp_name]['private_ip'] }}:{{ dashmate_platform_gateway_metrics_port }}"
 {% endfor %}
         labels:
           cluster: "hp_masternodes"
@@ -71,7 +71,7 @@ scrape_configs:
     static_configs:
       - targets:
 {% for hp_name in hp_nodes %}
-        - "{{ hostvars[hp_name]['private_ip'] }}:9102"
+        - "{{ hostvars[hp_name]['private_ip'] }}:{{ dashmate_platform_gateway_rate_limiter_metrics_port }}"
 {% endfor %}
         labels:
           cluster: "hp_masternodes"
@@ -85,7 +85,7 @@ scrape_configs:
     static_configs:
       - targets:
 {% for hp_name in hp_nodes %}
-        - "{{ hostvars[hp_name]['private_ip'] }}:29090"
+        - "{{ hostvars[hp_name]['private_ip'] }}:{{ dashmate_platform_drive_abci_metrics_port }}"
 {% endfor %}
         labels:
           cluster: "hp_masternodes"
