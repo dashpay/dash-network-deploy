@@ -28,12 +28,25 @@
     state: directory
     mode: "0777"
 
+- name: Check if ca.zip exists
+  run_once: true
+  ansible.builtin.stat:
+    path: '{{ bundle_path }}/ca.zip'
+  register: ca_zip_file
+
 - name: Fetch generated ca
   run_once: true
   ansible.builtin.fetch:
     src: '{{ bundle_path }}/ca.zip'
     dest: '~/tmp/ansible/{{ dash_network_name }}/'
     flat: true
+  when: ca_zip_file.stat.exists
+
+- name: Check if certs.zip exists
+  run_once: true
+  ansible.builtin.stat:
+    path: '{{ bundle_path }}/certs.zip'
+  register: certs_zip_file
 
 - name: Fetch generated certs
   run_once: true
@@ -41,6 +54,7 @@
     src: '{{ bundle_path }}/certs.zip'
     dest: '~/tmp/ansible/{{ dash_network_name }}/'
     flat: true
+  when: certs_zip_file.stat.exists
 
 - name: Install CA
   ansible.builtin.unarchive:

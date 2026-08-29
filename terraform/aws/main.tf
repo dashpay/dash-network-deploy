@@ -16,7 +16,7 @@ data "aws_ami" "ubuntu_amd" {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server*",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*",
     ]
   }
 
@@ -33,7 +33,7 @@ data "aws_ami" "ubuntu_arm" {
     name = "name"
 
     values = [
-      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server*",
+      "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-*",
     ]
   }
 
