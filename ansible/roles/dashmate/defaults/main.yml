@@ -88,7 +88,7 @@ dashmate_core_rpc_drive_check_tx_password:
 dashmate_core_rpc_tenderdash_password:
 platform_drive_grovedb_visualizer_enabled: false
 platform_drive_grovedb_visualizer_port: 8083
-initial_platform_protocol_version:
+initial_platform_protocol_version: 1
 
 dashmate_platform_quorum_list_enabled: false
 dashmate_platform_quorum_list_docker_image: "dashpay/quorum-list-server:latest"
