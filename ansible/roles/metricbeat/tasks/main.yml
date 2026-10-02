@@ -1,5 +1,17 @@
 ---
 
+- name: Require an intentional logging backend before configuring collection
+  ansible.builtin.assert:
+    that:
+      - groups.get('logs_nodes', []) | length > 0
+      - "'logs-1' in groups.get('logs_nodes', [])"
+      - hostvars['logs-1'].private_ip is defined
+    fail_msg: >-
+      Metricbeat is enabled but the logging backend is absent from inventory.
+      Establish its intended identity or explicitly retire the shipper while
+      preserving backlog; never re-enable collection against a guessed endpoint.
+  when: metricbeat_enabled | bool
+
 - name: Detect actual architecture
   ansible.builtin.command: uname -m
   register: detected_architecture
@@ -32,7 +44,9 @@
     beat_conf:
       setup:
         dashboards:
-          enabled: true
+          # Dashboard loading is optional one-shot provisioning, never a
+          # prerequisite for collection. See setup_dashboards.yml.
+          enabled: false
         kibana:
           host: "{{ hostvars['logs-1'].private_ip }}:5601"
           username: "{{ elastic_username }}"

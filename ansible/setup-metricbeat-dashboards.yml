@@ -1,0 +1,15 @@
+---
+# Standalone operator action; normal deploy.yml never imports this playbook.
+- name: Explicit one-shot Metricbeat dashboard provisioning
+  hosts: all
+  become: true
+  gather_facts: false
+  any_errors_fatal: true
+  tasks:
+    - name: Require exactly one selected host
+      ansible.builtin.assert:
+        that: ansible_play_hosts_all | length == 1
+    - name: Provision dashboards without restarting collection
+      ansible.builtin.include_role:
+        name: metricbeat
+        tasks_from: setup_dashboards

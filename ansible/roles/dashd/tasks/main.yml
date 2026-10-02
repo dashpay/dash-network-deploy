@@ -57,37 +57,8 @@
     - docker-compose.yml
     - .env
 
-- name: Configure log rotation
-  ansible.builtin.include_role:
-    name: arillso.logrotate
-  vars:
-    logrotate_use_hourly_rotation: true
-    logrotate_options:
-      - weekly
-      - rotate 4
-      - create
-      - dateext
-      - dateformat -%Y%m%d-%s
-      - su root syslog
-    logrotate_applications:
-      - name: core-logs
-        definitions:
-          - logs:
-              - "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/debug.log"
-            options:
-              - rotate 7
-              - daily
-              - maxsize 1G
-              - missingok
-              - notifempty
-              - copytruncate
-              - compress
-              - delaycompress
-
-- name: Set mode to logrotate cron file
-  ansible.builtin.file:
-    path: /etc/cron.daily/logrotate
-    mode: "+x"
+- name: Configure service-owned log rotation
+  ansible.builtin.import_tasks: logrotate.yml
 
 - name: Check if wallet exists
   ansible.builtin.stat:
