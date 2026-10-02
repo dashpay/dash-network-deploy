@@ -1,5 +1,9 @@
 ---
 
+# Validate before container discovery, package/config changes or service restarts.
+- name: Require intentional Filebeat output before changing collection
+  ansible.builtin.import_tasks: validate_backend.yml
+
 - name: Load common filebeat config
   ansible.builtin.include_vars:
     file: common.yml

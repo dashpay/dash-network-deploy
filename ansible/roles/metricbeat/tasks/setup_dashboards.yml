@@ -1,0 +1,49 @@
+---
+# Deliberately not imported from main.yml. This operation requires an explicit
+# opt-in and a pre-existing collector configuration with a verified backend.
+- name: Require explicit dashboard provisioning and backend verification
+  ansible.builtin.assert:
+    that:
+      - metricbeat_provision_dashboards | default(false) | bool
+      - metricbeat_dashboard_backend_verified | default(false) | bool
+      - ansible_limit | default('') | length > 0
+    fail_msg: >-
+      Verify the intended Kibana backend and limit the run to one managed host,
+      then explicitly enable metricbeat_provision_dashboards and
+      metricbeat_dashboard_backend_verified. This is not normal collection.
+
+- name: Provision dashboards with isolated temporary state
+  when: not ansible_check_mode
+  block:
+    - name: Allocate private setup state separate from the running collector
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: metricbeat-dashboard-setup-
+      register: metricbeat_dashboard_setup_dir
+
+    - name: Load dashboards once without changing the collector configuration
+      ansible.builtin.command:
+        argv:
+          - /usr/share/metricbeat/bin/metricbeat
+          - setup
+          - --dashboards
+          - --path.home
+          - /usr/share/metricbeat
+          - --path.config
+          - /etc/metricbeat
+          - --path.data
+          - "{{ metricbeat_dashboard_setup_dir.path }}"
+          - -c
+          - /etc/metricbeat/metricbeat.yml
+          - -E
+          - setup.dashboards.enabled=true
+      timeout: 120
+      changed_when: true
+      # Configuration/output errors may include endpoint credentials.
+      no_log: true
+  always:
+    - name: Remove only this dashboard setup's temporary state
+      ansible.builtin.file:
+        path: "{{ metricbeat_dashboard_setup_dir.path }}"
+        state: absent
+      when: metricbeat_dashboard_setup_dir.path is defined

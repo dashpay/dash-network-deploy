@@ -1,0 +1,53 @@
+---
+# Install first: a fresh host's package may create wtmp/btmp drop-ins. Inspecting
+# before installation would recreate duplicates on the first deployment.
+- name: Install logrotate before deciding distribution rule ownership
+  ansible.builtin.package:
+    name: "{{ logrotate_package | default('logrotate') }}"
+    state: present
+
+- name: Inspect distribution wtmp rotation ownership
+  ansible.builtin.stat:
+    path: /etc/logrotate.d/wtmp
+  register: dashd_wtmp_rotation
+
+- name: Inspect distribution btmp rotation ownership
+  ansible.builtin.stat:
+    path: /etc/logrotate.d/btmp
+  register: dashd_btmp_rotation
+
+- name: Configure log rotation
+  ansible.builtin.include_role:
+    name: arillso.logrotate
+  vars:
+    # Distribution packages own these rules on modern Ubuntu. Do not also
+    # generate inline copies; retain fallback for hosts without package rules.
+    logrotate_wtmp_enable: "{{ not dashd_wtmp_rotation.stat.exists }}"
+    logrotate_btmp_enable: "{{ not dashd_btmp_rotation.stat.exists }}"
+    logrotate_use_hourly_rotation: true
+    logrotate_options:
+      - weekly
+      - rotate 4
+      - create
+      - dateext
+      - dateformat -%Y%m%d-%s
+      - su root syslog
+    logrotate_applications:
+      - name: core-logs
+        definitions:
+          - logs:
+              - "{{ dashd_home }}/.dashcore/{{ dash_network_name if dash_network == 'devnet' else 'testnet3' }}/debug.log"
+            options:
+              - rotate 7
+              - daily
+              - maxsize 1G
+              - missingok
+              - notifempty
+              - copytruncate
+              - compress
+              - delaycompress
+
+- name: Set mode to logrotate cron file
+  ansible.builtin.file:
+    path: /etc/cron.daily/logrotate
+    mode: "+x"
