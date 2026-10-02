@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2] / 'ansible'
 
 
 class TelemetryRoles(unittest.TestCase):
-    def play(self, tasks, variables, expect_success=True, check=False, backend=True):
+    def play(self, tasks, variables, expect_success=True, check=False, backend=True, backend_address="192.0.2.50"):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
             stub = base / 'roles/elastic.beats/tasks'
@@ -33,7 +33,8 @@ class TelemetryRoles(unittest.TestCase):
             ]))
             inventory = base / 'inventory'
             inventory.write_text('[targets]\nlocalhost ansible_connection=local\n' +
-                                 ('[logs_nodes]\nlogs-1 private_ip=192.0.2.50\n' if backend else '[logs_nodes]\n'))
+                                 ('[logs_nodes]\nlogs-1' + (' private_ip=' + backend_address if backend_address is not None else '') + '\n'
+                                  if backend else '[logs_nodes]\n'))
             playbook = base / 'play.yml'
             playbook.write_text(yaml.safe_dump([{'hosts': 'localhost', 'gather_facts': False,
                                                  'vars': variables, 'tasks': tasks}]))
@@ -69,6 +70,40 @@ class TelemetryRoles(unittest.TestCase):
         output, _ = self.play(tasks, dict(metricbeat_provision_dashboards=True,
                                           metricbeat_dashboard_backend_verified=True), check=True)
         self.assertIn('failed=0', output)
+
+    def filebeat_tasks(self):
+        main = yaml.safe_load((ROOT / 'roles/core_filebeat/tasks/main.yml').read_text())
+        # The real guard must be first, before container discovery, installation,
+        # rendering and especially the existing unconditional service restart.
+        self.assertEqual(main[0]['ansible.builtin.import_tasks'], 'validate_backend.yml')
+        self.assertIn('ansible.builtin.service', main[-1])
+        return [
+            {'ansible.builtin.import_tasks': str(ROOT / 'roles/core_filebeat/tasks/validate_backend.yml')},
+            {'ansible.builtin.include_vars': str(ROOT / 'roles/core_filebeat/vars/common.yml')},
+            {'ansible.builtin.assert': {'that': [
+                'filebeat_output_elasticsearch_hosts == ["192.0.2.50:9200"]',
+                'filebeat_output_elasticsearch_auth.username == "fixture-user"',
+                'filebeat_output_elasticsearch_auth.password == "fixture-only"',
+            ]}},
+            {'ansible.builtin.debug': {'msg': 'validated_output_ready_for_configuration'}},
+        ]
+
+    def test_filebeat_empty_inventory_cannot_reach_configuration_or_restart(self):
+        output, _ = self.play(self.filebeat_tasks(), {}, False, backend=False)
+        self.assertIn('without an intentional logs_nodes', output)
+        self.assertNotIn('validated_output_ready_for_configuration', output)
+
+    def test_filebeat_missing_or_invalid_identity_cannot_reach_configuration(self):
+        for address in (None, '999.1.2.3', 'not-an-address', '0.0.0.0'):
+            with self.subTest(address=address):
+                output, _ = self.play(self.filebeat_tasks(), {}, False, backend_address=address)
+                self.assertIn('lacks a valid inventory IPv4 identity', output)
+                self.assertNotIn('validated_output_ready_for_configuration', output)
+
+    def test_filebeat_verified_inventory_preserves_hosts_and_auth(self):
+        output, _ = self.play(self.filebeat_tasks(), dict(
+            elastic_version='8.13.2', elastic_username='fixture-user', elastic_password='fixture-only'))
+        self.assertIn('validated_output_ready_for_configuration', output)
 
     def test_package_owned_rotation_and_legacy_fallback(self):
         tasks = yaml.safe_load((ROOT / 'roles/dashd/tasks/logrotate.yml').read_text())

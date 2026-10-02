@@ -30,6 +30,18 @@ credentials/output are suppressed and task-owned temporary state is removed.
 Check mode validates opt-in/target selection but does not load dashboards.
 These flags are an explicit operator gate, not independent backend verification.
 
+## Filebeat output prerequisites
+
+Core Filebeat performs a separate first-task inventory validation before
+container discovery, package/configuration work or its existing service restart.
+An empty `logs_nodes` group or any selected backend without a valid IPv4
+`private_ip` stops provisioning. Presence and formatting are prerequisites, not
+proof of current ownership/reachability; the operator must still verify identity.
+The existing output host list, credentials and inputs are preserved for a valid
+inventory. A retired backend is not silently skipped or converted to a guessed
+endpoint. Retire existing shippers explicitly with backlog-safe host handling;
+this guard itself does not stop or discard anything.
+
 ## Rotation ownership
 
 `dashd/tasks/logrotate.yml` installs the package first (including fresh-host

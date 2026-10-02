@@ -1,0 +1,24 @@
+---
+- name: Require a nonempty logging backend inventory
+  ansible.builtin.assert:
+    that:
+      - groups.get('logs_nodes', []) | length > 0
+    fail_msg: >-
+      Filebeat output cannot be configured without an intentional logs_nodes
+      inventory. Establish the intended backend identity or explicitly retire
+      the shipper with backlog preservation; do not guess a replacement.
+
+- name: Require a valid private IPv4 identity for every selected logging backend
+  ansible.builtin.assert:
+    that:
+      - hostvars[item].private_ip is defined
+      - hostvars[item].private_ip is string
+      - hostvars[item].private_ip is match('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$')
+      - (hostvars[item].private_ip.split('.') | map('int') | max) <= 255
+      - hostvars[item].private_ip != '0.0.0.0'
+    fail_msg: >-
+      A selected logs_nodes host lacks a valid inventory IPv4 identity.
+      Verify the intended backend before configuring or restarting Filebeat.
+  loop: "{{ groups.get('logs_nodes', []) }}"
+  loop_control:
+    label: "{{ item }}"
