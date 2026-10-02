@@ -51,4 +51,3 @@
   ansible.builtin.file:
     path: /etc/cron.daily/logrotate
     mode: "+x"
-
